@@ -1338,6 +1338,12 @@ function formatSkillRankingComparison(value) {
   return { text: '±0.00', className: 'neutral' };
 }
 
+function scrollSkillRankingToTop() {
+  const body = document.querySelector('.skill-ranking-body');
+  if (!body) return;
+  body.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+}
+
 function renderSkillTargetRanking() {
   const list = $('skillRankingList');
   if (!list) return;
@@ -1345,13 +1351,10 @@ function renderSkillTargetRanking() {
   const rows = sortSkillRankingRows(
     skillRankingState.rows.filter(row => row.category === skillRankingState.category)
   );
-  const hotCount = skillRankingState.rows.filter(row => row.category === 'HOT').length;
-  const otherCount = skillRankingState.rows.filter(row => row.category === 'OTHER').length;
-
   document.querySelectorAll('.skill-ranking-tab').forEach(button => {
     const category = button.dataset.rankingCategory;
     button.classList.toggle('active', category === skillRankingState.category);
-    button.textContent = `${category} (${category === 'HOT' ? hotCount : otherCount})`;
+    button.textContent = category;
   });
 
   if (skillRankingState.loading) {
@@ -1386,7 +1389,7 @@ function renderSkillTargetRanking() {
             <em>対象入りユーザー平均</em>
           </div>
           <div class="skill-ranking-metric">
-            <small>自分との比較</small>
+            <small>平均との比較</small>
             <strong>${ownSkill == null ? '未登録' : ownSkill.toFixed(2)}</strong>
             <em class="skill-ranking-comparison ${comparison.className}">${comparison.text}</em>
           </div>
@@ -1398,6 +1401,7 @@ function renderSkillTargetRanking() {
 async function loadSkillTargetRanking() {
   if (!adminEnabled || skillRankingState.loading) return;
   keepSkillRankingRangeValid('min');
+  scrollSkillRankingToTop();
 
   const lower = Number($('skillRankingMin').value);
   const upper = Number($('skillRankingMax').value);
@@ -1435,7 +1439,7 @@ async function loadSkillTargetRanking() {
     const eligibleCount = skillRankingState.rows.length
       ? Number(skillRankingState.rows[0].eligible_user_count)
       : 0;
-    status.textContent = `対象ユーザー ${eligibleCount}人｜下限・上限を含む ${lower}～${upper}`;
+    status.textContent = `対象ユーザー ${eligibleCount}人`;
   } catch (error) {
     console.error('skill target ranking load failed:', error);
     const missingFunction = /get_skill_target_rankings|schema cache|PGRST202/i.test(String(error?.message || ''));
@@ -1464,6 +1468,7 @@ async function openSkillTargetRanking() {
   $('skillRankingContext').textContent = `${activeVersion?.name || '現在のVERSION'} / ${activeInstrument}`;
   setDefaultSkillRankingRange();
   $('skillRankingMask').style.display = 'flex';
+  scrollSkillRankingToTop();
   await loadSkillTargetRanking();
 }
 
@@ -4665,16 +4670,24 @@ $('btnCloseSkillRanking').addEventListener('click', () => closeSkillTargetRankin
 $('skillRankingMask').addEventListener('click', e => {
   if (e.target === $('skillRankingMask')) closeSkillTargetRanking();
 });
-$('skillRankingMin').addEventListener('change', () => keepSkillRankingRangeValid('min'));
-$('skillRankingMax').addEventListener('change', () => keepSkillRankingRangeValid('max'));
+$('skillRankingMin').addEventListener('change', () => {
+  keepSkillRankingRangeValid('min');
+  scrollSkillRankingToTop();
+});
+$('skillRankingMax').addEventListener('change', () => {
+  keepSkillRankingRangeValid('max');
+  scrollSkillRankingToTop();
+});
 $('btnLoadSkillRanking').addEventListener('click', loadSkillTargetRanking);
 $('skillRankingSort').addEventListener('change', event => {
   skillRankingState.sort = event.target.value;
+  scrollSkillRankingToTop();
   renderSkillTargetRanking();
 });
 document.querySelectorAll('.skill-ranking-tab').forEach(button => {
   button.addEventListener('click', () => {
     skillRankingState.category = button.dataset.rankingCategory;
+    scrollSkillRankingToTop();
     renderSkillTargetRanking();
   });
 });

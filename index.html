@@ -7782,7 +7782,8 @@ body.light-mode #btnCloseSupport.menu-back-btn{
 #btnCloseRivalManage.menu-back-btn,
 #btnCloseHowTo.menu-back-btn,
 #btnCloseFeedback.menu-back-btn,
-#btnCloseSupport.menu-back-btn{
+#btnCloseSupport.menu-back-btn,
+#btnCloseSkillRanking.menu-back-btn{
   display:inline-flex !important;
   align-items:center !important;
   justify-content:center !important;
@@ -7816,7 +7817,8 @@ body.light-mode #btnCloseSkillSync.menu-back-btn,
 body.light-mode #btnCloseRivalManage.menu-back-btn,
 body.light-mode #btnCloseHowTo.menu-back-btn,
 body.light-mode #btnCloseFeedback.menu-back-btn,
-body.light-mode #btnCloseSupport.menu-back-btn{
+body.light-mode #btnCloseSupport.menu-back-btn,
+body.light-mode #btnCloseSkillRanking.menu-back-btn{
   border:1px solid #94a3b8 !important;
   background:#f8fafc !important;
   color:#2563eb !important;
@@ -9011,6 +9013,7 @@ body.light-mode .user-detail-sticky{
   font-weight:800;
 }
 .skill-ranking-body{
+  position:relative;
   min-height:0;
   padding:12px;
   overflow-y:auto;
@@ -9018,11 +9021,14 @@ body.light-mode .user-detail-sticky{
   scrollbar-color:#64748b #0f172a;
   scrollbar-width:auto;
 }
-.skill-ranking-description{
-  margin-bottom:10px;
-  color:#cbd5e1;
-  font-size:10px;
-  line-height:1.55;
+.skill-ranking-fixed-controls{
+  position:sticky;
+  top:0;
+  z-index:5;
+  margin:0 -12px;
+  padding:5px 12px 8px;
+  background:#0f172a;
+  box-shadow:0 6px 10px rgba(0,0,0,.28);
 }
 .skill-ranking-range{
   display:grid;
@@ -9085,21 +9091,25 @@ body.light-mode .user-detail-sticky{
 .skill-ranking-controls{
   display:flex;
   align-items:end;
-  justify-content:space-between;
   gap:8px;
-  margin-top:5px;
+  margin-top:0;
 }
 .skill-ranking-tabs{
   display:grid;
   grid-template-columns:1fr 1fr;
-  width:min(100%,280px);
+  flex:0 0 42%;
+  width:42%;
+  max-width:220px;
+  height:38px;
   padding:3px;
   border:1px solid #334155;
   border-radius:8px;
   background:#111827;
+  box-sizing:border-box;
 }
 .skill-ranking-tab{
-  min-height:34px;
+  height:30px;
+  min-height:30px;
   border:0;
   border-radius:6px;
   background:transparent;
@@ -9115,7 +9125,11 @@ body.light-mode .user-detail-sticky{
   background:#3f6212;
   color:#fff;
 }
-.skill-ranking-sort-wrap{width:170px;}
+.skill-ranking-sort-wrap{
+  flex:1 1 auto;
+  width:auto;
+  min-width:0;
+}
 .skill-ranking-list{
   display:flex;
   flex-direction:column;
@@ -9230,7 +9244,10 @@ body.light-mode .skill-ranking-body{
   background:#f1f5f9;
   scrollbar-color:#94a3b8 #f1f5f9;
 }
-body.light-mode .skill-ranking-description,
+body.light-mode .skill-ranking-fixed-controls{
+  background:#f1f5f9;
+  box-shadow:0 6px 10px rgba(15,23,42,.18);
+}
 body.light-mode .skill-ranking-song,
 body.light-mode .skill-ranking-metric strong{
   color:#111827;
@@ -9246,16 +9263,54 @@ body.light-mode .skill-ranking-sort-wrap select{
   .skill-ranking-dialog{width:96vw;max-height:94dvh;}
   .skill-ranking-head{padding:11px;}
   .skill-ranking-body{padding:9px;}
+  .skill-ranking-fixed-controls{
+    margin:0 -9px;
+    padding:5px 9px 7px;
+  }
   .skill-ranking-range{
     grid-template-columns:minmax(0,1fr) 16px minmax(0,1fr);
   }
   .skill-ranking-load{grid-column:1 / 4;}
   .skill-ranking-controls{align-items:stretch;}
-  .skill-ranking-tabs{width:100%;}
-  .skill-ranking-sort-wrap{width:130px;flex:0 0 130px;}
+  .skill-ranking-tabs{flex-basis:42%;width:42%;max-width:none;align-self:end;}
+  .skill-ranking-sort-wrap{width:auto;flex:1 1 auto;}
   .skill-ranking-row-top{grid-template-columns:28px minmax(0,1fr) 50px 43px;gap:4px;}
   .skill-ranking-row .p-badge{width:50px;}
   .skill-ranking-metric{padding:0 5px;}
+}
+
+/* APP VERSION 3.15.1: 全プルダウンの矢印を同じシェブロンへ統一 */
+select:not([multiple]){
+  -webkit-appearance:none !important;
+  appearance:none !important;
+  padding-right:38px !important;
+  background-repeat:no-repeat !important;
+  background-size:16px 16px !important;
+  background-position:calc(100% - 12px) 50% !important;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Cpath d='M4 6.5 8 10l4-3.5' fill='none' stroke='%23e5e7eb' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") !important;
+}
+body.light-mode select:not([multiple]){
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Cpath d='M4 6.5 8 10l4-3.5' fill='none' stroke='%23334155' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") !important;
+}
+/* iPhone Safari対策の外付け矢印も、通常selectと同じSVGを使う */
+#domModal .select-arrow-wrap > select{
+  background-image:none !important;
+}
+#domModal .select-arrow-wrap::after{
+  top:50% !important;
+  right:12px !important;
+  width:16px !important;
+  height:16px !important;
+  border:0 !important;
+  background-repeat:no-repeat !important;
+  background-size:16px 16px !important;
+  background-position:center !important;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Cpath d='M4 6.5 8 10l4-3.5' fill='none' stroke='%23e5e7eb' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") !important;
+  transform:translateY(-50%) !important;
+}
+body.light-mode #domModal .select-arrow-wrap::after{
+  border:0 !important;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Cpath d='M4 6.5 8 10l4-3.5' fill='none' stroke='%23334155' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") !important;
 }
 
 </style>
@@ -9514,7 +9569,7 @@ body.light-mode .skill-ranking-sort-wrap select{
     <div class="app-menu-version">
       <label>VERSION</label>
       <select id="versionSelect" class="version-select" aria-label="GITADORAバージョン"></select>
-      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 3.15.0</div>
+      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 3.15.1</div>
     </div>
   </div>
 </div>
@@ -9533,9 +9588,6 @@ body.light-mode .skill-ranking-sort-wrap select{
       <button id="btnCloseSkillRanking" type="button" class="menu-back-btn">戻る</button>
     </div>
     <div class="skill-ranking-body">
-      <div class="skill-ranking-description">
-        指定したTOTALスキル帯のユーザーについて、各曲がスキル対象25曲に入っている割合を表示します。同率の場合は平均スキル値の高い順です。
-      </div>
       <div class="skill-ranking-range">
         <label>
           下限
@@ -9549,20 +9601,22 @@ body.light-mode .skill-ranking-sort-wrap select{
         <button id="btnLoadSkillRanking" type="button" class="skill-ranking-load">表示する</button>
       </div>
       <div id="skillRankingStatus" class="skill-ranking-status"></div>
-      <div class="skill-ranking-controls">
-        <div class="skill-ranking-tabs">
-          <button type="button" class="skill-ranking-tab active" data-ranking-category="HOT">HOT</button>
-          <button type="button" class="skill-ranking-tab" data-ranking-category="OTHER">OTHER</button>
+      <div class="skill-ranking-fixed-controls">
+        <div class="skill-ranking-controls">
+          <div class="skill-ranking-tabs">
+            <button type="button" class="skill-ranking-tab active" data-ranking-category="HOT">HOT</button>
+            <button type="button" class="skill-ranking-tab" data-ranking-category="OTHER">OTHER</button>
+          </div>
+          <label class="skill-ranking-sort-wrap">
+            並び順
+            <select id="skillRankingSort">
+              <option value="percentage">割合</option>
+              <option value="title">曲名</option>
+              <option value="average">スキル値平均</option>
+              <option value="comparison">平均との比較</option>
+            </select>
+          </label>
         </div>
-        <label class="skill-ranking-sort-wrap">
-          並び順
-          <select id="skillRankingSort">
-            <option value="percentage">割合</option>
-            <option value="title">曲名</option>
-            <option value="average">スキル値平均</option>
-            <option value="comparison">比較（自分－平均）</option>
-          </select>
-        </label>
       </div>
       <div id="skillRankingList" class="skill-ranking-list"></div>
     </div>
@@ -9870,7 +9924,7 @@ body.light-mode .skill-ranking-sort-wrap select{
 <div id="adminModal" class="admin-modal">
   <div class="admin-header">
     <div class="admin-title-row">
-      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 3.15.0</div></div>
+      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 3.15.1</div></div>
       <button id="btnCloseAdmin" class="admin-close">閉じる</button>
     </div>
     <div class="admin-tabs">
@@ -9947,6 +10001,6 @@ body.light-mode .skill-ranking-sort-wrap select{
   </div>
 </div>
 
-<script type="module" src="./js/app.js?v=3_15_0"></script>
+<script type="module" src="./js/app.js?v=3_15_1"></script>
 </body>
 </html>
