@@ -8314,6 +8314,342 @@ body.light-mode .option-share-title{
   -webkit-text-fill-color:#64748b !important;
 }
 
+/* === APP VERSION 3.12.0: 管理者向けブラウザ別同期ガイド === */
+.skill-sync-visual-guide{
+  margin-top:12px;
+}
+.sync-visual-device{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:7px;
+  width:max-content;
+  max-width:100%;
+  margin:0 auto;
+  padding:6px 10px;
+  border:1px solid #334155;
+  border-radius:9px;
+  background:#111827;
+  color:#e2e8f0;
+  font-size:11px;
+}
+.sync-browser-mark{
+  position:relative;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  flex:0 0 20px;
+  width:20px;
+  height:20px;
+  border-radius:50%;
+}
+.sync-browser-mark.safari{
+  border:1px solid #bfdbfe;
+  background:linear-gradient(145deg,#38bdf8,#2563eb);
+  color:#fff;
+  font-size:13px;
+  font-weight:900;
+}
+.sync-browser-mark.chrome{
+  background:conic-gradient(#dc2626 0 33%,#eab308 0 66%,#16a34a 0);
+}
+.sync-browser-mark.chrome::after{
+  content:"";
+  width:8px;
+  height:8px;
+  border:2px solid #dbeafe;
+  border-radius:50%;
+  background:#2563eb;
+}
+.sync-visual-first-note{
+  margin:9px 0 10px;
+  color:#f59e0b;
+  font-size:11px;
+  font-weight:900;
+  text-align:center;
+}
+.sync-visual-card{
+  display:grid;
+  grid-template-columns:28px 118px minmax(0,1fr);
+  align-items:center;
+  gap:9px;
+  margin-top:9px;
+  padding:10px;
+  border:1px solid #334155;
+  border-radius:11px;
+  background:#111827;
+}
+.sync-visual-no{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  width:26px;
+  height:26px;
+  border-radius:999px;
+  background:#2563eb;
+  color:#fff;
+  font-size:12px;
+  font-weight:900;
+}
+.sync-visual-content{
+  min-width:0;
+}
+.sync-visual-content>strong{
+  display:block;
+  color:#f8fafc;
+  font-size:12px;
+  font-weight:900;
+  line-height:1.35;
+}
+.sync-visual-content p{
+  margin:5px 0 0;
+  color:#94a3b8;
+  font-size:9.5px;
+  font-weight:700;
+  line-height:1.5;
+}
+.sync-visual-content .sync-bookmark-name{
+  color:#e2e8f0;
+  font-weight:900;
+}
+.sync-bookmark-name small{
+  color:#94a3b8;
+  font-size:8.5px;
+  font-weight:700;
+}
+.sync-visual-primary{
+  width:100%;
+  min-height:36px;
+  margin-top:7px;
+  padding:6px 8px;
+  border:1px solid #3b82f6;
+  border-radius:7px;
+  background:#2563eb;
+  color:#fff;
+  font-size:10px;
+  font-weight:900;
+  line-height:1.25;
+}
+.sync-mini-copy,
+.sync-mini-browser,
+.sync-mini-edit{
+  box-sizing:border-box;
+  width:118px;
+  min-height:82px;
+  overflow:hidden;
+  border:1px solid #475569;
+  border-radius:8px;
+  background:#1e293b;
+  box-shadow:0 5px 12px rgba(0,0,0,.22);
+  color:#e2e8f0;
+}
+.sync-mini-copy{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:2px;
+  padding:7px;
+  background:#e5e7eb;
+  color:#0f172a;
+}
+.sync-mini-copy span{
+  color:#2563eb;
+  font-size:7px;
+  font-weight:900;
+}
+.sync-mini-copy strong{
+  font-size:12px;
+  letter-spacing:.6px;
+}
+.sync-mini-copy i{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  width:100%;
+  height:27px;
+  margin-top:3px;
+  border-radius:5px;
+  background:#2563eb;
+  color:#fff;
+  font-size:13px;
+  font-style:normal;
+}
+.sync-mini-address,
+.sync-mini-search{
+  margin:6px;
+  padding:5px 6px;
+  overflow:hidden;
+  border-radius:5px;
+  background:#0f172a;
+  color:#cbd5e1;
+  font-size:6.5px;
+  font-weight:800;
+  white-space:nowrap;
+  text-overflow:ellipsis;
+}
+.sync-mini-address strong{
+  float:right;
+  color:#fff;
+  font-size:9px;
+}
+.sync-mini-toolbar{
+  display:flex;
+  align-items:center;
+  justify-content:space-around;
+  height:23px;
+  color:#94a3b8;
+  font-size:12px;
+}
+.sync-mini-toolbar strong{
+  color:#60a5fa;
+  font-size:14px;
+}
+.sync-mini-callout{
+  margin:0 6px 6px;
+  padding:5px 3px;
+  border:1px solid #3b82f6;
+  border-radius:5px;
+  background:#172554;
+  color:#bfdbfe;
+  font-size:6.5px;
+  font-weight:900;
+  text-align:center;
+}
+.sync-mini-menu{
+  margin:0 6px 6px;
+  padding:4px;
+  border-radius:5px;
+  background:#0f172a;
+  font-size:6.5px;
+}
+.sync-mini-menu span,
+.sync-mini-menu strong{
+  display:block;
+  padding:3px 4px;
+}
+.sync-mini-menu strong{
+  border:1px solid #3b82f6;
+  border-radius:4px;
+  color:#bfdbfe;
+}
+.sync-mini-edit{
+  padding:7px;
+}
+.sync-mini-edit b{
+  display:block;
+  margin-bottom:6px;
+  color:#f8fafc;
+  font-size:7px;
+}
+.sync-mini-edit span,
+.sync-mini-edit strong{
+  display:block;
+  padding:6px;
+  border:1px solid #475569;
+  border-radius:4px;
+  background:#0f172a;
+  font-size:6.5px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.sync-mini-edit strong{
+  margin-top:5px;
+  border-color:#3b82f6;
+  color:#bfdbfe;
+}
+.sync-mini-suggestion{
+  display:flex;
+  flex-direction:column;
+  gap:2px;
+  margin:0 6px 6px;
+  padding:6px;
+  border:1px solid #3b82f6;
+  border-radius:5px;
+  background:#0f172a;
+  font-size:6.5px;
+}
+.sync-mini-suggestion span{
+  color:#94a3b8;
+}
+.sync-visual-toggle{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  width:100%;
+  min-height:40px;
+  margin-top:9px;
+  padding:0 12px;
+  border:1px solid #334155;
+  border-radius:9px;
+  background:#111827;
+  color:#cbd5e1;
+  font-size:10.5px;
+  font-weight:900;
+}
+.sync-visual-toggle strong{
+  font-size:18px;
+}
+.skill-sync-visual-guide.is-compact .sync-visual-first-note,
+.skill-sync-visual-guide.is-compact .sync-visual-card:not(.sync-visual-run-card){
+  display:none;
+}
+body.light-mode .sync-visual-device,
+body.light-mode .sync-visual-card,
+body.light-mode .sync-visual-toggle{
+  border-color:#cbd5e1 !important;
+  background:#f8fafc !important;
+  color:#334155 !important;
+  -webkit-text-fill-color:#334155 !important;
+}
+body.light-mode .sync-visual-content>strong,
+body.light-mode .sync-visual-content .sync-bookmark-name{
+  color:#111827 !important;
+  -webkit-text-fill-color:#111827 !important;
+}
+body.light-mode .sync-visual-content p,
+body.light-mode .sync-bookmark-name small{
+  color:#64748b !important;
+  -webkit-text-fill-color:#64748b !important;
+}
+body.light-mode .sync-visual-no,
+body.light-mode .sync-visual-primary{
+  color:#fff !important;
+  -webkit-text-fill-color:#fff !important;
+}
+@media(max-width:420px){
+  .skill-sync-dialog{
+    padding:14px;
+  }
+  .sync-visual-card{
+    grid-template-columns:24px 86px minmax(0,1fr);
+    gap:7px;
+    padding:8px;
+  }
+  .sync-visual-no{
+    width:23px;
+    height:23px;
+    font-size:10px;
+  }
+  .sync-mini-copy,
+  .sync-mini-browser,
+  .sync-mini-edit{
+    width:86px;
+    min-height:74px;
+  }
+  .sync-visual-content>strong{
+    font-size:11px;
+  }
+  .sync-visual-content p{
+    font-size:8.5px;
+  }
+  .sync-visual-primary{
+    min-height:34px;
+    font-size:9px;
+  }
+}
+
 </style>
   <link rel="preconnect" href="https://challenges.cloudflare.com">
   <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" defer></script>
@@ -8565,7 +8901,7 @@ body.light-mode .option-share-title{
     <div class="app-menu-version">
       <label>VERSION</label>
       <select id="versionSelect" class="version-select" aria-label="GITADORAバージョン"></select>
-      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 3.11.0</div>
+      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 3.12.0</div>
     </div>
   </div>
 </div>
@@ -8762,6 +9098,9 @@ body.light-mode .option-share-title{
 
     <div id="skillSyncStatus" class="skill-sync-status skill-sync-status-top">待機中</div>
 
+    <div id="skillSyncVisualGuide" class="skill-sync-visual-guide hidden"></div>
+
+    <div id="skillSyncLegacyGuide">
     <div class="skill-sync-step">
       <span class="skill-sync-step-no">1</span>
       <div>
@@ -8800,6 +9139,7 @@ body.light-mode .option-share-title{
         <strong>自動取得・登録</strong>
         <div class="section-note">スキル対象を取得し、当サイトに戻ってきます。FCマークやオプションは手動入力です。</div>
       </div>
+    </div>
     </div>
 
   </div>
@@ -8850,7 +9190,7 @@ body.light-mode .option-share-title{
 <div id="adminModal" class="admin-modal">
   <div class="admin-header">
     <div class="admin-title-row">
-      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 3.11.0</div></div>
+      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 3.12.0</div></div>
       <button id="btnCloseAdmin" class="admin-close">閉じる</button>
     </div>
     <div class="admin-tabs">
@@ -8927,6 +9267,6 @@ body.light-mode .option-share-title{
   </div>
 </div>
 
-<script type="module" src="./js/app.js?v=3_11_0"></script>
+<script type="module" src="./js/app.js?v=3_12_0"></script>
 </body>
 </html>

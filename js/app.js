@@ -3498,9 +3498,125 @@ $('btnCancelForm').addEventListener('click', closeModal);
 
 $('btnCloseMypage').addEventListener('click', () => closeMyPage(true));
 
+function detectSkillSyncGuideBrowser() {
+  const ua = String(navigator.userAgent || '');
+  const isChrome = /(?:Chrome\/|CriOS\/|Chromium\/)/.test(ua)
+    && !/(?:EdgA?\/|EdgiOS\/|OPR\/|Opera\/)/.test(ua);
+  if (isChrome) return 'chrome';
+
+  const isSafari = /Safari\//.test(ua)
+    && !/(?:Chrome\/|CriOS\/|Chromium\/|EdgA?\/|EdgiOS\/|OPR\/|FxiOS\/)/.test(ua);
+  return isSafari ? 'safari' : 'other';
+}
+
+function getSkillSyncVisualGuideMarkup(browser) {
+  const isSafari = browser === 'safari';
+  const browserName = isSafari ? 'Safari' : 'Chrome';
+  const browserMark = isSafari
+    ? '<span class="sync-browser-mark safari" aria-hidden="true">↗</span>'
+    : '<span class="sync-browser-mark chrome" aria-hidden="true"></span>';
+  const bookmarkFigure = isSafari
+    ? `
+      <div class="sync-mini-browser safari" aria-hidden="true">
+        <div class="sync-mini-address">gitadorafc.github.io</div>
+        <div class="sync-mini-toolbar"><span>‹</span><strong>⇧</strong><span>▢</span></div>
+        <div class="sync-mini-callout">共有 → ブックマークに追加</div>
+      </div>`
+    : `
+      <div class="sync-mini-browser chrome" aria-hidden="true">
+        <div class="sync-mini-address">gitadorafc.github.io <strong>︙</strong></div>
+        <div class="sync-mini-menu"><span>新しいタブ</span><strong>☆ ブックマーク</strong></div>
+      </div>`;
+  const bookmarkHelp = isSafari
+    ? '共有ボタンから「ブックマークに追加」を選択します。'
+    : '︙メニューから「☆ ブックマーク」を選択します。';
+  const runFigure = isSafari
+    ? `
+      <div class="sync-mini-browser sync-mini-run safari" aria-hidden="true">
+        <div class="sync-mini-address">GITADORA公式サイト</div>
+        <div class="sync-mini-toolbar"><span>‹</span><strong>▤</strong><span>▢</span></div>
+        <div class="sync-mini-callout">同期用ブックマークを実行</div>
+      </div>`
+    : `
+      <div class="sync-mini-browser sync-mini-run chrome" aria-hidden="true">
+        <div class="sync-mini-search">同期用ブックマーク</div>
+        <div class="sync-mini-suggestion"><strong>☆ 同期用ブックマーク</strong><span>候補から選択</span></div>
+      </div>`;
+  const runHelp = isSafari
+    ? '公式サイトを開いたまま、作成した同期用ブックマークを実行します。'
+    : '公式サイトを開き、アドレスバーにブックマーク名を入力して、表示された候補を選択します。';
+
+  return `
+    <div class="sync-visual-device">${browserMark}<strong>${browserName}</strong></div>
+    <div class="sync-visual-first-note">⚠ 初回だけ設定が必要です</div>
+
+    <div class="sync-visual-card">
+      <span class="sync-visual-no">1</span>
+      <div class="sync-mini-copy" aria-hidden="true"><span>SYNC CODE</span><strong>ABC1234</strong><i>▣</i></div>
+      <div class="sync-visual-content">
+        <strong>同期コードをコピー</strong>
+        <button type="button" class="sync-visual-primary" data-sync-guide-action="copy">コードをコピー</button>
+      </div>
+    </div>
+
+    <div class="sync-visual-card">
+      <span class="sync-visual-no">2</span>
+      ${bookmarkFigure}
+      <div class="sync-visual-content">
+        <strong>このページをブックマーク</strong>
+        <p>${bookmarkHelp}</p>
+      </div>
+    </div>
+
+    <div class="sync-visual-card">
+      <span class="sync-visual-no">3</span>
+      <div class="sync-mini-edit" aria-hidden="true">
+        <b>ブックマークを編集</b>
+        <span>同期用ブックマーク</span>
+        <strong>javascript:…</strong>
+      </div>
+      <div class="sync-visual-content">
+        <strong>ブックマークを編集</strong>
+        <p class="sync-bookmark-name">同期用ブックマーク<br><small>（お好きな名前で自由に設定してください）</small></p>
+        <p>URLを全削除し、コピーしたコードを貼り付けます。</p>
+      </div>
+    </div>
+
+    <div class="sync-visual-card sync-visual-run-card">
+      <span class="sync-visual-no">4</span>
+      ${runFigure}
+      <div class="sync-visual-content">
+        <strong>同期する</strong>
+        <button type="button" class="sync-visual-primary" data-sync-guide-action="open">GITADORA公式サイトを開く</button>
+        <p>${runHelp}</p>
+      </div>
+    </div>
+
+    <div class="skill-sync-card-warning">
+      ⚠ 複数カードがある場合、参照するカードが合っているかご確認ください。
+    </div>
+    <button type="button" class="sync-visual-toggle" data-sync-guide-action="toggle">
+      <span>設定済みの方はこちら</span><strong>›</strong>
+    </button>`;
+}
+
 function renderSkillSyncBrowserGuide() {
   const guide = $('skillSyncBrowserGuide');
-  if (!guide) return;
+  const legacyGuide = $('skillSyncLegacyGuide');
+  const visualGuide = $('skillSyncVisualGuide');
+  if (!guide || !legacyGuide || !visualGuide) return;
+
+  // 新しい図解は開発確認中のため管理者だけに表示する。
+  const browser = adminEnabled ? detectSkillSyncGuideBrowser() : 'other';
+  const useVisualGuide = browser === 'safari' || browser === 'chrome';
+  legacyGuide.classList.toggle('hidden', useVisualGuide);
+  visualGuide.classList.toggle('hidden', !useVisualGuide);
+
+  if (useVisualGuide) {
+    visualGuide.classList.remove('is-compact');
+    visualGuide.innerHTML = getSkillSyncVisualGuideMarkup(browser);
+    return;
+  }
 
   guide.innerHTML =
     '1. 何でもいいので適当にブックマークを作ります。<br>' +
@@ -3532,7 +3648,7 @@ $('skillSyncMask').addEventListener('click', e => {
   }
 });
 
-$('btnCopySkillSync').addEventListener('click', async () => {
+async function copySkillSyncCode() {
   try {
     // Android Chromeでは <a>.href を通すと、コード中の ' が %27 に変換される場合がある。
     // ブックマークレットはURL正規化せず、生のJavaScript文字列をそのままコピーする。
@@ -3543,15 +3659,41 @@ $('btnCopySkillSync').addEventListener('click', async () => {
   } catch (e) {
     setSkillSyncStatus('コードのコピーに失敗しました。ブラウザのクリップボード権限を確認してください。', 'error');
   }
-});
+}
 
-$('btnOpenEamusement').addEventListener('click', () => {
+function openEamusementForSkillSync() {
   const popup = window.open(getEamusementSyncEntry(), '_blank');
   if (!popup) {
     setSkillSyncStatus('ポップアップがブロックされました。ブラウザのポップアップ許可を確認してください。', 'error');
     return;
   }
   setSkillSyncStatus('e-amusementを開きました。ログイン状態を確認後、コードを設定した同期用ブックマークを実行してください。', 'running');
+}
+
+$('btnCopySkillSync').addEventListener('click', copySkillSyncCode);
+$('btnOpenEamusement').addEventListener('click', openEamusementForSkillSync);
+
+$('skillSyncVisualGuide').addEventListener('click', event => {
+  const button = event.target.closest('[data-sync-guide-action]');
+  if (!button) return;
+
+  const action = button.dataset.syncGuideAction;
+  if (action === 'copy') {
+    copySkillSyncCode();
+    return;
+  }
+  if (action === 'open') {
+    openEamusementForSkillSync();
+    return;
+  }
+  if (action === 'toggle') {
+    const visualGuide = $('skillSyncVisualGuide');
+    const compact = visualGuide.classList.toggle('is-compact');
+    button.querySelector('span').textContent = compact
+      ? '初回設定を表示する'
+      : '設定済みの方はこちら';
+    button.querySelector('strong').textContent = compact ? '⌄' : '›';
+  }
 });
 
 window.addEventListener('message', async event => {
