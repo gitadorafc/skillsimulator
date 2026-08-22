@@ -8184,6 +8184,39 @@ body.light-mode .history-option-badge{
   font-size:12px !important;
 }
 
+/* === APP VERSION 3.10.2: 登録欄の高さ完全統一・コメント1行化 === */
+#domModal #formTitle,
+#domModal #partSelect,
+#domModal #formLevel,
+#domModal #formRate,
+#domModal #formFc,
+#domModal #formOption,
+#domModal #formDmOption,
+#domModal #formPrivateComment{
+  box-sizing:border-box !important;
+  min-height:38px !important;
+  height:38px !important;
+  max-height:38px !important;
+  line-height:normal !important;
+  border-width:1px !important;
+  border-radius:8px !important;
+  font-size:12px !important;
+}
+#domModal .select-arrow-wrap{
+  height:38px !important;
+}
+#domModal .select-arrow-wrap > select{
+  min-height:38px !important;
+  height:38px !important;
+  max-height:38px !important;
+}
+#domModal #formPrivateComment{
+  resize:none !important;
+  overflow-y:auto !important;
+  padding:8px !important;
+  line-height:20px !important;
+}
+
 </style>
   <link rel="preconnect" href="https://challenges.cloudflare.com">
   <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" defer></script>
@@ -8397,7 +8430,7 @@ body.light-mode .history-option-badge{
       <label>コメント</label>
       <textarea id="formPrivateComment"
                 maxlength="100"
-                rows="2"
+                rows="1"
                 placeholder="例：ミス2 / ラス切り"></textarea>
       <div class="score-private-comment-note">自分だけに表示されます（100文字まで）</div>
     </div>
@@ -8434,7 +8467,7 @@ body.light-mode .history-option-badge{
     <div class="app-menu-version">
       <label>VERSION</label>
       <select id="versionSelect" class="version-select" aria-label="GITADORAバージョン"></select>
-      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 3.10.1</div>
+      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 3.10.2</div>
     </div>
   </div>
 </div>
@@ -8719,7 +8752,7 @@ body.light-mode .history-option-badge{
 <div id="adminModal" class="admin-modal">
   <div class="admin-header">
     <div class="admin-title-row">
-      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 3.10.1</div></div>
+      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 3.10.2</div></div>
       <button id="btnCloseAdmin" class="admin-close">閉じる</button>
     </div>
     <div class="admin-tabs">
@@ -8796,6 +8829,6 @@ body.light-mode .history-option-badge{
   </div>
 </div>
 
-<script type="module" src="./js/app.js?v=3_10_1"></script>
+<script type="module" src="./js/app.js?v=3_10_2"></script>
 </body>
 </html>
