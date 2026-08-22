@@ -236,6 +236,7 @@ function captureSkillSyncHash() {
 
 async function importSkillSyncRecords(payload) {
   if (skillSyncInProgress) return;
+  renderSkillSyncBrowserGuide();
   $('skillSyncMask').style.display = 'flex';
 
   const payloadSlug = String(payload?.eamusement_slug || '').trim();
@@ -286,6 +287,7 @@ async function importSkillSyncRecords(payload) {
 
   skillSyncInProgress = true;
   $('skillSyncMask').style.display = 'flex';
+  let completionMessage = '';
 
   try {
     setSkillSyncStatus(`同期中… ${rows.length}件を一括処理しています`, 'running');
@@ -310,15 +312,27 @@ async function importSkillSyncRecords(payload) {
       ? `GF HOT ${payload.counts.GF_HOT ?? 0} / GF OTHER ${payload.counts.GF_OTHER ?? 0} / DM HOT ${payload.counts.DM_HOT ?? 0} / DM OTHER ${payload.counts.DM_OTHER ?? 0}`
       : `${rows.length}件`;
 
-    setSkillSyncStatus(
-      `同期完了\n取得: ${countText}\n登録・更新: ${saved}件　登録依頼: ${requested}件${skipped ? `　スキップ: ${skipped}件` : ''}`,
-      'success'
-    );
+    completionMessage =
+      `取得: ${countText}\n` +
+      `登録・更新: ${saved}件　登録依頼: ${requested}件${skipped ? `　スキップ: ${skipped}件` : ''}`;
+    setSkillSyncStatus(`同期完了\n${completionMessage}`, 'success');
   } catch (e) {
     console.error(e);
     setSkillSyncStatus(`同期に失敗しました: ${e?.message || e}`, 'error');
   } finally {
     skillSyncInProgress = false;
+  }
+
+  if (completionMessage) {
+    // 同期完了後は設定画面を残さず、メインのスキル対象TOPへ戻す。
+    $('skillSyncMask').style.display = 'none';
+    $('menuMask').style.display = 'none';
+    closeModal();
+    closeRateComparison();
+    closeUserDetail();
+    switchTab('SKILL');
+    window.scrollTo(0, 0);
+    await showSiteDialog(completionMessage, '同期完了');
   }
 }
 
@@ -3519,7 +3533,7 @@ function getSkillSyncVisualGuideMarkup(browser) {
     ? `
       <div class="sync-mini-browser safari" aria-hidden="true">
         <div class="sync-mini-address">gitadorafc.github.io</div>
-        <div class="sync-mini-toolbar"><span>‹</span><strong class="sync-mini-share-icon"></strong><span>▢</span></div>
+        <div class="sync-mini-toolbar"><span>‹</span><strong class="sync-mini-toolbar-icon sync-mini-share-icon"><svg viewBox="0 0 24 24"><path d="M12 15V3m0 0L8 7m4-4 4 4M5 11v8h14v-8"/></svg></strong><span>▢</span></div>
         <div class="sync-mini-callout">共有 → ブックマークに追加</div>
       </div>`
     : `
@@ -3534,13 +3548,13 @@ function getSkillSyncVisualGuideMarkup(browser) {
     ? `
       <div class="sync-mini-browser sync-mini-run safari" aria-hidden="true">
         <div class="sync-mini-address">GITADORA公式サイト</div>
-        <div class="sync-mini-toolbar"><span>‹</span><strong class="sync-mini-book-icon"></strong><span>▢</span></div>
+        <div class="sync-mini-toolbar"><span>‹</span><strong class="sync-mini-toolbar-icon sync-mini-book-icon"><svg viewBox="0 0 24 24"><path d="M3 5.5c3.2-.8 6-.1 9 2.1v11c-3-2.2-5.8-2.9-9-2.1v-11Zm18 0c-3.2-.8-6-.1-9 2.1v11c3-2.2 5.8-2.9 9-2.1v-11Z"/></svg></strong><span>▢</span></div>
         <div class="sync-mini-callout">同期用ブックマークを実行</div>
       </div>`
     : `
       <div class="sync-mini-browser sync-mini-run chrome" aria-hidden="true">
         <div class="sync-mini-search">同期用ブックマーク</div>
-        <div class="sync-mini-suggestion"><strong><i class="sync-mini-globe"></i>同期用ブックマーク</strong><span>候補から選択</span></div>
+        <div class="sync-mini-suggestion"><strong><i class="sync-mini-globe"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M5 7.5 8.2 5l2.2.8.8 2.4-1.7 1.6-2.8-.5L5 7.5Zm6.5 3 3-1.2 3.2 1.5.5 2.7-2.2 1.1-.8 3-2.1 1.1-1.4-2.8-2-.9.4-2.8 2.4-1.7Z"/></svg></i>同期用ブックマーク</strong><span>候補から選択</span></div>
       </div>`;
   const runHelp = isSafari
     ? '公式サイトを開いたまま、作成した同期用ブックマークを実行します。'
@@ -3551,7 +3565,7 @@ function getSkillSyncVisualGuideMarkup(browser) {
 
     <div class="sync-visual-card">
       <span class="sync-visual-no">1</span>
-      <div class="sync-mini-copy" aria-hidden="true"><span>SYNC CODE</span><strong>ABC1234</strong><i>▣</i></div>
+      <div class="sync-mini-copy" aria-hidden="true"><span>SYNC CODE</span><strong>ABC1234</strong><i class="sync-mini-copy-icon"><svg viewBox="0 0 24 24"><rect x="8" y="7" width="11" height="13" rx="1.5"/><path d="M16 7V5.5A1.5 1.5 0 0 0 14.5 4h-9A1.5 1.5 0 0 0 4 5.5v11A1.5 1.5 0 0 0 5.5 18H8"/></svg></i></div>
       <div class="sync-visual-content">
         <strong>同期コードをコピー</strong>
         <button type="button" class="sync-visual-primary" data-sync-guide-action="copy">コードをコピー</button>
