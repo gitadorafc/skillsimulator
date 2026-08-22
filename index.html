@@ -8809,7 +8809,7 @@ body.skill-target-columns :is(#viewSkill,#userDetailSkill) .skill-other-section 
   background:#83c63d !important;
 }
 
-/* 横並び時のカード：パート・難易度・スキル / 曲名 / 達成率・オプション・FC */
+/* 横並び時のカード：曲名 / パート・FC・オプション / 難易度・達成率・スキル */
 body.skill-target-columns :is(#viewSkill,#userDetailSkill) .dc-card-skill{
   grid-template-columns:repeat(3,minmax(0,1fr)) !important;
   grid-template-rows:auto auto auto !important;
@@ -8818,41 +8818,17 @@ body.skill-target-columns :is(#viewSkill,#userDetailSkill) .dc-card-skill{
   min-height:0 !important;
   padding:4px !important;
 }
-/* 1段目：パート / Lv / スキル値 */
-body.skill-target-columns :is(#viewSkill,#userDetailSkill) .dc-card-skill .dc-part{
-  grid-column:1 !important;
-  grid-row:1 !important;
-  justify-content:flex-start !important;
-}
-body.skill-target-columns :is(#viewSkill,#userDetailSkill) .dc-card-skill .dc-lv{
-  grid-column:2 !important;
-  grid-row:1 !important;
-  justify-content:center !important;
-  font-size:10px !important;
-}
-body.skill-target-columns :is(#viewSkill,#userDetailSkill) .dc-card-skill .dc-lv .dc-field-label{
-  display:none !important;
-}
-body.skill-target-columns :is(#viewSkill,#userDetailSkill) .dc-card-skill .dc-skill{
-  grid-column:3 !important;
-  grid-row:1 !important;
-  justify-self:end !important;
-  width:100% !important;
-  min-width:0 !important;
-  max-width:82px !important;
-  padding:3px 0 !important;
-}
-/* 2段目：曲名（最大2行） */
+/* 1段目：曲名（最大2行・1行でも2行分の高さを確保） */
 body.skill-target-columns :is(#viewSkill,#userDetailSkill) .dc-card-skill .dc-title{
   grid-column:1 / 4 !important;
-  grid-row:2 !important;
+  grid-row:1 !important;
   height:calc(12px * 1.12 * 2) !important;
   min-height:calc(12px * 1.12 * 2) !important;
   max-height:calc(12px * 1.12 * 2) !important;
   align-self:start !important;
   align-items:flex-start !important;
 }
-/* スキル対象ではHOT見出しがあるため、通常表示でもカード内HOTマークは不要 */
+/* スキル対象ではHOT見出しがあるため、カード内HOTマークは不要 */
 :is(#viewSkill,#userDetailSkill) .dc-card-skill .dc-title .hot-tag{
   display:none !important;
 }
@@ -8860,17 +8836,50 @@ body.skill-target-columns :is(#viewSkill,#userDetailSkill) .dc-card-skill .dc-so
   width:100%;
   font-size:12px !important;
   line-height:1.12 !important;
-  color:#38bdf8 !important;
-  -webkit-text-fill-color:#38bdf8 !important;
+  color:#f8fafc !important;
+  -webkit-text-fill-color:#f8fafc !important;
   max-height:2.24em !important;
 }
 body.light-mode.skill-target-columns :is(#viewSkill,#userDetailSkill) .dc-card-skill .dc-song-title{
-  color:#0369a1 !important;
-  -webkit-text-fill-color:#0369a1 !important;
+  color:#111827 !important;
+  -webkit-text-fill-color:#111827 !important;
 }
-/* 3段目：達成率の数値＋％ / オプション / FC */
-body.skill-target-columns :is(#viewSkill,#userDetailSkill) .dc-card-skill .dc-rate{
+/* 2段目：パート / FC / オプション */
+body.skill-target-columns :is(#viewSkill,#userDetailSkill) .dc-card-skill .dc-part{
   grid-column:1 !important;
+  grid-row:2 !important;
+  justify-content:flex-start !important;
+}
+body.skill-target-columns :is(#viewSkill,#userDetailSkill) .dc-card-skill .dc-fc{
+  grid-column:2 !important;
+  grid-row:2 !important;
+  justify-content:center !important;
+}
+body.skill-target-columns :is(#viewSkill,#userDetailSkill) .dc-card-skill .dc-fc .fc-unified-badge{
+  width:100% !important;
+  max-width:64px !important;
+}
+body.skill-target-columns :is(#viewSkill,#userDetailSkill) .dc-card-skill .dc-option{
+  grid-column:3 !important;
+  grid-row:2 !important;
+  justify-content:center !important;
+}
+body.skill-target-columns :is(#viewSkill,#userDetailSkill) .dc-card-skill .dc-option .opt-badge{
+  width:100% !important;
+  max-width:66px !important;
+}
+/* 3段目：難易度 / 達成率 / スキル値 */
+body.skill-target-columns :is(#viewSkill,#userDetailSkill) .dc-card-skill .dc-lv{
+  grid-column:1 !important;
+  grid-row:3 !important;
+  justify-content:center !important;
+  font-size:10px !important;
+}
+body.skill-target-columns :is(#viewSkill,#userDetailSkill) .dc-card-skill .dc-lv .dc-field-label{
+  display:none !important;
+}
+body.skill-target-columns :is(#viewSkill,#userDetailSkill) .dc-card-skill .dc-rate{
+  grid-column:2 !important;
   grid-row:3 !important;
   justify-content:flex-start !important;
   text-align:left !important;
@@ -8879,23 +8888,14 @@ body.skill-target-columns :is(#viewSkill,#userDetailSkill) .dc-card-skill .dc-ra
 body.skill-target-columns :is(#viewSkill,#userDetailSkill) .dc-card-skill .dc-rate .dc-field-label{
   display:none !important;
 }
-body.skill-target-columns :is(#viewSkill,#userDetailSkill) .dc-card-skill .dc-option{
-  grid-column:2 !important;
-  grid-row:3 !important;
-  justify-content:center !important;
-}
-body.skill-target-columns :is(#viewSkill,#userDetailSkill) .dc-card-skill .dc-option .opt-badge{
-  width:100% !important;
-  max-width:66px !important;
-}
-body.skill-target-columns :is(#viewSkill,#userDetailSkill) .dc-card-skill .dc-fc{
+body.skill-target-columns :is(#viewSkill,#userDetailSkill) .dc-card-skill .dc-skill{
   grid-column:3 !important;
   grid-row:3 !important;
-  justify-content:flex-end !important;
-}
-body.skill-target-columns :is(#viewSkill,#userDetailSkill) .dc-card-skill .dc-fc .fc-unified-badge{
+  justify-self:end !important;
   width:100% !important;
-  max-width:64px !important;
+  min-width:0 !important;
+  max-width:82px !important;
+  padding:3px 0 !important;
 }
 /* 横並びカード内の通常文字は統一。各種バッジの文字サイズは変更しない。 */
 body.skill-target-columns :is(#viewSkill,#userDetailSkill) .dc-card-skill :is(
@@ -9225,7 +9225,7 @@ body.text-size-up.skill-target-columns :is(#viewSkill,#userDetailSkill) .dc-card
     <div class="app-menu-version">
       <label>VERSION</label>
       <select id="versionSelect" class="version-select" aria-label="GITADORAバージョン"></select>
-      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 3.14.0</div>
+      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 3.14.1</div>
     </div>
   </div>
 </div>
@@ -9537,7 +9537,7 @@ body.text-size-up.skill-target-columns :is(#viewSkill,#userDetailSkill) .dc-card
 <div id="adminModal" class="admin-modal">
   <div class="admin-header">
     <div class="admin-title-row">
-      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 3.14.0</div></div>
+      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 3.14.1</div></div>
       <button id="btnCloseAdmin" class="admin-close">閉じる</button>
     </div>
     <div class="admin-tabs">
@@ -9614,6 +9614,6 @@ body.text-size-up.skill-target-columns :is(#viewSkill,#userDetailSkill) .dc-card
   </div>
 </div>
 
-<script type="module" src="./js/app.js?v=3_14_0"></script>
+<script type="module" src="./js/app.js?v=3_14_1"></script>
 </body>
 </html>
