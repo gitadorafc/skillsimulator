@@ -633,6 +633,33 @@ function applyLightMode(enabled = null) {
   return isLight;
 }
 
+const DISPLAY_CUSTOMIZATION_KEYS = Object.freeze({
+  skillTargetColumns: 'gitadora_skill_target_columns',
+  textSizeUp: 'gitadora_text_size_up'
+});
+
+function applyAdminDisplayCustomization(skillTargetColumns = null, textSizeUp = null) {
+  const canUse = adminEnabled === true;
+  const columnsEnabled = canUse && (
+    skillTargetColumns == null
+      ? localStorage.getItem(DISPLAY_CUSTOMIZATION_KEYS.skillTargetColumns) === '1'
+      : Boolean(skillTargetColumns)
+  );
+  const textSizeEnabled = canUse && (
+    textSizeUp == null
+      ? localStorage.getItem(DISPLAY_CUSTOMIZATION_KEYS.textSizeUp) === '1'
+      : Boolean(textSizeUp)
+  );
+
+  document.body.classList.toggle('skill-target-columns', columnsEnabled);
+  document.body.classList.toggle('text-size-up', textSizeEnabled);
+
+  return {
+    skillTargetColumns: columnsEnabled,
+    textSizeUp: textSizeEnabled
+  };
+}
+
 async function getMyFeatureSettings() {
   const { data, error } = await supabase.rpc('get_my_feature_settings');
   if (error) throw error;
@@ -694,6 +721,21 @@ async function openFeatureSettings() {
     lightNote.textContent = '画面をライトテーマに切り替えます。';
   }
 
+  const adminCustomization = $('adminDisplayCustomization');
+  const columnsInput = $('settingSkillTargetColumns');
+  const textSizeInput = $('settingTextSizeUp');
+  adminCustomization?.classList.toggle('hidden', !adminEnabled);
+  if (columnsInput) {
+    columnsInput.disabled = !adminEnabled;
+    columnsInput.checked = adminEnabled &&
+      localStorage.getItem(DISPLAY_CUSTOMIZATION_KEYS.skillTargetColumns) === '1';
+  }
+  if (textSizeInput) {
+    textSizeInput.disabled = !adminEnabled;
+    textSizeInput.checked = adminEnabled &&
+      localStorage.getItem(DISPLAY_CUSTOMIZATION_KEYS.textSizeUp) === '1';
+  }
+
   try {
     const settings = await getMyFeatureSettings();
     $('settingRecordsPublic').checked = Boolean(settings.registration_public);
@@ -720,6 +762,20 @@ async function saveFeatureSettings() {
     const light = $('settingLightMode').checked;
     localStorage.setItem('gitadora_light_mode', light ? '1' : '0');
     applyLightMode(light);
+
+    if (adminEnabled) {
+      const skillTargetColumns = Boolean($('settingSkillTargetColumns')?.checked);
+      const textSizeUp = Boolean($('settingTextSizeUp')?.checked);
+      localStorage.setItem(
+        DISPLAY_CUSTOMIZATION_KEYS.skillTargetColumns,
+        skillTargetColumns ? '1' : '0'
+      );
+      localStorage.setItem(
+        DISPLAY_CUSTOMIZATION_KEYS.textSizeUp,
+        textSizeUp ? '1' : '0'
+      );
+      applyAdminDisplayCustomization(skillTargetColumns, textSizeUp);
+    }
 
     const { error } = await supabase.rpc('set_my_feature_settings', {
       p_registration_public: $('settingRecordsPublic').checked,
@@ -1005,6 +1061,7 @@ async function init() {
       adminEnabled = false;
       adminAccessChecked = false;
       updateDmBassMirrorFieldVisibility();
+      applyAdminDisplayCustomization(false, false);
       applyLightMode(false);
       $('btnAdmin').classList.add('hidden');
       $('menuOfuseSupport')?.classList.add('hidden');
@@ -1765,10 +1822,10 @@ function renderSkill() {
   const target = calcTargetTotals(getOwnSkillTargetRows());
 
   $('viewSkill').innerHTML = `
-    <div class="sk-section"><h2>HOT Top25</h2><div class="list-container">
+    <div class="sk-section skill-hot-section"><h2>HOT Top25</h2><div class="list-container">
       ${target.hotRows.map((r,i) => createCard(r,i+1,'SKILL')).join('') || '<div class="empty-state">まだ登録がありません</div>'}
     </div></div>
-    <div class="sk-section"><h2>OTHER Top25</h2><div class="list-container">
+    <div class="sk-section skill-other-section"><h2>OTHER Top25</h2><div class="list-container">
       ${target.otherRows.map((r,i) => createCard(r,i+1,'SKILL')).join('') || '<div class="empty-state">まだ登録がありません</div>'}
     </div></div>`;
 }
@@ -2821,6 +2878,9 @@ async function checkAdminAccess() {
     }
   }
   $('adminBulkDeleteArea')?.classList.toggle('hidden', !primaryAdminEnabled);
+
+  // 表示カスタマイズは管理者判定完了後にだけ有効化する。
+  applyAdminDisplayCustomization();
 
   // 保存済みライトモード設定を全ユーザーに反映。
   applyLightMode();
