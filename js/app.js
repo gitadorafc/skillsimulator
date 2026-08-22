@@ -925,7 +925,7 @@ async function switchGameVersion(versionId) {
 function instrumentParts() { return partsForInstrument(activeInstrument); }
 function isCurrentInstrumentPart(part) { return instrumentParts().includes(String(part || '')); }
 function updateDmBassMirrorFieldVisibility() {
-  const enabled = activeInstrument === 'DM' && adminEnabled;
+  const enabled = activeInstrument === 'DM';
   $('dmOptionFieldGroup')?.classList.toggle('hidden', !enabled);
   document.body.classList.toggle('dm-bass-mirror-enabled', enabled);
   if (!enabled && $('formDmOption')) $('formDmOption').value = 'NORMAL';
@@ -1531,7 +1531,7 @@ async function applyPreviousScoreSettings(title, part) {
     const option = String(row.play_option || 'NORMAL');
     const allowedOptions = ['NORMAL','RAN','SRA','RAN+','SRA+'];
     if (activeInstrument === 'DM') {
-      if (adminEnabled && $('formDmOption').value === initialDmOption) {
+      if ($('formDmOption').value === initialDmOption) {
         $('formDmOption').value = option === 'BASS_MIRROR'
           ? 'BASS_MIRROR'
           : 'NORMAL';
@@ -1839,7 +1839,6 @@ function openScoreModal(score = null) {
   updateDmBassMirrorFieldVisibility();
   $('formDmOption').value =
     activeInstrument === 'DM' &&
-    adminEnabled &&
     score?.play_option === 'BASS_MIRROR'
       ? 'BASS_MIRROR'
       : 'NORMAL';
@@ -2136,15 +2135,8 @@ async function submitScore() {
 
   const numericRate = Number(rate);
   const autoFc = numericRate === 100 ? 'EXC' : $('formFc').value;
-  const editingScore = editingScoreId
-    ? scores.find(row => row.score_id === editingScoreId)
-    : null;
   const playOption = activeInstrument === 'DM'
-    ? (
-        adminEnabled
-          ? ($('formDmOption').value === 'BASS_MIRROR' ? 'BASS_MIRROR' : 'NORMAL')
-          : (editingScore?.play_option === 'BASS_MIRROR' ? 'BASS_MIRROR' : 'NORMAL')
-      )
+    ? ($('formDmOption').value === 'BASS_MIRROR' ? 'BASS_MIRROR' : 'NORMAL')
     : $('formOption').value;
 
   await saveScore({
@@ -2601,9 +2593,10 @@ function getOptionDisplayName(option, part = '') {
 }
 
 function getHistoricalOptionMarkup(option, part) {
+  if (!option || option === 'NORMAL') return '';
   const badge = getOptionBadgeMarkup(option);
   if (badge) return badge;
-  return `<span class="history-option-badge">${esc(getOptionDisplayName('NORMAL', part))}</span>`;
+  return `<span class="history-option-badge">${esc(getOptionDisplayName(option, part))}</span>`;
 }
 
 function formatOptionPercentage(value) {
@@ -2646,12 +2639,17 @@ async function openRateComparison(songId, title, part) {
         getFcBadgeMarkup(personalBest.fc, personalBest.achievement_rate),
         getHistoricalOptionMarkup(personalBest.play_option, part)
       ].filter(Boolean).join('');
+      const bestBadgesMarkup = bestBadges
+        ? `<span class="rate-personal-best-badges">${bestBadges}</span>`
+        : '';
       $('ratePersonalBest').classList.remove('hidden');
       $('ratePersonalBest').innerHTML = `
-        <span class="rate-personal-best-label">歴代自己ベスト</span>
-        <strong class="rate-personal-best-value">${formatRate(personalBest.achievement_rate)}%</strong>
-        <span class="rate-personal-best-version">（${esc(personalBest.version_name)}）</span>
-        <span class="rate-personal-best-badges">${bestBadges}</span>`;
+        <div class="rate-personal-best-label">歴代自己ベスト</div>
+        <div class="rate-personal-best-detail">
+          <strong class="rate-personal-best-value">${formatRate(personalBest.achievement_rate)}%</strong>
+          ${bestBadgesMarkup}
+          <span class="rate-personal-best-version">(${esc(personalBest.version_name)})</span>
+        </div>`;
     } else {
       $('ratePersonalBest').classList.add('hidden');
       $('ratePersonalBest').innerHTML = '';

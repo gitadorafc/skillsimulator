@@ -8255,6 +8255,65 @@ body.light-mode #domModal #correctionLevel{
   border-color:#94a3b8 !important;
 }
 
+/* === APP VERSION 3.11.0: バスミラー全ユーザー公開・歴代自己ベスト整列 === */
+.rate-personal-best{
+  display:block !important;
+  padding:10px 14px !important;
+}
+.rate-personal-best-label{
+  display:block !important;
+  margin:0 0 6px !important;
+  color:#94a3b8 !important;
+  -webkit-text-fill-color:#94a3b8 !important;
+  font-size:10px !important;
+  font-weight:900 !important;
+  line-height:1.2 !important;
+}
+.option-share-title{
+  color:#94a3b8 !important;
+  -webkit-text-fill-color:#94a3b8 !important;
+  font-size:10px !important;
+  font-weight:900 !important;
+  line-height:1.2 !important;
+}
+.rate-personal-best-detail{
+  display:flex;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:6px;
+  min-width:0;
+}
+.rate-personal-best-detail .rate-personal-best-value{
+  margin:0 !important;
+  line-height:1.2 !important;
+}
+.rate-personal-best-detail .rate-personal-best-badges{
+  display:flex !important;
+  align-items:center !important;
+  gap:5px !important;
+  margin:0 !important;
+}
+.rate-personal-best-detail .rate-personal-best-version{
+  flex:0 1 auto !important;
+  min-width:0 !important;
+  margin:0 !important;
+  line-height:1.2 !important;
+  white-space:normal !important;
+  overflow:visible !important;
+  text-overflow:clip !important;
+}
+.rate-option-summary:not(:empty){
+  border-top:1px solid #334155 !important;
+}
+body.light-mode .rate-option-summary:not(:empty){
+  border-top-color:#94a3b8 !important;
+}
+body.light-mode .rate-personal-best-label,
+body.light-mode .option-share-title{
+  color:#64748b !important;
+  -webkit-text-fill-color:#64748b !important;
+}
+
 </style>
   <link rel="preconnect" href="https://challenges.cloudflare.com">
   <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" defer></script>
@@ -8506,7 +8565,7 @@ body.light-mode #domModal #correctionLevel{
     <div class="app-menu-version">
       <label>VERSION</label>
       <select id="versionSelect" class="version-select" aria-label="GITADORAバージョン"></select>
-      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 3.10.3</div>
+      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 3.11.0</div>
     </div>
   </div>
 </div>
@@ -8791,7 +8850,7 @@ body.light-mode #domModal #correctionLevel{
 <div id="adminModal" class="admin-modal">
   <div class="admin-header">
     <div class="admin-title-row">
-      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 3.10.3</div></div>
+      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 3.11.0</div></div>
       <button id="btnCloseAdmin" class="admin-close">閉じる</button>
     </div>
     <div class="admin-tabs">
@@ -8868,6 +8927,6 @@ body.light-mode #domModal #correctionLevel{
   </div>
 </div>
 
-<script type="module" src="./js/app.js?v=3_10_3"></script>
+<script type="module" src="./js/app.js?v=3_11_0"></script>
 </body>
 </html>
