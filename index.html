@@ -8822,9 +8822,9 @@ body.skill-target-columns :is(#viewSkill,#userDetailSkill) .dc-card-skill{
 body.skill-target-columns :is(#viewSkill,#userDetailSkill) .dc-card-skill .dc-title{
   grid-column:1 / 4 !important;
   grid-row:2 !important;
-  height:calc(12px * 1.12 * 2 + 6px) !important;
-  min-height:calc(12px * 1.12 * 2 + 6px) !important;
-  max-height:calc(12px * 1.12 * 2 + 6px) !important;
+  height:calc(11px * 1.12 * 2 + 6px) !important;
+  min-height:calc(11px * 1.12 * 2 + 6px) !important;
+  max-height:calc(11px * 1.12 * 2 + 6px) !important;
   padding:2px 0 !important;
   border-top:1px solid rgba(148,163,184,.24) !important;
   border-bottom:1px solid rgba(148,163,184,.24) !important;
@@ -8838,7 +8838,7 @@ body.skill-target-columns :is(#viewSkill,#userDetailSkill) .dc-card-skill .dc-ti
 }
 body.skill-target-columns :is(#viewSkill,#userDetailSkill) .dc-card-skill .dc-song-title{
   width:100%;
-  font-size:12px !important;
+  font-size:11px !important;
   line-height:1.12 !important;
   color:#f8fafc !important;
   -webkit-text-fill-color:#f8fafc !important;
@@ -8918,13 +8918,15 @@ body.skill-target-columns :is(#viewSkill,#userDetailSkill) .dc-card-skill .dc-sk
   max-width:82px !important;
   padding:3px 0 !important;
 }
-/* 横並びカード内の通常文字は統一。各種バッジの文字サイズは変更しない。 */
+/* 曲名・Lv・達成率は少し小さくし、スキル値は従来サイズを維持 */
 body.skill-target-columns :is(#viewSkill,#userDetailSkill) .dc-card-skill :is(
   .dc-song-title,
   .dc-lv,
-  .dc-rate,
-  .dc-skill
+  .dc-rate
 ){
+  font-size:11px !important;
+}
+body.skill-target-columns :is(#viewSkill,#userDetailSkill) .dc-card-skill .dc-skill{
   font-size:12px !important;
 }
 @media(max-width:700px){
@@ -8970,19 +8972,21 @@ body.text-size-up :is(.howto-body p,.feedback-body,.support-dialog-body,.skill-s
     font-size:13px !important;
   }
 }
-/* 文字サイズUP併用時も、横並びカード内は同じサイズで統一する。 */
+/* 文字サイズUP併用時も、曲名・Lv・達成率はスキル値より1px小さくする。 */
 body.text-size-up.skill-target-columns :is(#viewSkill,#userDetailSkill) .dc-card-skill :is(
   .dc-song-title,
   .dc-lv,
-  .dc-rate,
-  .dc-skill
+  .dc-rate
 ){
+  font-size:12px !important;
+}
+body.text-size-up.skill-target-columns :is(#viewSkill,#userDetailSkill) .dc-card-skill .dc-skill{
   font-size:13px !important;
 }
 body.text-size-up.skill-target-columns :is(#viewSkill,#userDetailSkill) .dc-card-skill .dc-title{
-  height:calc(13px * 1.12 * 2 + 6px) !important;
-  min-height:calc(13px * 1.12 * 2 + 6px) !important;
-  max-height:calc(13px * 1.12 * 2 + 6px) !important;
+  height:calc(12px * 1.12 * 2 + 6px) !important;
+  min-height:calc(12px * 1.12 * 2 + 6px) !important;
+  max-height:calc(12px * 1.12 * 2 + 6px) !important;
 }
 body.text-size-up.skill-target-columns :is(#viewSkill,#userDetailSkill) .dc-card-skill .p-badge{
   font-size:12px !important;
@@ -9246,7 +9250,7 @@ body.text-size-up.skill-target-columns :is(#viewSkill,#userDetailSkill) .dc-card
     <div class="app-menu-version">
       <label>VERSION</label>
       <select id="versionSelect" class="version-select" aria-label="GITADORAバージョン"></select>
-      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 3.14.3</div>
+      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 3.14.4</div>
     </div>
   </div>
 </div>
@@ -9558,7 +9562,7 @@ body.text-size-up.skill-target-columns :is(#viewSkill,#userDetailSkill) .dc-card
 <div id="adminModal" class="admin-modal">
   <div class="admin-header">
     <div class="admin-title-row">
-      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 3.14.3</div></div>
+      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 3.14.4</div></div>
       <button id="btnCloseAdmin" class="admin-close">閉じる</button>
     </div>
     <div class="admin-tabs">
@@ -9635,6 +9639,6 @@ body.text-size-up.skill-target-columns :is(#viewSkill,#userDetailSkill) .dc-card
   </div>
 </div>
 
-<script type="module" src="./js/app.js?v=3_14_3"></script>
+<script type="module" src="./js/app.js?v=3_14_4"></script>
 </body>
 </html>
