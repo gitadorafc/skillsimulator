@@ -8344,11 +8344,29 @@ body.light-mode .option-share-title{
   border-radius:50%;
 }
 .sync-browser-mark.safari{
-  border:1px solid #bfdbfe;
-  background:linear-gradient(145deg,#38bdf8,#2563eb);
-  color:#fff;
-  font-size:13px;
-  font-weight:900;
+  overflow:hidden;
+  border:2px solid #e2e8f0;
+  background:radial-gradient(circle at 50% 50%,#e0f2fe 0 18%,#38bdf8 20% 54%,#2563eb 56% 100%);
+  box-shadow:inset 0 0 0 1px rgba(15,23,42,.22);
+}
+.sync-browser-mark.safari::before{
+  content:"";
+  position:absolute;
+  width:2px;
+  height:15px;
+  border-radius:2px;
+  background:linear-gradient(to bottom,#ef4444 0 49%,#ffffff 50% 100%);
+  transform:rotate(45deg);
+  box-shadow:0 0 1px rgba(15,23,42,.55);
+}
+.sync-browser-mark.safari::after{
+  content:"";
+  position:absolute;
+  width:3px;
+  height:3px;
+  border-radius:50%;
+  background:#ffffff;
+  box-shadow:0 0 0 1px rgba(15,23,42,.25);
 }
 .sync-browser-mark.chrome{
   background:conic-gradient(#dc2626 0 33%,#eab308 0 66%,#16a34a 0);
@@ -8360,13 +8378,6 @@ body.light-mode .option-share-title{
   border:2px solid #dbeafe;
   border-radius:50%;
   background:#2563eb;
-}
-.sync-visual-first-note{
-  margin:9px 0 10px;
-  color:#f59e0b;
-  font-size:11px;
-  font-weight:900;
-  text-align:center;
 }
 .sync-visual-card{
   display:grid;
@@ -8505,6 +8516,65 @@ body.light-mode .option-share-title{
   color:#60a5fa;
   font-size:14px;
 }
+.sync-mini-share-icon{
+  position:relative;
+  box-sizing:border-box;
+  display:block;
+  width:13px;
+  height:11px;
+  margin-top:4px;
+  border:1.5px solid #60a5fa;
+  border-radius:2px;
+}
+.sync-mini-share-icon::before{
+  content:"";
+  position:absolute;
+  left:50%;
+  bottom:5px;
+  width:1.5px;
+  height:10px;
+  border-radius:2px;
+  background:#60a5fa;
+  transform:translateX(-50%);
+}
+.sync-mini-share-icon::after{
+  content:"";
+  position:absolute;
+  left:50%;
+  bottom:11px;
+  width:5px;
+  height:5px;
+  border-top:1.5px solid #60a5fa;
+  border-left:1.5px solid #60a5fa;
+  transform:translateX(-50%) rotate(45deg);
+}
+.sync-mini-book-icon{
+  position:relative;
+  display:block;
+  width:17px;
+  height:12px;
+}
+.sync-mini-book-icon::before,
+.sync-mini-book-icon::after{
+  content:"";
+  position:absolute;
+  top:0;
+  box-sizing:border-box;
+  width:8px;
+  height:11px;
+  border:1.5px solid #60a5fa;
+  background:#1e293b;
+}
+.sync-mini-book-icon::before{
+  left:0;
+  border-radius:4px 1px 1px 2px;
+  transform:skewY(7deg);
+}
+.sync-mini-book-icon::after{
+  right:0;
+  border-radius:1px 4px 2px 1px;
+  transform:skewY(-7deg);
+}
 .sync-mini-callout{
   margin:0 6px 6px;
   padding:5px 3px;
@@ -8573,31 +8643,39 @@ body.light-mode .option-share-title{
 .sync-mini-suggestion span{
   color:#94a3b8;
 }
-.sync-visual-toggle{
+.sync-mini-suggestion strong{
   display:flex;
   align-items:center;
-  justify-content:space-between;
-  width:100%;
-  min-height:40px;
-  margin-top:9px;
-  padding:0 12px;
-  border:1px solid #334155;
-  border-radius:9px;
-  background:#111827;
-  color:#cbd5e1;
-  font-size:10.5px;
-  font-weight:900;
+  gap:4px;
 }
-.sync-visual-toggle strong{
-  font-size:18px;
+.sync-mini-globe{
+  position:relative;
+  box-sizing:border-box;
+  display:inline-block;
+  flex:0 0 10px;
+  width:10px;
+  height:10px;
+  border:1px solid #cbd5e1;
+  border-radius:50%;
 }
-.skill-sync-visual-guide.is-compact .sync-visual-first-note,
-.skill-sync-visual-guide.is-compact .sync-visual-card:not(.sync-visual-run-card){
-  display:none;
+.sync-mini-globe::before{
+  content:"";
+  position:absolute;
+  inset:1px 3px;
+  border-left:1px solid #cbd5e1;
+  border-right:1px solid #cbd5e1;
+  border-radius:50%;
+}
+.sync-mini-globe::after{
+  content:"";
+  position:absolute;
+  left:1px;
+  right:1px;
+  top:4px;
+  border-top:1px solid #cbd5e1;
 }
 body.light-mode .sync-visual-device,
-body.light-mode .sync-visual-card,
-body.light-mode .sync-visual-toggle{
+body.light-mode .sync-visual-card{
   border-color:#cbd5e1 !important;
   background:#f8fafc !important;
   color:#334155 !important;
@@ -8901,7 +8979,7 @@ body.light-mode .sync-visual-primary{
     <div class="app-menu-version">
       <label>VERSION</label>
       <select id="versionSelect" class="version-select" aria-label="GITADORAバージョン"></select>
-      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 3.12.0</div>
+      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 3.12.1</div>
     </div>
   </div>
 </div>
@@ -9125,7 +9203,7 @@ body.light-mode .sync-visual-primary{
         <div class="skill-sync-card-warning">
           ⚠️ この時、複数カードがある場合、参照するカードが合っているかご確認ください。
         </div>
-        <div class="skill-sync-android-note">
+        <div id="skillSyncLegacyChromeNote" class="skill-sync-android-note">
           <strong>Android版Chromeをご利用の場合</strong>
           <span>ブックマーク一覧から同期用ブックマークを開いても動作しない場合があります。その場合は、Chromeのアドレスバーに作成したブックマークの名前を入力し、表示された候補から同期用ブックマークを選択してください。</span>
         </div>
@@ -9190,7 +9268,7 @@ body.light-mode .sync-visual-primary{
 <div id="adminModal" class="admin-modal">
   <div class="admin-header">
     <div class="admin-title-row">
-      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 3.12.0</div></div>
+      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 3.12.1</div></div>
       <button id="btnCloseAdmin" class="admin-close">閉じる</button>
     </div>
     <div class="admin-tabs">
@@ -9267,6 +9345,6 @@ body.light-mode .sync-visual-primary{
   </div>
 </div>
 
-<script type="module" src="./js/app.js?v=3_12_0"></script>
+<script type="module" src="./js/app.js?v=3_12_1"></script>
 </body>
 </html>

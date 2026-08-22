@@ -3513,13 +3513,13 @@ function getSkillSyncVisualGuideMarkup(browser) {
   const isSafari = browser === 'safari';
   const browserName = isSafari ? 'Safari' : 'Chrome';
   const browserMark = isSafari
-    ? '<span class="sync-browser-mark safari" aria-hidden="true">↗</span>'
+    ? '<span class="sync-browser-mark safari" aria-hidden="true"></span>'
     : '<span class="sync-browser-mark chrome" aria-hidden="true"></span>';
   const bookmarkFigure = isSafari
     ? `
       <div class="sync-mini-browser safari" aria-hidden="true">
         <div class="sync-mini-address">gitadorafc.github.io</div>
-        <div class="sync-mini-toolbar"><span>‹</span><strong>⇧</strong><span>▢</span></div>
+        <div class="sync-mini-toolbar"><span>‹</span><strong class="sync-mini-share-icon"></strong><span>▢</span></div>
         <div class="sync-mini-callout">共有 → ブックマークに追加</div>
       </div>`
     : `
@@ -3534,13 +3534,13 @@ function getSkillSyncVisualGuideMarkup(browser) {
     ? `
       <div class="sync-mini-browser sync-mini-run safari" aria-hidden="true">
         <div class="sync-mini-address">GITADORA公式サイト</div>
-        <div class="sync-mini-toolbar"><span>‹</span><strong>▤</strong><span>▢</span></div>
+        <div class="sync-mini-toolbar"><span>‹</span><strong class="sync-mini-book-icon"></strong><span>▢</span></div>
         <div class="sync-mini-callout">同期用ブックマークを実行</div>
       </div>`
     : `
       <div class="sync-mini-browser sync-mini-run chrome" aria-hidden="true">
         <div class="sync-mini-search">同期用ブックマーク</div>
-        <div class="sync-mini-suggestion"><strong>☆ 同期用ブックマーク</strong><span>候補から選択</span></div>
+        <div class="sync-mini-suggestion"><strong><i class="sync-mini-globe"></i>同期用ブックマーク</strong><span>候補から選択</span></div>
       </div>`;
   const runHelp = isSafari
     ? '公式サイトを開いたまま、作成した同期用ブックマークを実行します。'
@@ -3548,7 +3548,6 @@ function getSkillSyncVisualGuideMarkup(browser) {
 
   return `
     <div class="sync-visual-device">${browserMark}<strong>${browserName}</strong></div>
-    <div class="sync-visual-first-note">⚠ 初回だけ設定が必要です</div>
 
     <div class="sync-visual-card">
       <span class="sync-visual-no">1</span>
@@ -3594,10 +3593,7 @@ function getSkillSyncVisualGuideMarkup(browser) {
 
     <div class="skill-sync-card-warning">
       ⚠ 複数カードがある場合、参照するカードが合っているかご確認ください。
-    </div>
-    <button type="button" class="sync-visual-toggle" data-sync-guide-action="toggle">
-      <span>設定済みの方はこちら</span><strong>›</strong>
-    </button>`;
+    </div>`;
 }
 
 function renderSkillSyncBrowserGuide() {
@@ -3607,13 +3603,17 @@ function renderSkillSyncBrowserGuide() {
   if (!guide || !legacyGuide || !visualGuide) return;
 
   // 新しい図解は開発確認中のため管理者だけに表示する。
-  const browser = adminEnabled ? detectSkillSyncGuideBrowser() : 'other';
+  const detectedBrowser = detectSkillSyncGuideBrowser();
+  const browser = adminEnabled ? detectedBrowser : 'other';
   const useVisualGuide = browser === 'safari' || browser === 'chrome';
   legacyGuide.classList.toggle('hidden', useVisualGuide);
   visualGuide.classList.toggle('hidden', !useVisualGuide);
+  $('skillSyncLegacyChromeNote')?.classList.toggle(
+    'hidden',
+    adminEnabled && detectedBrowser === 'other'
+  );
 
   if (useVisualGuide) {
-    visualGuide.classList.remove('is-compact');
     visualGuide.innerHTML = getSkillSyncVisualGuideMarkup(browser);
     return;
   }
@@ -3684,15 +3684,6 @@ $('skillSyncVisualGuide').addEventListener('click', event => {
   }
   if (action === 'open') {
     openEamusementForSkillSync();
-    return;
-  }
-  if (action === 'toggle') {
-    const visualGuide = $('skillSyncVisualGuide');
-    const compact = visualGuide.classList.toggle('is-compact');
-    button.querySelector('span').textContent = compact
-      ? '初回設定を表示する'
-      : '設定済みの方はこちら';
-    button.querySelector('strong').textContent = compact ? '⌄' : '›';
   }
 });
 
