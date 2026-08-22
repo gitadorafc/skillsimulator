@@ -8781,7 +8781,7 @@ body.light-mode .feature-settings-admin-badge{
 }
 
 /* HOT / OTHERを共有画像と同じ左右2列で表示 */
-body.skill-target-columns #viewSkill{
+body.skill-target-columns #viewSkill:not(.hidden){
   display:grid !important;
   grid-template-columns:minmax(0,1fr) minmax(0,1fr);
   align-items:start;
@@ -8830,6 +8830,9 @@ body.skill-target-columns #viewSkill .dc-card-skill .dc-lv{
   justify-content:center !important;
   font-size:10px !important;
 }
+body.skill-target-columns #viewSkill .dc-card-skill .dc-lv .dc-field-label{
+  display:none !important;
+}
 body.skill-target-columns #viewSkill .dc-card-skill .dc-skill{
   grid-column:3 !important;
   grid-row:1 !important;
@@ -8843,7 +8846,9 @@ body.skill-target-columns #viewSkill .dc-card-skill .dc-skill{
 body.skill-target-columns #viewSkill .dc-card-skill .dc-title{
   grid-column:1 / 4 !important;
   grid-row:2 !important;
-  min-height:0 !important;
+  height:calc(12px * 1.12 * 2) !important;
+  min-height:calc(12px * 1.12 * 2) !important;
+  max-height:calc(12px * 1.12 * 2) !important;
   align-self:start !important;
   align-items:flex-start !important;
 }
@@ -8855,13 +8860,20 @@ body.skill-target-columns #viewSkill .dc-card-skill .dc-song-title{
   width:100%;
   font-size:12px !important;
   line-height:1.12 !important;
+  color:#7dd3fc !important;
+  -webkit-text-fill-color:#7dd3fc !important;
   max-height:2.24em !important;
+}
+body.light-mode.skill-target-columns #viewSkill .dc-card-skill .dc-song-title{
+  color:#0369a1 !important;
+  -webkit-text-fill-color:#0369a1 !important;
 }
 /* 3段目：達成率の数値＋％ / オプション / FC */
 body.skill-target-columns #viewSkill .dc-card-skill .dc-rate{
   grid-column:1 !important;
   grid-row:3 !important;
-  justify-content:center !important;
+  justify-content:flex-start !important;
+  text-align:left !important;
   font-size:10px !important;
 }
 body.skill-target-columns #viewSkill .dc-card-skill .dc-rate .dc-field-label{
@@ -8945,6 +8957,11 @@ body.text-size-up.skill-target-columns #viewSkill .dc-card-skill :is(
   .dc-skill
 ){
   font-size:13px !important;
+}
+body.text-size-up.skill-target-columns #viewSkill .dc-card-skill .dc-title{
+  height:calc(13px * 1.12 * 2) !important;
+  min-height:calc(13px * 1.12 * 2) !important;
+  max-height:calc(13px * 1.12 * 2) !important;
 }
 body.text-size-up.skill-target-columns #viewSkill .dc-card-skill .p-badge{
   font-size:12px !important;
@@ -9208,7 +9225,7 @@ body.text-size-up.skill-target-columns #viewSkill .dc-card-skill :is(.fc-unified
     <div class="app-menu-version">
       <label>VERSION</label>
       <select id="versionSelect" class="version-select" aria-label="GITADORAバージョン"></select>
-      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 3.13.2</div>
+      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 3.13.3</div>
     </div>
   </div>
 </div>
@@ -9520,7 +9537,7 @@ body.text-size-up.skill-target-columns #viewSkill .dc-card-skill :is(.fc-unified
 <div id="adminModal" class="admin-modal">
   <div class="admin-header">
     <div class="admin-title-row">
-      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 3.13.2</div></div>
+      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 3.13.3</div></div>
       <button id="btnCloseAdmin" class="admin-close">閉じる</button>
     </div>
     <div class="admin-tabs">
@@ -9597,6 +9614,6 @@ body.text-size-up.skill-target-columns #viewSkill .dc-card-skill :is(.fc-unified
   </div>
 </div>
 
-<script type="module" src="./js/app.js?v=3_13_2"></script>
+<script type="module" src="./js/app.js?v=3_13_3"></script>
 </body>
 </html>

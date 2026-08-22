@@ -651,7 +651,10 @@ function applyAdminDisplayCustomization(skillTargetColumns = null, textSizeUp = 
       : Boolean(textSizeUp)
   );
 
-  document.body.classList.toggle('skill-target-columns', columnsEnabled);
+  document.body.classList.toggle(
+    'skill-target-columns',
+    columnsEnabled && activeTabName === 'SKILL'
+  );
   document.body.classList.toggle('text-size-up', textSizeEnabled);
 
   return {
@@ -1858,6 +1861,10 @@ function renderManage() {
 }
 
 function render() {
+  // 横並び表示はスキル対象タブだけに限定する。
+  // タブ切替時にも再評価し、登録曲タブへレイアウトが残らないようにする。
+  applyAdminDisplayCustomization();
+
   const t = totals();
   $('txtHotTotal').textContent = formatSkill(t.hot);
   $('txtOtherTotal').textContent = formatSkill(t.other);
