@@ -8738,33 +8738,6 @@ body.light-mode .sync-mini-toolbar{
 }
 
 /* === APP VERSION 3.13.0: 表示カスタマイズ === */
-.feature-settings-customization{
-  margin-top:4px;
-  padding:8px 10px 0;
-  border:1px solid #334155;
-  border-radius:9px;
-  background:#111827;
-}
-.feature-settings-section-title{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:8px;
-  padding:2px 2px 5px;
-  color:#f8fafc;
-  font-size:13px;
-  font-weight:900;
-}
-.feature-settings-customization .feature-setting-row:last-child{
-  border-bottom:0;
-}
-body.light-mode .feature-settings-customization{
-  background:#f8fafc !important;
-  border-color:#cbd5e1 !important;
-}
-body.light-mode .feature-settings-section-title{
-  color:#111827 !important;
-}
 
 /* 自分・他ユーザーのスキル対象をHOT / OTHERの左右2列で表示 */
 body.skill-target-columns :is(#viewSkill,#userDetailSkill):not(.hidden){
@@ -8979,6 +8952,14 @@ body.text-size-up.skill-target-columns :is(#viewSkill,#userDetailSkill) .dc-card
 }
 body.text-size-up.skill-target-columns :is(#viewSkill,#userDetailSkill) .dc-card-skill :is(.fc-unified-badge,.opt-badge){
   font-size:9px !important;
+}
+
+/* 他ユーザー詳細の固定エリアも、ユーザー一覧と同じく最下部に影を付ける */
+.user-detail-sticky{
+  box-shadow:0 5px 10px rgba(0,0,0,.28) !important;
+}
+body.light-mode .user-detail-sticky{
+  box-shadow:0 5px 10px rgba(15,23,42,.18) !important;
 }
 
 </style>
@@ -9236,7 +9217,7 @@ body.text-size-up.skill-target-columns :is(#viewSkill,#userDetailSkill) .dc-card
     <div class="app-menu-version">
       <label>VERSION</label>
       <select id="versionSelect" class="version-select" aria-label="GITADORAバージョン"></select>
-      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 3.14.5</div>
+      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 3.14.6</div>
     </div>
   </div>
 </div>
@@ -9277,27 +9258,21 @@ body.text-size-up.skill-target-columns :is(#viewSkill,#userDetailSkill) .dc-card
         <input id="settingLightMode" type="checkbox">
       </label>
 
-      <div id="displayCustomization" class="feature-settings-customization">
-        <div class="feature-settings-section-title">
-          <span>表示のカスタマイズ</span>
-        </div>
+      <label class="feature-setting-row">
+        <span>
+          <strong>スキル対象の横並び表示</strong>
+          <small>HOTとOTHERを左右2列で表示します。</small>
+        </span>
+        <input id="settingSkillTargetColumns" type="checkbox">
+      </label>
 
-        <label class="feature-setting-row">
-          <span>
-            <strong>スキル対象の横並び表示</strong>
-            <small>共有画像のようにHOTとOTHERを左右2列で表示します。</small>
-          </span>
-          <input id="settingSkillTargetColumns" type="checkbox">
-        </label>
-
-        <label class="feature-setting-row">
-          <span>
-            <strong>文字サイズUP</strong>
-            <small>画面全体の文字を通常より大きく表示します。</small>
-          </span>
-          <input id="settingTextSizeUp" type="checkbox">
-        </label>
-      </div>
+      <label class="feature-setting-row">
+        <span>
+          <strong>文字サイズUP</strong>
+          <small>画面全体の文字を通常より大きく表示します。</small>
+        </span>
+        <input id="settingTextSizeUp" type="checkbox">
+      </label>
 
       <label class="feature-setting-row">
         <span>
@@ -9547,7 +9522,7 @@ body.text-size-up.skill-target-columns :is(#viewSkill,#userDetailSkill) .dc-card
 <div id="adminModal" class="admin-modal">
   <div class="admin-header">
     <div class="admin-title-row">
-      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 3.14.5</div></div>
+      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 3.14.6</div></div>
       <button id="btnCloseAdmin" class="admin-close">閉じる</button>
     </div>
     <div class="admin-tabs">
@@ -9624,6 +9599,6 @@ body.text-size-up.skill-target-columns :is(#viewSkill,#userDetailSkill) .dc-card
   </div>
 </div>
 
-<script type="module" src="./js/app.js?v=3_14_5"></script>
+<script type="module" src="./js/app.js?v=3_14_6"></script>
 </body>
 </html>
