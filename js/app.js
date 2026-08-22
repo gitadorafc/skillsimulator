@@ -1314,10 +1314,13 @@ function shareSkillImage() {
 
   const nameWidth = x.measureText(shareNameText).width;
   const totalX = 54 + nameWidth + shareGap;
-  const linePaintWidth = Math.min(W - 108, nameWidth + shareGap + x.measureText(shareTotal).width);
+  const totalWidth = x.measureText(shareTotal).width;
 
-  x.fillStyle = totalPaint(target.total, 54, 132, linePaintWidth, 52);
+  // ユーザー名とTOTALスキルは、それぞれの文字幅で独立して
+  // 同じスキルカラーのグラデーションを描画する。
+  x.fillStyle = totalPaint(target.total, 54, 132, nameWidth, 52);
   x.fillText(shareNameText, 54, shareLineY);
+  x.fillStyle = totalPaint(target.total, totalX, 132, totalWidth, 52);
   x.fillText(shareTotal, totalX, shareLineY);
 
   x.fillStyle = '#94a3b8';
