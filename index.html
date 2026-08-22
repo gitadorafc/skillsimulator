@@ -8217,6 +8217,44 @@ body.light-mode .history-option-badge{
   line-height:20px !important;
 }
 
+/* === APP VERSION 3.10.3: 達成率横Skill・難易度報告入力統一 === */
+#domModal #formSkill{
+  box-sizing:border-box !important;
+  min-height:38px !important;
+  height:38px !important;
+  max-height:38px !important;
+}
+#domModal #correctionLevel{
+  box-sizing:border-box !important;
+  min-height:38px !important;
+  height:38px !important;
+  max-height:38px !important;
+  padding:5px 9px !important;
+  border:1px solid #475569 !important;
+  border-radius:8px !important;
+  outline:none !important;
+  background:#111827 !important;
+  color:#f8fafc !important;
+  -webkit-text-fill-color:#f8fafc !important;
+  font-size:12px !important;
+  line-height:normal !important;
+}
+#domModal #correctionLevel:focus{
+  border-color:#3b82f6 !important;
+  box-shadow:0 0 0 2px rgba(59,130,246,.18) !important;
+}
+#domModal #btnSendLevelCorrection{
+  min-height:38px !important;
+  height:38px !important;
+  border-radius:8px !important;
+}
+body.light-mode #domModal #correctionLevel{
+  background:#ffffff !important;
+  color:#111827 !important;
+  -webkit-text-fill-color:#111827 !important;
+  border-color:#94a3b8 !important;
+}
+
 </style>
   <link rel="preconnect" href="https://challenges.cloudflare.com">
   <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" defer></script>
@@ -8388,9 +8426,15 @@ body.light-mode .history-option-badge{
       </div>
     </div>
 
-    <div class="f-group">
-      <label>達成率 (%)</label>
-      <input id="formRate" type="number" min="0" max="100" step="0.01" inputmode="decimal" placeholder="例 95.50">
+    <div id="rateSkillFields" class="form-grid-two">
+      <div class="f-group">
+        <label>達成率 (%)</label>
+        <input id="formRate" type="number" min="0" max="100" step="0.01" inputmode="decimal" placeholder="例 95.50">
+      </div>
+      <div class="f-group">
+        <label>Skill</label>
+        <div id="formSkill" class="skill-preview">-</div>
+      </div>
     </div>
 
     <div id="scoreExtraFields" class="form-grid-two">
@@ -8435,11 +8479,6 @@ body.light-mode .history-option-badge{
       <div class="score-private-comment-note">自分だけに表示されます（100文字まで）</div>
     </div>
 
-    <div class="f-group">
-      <label>Skill</label>
-      <div id="formSkill" class="skill-preview">-</div>
-    </div>
-
     <div id="editDeleteArea" class="edit-delete-area hidden">
       <button id="btnDeleteEditingScore" type="button" class="btn-delete-editing-score">この登録データを削除</button>
     </div>
@@ -8467,7 +8506,7 @@ body.light-mode .history-option-badge{
     <div class="app-menu-version">
       <label>VERSION</label>
       <select id="versionSelect" class="version-select" aria-label="GITADORAバージョン"></select>
-      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 3.10.2</div>
+      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 3.10.3</div>
     </div>
   </div>
 </div>
@@ -8752,7 +8791,7 @@ body.light-mode .history-option-badge{
 <div id="adminModal" class="admin-modal">
   <div class="admin-header">
     <div class="admin-title-row">
-      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 3.10.2</div></div>
+      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 3.10.3</div></div>
       <button id="btnCloseAdmin" class="admin-close">閉じる</button>
     </div>
     <div class="admin-tabs">
@@ -8829,6 +8868,6 @@ body.light-mode .history-option-badge{
   </div>
 </div>
 
-<script type="module" src="./js/app.js?v=3_10_2"></script>
+<script type="module" src="./js/app.js?v=3_10_3"></script>
 </body>
 </html>
