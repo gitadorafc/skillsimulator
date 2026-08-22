@@ -8063,6 +8063,127 @@ body.light-mode .history-option-badge{
   border-color:#94a3b8 !important;
 }
 
+/* === APP VERSION 3.10.1: スコア登録モーダルの縦幅圧縮 === */
+#domModal.mdl-mask{
+  padding:8px !important;
+}
+#domModal .mdl-sheet{
+  max-height:calc(100dvh - 16px) !important;
+  padding:10px !important;
+}
+#domModal .mdl-sheet #domModalTitle{
+  margin:0 0 6px !important;
+  font-size:15px !important;
+  line-height:1.25 !important;
+}
+#domModal .f-group{
+  margin-bottom:4px !important;
+}
+#domModal .f-group label{
+  margin-bottom:2px !important;
+  font-size:10px !important;
+  line-height:1.2 !important;
+}
+#domModal .form-grid-two{
+  gap:6px !important;
+}
+#domModal .mdl-sheet .f-group input:not(#formTitle),
+#domModal .f-group select,
+#domModal #formTitle,
+#domModal #formLevel,
+#domModal .skill-preview{
+  min-height:38px !important;
+  height:38px !important;
+  font-size:12px !important;
+}
+#domModal .mdl-sheet .f-group input:not(#formTitle),
+#domModal #formTitle{
+  padding-top:5px !important;
+  padding-bottom:5px !important;
+}
+#domModal .f-group select{
+  padding-top:0 !important;
+  padding-bottom:0 !important;
+}
+#domModal .skill-preview{
+  min-height:36px !important;
+  height:36px !important;
+  padding:5px 8px !important;
+  font-size:15px !important;
+}
+#domModal .level-correction-area,
+#domModal .master-request-area{
+  margin:3px 0 4px !important;
+  padding:5px 7px !important;
+}
+#domModal .level-correction-head{
+  gap:6px !important;
+}
+#domModal .level-correction-title,
+#domModal .master-request-title{
+  font-size:9.5px !important;
+  line-height:1.25 !important;
+}
+#domModal .level-correction-note,
+#domModal .master-request-note{
+  margin-top:1px !important;
+  font-size:8.5px !important;
+  line-height:1.25 !important;
+}
+#domModal #btnOpenLevelCorrection{
+  min-height:30px !important;
+  padding:0 8px !important;
+  font-size:9px !important;
+}
+#domModal .level-correction-form{
+  margin-top:5px !important;
+  padding-top:5px !important;
+}
+#domModal .level-correction-input-row{
+  gap:5px !important;
+}
+#domModal .level-correction-input-row input{
+  min-height:34px !important;
+  height:34px !important;
+}
+#domModal #btnSendLevelCorrection{
+  min-height:34px !important;
+  min-width:108px !important;
+  padding:0 7px !important;
+  font-size:9px !important;
+}
+#domModal #formPrivateComment{
+  min-height:48px !important;
+  height:48px !important;
+  padding:6px 8px !important;
+  font-size:12px !important;
+  line-height:1.35 !important;
+}
+#domModal .score-private-comment-note{
+  margin-top:2px !important;
+  font-size:8px !important;
+  line-height:1.2 !important;
+}
+#domModal .edit-delete-area{
+  margin-top:4px !important;
+  padding-top:4px !important;
+}
+#domModal .btn-delete-editing-score{
+  min-height:34px !important;
+  height:34px !important;
+  font-size:10px !important;
+}
+#domModal .btn-block{
+  margin-top:6px !important;
+  gap:6px !important;
+}
+#domModal .btn-submit,
+#domModal .btn-cancel{
+  min-height:40px !important;
+  height:40px !important;
+  font-size:12px !important;
+}
+
 </style>
   <link rel="preconnect" href="https://challenges.cloudflare.com">
   <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" defer></script>
@@ -8313,7 +8434,7 @@ body.light-mode .history-option-badge{
     <div class="app-menu-version">
       <label>VERSION</label>
       <select id="versionSelect" class="version-select" aria-label="GITADORAバージョン"></select>
-      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 3.10.0</div>
+      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 3.10.1</div>
     </div>
   </div>
 </div>
@@ -8598,7 +8719,7 @@ body.light-mode .history-option-badge{
 <div id="adminModal" class="admin-modal">
   <div class="admin-header">
     <div class="admin-title-row">
-      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 3.10.0</div></div>
+      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 3.10.1</div></div>
       <button id="btnCloseAdmin" class="admin-close">閉じる</button>
     </div>
     <div class="admin-tabs">
@@ -8675,6 +8796,6 @@ body.light-mode .history-option-badge{
   </div>
 </div>
 
-<script type="module" src="./js/app.js?v=3_10_0"></script>
+<script type="module" src="./js/app.js?v=3_10_1"></script>
 </body>
 </html>
