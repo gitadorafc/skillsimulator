@@ -8812,11 +8812,11 @@ body.skill-target-columns #viewSkill .skill-other-section h2{
 /* 横並び時のカードは指定どおり3列×3段で配置 */
 body.skill-target-columns #viewSkill .dc-card-skill{
   grid-template-columns:repeat(3,minmax(0,1fr)) !important;
-  grid-template-rows:auto minmax(2.36em,auto) auto !important;
+  grid-template-rows:auto auto auto !important;
   column-gap:4px !important;
-  row-gap:5px !important;
-  min-height:96px !important;
-  padding:6px !important;
+  row-gap:2px !important;
+  min-height:0 !important;
+  padding:4px !important;
 }
 /* 1段目：パート / Lv / スキル値 */
 body.skill-target-columns #viewSkill .dc-card-skill .dc-part{
@@ -8837,21 +8837,25 @@ body.skill-target-columns #viewSkill .dc-card-skill .dc-skill{
   width:100% !important;
   min-width:0 !important;
   max-width:65px !important;
-  padding:5px 0 !important;
+  padding:3px 0 !important;
 }
 /* 2段目：曲名（最大2行） */
 body.skill-target-columns #viewSkill .dc-card-skill .dc-title{
   grid-column:1 / 4 !important;
   grid-row:2 !important;
-  min-height:2.36em;
-  align-items:center !important;
+  min-height:0 !important;
+  align-self:start !important;
+  align-items:flex-start !important;
 }
-body.skill-target-columns #viewSkill .dc-card-skill .dc-title .hot-tag{
+/* スキル対象ではHOT見出しがあるため、通常表示でもカード内HOTマークは不要 */
+#viewSkill .dc-card-skill .dc-title .hot-tag{
   display:none !important;
 }
 body.skill-target-columns #viewSkill .dc-card-skill .dc-song-title{
   width:100%;
   font-size:12px !important;
+  line-height:1.12 !important;
+  max-height:2.24em !important;
 }
 /* 3段目：達成率の数値＋％ / オプション / FC */
 body.skill-target-columns #viewSkill .dc-card-skill .dc-rate{
@@ -8880,6 +8884,15 @@ body.skill-target-columns #viewSkill .dc-card-skill .dc-fc{
 body.skill-target-columns #viewSkill .dc-card-skill .dc-fc .fc-unified-badge{
   width:100% !important;
   max-width:52px !important;
+}
+/* 横並びカード内の通常文字は統一。各種バッジの文字サイズは変更しない。 */
+body.skill-target-columns #viewSkill .dc-card-skill :is(
+  .dc-song-title,
+  .dc-lv,
+  .dc-rate,
+  .dc-skill
+){
+  font-size:12px !important;
 }
 @media(max-width:700px){
   body.skill-target-columns #viewSkill{
@@ -8923,12 +8936,21 @@ body.text-size-up :is(.howto-body p,.feedback-body,.support-dialog-body,.skill-s
   body.text-size-up.skill-target-columns #viewSkill .sk-section h2{
     font-size:13px !important;
   }
-  body.text-size-up.skill-target-columns #viewSkill .dc-card-skill .dc-song-title{
-    font-size:13px !important;
-  }
-  body.text-size-up.skill-target-columns #viewSkill .dc-card-skill :is(.dc-lv,.dc-rate){
-    font-size:11px !important;
-  }
+}
+/* 文字サイズUP併用時も、横並びカード内は同じサイズで統一する。 */
+body.text-size-up.skill-target-columns #viewSkill .dc-card-skill :is(
+  .dc-song-title,
+  .dc-lv,
+  .dc-rate,
+  .dc-skill
+){
+  font-size:13px !important;
+}
+body.text-size-up.skill-target-columns #viewSkill .dc-card-skill .p-badge{
+  font-size:12px !important;
+}
+body.text-size-up.skill-target-columns #viewSkill .dc-card-skill :is(.fc-unified-badge,.opt-badge){
+  font-size:9px !important;
 }
 
 </style>
@@ -9186,7 +9208,7 @@ body.text-size-up :is(.howto-body p,.feedback-body,.support-dialog-body,.skill-s
     <div class="app-menu-version">
       <label>VERSION</label>
       <select id="versionSelect" class="version-select" aria-label="GITADORAバージョン"></select>
-      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 3.13.1</div>
+      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 3.13.2</div>
     </div>
   </div>
 </div>
@@ -9498,7 +9520,7 @@ body.text-size-up :is(.howto-body p,.feedback-body,.support-dialog-body,.skill-s
 <div id="adminModal" class="admin-modal">
   <div class="admin-header">
     <div class="admin-title-row">
-      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 3.13.1</div></div>
+      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 3.13.2</div></div>
       <button id="btnCloseAdmin" class="admin-close">閉じる</button>
     </div>
     <div class="admin-tabs">
@@ -9575,6 +9597,6 @@ body.text-size-up :is(.howto-body p,.feedback-body,.support-dialog-body,.skill-s
   </div>
 </div>
 
-<script type="module" src="./js/app.js?v=3_13_1"></script>
+<script type="module" src="./js/app.js?v=3_13_2"></script>
 </body>
 </html>
