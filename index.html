@@ -9044,7 +9044,7 @@ body.light-mode #viewUsers .user-list-sort-field select{
   }
 }
 
-/* === APP VERSION 3.15.0: 管理者限定 スキル対象ランキング === */
+/* === APP VERSION 3.15.0: スキル対象ランキング === */
 .skill-ranking-dialog{
   width:min(94vw,760px);
   max-height:min(92dvh,900px);
@@ -9367,7 +9367,7 @@ body.light-mode .skill-ranking-sort-wrap select{
   .skill-ranking-metric{padding:0 5px;}
 }
 
-/* APP VERSION 3.15.1: 全プルダウンの矢印を同じシェブロンへ統一 */
+/* APP VERSION 3.15.4: ライトモードの全プルダウンを登録タブの濃い▼へ統一 */
 select:not([multiple]){
   -webkit-appearance:none !important;
   appearance:none !important;
@@ -9378,9 +9378,21 @@ select:not([multiple]){
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Cpath d='M4 6.5 8 10l4-3.5' fill='none' stroke='%23e5e7eb' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") !important;
 }
 body.light-mode select:not([multiple]){
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Cpath d='M4 6.5 8 10l4-3.5' fill='none' stroke='%23334155' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") !important;
+  color-scheme:light !important;
+  color:#111827 !important;
+  -webkit-text-fill-color:#111827 !important;
+  background-color:#f8fafc !important;
+  border-color:#94a3b8 !important;
+  background-image:
+    linear-gradient(45deg, transparent 50%, #334155 50%),
+    linear-gradient(135deg, #334155 50%, transparent 50%) !important;
+  background-position:
+    calc(100% - 18px) 50%,
+    calc(100% - 12px) 50% !important;
+  background-size:6px 6px,6px 6px !important;
+  background-repeat:no-repeat !important;
 }
-/* iPhone Safari対策の外付け矢印も、通常selectと同じSVGを使う */
+/* iPhone Safari対策の外付け矢印も、通常selectと同じ濃い▼を使う */
 #domModal .select-arrow-wrap > select{
   background-image:none !important;
 }
@@ -9397,8 +9409,17 @@ body.light-mode select:not([multiple]){
   transform:translateY(-50%) !important;
 }
 body.light-mode #domModal .select-arrow-wrap::after{
+  right:12px !important;
+  width:12px !important;
+  height:12px !important;
   border:0 !important;
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Cpath d='M4 6.5 8 10l4-3.5' fill='none' stroke='%23334155' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") !important;
+  background-image:
+    linear-gradient(45deg, transparent 50%, #334155 50%),
+    linear-gradient(135deg, #334155 50%, transparent 50%) !important;
+  background-position:0 50%,6px 50% !important;
+  background-size:6px 6px,6px 6px !important;
+  background-repeat:no-repeat !important;
+  transform:translateY(-50%) !important;
 }
 
 </style>
@@ -9659,7 +9680,7 @@ body.light-mode #domModal .select-arrow-wrap::after{
     <button id="btnMenuFeatureSettings" type="button" class="app-menu-item">機能設定 <span>›</span></button>
     <button id="btnMenuSkillSync" type="button" class="app-menu-item">スキル対象同期 <span>›</span></button>
     <button id="btnMenuShareSkill" type="button" class="app-menu-item">スキル対象の画像共有 <span>›</span></button>
-    <button id="btnMenuSkillRanking" type="button" class="app-menu-item hidden">スキル対象ランキング <span>›</span></button>
+    <button id="btnMenuSkillRanking" type="button" class="app-menu-item">スキル対象ランキング <span>›</span></button>
     <button id="btnMenuRivals" type="button" class="app-menu-item">ライバル管理 <span>›</span></button>
     <button id="btnMenuHowTo" type="button" class="app-menu-item">How to use <span>›</span></button>
     <button id="btnMenuFeedback" type="button" class="app-menu-item">要望・不具合報告 <span>›</span></button>
@@ -9668,7 +9689,7 @@ body.light-mode #domModal .select-arrow-wrap::after{
     <div class="app-menu-version">
       <label>VERSION</label>
       <select id="versionSelect" class="version-select" aria-label="GITADORAバージョン"></select>
-      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 3.15.3</div>
+      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 3.15.4</div>
     </div>
   </div>
 </div>
@@ -9680,7 +9701,6 @@ body.light-mode #domModal .select-arrow-wrap::after{
       <div>
         <div class="skill-ranking-title-line">
           <strong>スキル対象ランキング</strong>
-          <span class="skill-ranking-admin-badge">管理者限定</span>
         </div>
         <div id="skillRankingContext" class="skill-ranking-context"></div>
       </div>
@@ -9845,7 +9865,8 @@ body.light-mode #domModal .select-arrow-wrap::after{
       <section><b>3. スコアを登録する</b><p>スキル対象外の曲は「登録」タブの「＋登録」から登録できます。<br>同期がうまくいかない場合も、少し大変ですが全て手動で登録できます。</p></section>
       <section><b>4. ライバルを登録する</b><p>ユーザーリストからGF / DMそれぞれ最大10人まで登録と解除ができます。<br>「ライバル管理」では登録しているライバルが一覧で確認できます。</p></section>
       <section><b>5. 登録曲詳細を見る</b><p>登録曲をタップすると以下の情報が閲覧可能です。<br>・歴代の自己ベスト<br>・全ユーザーのオプションの使用割合<br>・ライバルとの達成率比較</p></section>
-      <section><b>6. SNSへ共有する</b><p>MENU →「スキル対象の画像共有」から現在のGF / DMスキル対象画像を作成し、端末の共有メニューからXやInstagramなどへ送ったり、画像の保存ができます。</p></section>
+      <section><b>6. スキル対象ランキングを見る</b><p>MENU →「スキル対象ランキング」から、指定したTOTALスキル帯で各曲がスキル対象に入っている割合と平均スキル値を確認できます。<br>自分のスコアとの比較やHOT / OTHERの切り替えもできます。</p></section>
+      <section><b>7. SNSへ共有する</b><p>MENU →「スキル対象の画像共有」から現在のGF / DMスキル対象画像を作成し、端末の共有メニューからXやInstagramなどへ送ったり、画像の保存ができます。</p></section>
     </div>
   </div>
 </div>
@@ -10007,11 +10028,6 @@ body.light-mode #domModal .select-arrow-wrap::after{
     <div id="ratePrivateComment" class="rate-private-comment hidden"></div>
     <div id="ratePersonalBest" class="rate-personal-best hidden"></div>
     <div id="rateOptionSummary" class="rate-option-summary"></div>
-    <div id="rateCompareColumns" class="rate-table-head rate-table-head-fixed">
-      <div>ユーザー</div>
-      <div>達成率</div>
-      <div>SKILL</div>
-    </div>
     <div id="rateCompareBody" class="rate-compare-body"></div>
   </div>
 </div>
@@ -10019,7 +10035,7 @@ body.light-mode #domModal .select-arrow-wrap::after{
 <div id="adminModal" class="admin-modal">
   <div class="admin-header">
     <div class="admin-title-row">
-      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 3.15.3</div></div>
+      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 3.15.4</div></div>
       <button id="btnCloseAdmin" class="admin-close">閉じる</button>
     </div>
     <div class="admin-tabs">
@@ -10096,6 +10112,6 @@ body.light-mode #domModal .select-arrow-wrap::after{
   </div>
 </div>
 
-<script type="module" src="./js/app.js?v=3_15_3"></script>
+<script type="module" src="./js/app.js?v=3_15_4"></script>
 </body>
 </html>

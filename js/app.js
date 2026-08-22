@@ -1090,7 +1090,6 @@ async function init() {
       applyDisplayCustomization(false, false);
       applyLightMode(false);
       $('btnAdmin').classList.add('hidden');
-      $('btnMenuSkillRanking')?.classList.add('hidden');
       closeSkillTargetRanking();
       $('menuOfuseSupport')?.classList.add('hidden');
       closeAdmin();
@@ -1400,7 +1399,7 @@ function renderSkillTargetRanking() {
 }
 
 async function loadSkillTargetRanking() {
-  if (!adminEnabled || skillRankingState.loading) return;
+  if (skillRankingState.loading) return;
   keepSkillRankingRangeValid('min');
   scrollSkillRankingToTop();
 
@@ -1446,7 +1445,7 @@ async function loadSkillTargetRanking() {
     const missingFunction = /get_skill_target_rankings|schema cache|PGRST202/i.test(String(error?.message || ''));
     status.className = 'skill-ranking-status error';
     status.textContent = missingFunction
-      ? 'Supabaseで v26_skill_target_ranking.sql を実行してください。'
+      ? 'Supabaseで v27_skill_target_ranking_public.sql を実行してください。'
       : `集計に失敗しました：${error?.message || '不明なエラー'}`;
   } finally {
     skillRankingState.loading = false;
@@ -1457,11 +1456,6 @@ async function loadSkillTargetRanking() {
 }
 
 async function openSkillTargetRanking() {
-  if (!adminEnabled) {
-    await showSiteDialog('この機能は現在、管理者限定です。', '権限エラー');
-    return;
-  }
-
   closeMenu();
   skillRankingState.category = 'HOT';
   skillRankingState.sort = 'percentage';
@@ -2971,7 +2965,6 @@ async function openRateComparison(songId, title, part) {
   $('ratePersonalBest').innerHTML = '';
   $('rateOptionSummary').innerHTML =
     '<div class="option-share-title">オプション利用割合を読み込み中...</div>';
-  $('rateCompareColumns').classList.add('hidden');
   $('rateCompareBody').innerHTML = '<div class="empty-state">読み込み中...</div>';
   $('rateCompareMask').style.display = 'flex';
 
@@ -3037,8 +3030,6 @@ async function openRateComparison(songId, title, part) {
         `
       : '';
 
-    $('rateCompareColumns').classList.toggle('hidden', !rows.length);
-
     $('rateCompareBody').innerHTML = rows.length ? `
       ${rows.map((row, index) => {
         const compareSkillClass = `skill-box-${getSongSkillRank(Number(row.skill) || 0)}`;
@@ -3058,7 +3049,6 @@ async function openRateComparison(songId, title, part) {
     ` : '<div class="empty-state">比較できる記録がありません</div>';
   } catch (e) {
     $('rateOptionSummary').innerHTML = '';
-    $('rateCompareColumns').classList.add('hidden');
     $('rateCompareBody').innerHTML = `<div class="empty-state">比較データの取得に失敗しました: ${esc(e.message)}</div>`;
   }
 }
@@ -3145,7 +3135,7 @@ async function checkAdminAccess() {
 
   adminAccessChecked = true;
   $('btnAdmin').classList.toggle('hidden', !adminEnabled);
-  $('btnMenuSkillRanking')?.classList.toggle('hidden', !adminEnabled);
+  $('btnMenuSkillRanking')?.classList.remove('hidden');
   $('menuOfuseSupport')?.classList.remove('hidden');
   $('scorePrivateCommentGroup')?.classList.remove('hidden');
   updateDmBassMirrorFieldVisibility();
