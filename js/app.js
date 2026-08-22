@@ -638,14 +638,13 @@ const DISPLAY_CUSTOMIZATION_KEYS = Object.freeze({
   textSizeUp: 'gitadora_text_size_up'
 });
 
-function applyAdminDisplayCustomization(skillTargetColumns = null, textSizeUp = null) {
-  const canUse = adminEnabled === true;
-  const columnsEnabled = canUse && (
+function applyDisplayCustomization(skillTargetColumns = null, textSizeUp = null) {
+  const columnsEnabled = (
     skillTargetColumns == null
       ? localStorage.getItem(DISPLAY_CUSTOMIZATION_KEYS.skillTargetColumns) === '1'
       : Boolean(skillTargetColumns)
   );
-  const textSizeEnabled = canUse && (
+  const textSizeEnabled = (
     textSizeUp == null
       ? localStorage.getItem(DISPLAY_CUSTOMIZATION_KEYS.textSizeUp) === '1'
       : Boolean(textSizeUp)
@@ -722,18 +721,16 @@ async function openFeatureSettings() {
     lightNote.textContent = '画面をライトテーマに切り替えます。';
   }
 
-  const adminCustomization = $('adminDisplayCustomization');
   const columnsInput = $('settingSkillTargetColumns');
   const textSizeInput = $('settingTextSizeUp');
-  adminCustomization?.classList.toggle('hidden', !adminEnabled);
   if (columnsInput) {
-    columnsInput.disabled = !adminEnabled;
-    columnsInput.checked = adminEnabled &&
+    columnsInput.disabled = false;
+    columnsInput.checked =
       localStorage.getItem(DISPLAY_CUSTOMIZATION_KEYS.skillTargetColumns) === '1';
   }
   if (textSizeInput) {
-    textSizeInput.disabled = !adminEnabled;
-    textSizeInput.checked = adminEnabled &&
+    textSizeInput.disabled = false;
+    textSizeInput.checked =
       localStorage.getItem(DISPLAY_CUSTOMIZATION_KEYS.textSizeUp) === '1';
   }
 
@@ -764,19 +761,17 @@ async function saveFeatureSettings() {
     localStorage.setItem('gitadora_light_mode', light ? '1' : '0');
     applyLightMode(light);
 
-    if (adminEnabled) {
-      const skillTargetColumns = Boolean($('settingSkillTargetColumns')?.checked);
-      const textSizeUp = Boolean($('settingTextSizeUp')?.checked);
-      localStorage.setItem(
-        DISPLAY_CUSTOMIZATION_KEYS.skillTargetColumns,
-        skillTargetColumns ? '1' : '0'
-      );
-      localStorage.setItem(
-        DISPLAY_CUSTOMIZATION_KEYS.textSizeUp,
-        textSizeUp ? '1' : '0'
-      );
-      applyAdminDisplayCustomization(skillTargetColumns, textSizeUp);
-    }
+    const skillTargetColumns = Boolean($('settingSkillTargetColumns')?.checked);
+    const textSizeUp = Boolean($('settingTextSizeUp')?.checked);
+    localStorage.setItem(
+      DISPLAY_CUSTOMIZATION_KEYS.skillTargetColumns,
+      skillTargetColumns ? '1' : '0'
+    );
+    localStorage.setItem(
+      DISPLAY_CUSTOMIZATION_KEYS.textSizeUp,
+      textSizeUp ? '1' : '0'
+    );
+    applyDisplayCustomization(skillTargetColumns, textSizeUp);
 
     const { error } = await supabase.rpc('set_my_feature_settings', {
       p_registration_public: $('settingRecordsPublic').checked,
@@ -1062,7 +1057,7 @@ async function init() {
       adminEnabled = false;
       adminAccessChecked = false;
       updateDmBassMirrorFieldVisibility();
-      applyAdminDisplayCustomization(false, false);
+      applyDisplayCustomization(false, false);
       applyLightMode(false);
       $('btnAdmin').classList.add('hidden');
       $('menuOfuseSupport')?.classList.add('hidden');
@@ -1861,7 +1856,7 @@ function renderManage() {
 function render() {
   // 表示設定を再評価する。CSS側でスキル対象コンテナだけに限定しているため、
   // 登録曲タブには横並びレイアウトを適用しない。
-  applyAdminDisplayCustomization();
+  applyDisplayCustomization();
 
   const t = totals();
   $('txtHotTotal').textContent = formatSkill(t.hot);
@@ -2343,15 +2338,26 @@ function renderUsers() {
     const dmA = Number(a.dm_skill) || 0, dmB = Number(b.dm_skill) || 0;
     const totalA = gfA + dmA, totalB = gfB + dmB;
     const nameA = String(a.username || ''), nameB = String(b.username || '');
-    let result = 0;
-    if (key === 'gf') result = gfA - gfB;
-    else if (key === 'dm') result = dmA - dmB;
-    else if (key === 'total') result = totalA - totalB;
-    else if (key === 'name') return dir === 'asc'
-      ? nameA.localeCompare(nameB, 'ja')
-      : nameB.localeCompare(nameA, 'ja');
+    const compareNameAsc = () => nameA.localeCompare(nameB, 'ja');
 
-    return result * sign || nameA.localeCompare(nameB, 'ja');
+    if (key === 'gf' || key === 'dm') {
+      const primaryA = key === 'gf' ? gfA : dmA;
+      const primaryB = key === 'gf' ? gfB : dmB;
+      const primaryResult = (primaryA - primaryB) * sign;
+      if (primaryResult) return primaryResult;
+
+      // GF/DMが同値ならTOTAL、さらに同値ならユーザー名で順序を固定する。
+      const totalResult = (totalA - totalB) * sign;
+      return totalResult || compareNameAsc();
+    }
+
+    if (key === 'total') {
+      return (totalA - totalB) * sign || compareNameAsc();
+    }
+
+    return dir === 'asc'
+      ? compareNameAsc()
+      : nameB.localeCompare(nameA, 'ja');
   });
 
   const totalPages = Math.max(1, Math.ceil(users.length / USER_LIST_PAGE_SIZE));
@@ -2884,8 +2890,8 @@ async function checkAdminAccess() {
   }
   $('adminBulkDeleteArea')?.classList.toggle('hidden', !primaryAdminEnabled);
 
-  // 表示カスタマイズは管理者判定完了後にだけ有効化する。
-  applyAdminDisplayCustomization();
+  // 保存済みの表示カスタマイズを全ユーザーに反映。
+  applyDisplayCustomization();
 
   // 保存済みライトモード設定を全ユーザーに反映。
   applyLightMode();
