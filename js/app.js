@@ -651,10 +651,8 @@ function applyAdminDisplayCustomization(skillTargetColumns = null, textSizeUp = 
       : Boolean(textSizeUp)
   );
 
-  document.body.classList.toggle(
-    'skill-target-columns',
-    columnsEnabled && activeTabName === 'SKILL'
-  );
+  // 対象コンテナ側で表示中かを判定するため、設定値は他ユーザー画面でも維持する。
+  document.body.classList.toggle('skill-target-columns', columnsEnabled);
   document.body.classList.toggle('text-size-up', textSizeEnabled);
 
   return {
@@ -1861,8 +1859,8 @@ function renderManage() {
 }
 
 function render() {
-  // 横並び表示はスキル対象タブだけに限定する。
-  // タブ切替時にも再評価し、登録曲タブへレイアウトが残らないようにする。
+  // 表示設定を再評価する。CSS側でスキル対象コンテナだけに限定しているため、
+  // 登録曲タブには横並びレイアウトを適用しない。
   applyAdminDisplayCustomization();
 
   const t = totals();
@@ -2416,10 +2414,10 @@ function renderViewedUserSkill() {
   });
 
   $('userDetailSkill').innerHTML = `
-    <div class="sk-section"><h2>HOT Top25</h2><div class="list-container">
+    <div class="sk-section skill-hot-section"><h2>HOT Top25</h2><div class="list-container">
       ${target.hotRows.map((r,i) => createCard(r,i+1,'SKILL')).join('') || '<div class="empty-state">記録がありません</div>'}
     </div></div>
-    <div class="sk-section"><h2>OTHER Top25</h2><div class="list-container">
+    <div class="sk-section skill-other-section"><h2>OTHER Top25</h2><div class="list-container">
       ${target.otherRows.map((r,i) => createCard(r,i+1,'SKILL')).join('') || '<div class="empty-state">記録がありません</div>'}
     </div></div>`;
 }

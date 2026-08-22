@@ -8780,18 +8780,18 @@ body.light-mode .feature-settings-admin-badge{
   border-color:#60a5fa !important;
 }
 
-/* HOT / OTHERを共有画像と同じ左右2列で表示 */
-body.skill-target-columns #viewSkill:not(.hidden){
+/* 自分・他ユーザーのスキル対象をHOT / OTHERの左右2列で表示 */
+body.skill-target-columns :is(#viewSkill,#userDetailSkill):not(.hidden){
   display:grid !important;
   grid-template-columns:minmax(0,1fr) minmax(0,1fr);
   align-items:start;
   gap:6px;
 }
-body.skill-target-columns #viewSkill > .sk-section{
+body.skill-target-columns :is(#viewSkill,#userDetailSkill) > .sk-section{
   min-width:0;
   margin-bottom:0;
 }
-body.skill-target-columns #viewSkill .sk-section h2{
+body.skill-target-columns :is(#viewSkill,#userDetailSkill) .sk-section h2{
   min-height:30px;
   display:flex;
   align-items:center;
@@ -8802,15 +8802,15 @@ body.skill-target-columns #viewSkill .sk-section h2{
   color:#0b1020 !important;
   font-size:12px !important;
 }
-body.skill-target-columns #viewSkill .skill-hot-section h2{
+body.skill-target-columns :is(#viewSkill,#userDetailSkill) .skill-hot-section h2{
   background:#e94b88 !important;
 }
-body.skill-target-columns #viewSkill .skill-other-section h2{
+body.skill-target-columns :is(#viewSkill,#userDetailSkill) .skill-other-section h2{
   background:#83c63d !important;
 }
 
-/* 横並び時のカードは指定どおり3列×3段で配置 */
-body.skill-target-columns #viewSkill .dc-card-skill{
+/* 横並び時のカード：パート・難易度・スキル / 曲名 / 達成率・オプション・FC */
+body.skill-target-columns :is(#viewSkill,#userDetailSkill) .dc-card-skill{
   grid-template-columns:repeat(3,minmax(0,1fr)) !important;
   grid-template-rows:auto auto auto !important;
   column-gap:4px !important;
@@ -8819,31 +8819,31 @@ body.skill-target-columns #viewSkill .dc-card-skill{
   padding:4px !important;
 }
 /* 1段目：パート / Lv / スキル値 */
-body.skill-target-columns #viewSkill .dc-card-skill .dc-part{
+body.skill-target-columns :is(#viewSkill,#userDetailSkill) .dc-card-skill .dc-part{
   grid-column:1 !important;
   grid-row:1 !important;
-  justify-content:center !important;
+  justify-content:flex-start !important;
 }
-body.skill-target-columns #viewSkill .dc-card-skill .dc-lv{
+body.skill-target-columns :is(#viewSkill,#userDetailSkill) .dc-card-skill .dc-lv{
   grid-column:2 !important;
   grid-row:1 !important;
   justify-content:center !important;
   font-size:10px !important;
 }
-body.skill-target-columns #viewSkill .dc-card-skill .dc-lv .dc-field-label{
+body.skill-target-columns :is(#viewSkill,#userDetailSkill) .dc-card-skill .dc-lv .dc-field-label{
   display:none !important;
 }
-body.skill-target-columns #viewSkill .dc-card-skill .dc-skill{
+body.skill-target-columns :is(#viewSkill,#userDetailSkill) .dc-card-skill .dc-skill{
   grid-column:3 !important;
   grid-row:1 !important;
-  justify-self:center !important;
+  justify-self:end !important;
   width:100% !important;
   min-width:0 !important;
-  max-width:65px !important;
+  max-width:82px !important;
   padding:3px 0 !important;
 }
 /* 2段目：曲名（最大2行） */
-body.skill-target-columns #viewSkill .dc-card-skill .dc-title{
+body.skill-target-columns :is(#viewSkill,#userDetailSkill) .dc-card-skill .dc-title{
   grid-column:1 / 4 !important;
   grid-row:2 !important;
   height:calc(12px * 1.12 * 2) !important;
@@ -8853,52 +8853,52 @@ body.skill-target-columns #viewSkill .dc-card-skill .dc-title{
   align-items:flex-start !important;
 }
 /* スキル対象ではHOT見出しがあるため、通常表示でもカード内HOTマークは不要 */
-#viewSkill .dc-card-skill .dc-title .hot-tag{
+:is(#viewSkill,#userDetailSkill) .dc-card-skill .dc-title .hot-tag{
   display:none !important;
 }
-body.skill-target-columns #viewSkill .dc-card-skill .dc-song-title{
+body.skill-target-columns :is(#viewSkill,#userDetailSkill) .dc-card-skill .dc-song-title{
   width:100%;
   font-size:12px !important;
   line-height:1.12 !important;
-  color:#7dd3fc !important;
-  -webkit-text-fill-color:#7dd3fc !important;
+  color:#38bdf8 !important;
+  -webkit-text-fill-color:#38bdf8 !important;
   max-height:2.24em !important;
 }
-body.light-mode.skill-target-columns #viewSkill .dc-card-skill .dc-song-title{
+body.light-mode.skill-target-columns :is(#viewSkill,#userDetailSkill) .dc-card-skill .dc-song-title{
   color:#0369a1 !important;
   -webkit-text-fill-color:#0369a1 !important;
 }
 /* 3段目：達成率の数値＋％ / オプション / FC */
-body.skill-target-columns #viewSkill .dc-card-skill .dc-rate{
+body.skill-target-columns :is(#viewSkill,#userDetailSkill) .dc-card-skill .dc-rate{
   grid-column:1 !important;
   grid-row:3 !important;
   justify-content:flex-start !important;
   text-align:left !important;
   font-size:10px !important;
 }
-body.skill-target-columns #viewSkill .dc-card-skill .dc-rate .dc-field-label{
+body.skill-target-columns :is(#viewSkill,#userDetailSkill) .dc-card-skill .dc-rate .dc-field-label{
   display:none !important;
 }
-body.skill-target-columns #viewSkill .dc-card-skill .dc-option{
+body.skill-target-columns :is(#viewSkill,#userDetailSkill) .dc-card-skill .dc-option{
   grid-column:2 !important;
   grid-row:3 !important;
   justify-content:center !important;
 }
-body.skill-target-columns #viewSkill .dc-card-skill .dc-option .opt-badge{
+body.skill-target-columns :is(#viewSkill,#userDetailSkill) .dc-card-skill .dc-option .opt-badge{
   width:100% !important;
-  max-width:54px !important;
+  max-width:66px !important;
 }
-body.skill-target-columns #viewSkill .dc-card-skill .dc-fc{
+body.skill-target-columns :is(#viewSkill,#userDetailSkill) .dc-card-skill .dc-fc{
   grid-column:3 !important;
   grid-row:3 !important;
-  justify-content:center !important;
+  justify-content:flex-end !important;
 }
-body.skill-target-columns #viewSkill .dc-card-skill .dc-fc .fc-unified-badge{
+body.skill-target-columns :is(#viewSkill,#userDetailSkill) .dc-card-skill .dc-fc .fc-unified-badge{
   width:100% !important;
-  max-width:52px !important;
+  max-width:64px !important;
 }
 /* 横並びカード内の通常文字は統一。各種バッジの文字サイズは変更しない。 */
-body.skill-target-columns #viewSkill .dc-card-skill :is(
+body.skill-target-columns :is(#viewSkill,#userDetailSkill) .dc-card-skill :is(
   .dc-song-title,
   .dc-lv,
   .dc-rate,
@@ -8907,10 +8907,10 @@ body.skill-target-columns #viewSkill .dc-card-skill :is(
   font-size:12px !important;
 }
 @media(max-width:700px){
-  body.skill-target-columns #viewSkill{
+  body.skill-target-columns :is(#viewSkill,#userDetailSkill){
     gap:4px;
   }
-  body.skill-target-columns #viewSkill .list-container{
+  body.skill-target-columns :is(#viewSkill,#userDetailSkill) .list-container{
     gap:4px;
   }
 }
@@ -8945,12 +8945,12 @@ body.text-size-up :is(.howto-body p,.feedback-body,.support-dialog-body,.skill-s
   font-size:15px !important;
 }
 @media(max-width:700px){
-  body.text-size-up.skill-target-columns #viewSkill .sk-section h2{
+  body.text-size-up.skill-target-columns :is(#viewSkill,#userDetailSkill) .sk-section h2{
     font-size:13px !important;
   }
 }
 /* 文字サイズUP併用時も、横並びカード内は同じサイズで統一する。 */
-body.text-size-up.skill-target-columns #viewSkill .dc-card-skill :is(
+body.text-size-up.skill-target-columns :is(#viewSkill,#userDetailSkill) .dc-card-skill :is(
   .dc-song-title,
   .dc-lv,
   .dc-rate,
@@ -8958,15 +8958,15 @@ body.text-size-up.skill-target-columns #viewSkill .dc-card-skill :is(
 ){
   font-size:13px !important;
 }
-body.text-size-up.skill-target-columns #viewSkill .dc-card-skill .dc-title{
+body.text-size-up.skill-target-columns :is(#viewSkill,#userDetailSkill) .dc-card-skill .dc-title{
   height:calc(13px * 1.12 * 2) !important;
   min-height:calc(13px * 1.12 * 2) !important;
   max-height:calc(13px * 1.12 * 2) !important;
 }
-body.text-size-up.skill-target-columns #viewSkill .dc-card-skill .p-badge{
+body.text-size-up.skill-target-columns :is(#viewSkill,#userDetailSkill) .dc-card-skill .p-badge{
   font-size:12px !important;
 }
-body.text-size-up.skill-target-columns #viewSkill .dc-card-skill :is(.fc-unified-badge,.opt-badge){
+body.text-size-up.skill-target-columns :is(#viewSkill,#userDetailSkill) .dc-card-skill :is(.fc-unified-badge,.opt-badge){
   font-size:9px !important;
 }
 
@@ -9225,7 +9225,7 @@ body.text-size-up.skill-target-columns #viewSkill .dc-card-skill :is(.fc-unified
     <div class="app-menu-version">
       <label>VERSION</label>
       <select id="versionSelect" class="version-select" aria-label="GITADORAバージョン"></select>
-      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 3.13.3</div>
+      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 3.14.0</div>
     </div>
   </div>
 </div>
@@ -9537,7 +9537,7 @@ body.text-size-up.skill-target-columns #viewSkill .dc-card-skill :is(.fc-unified
 <div id="adminModal" class="admin-modal">
   <div class="admin-header">
     <div class="admin-title-row">
-      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 3.13.3</div></div>
+      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 3.14.0</div></div>
       <button id="btnCloseAdmin" class="admin-close">閉じる</button>
     </div>
     <div class="admin-tabs">
@@ -9614,6 +9614,6 @@ body.text-size-up.skill-target-columns #viewSkill .dc-card-skill :is(.fc-unified
   </div>
 </div>
 
-<script type="module" src="./js/app.js?v=3_13_3"></script>
+<script type="module" src="./js/app.js?v=3_14_0"></script>
 </body>
 </html>
