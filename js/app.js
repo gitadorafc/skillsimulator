@@ -128,7 +128,7 @@ function installSkillColorCss() {
       `border-left:0!important;border-right:0!important;` +
       `box-sizing:border-box!important;}`;
 
-    // スキル対象・登録曲の「外枠だけ」は45度グラデーションにする。
+    // スキル対象・登録曲の「外枠だけ」は170degグラデーションにする。
     // スキル値の左右帯、ヘッダー、共有画像には sidePaint をそのまま使うため影響しない。
     const borderPaint = row.type === 'solid'
       ? row.color
@@ -170,6 +170,35 @@ function skillColorCanvasVerticalPaint(ctx, row, left, top, width, height) {
     g.addColorStop(1, '#ffffff');
     return g;
   }
+
+  row.stops.forEach(([color,pos]) => {
+    g.addColorStop(Number(pos) / 100, color);
+  });
+  return g;
+}
+
+// 共有画像のユーザー名 / TOTAL用。
+// 登録曲のRAINBOW外枠と同じ170deg相当の角度をCanvas上で再現する。
+// 8500未満のグラデーションは従来どおり縦方向のままにする。
+function skillColorCanvasShareTextPaint(ctx, row, left, top, width, height) {
+  if (!row || (row.rank !== 'rainbow' && row.rank !== 'deep-rainbow')) {
+    return skillColorCanvasVerticalPaint(ctx, row, left, top, width, height);
+  }
+
+  const angleRad = 170 * Math.PI / 180;
+  const directionX = Math.sin(angleRad);
+  const directionY = -Math.cos(angleRad);
+  const centerX = left + width / 2;
+  const centerY = top + height / 2;
+  const halfLength = (
+    Math.abs(width * directionX) + Math.abs(height * directionY)
+  ) / 2;
+  const g = ctx.createLinearGradient(
+    centerX - directionX * halfLength,
+    centerY - directionY * halfLength,
+    centerX + directionX * halfLength,
+    centerY + directionY * halfLength
+  );
 
   row.stops.forEach(([color,pos]) => {
     g.addColorStop(Number(pos) / 100, color);
@@ -1226,7 +1255,7 @@ function shareSkillImage() {
   const x = c.getContext('2d');
 
   const totalPaint = (value, left, top, width, height) =>
-    skillColorCanvasVerticalPaint(x, getSkillColorRowByTotalValue(value), left, top, width, height);
+    skillColorCanvasShareTextPaint(x, getSkillColorRowByTotalValue(value), left, top, width, height);
   const songPaint = (value, left, top, width, height) =>
     skillColorCanvasPaint(x, getSkillColorRowByTotalValue((Number(value) || 0) * 50), left, top, width, height);
 
