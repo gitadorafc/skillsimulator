@@ -624,7 +624,12 @@ function applyLightMode(enabled = null) {
     ? localStorage.getItem('gitadora_light_mode') === '1'
     : Boolean(enabled);
 
+  document.documentElement.classList.toggle('light-mode', isLight);
   document.body.classList.toggle('light-mode', isLight);
+  document.querySelector('meta[name="theme-color"]')?.setAttribute(
+    'content',
+    isLight ? '#f8fafc' : '#111827'
+  );
   return isLight;
 }
 
@@ -981,6 +986,7 @@ async function init() {
     await showApp(session);
     await processPendingSkillSync();
   } else {
+    applyLightMode(false);
     hide('authScreen');
     hide('appScreen');
     show('introScreen');
@@ -999,7 +1005,7 @@ async function init() {
       adminEnabled = false;
       adminAccessChecked = false;
       updateDmBassMirrorFieldVisibility();
-      document.body.classList.remove('light-mode');
+      applyLightMode(false);
       $('btnAdmin').classList.add('hidden');
       $('menuOfuseSupport')?.classList.add('hidden');
       closeAdmin();
@@ -4374,7 +4380,7 @@ if (appStickyHeader && appHeaderResizeObserver) {
 }
 requestAnimationFrame(syncAppStickyHeaderHeight);
 
-document.body.classList.remove('light-mode');
+applyLightMode();
 
 init().catch(err => {
   console.error(err);

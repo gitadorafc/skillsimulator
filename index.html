@@ -19,6 +19,17 @@
 <meta name="apple-mobile-web-app-title" content="GITADORA Skill Simulator">
 <meta name="application-name" content="GITADORA Skill Simulator">
 
+<script>
+  // 保存済みテーマを初回描画より前に適用し、更新時のテーマちらつきを防ぐ。
+  (() => {
+    try {
+      if (localStorage.getItem('gitadora_light_mode') !== '1') return;
+      document.documentElement.classList.add('light-mode');
+      document.querySelector('meta[name="theme-color"]')?.setAttribute('content', '#f8fafc');
+    } catch (_) {}
+  })();
+</script>
+
 <style>
     /* === 1. 共通ベーススタイル === */
     html, body {
@@ -27,6 +38,12 @@
       background-color: #111827; color: #f8fafc;
       font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
       -webkit-font-smoothing: antialiased;
+    }
+    html.light-mode,
+    html.light-mode body {
+      background-color: #f8fafc;
+      color: #0f172a;
+      color-scheme: light;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
     .hidden { display: none !important; }
@@ -8725,6 +8742,10 @@ body.light-mode .sync-mini-toolbar{
   <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" defer></script>
 </head>
 <body>
+<script>
+  // body以下が描画される前に、headで判定したテーマを引き継ぐ。
+  document.body.classList.toggle('light-mode', document.documentElement.classList.contains('light-mode'));
+</script>
 
 
 <div id="introScreen" class="intro-screen hidden">
@@ -8971,7 +8992,7 @@ body.light-mode .sync-mini-toolbar{
     <div class="app-menu-version">
       <label>VERSION</label>
       <select id="versionSelect" class="version-select" aria-label="GITADORAバージョン"></select>
-      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 3.12.5</div>
+      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 3.12.6</div>
     </div>
   </div>
 </div>
@@ -9260,7 +9281,7 @@ body.light-mode .sync-mini-toolbar{
 <div id="adminModal" class="admin-modal">
   <div class="admin-header">
     <div class="admin-title-row">
-      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 3.12.5</div></div>
+      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 3.12.6</div></div>
       <button id="btnCloseAdmin" class="admin-close">閉じる</button>
     </div>
     <div class="admin-tabs">
@@ -9337,6 +9358,6 @@ body.light-mode .sync-mini-toolbar{
   </div>
 </div>
 
-<script type="module" src="./js/app.js?v=3_12_5"></script>
+<script type="module" src="./js/app.js?v=3_12_6"></script>
 </body>
 </html>
