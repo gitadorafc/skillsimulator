@@ -8952,7 +8952,7 @@ body.text-size-up.skill-target-columns :is(#viewSkill,#userDetailSkill) .dc-card
   max-height:calc(12px * 1.12 * 2 + 6px) !important;
 }
 body.text-size-up.skill-target-columns :is(#viewSkill,#userDetailSkill) .dc-card-skill .p-badge{
-  font-size:12px !important;
+  font-size:9px !important;
 }
 body.text-size-up.skill-target-columns :is(#viewSkill,#userDetailSkill) .dc-card-skill :is(.fc-unified-badge,.opt-badge){
   font-size:9px !important;
@@ -8964,6 +8964,298 @@ body.text-size-up.skill-target-columns :is(#viewSkill,#userDetailSkill) .dc-card
 }
 body.light-mode .user-detail-sticky{
   box-shadow:0 5px 10px rgba(15,23,42,.18) !important;
+}
+
+/* === APP VERSION 3.15.0: 管理者限定 スキル対象ランキング === */
+.skill-ranking-dialog{
+  width:min(94vw,760px);
+  max-height:min(92dvh,900px);
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+  border:1px solid #334155;
+  border-radius:14px;
+  background:#0f172a;
+  color:#f8fafc;
+  box-shadow:0 24px 60px rgba(0,0,0,.55);
+}
+.skill-ranking-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  padding:14px;
+  border-bottom:1px solid #334155;
+  background:#111827;
+}
+.skill-ranking-title-line{
+  display:flex;
+  align-items:center;
+  gap:7px;
+  font-size:16px;
+  font-weight:900;
+}
+.skill-ranking-admin-badge{
+  padding:2px 6px;
+  border:1px solid #c2410c;
+  border-radius:4px;
+  background:#431407;
+  color:#fdba74;
+  font-size:8px;
+  font-weight:900;
+}
+.skill-ranking-context{
+  margin-top:3px;
+  color:#94a3b8;
+  font-size:9px;
+  font-weight:800;
+}
+.skill-ranking-body{
+  min-height:0;
+  padding:12px;
+  overflow-y:auto;
+  overscroll-behavior:contain;
+  scrollbar-color:#64748b #0f172a;
+  scrollbar-width:auto;
+}
+.skill-ranking-description{
+  margin-bottom:10px;
+  color:#cbd5e1;
+  font-size:10px;
+  line-height:1.55;
+}
+.skill-ranking-range{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 20px minmax(0,1fr) 96px;
+  align-items:end;
+  gap:7px;
+  padding:10px;
+  border:1px solid #334155;
+  border-radius:9px;
+  background:#111827;
+}
+.skill-ranking-range label,
+.skill-ranking-sort-wrap{
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+  color:#94a3b8;
+  font-size:9px;
+  font-weight:900;
+}
+.skill-ranking-range select,
+.skill-ranking-sort-wrap select{
+  width:100%;
+  height:38px;
+  min-height:38px;
+  padding:0 28px 0 10px;
+  border:1px solid #475569;
+  border-radius:7px;
+  background-color:#0f172a;
+  color:#f8fafc;
+  font-size:12px;
+  font-weight:900;
+}
+.skill-ranking-range-separator{
+  align-self:center;
+  padding-top:15px;
+  color:#94a3b8;
+  text-align:center;
+  font-weight:900;
+}
+.skill-ranking-load{
+  height:38px;
+  min-height:38px;
+  border:1px solid #3b82f6;
+  border-radius:7px;
+  background:#2563eb;
+  color:#fff;
+  font-size:11px;
+  font-weight:900;
+}
+.skill-ranking-load:disabled{opacity:.55;}
+.skill-ranking-status{
+  min-height:18px;
+  padding:6px 2px 2px;
+  color:#94a3b8;
+  font-size:9px;
+  font-weight:800;
+}
+.skill-ranking-status.error{color:#fca5a5;}
+.skill-ranking-controls{
+  display:flex;
+  align-items:end;
+  justify-content:space-between;
+  gap:8px;
+  margin-top:5px;
+}
+.skill-ranking-tabs{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  width:min(100%,280px);
+  padding:3px;
+  border:1px solid #334155;
+  border-radius:8px;
+  background:#111827;
+}
+.skill-ranking-tab{
+  min-height:34px;
+  border:0;
+  border-radius:6px;
+  background:transparent;
+  color:#94a3b8;
+  font-size:10px;
+  font-weight:900;
+}
+.skill-ranking-tab.active[data-ranking-category="HOT"]{
+  background:#9d174d;
+  color:#fff;
+}
+.skill-ranking-tab.active[data-ranking-category="OTHER"]{
+  background:#3f6212;
+  color:#fff;
+}
+.skill-ranking-sort-wrap{width:170px;}
+.skill-ranking-list{
+  display:flex;
+  flex-direction:column;
+  gap:5px;
+  margin-top:8px;
+}
+.skill-ranking-row{
+  padding:7px;
+  border:1px solid #334155;
+  border-radius:8px;
+  background:#111827;
+}
+.skill-ranking-row-top{
+  display:grid;
+  grid-template-columns:32px minmax(0,1fr) 54px 48px;
+  align-items:center;
+  gap:6px;
+  min-width:0;
+}
+.skill-ranking-position{
+  color:#60a5fa;
+  font-size:11px;
+  font-weight:900;
+}
+.skill-ranking-song{
+  min-width:0;
+  overflow:hidden;
+  color:#f8fafc;
+  font-size:11px;
+  font-weight:900;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+.skill-ranking-row .p-badge{
+  width:54px;
+  height:17px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  padding:0;
+  font-size:9px;
+  line-height:1;
+}
+.skill-ranking-level{
+  color:#94a3b8;
+  font-size:9px;
+  font-weight:900;
+  text-align:right;
+}
+.skill-ranking-metrics{
+  display:grid;
+  grid-template-columns:1fr 1fr 1.15fr;
+  margin-top:6px;
+  padding-top:6px;
+  border-top:1px solid rgba(148,163,184,.24);
+}
+.skill-ranking-metric{
+  min-width:0;
+  padding:0 7px;
+  border-left:1px solid rgba(148,163,184,.2);
+}
+.skill-ranking-metric:first-child{
+  padding-left:0;
+  border-left:0;
+}
+.skill-ranking-metric:last-child{padding-right:0;}
+.skill-ranking-metric small{
+  display:block;
+  color:#94a3b8;
+  font-size:8px;
+  font-weight:900;
+}
+.skill-ranking-metric strong{
+  display:block;
+  margin-top:2px;
+  color:#f8fafc;
+  font-size:12px;
+  font-weight:900;
+  white-space:nowrap;
+}
+.skill-ranking-metric em{
+  display:block;
+  margin-top:1px;
+  color:#94a3b8;
+  font-size:8px;
+  font-style:normal;
+  font-weight:800;
+  white-space:nowrap;
+}
+.skill-ranking-comparison.positive{color:#86efac;}
+.skill-ranking-comparison.negative{color:#fca5a5;}
+.skill-ranking-comparison.neutral{color:#e2e8f0;}
+.skill-ranking-empty{
+  padding:24px 10px;
+  border:1px dashed #475569;
+  border-radius:8px;
+  color:#94a3b8;
+  font-size:10px;
+  font-weight:800;
+  text-align:center;
+}
+body.light-mode .skill-ranking-dialog,
+body.light-mode .skill-ranking-head,
+body.light-mode .skill-ranking-range,
+body.light-mode .skill-ranking-tabs,
+body.light-mode .skill-ranking-row{
+  background:#f8fafc;
+  color:#111827;
+  border-color:#94a3b8;
+}
+body.light-mode .skill-ranking-body{
+  background:#f1f5f9;
+  scrollbar-color:#94a3b8 #f1f5f9;
+}
+body.light-mode .skill-ranking-description,
+body.light-mode .skill-ranking-song,
+body.light-mode .skill-ranking-metric strong{
+  color:#111827;
+}
+body.light-mode .skill-ranking-comparison.neutral{color:#475569;}
+body.light-mode .skill-ranking-range select,
+body.light-mode .skill-ranking-sort-wrap select{
+  border-color:#94a3b8;
+  background-color:#fff;
+  color:#111827;
+}
+@media(max-width:560px){
+  .skill-ranking-dialog{width:96vw;max-height:94dvh;}
+  .skill-ranking-head{padding:11px;}
+  .skill-ranking-body{padding:9px;}
+  .skill-ranking-range{
+    grid-template-columns:minmax(0,1fr) 16px minmax(0,1fr);
+  }
+  .skill-ranking-load{grid-column:1 / 4;}
+  .skill-ranking-controls{align-items:stretch;}
+  .skill-ranking-tabs{width:100%;}
+  .skill-ranking-sort-wrap{width:130px;flex:0 0 130px;}
+  .skill-ranking-row-top{grid-template-columns:28px minmax(0,1fr) 50px 43px;gap:4px;}
+  .skill-ranking-row .p-badge{width:50px;}
+  .skill-ranking-metric{padding:0 5px;}
 }
 
 </style>
@@ -9213,6 +9505,7 @@ body.light-mode .user-detail-sticky{
     <button id="btnMenuFeatureSettings" type="button" class="app-menu-item">機能設定 <span>›</span></button>
     <button id="btnMenuSkillSync" type="button" class="app-menu-item">スキル対象同期 <span>›</span></button>
     <button id="btnMenuShareSkill" type="button" class="app-menu-item">スキル対象の画像共有 <span>›</span></button>
+    <button id="btnMenuSkillRanking" type="button" class="app-menu-item hidden">スキル対象ランキング <span>›</span></button>
     <button id="btnMenuRivals" type="button" class="app-menu-item">ライバル管理 <span>›</span></button>
     <button id="btnMenuHowTo" type="button" class="app-menu-item">How to use <span>›</span></button>
     <button id="btnMenuFeedback" type="button" class="app-menu-item">要望・不具合報告 <span>›</span></button>
@@ -9221,10 +9514,61 @@ body.light-mode .user-detail-sticky{
     <div class="app-menu-version">
       <label>VERSION</label>
       <select id="versionSelect" class="version-select" aria-label="GITADORAバージョン"></select>
-      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 3.14.9</div>
+      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 3.15.0</div>
     </div>
   </div>
 </div>
+
+
+<div id="skillRankingMask" class="site-dialog-mask">
+  <div class="skill-ranking-dialog">
+    <div class="skill-ranking-head">
+      <div>
+        <div class="skill-ranking-title-line">
+          <strong>スキル対象ランキング</strong>
+          <span class="skill-ranking-admin-badge">管理者限定</span>
+        </div>
+        <div id="skillRankingContext" class="skill-ranking-context"></div>
+      </div>
+      <button id="btnCloseSkillRanking" type="button" class="menu-back-btn">戻る</button>
+    </div>
+    <div class="skill-ranking-body">
+      <div class="skill-ranking-description">
+        指定したTOTALスキル帯のユーザーについて、各曲がスキル対象25曲に入っている割合を表示します。同率の場合は平均スキル値の高い順です。
+      </div>
+      <div class="skill-ranking-range">
+        <label>
+          下限
+          <select id="skillRankingMin" aria-label="TOTALスキル下限"></select>
+        </label>
+        <div class="skill-ranking-range-separator">～</div>
+        <label>
+          上限
+          <select id="skillRankingMax" aria-label="TOTALスキル上限"></select>
+        </label>
+        <button id="btnLoadSkillRanking" type="button" class="skill-ranking-load">表示する</button>
+      </div>
+      <div id="skillRankingStatus" class="skill-ranking-status"></div>
+      <div class="skill-ranking-controls">
+        <div class="skill-ranking-tabs">
+          <button type="button" class="skill-ranking-tab active" data-ranking-category="HOT">HOT</button>
+          <button type="button" class="skill-ranking-tab" data-ranking-category="OTHER">OTHER</button>
+        </div>
+        <label class="skill-ranking-sort-wrap">
+          並び順
+          <select id="skillRankingSort">
+            <option value="percentage">割合</option>
+            <option value="title">曲名</option>
+            <option value="average">スキル値平均</option>
+            <option value="comparison">比較（自分－平均）</option>
+          </select>
+        </label>
+      </div>
+      <div id="skillRankingList" class="skill-ranking-list"></div>
+    </div>
+  </div>
+</div>
+
 
 <div id="supportMask" class="site-dialog-mask">
   <div class="feedback-dialog support-dialog">
@@ -9526,7 +9870,7 @@ body.light-mode .user-detail-sticky{
 <div id="adminModal" class="admin-modal">
   <div class="admin-header">
     <div class="admin-title-row">
-      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 3.14.9</div></div>
+      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 3.15.0</div></div>
       <button id="btnCloseAdmin" class="admin-close">閉じる</button>
     </div>
     <div class="admin-tabs">
@@ -9603,6 +9947,6 @@ body.light-mode .user-detail-sticky{
   </div>
 </div>
 
-<script type="module" src="./js/app.js?v=3_14_9"></script>
+<script type="module" src="./js/app.js?v=3_15_0"></script>
 </body>
 </html>

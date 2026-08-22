@@ -1089,6 +1089,8 @@ async function init() {
       applyDisplayCustomization(false, false);
       applyLightMode(false);
       $('btnAdmin').classList.add('hidden');
+      $('btnMenuSkillRanking')?.classList.add('hidden');
+      closeSkillTargetRanking();
       $('menuOfuseSupport')?.classList.add('hidden');
       closeAdmin();
       hide('authScreen');
@@ -1239,6 +1241,236 @@ async function submitFeedback() {
 
 function openHowTo() { closeMenu(); $('howToMask').style.display = 'flex'; }
 function closeHowTo(returnToMenu = false) { $('howToMask').style.display = 'none'; if (returnToMenu) openMenu(); }
+
+const skillRankingState = {
+  rows: [],
+  category: 'HOT',
+  sort: 'percentage',
+  loading: false
+};
+
+function buildSkillRankingRangeOptions() {
+  const minSelect = $('skillRankingMin');
+  const maxSelect = $('skillRankingMax');
+  if (!minSelect || !maxSelect || minSelect.options.length || maxSelect.options.length) return;
+
+  minSelect.innerHTML = Array.from({ length: 100 }, (_, index) => {
+    const value = index * 100;
+    return `<option value="${value}">${value}</option>`;
+  }).join('');
+  maxSelect.innerHTML = Array.from({ length: 100 }, (_, index) => {
+    const value = (index + 1) * 100;
+    return `<option value="${value}">${value}</option>`;
+  }).join('');
+}
+
+function setDefaultSkillRankingRange() {
+  buildSkillRankingRangeOptions();
+  const ownTotal = Math.max(0, Math.min(10000, Number(totals().total) || 0));
+  const lower = Math.min(9900, Math.floor(ownTotal / 100) * 100);
+  $('skillRankingMin').value = String(lower);
+  $('skillRankingMax').value = String(lower + 100);
+}
+
+function keepSkillRankingRangeValid(changedSide) {
+  let lower = Number($('skillRankingMin').value);
+  let upper = Number($('skillRankingMax').value);
+
+  if (upper - lower < 100) {
+    if (changedSide === 'min') {
+      upper = Math.min(10000, lower + 100);
+      if (upper - lower < 100) lower = upper - 100;
+    } else {
+      lower = Math.max(0, upper - 100);
+      if (upper - lower < 100) upper = lower + 100;
+    }
+  }
+
+  $('skillRankingMin').value = String(lower);
+  $('skillRankingMax').value = String(upper);
+}
+
+function skillRankingTitleCompare(a, b) {
+  return String(a.title || '').localeCompare(String(b.title || ''), 'ja', {
+    numeric: true,
+    sensitivity: 'base'
+  }) || String(a.part || '').localeCompare(String(b.part || ''), 'ja');
+}
+
+function sortSkillRankingRows(rows) {
+  const sorted = [...rows];
+  const percentageTie = (a, b) =>
+    Number(b.inclusion_percentage) - Number(a.inclusion_percentage)
+    || Number(b.average_skill) - Number(a.average_skill)
+    || skillRankingTitleCompare(a, b);
+
+  if (skillRankingState.sort === 'title') {
+    return sorted.sort((a, b) => skillRankingTitleCompare(a, b));
+  }
+  if (skillRankingState.sort === 'average') {
+    return sorted.sort((a, b) =>
+      Number(b.average_skill) - Number(a.average_skill)
+      || percentageTie(a, b)
+    );
+  }
+  if (skillRankingState.sort === 'comparison') {
+    return sorted.sort((a, b) => {
+      const aMissing = a.comparison == null;
+      const bMissing = b.comparison == null;
+      if (aMissing !== bMissing) return aMissing ? 1 : -1;
+      if (!aMissing) {
+        const difference = Number(b.comparison) - Number(a.comparison);
+        if (difference) return difference;
+      }
+      return percentageTie(a, b);
+    });
+  }
+  return sorted.sort(percentageTie);
+}
+
+function formatSkillRankingComparison(value) {
+  if (value == null || !Number.isFinite(Number(value))) {
+    return { text: '比較なし', className: 'neutral' };
+  }
+  const number = Number(value);
+  if (number > 0) return { text: `+${number.toFixed(2)}`, className: 'positive' };
+  if (number < 0) return { text: number.toFixed(2), className: 'negative' };
+  return { text: '±0.00', className: 'neutral' };
+}
+
+function renderSkillTargetRanking() {
+  const list = $('skillRankingList');
+  if (!list) return;
+
+  const rows = sortSkillRankingRows(
+    skillRankingState.rows.filter(row => row.category === skillRankingState.category)
+  );
+  const hotCount = skillRankingState.rows.filter(row => row.category === 'HOT').length;
+  const otherCount = skillRankingState.rows.filter(row => row.category === 'OTHER').length;
+
+  document.querySelectorAll('.skill-ranking-tab').forEach(button => {
+    const category = button.dataset.rankingCategory;
+    button.classList.toggle('active', category === skillRankingState.category);
+    button.textContent = `${category} (${category === 'HOT' ? hotCount : otherCount})`;
+  });
+
+  if (skillRankingState.loading) {
+    list.innerHTML = '<div class="skill-ranking-empty">集計中...</div>';
+    return;
+  }
+  if (!rows.length) {
+    list.innerHTML = '<div class="skill-ranking-empty">このスキル帯に表示できるデータがありません。</div>';
+    return;
+  }
+
+  list.innerHTML = rows.map((row, index) => {
+    const ownSkill = row.my_skill == null ? null : Number(row.my_skill);
+    const comparison = formatSkillRankingComparison(row.comparison);
+    return `
+      <div class="skill-ranking-row">
+        <div class="skill-ranking-row-top">
+          <span class="skill-ranking-position">#${index + 1}</span>
+          <span class="skill-ranking-song" title="${esc(row.title)}">${esc(row.title)}</span>
+          <span class="p-badge ${getPartColorClass(row.part)}">${esc(row.part)}</span>
+          <span class="skill-ranking-level">Lv${Number(row.level).toFixed(2)}</span>
+        </div>
+        <div class="skill-ranking-metrics">
+          <div class="skill-ranking-metric">
+            <small>対象入り割合</small>
+            <strong>${Number(row.inclusion_percentage).toFixed(2)}%</strong>
+            <em>${Number(row.target_user_count)} / ${Number(row.eligible_user_count)}人</em>
+          </div>
+          <div class="skill-ranking-metric">
+            <small>スキル値平均</small>
+            <strong>${Number(row.average_skill).toFixed(2)}</strong>
+            <em>対象入りユーザー平均</em>
+          </div>
+          <div class="skill-ranking-metric">
+            <small>自分との比較</small>
+            <strong>${ownSkill == null ? '未登録' : ownSkill.toFixed(2)}</strong>
+            <em class="skill-ranking-comparison ${comparison.className}">${comparison.text}</em>
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+async function loadSkillTargetRanking() {
+  if (!adminEnabled || skillRankingState.loading) return;
+  keepSkillRankingRangeValid('min');
+
+  const lower = Number($('skillRankingMin').value);
+  const upper = Number($('skillRankingMax').value);
+  const button = $('btnLoadSkillRanking');
+  const status = $('skillRankingStatus');
+
+  skillRankingState.loading = true;
+  skillRankingState.rows = [];
+  button.disabled = true;
+  button.textContent = '集計中...';
+  status.className = 'skill-ranking-status';
+  status.textContent = `${lower}～${upper} を集計しています。`;
+  renderSkillTargetRanking();
+
+  try {
+    const { data, error } = await supabase.rpc('get_skill_target_rankings', {
+      p_instrument: activeInstrument,
+      p_version_id: activeVersionId,
+      p_min_skill: lower,
+      p_max_skill: upper
+    });
+    if (error) throw error;
+
+    skillRankingState.rows = (data || []).map(row => ({
+      ...row,
+      level: Number(row.level),
+      inclusion_percentage: Number(row.inclusion_percentage),
+      target_user_count: Number(row.target_user_count),
+      eligible_user_count: Number(row.eligible_user_count),
+      average_skill: Number(row.average_skill),
+      my_skill: row.my_skill == null ? null : Number(row.my_skill),
+      comparison: row.comparison == null ? null : Number(row.comparison)
+    }));
+
+    const eligibleCount = skillRankingState.rows.length
+      ? Number(skillRankingState.rows[0].eligible_user_count)
+      : 0;
+    status.textContent = `対象ユーザー ${eligibleCount}人｜下限・上限を含む ${lower}～${upper}`;
+  } catch (error) {
+    console.error('skill target ranking load failed:', error);
+    const missingFunction = /get_skill_target_rankings|schema cache|PGRST202/i.test(String(error?.message || ''));
+    status.className = 'skill-ranking-status error';
+    status.textContent = missingFunction
+      ? 'Supabaseで v26_skill_target_ranking.sql を実行してください。'
+      : `集計に失敗しました：${error?.message || '不明なエラー'}`;
+  } finally {
+    skillRankingState.loading = false;
+    button.disabled = false;
+    button.textContent = '表示する';
+    renderSkillTargetRanking();
+  }
+}
+
+async function openSkillTargetRanking() {
+  if (!adminEnabled) {
+    await showSiteDialog('この機能は現在、管理者限定です。', '権限エラー');
+    return;
+  }
+
+  closeMenu();
+  skillRankingState.category = 'HOT';
+  skillRankingState.sort = 'percentage';
+  $('skillRankingSort').value = 'percentage';
+  $('skillRankingContext').textContent = `${activeVersion?.name || '現在のVERSION'} / ${activeInstrument}`;
+  setDefaultSkillRankingRange();
+  $('skillRankingMask').style.display = 'flex';
+  await loadSkillTargetRanking();
+}
+
+function closeSkillTargetRanking(returnToMenu = false) {
+  $('skillRankingMask').style.display = 'none';
+  if (returnToMenu) openMenu();
+}
 
 function shareSkillImage() {
   const target = totals();
@@ -2906,6 +3138,7 @@ async function checkAdminAccess() {
 
   adminAccessChecked = true;
   $('btnAdmin').classList.toggle('hidden', !adminEnabled);
+  $('btnMenuSkillRanking')?.classList.toggle('hidden', !adminEnabled);
   $('menuOfuseSupport')?.classList.remove('hidden');
   $('scorePrivateCommentGroup')?.classList.remove('hidden');
   updateDmBassMirrorFieldVisibility();
@@ -4427,6 +4660,24 @@ $('btnSaveXId').addEventListener('click', saveMyXId);
 
 $('btnMenuSkillSync').addEventListener('click', openSkillSyncDialog);
 $('btnMenuShareSkill').addEventListener('click', () => { closeMenu(); shareSkillImage(); });
+$('btnMenuSkillRanking').addEventListener('click', openSkillTargetRanking);
+$('btnCloseSkillRanking').addEventListener('click', () => closeSkillTargetRanking(true));
+$('skillRankingMask').addEventListener('click', e => {
+  if (e.target === $('skillRankingMask')) closeSkillTargetRanking();
+});
+$('skillRankingMin').addEventListener('change', () => keepSkillRankingRangeValid('min'));
+$('skillRankingMax').addEventListener('change', () => keepSkillRankingRangeValid('max'));
+$('btnLoadSkillRanking').addEventListener('click', loadSkillTargetRanking);
+$('skillRankingSort').addEventListener('change', event => {
+  skillRankingState.sort = event.target.value;
+  renderSkillTargetRanking();
+});
+document.querySelectorAll('.skill-ranking-tab').forEach(button => {
+  button.addEventListener('click', () => {
+    skillRankingState.category = button.dataset.rankingCategory;
+    renderSkillTargetRanking();
+  });
+});
 $('btnMenuRivals').addEventListener('click', openRivalManage);
 $('btnMenuHowTo').addEventListener('click', openHowTo);
 $('btnCloseHowTo').addEventListener('click', () => closeHowTo(true));
