@@ -1782,8 +1782,8 @@ function createCard(record, index, mode = 'MANAGE') {
         <div class="dc-skill dc-skill-span ${boxColor}">${formatSkill(skill)}</div>
 
         <div class="dc-fc">${fcBadge}</div>
-        <div class="dc-lv">Lv <strong>${formatLevel(record.level)}</strong></div>
-        <div class="dc-rate">達成率 <strong>${formatRate(record.achievement_rate)}%</strong></div>
+        <div class="dc-lv"><span class="dc-field-label">Lv </span><strong>${formatLevel(record.level)}</strong></div>
+        <div class="dc-rate"><span class="dc-field-label">達成率 </span><strong>${formatRate(record.achievement_rate)}%</strong></div>
         <div class="dc-option">${optionBadge}</div>
       </div>`;
   }
