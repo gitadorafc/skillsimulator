@@ -8822,9 +8822,13 @@ body.skill-target-columns :is(#viewSkill,#userDetailSkill) .dc-card-skill{
 body.skill-target-columns :is(#viewSkill,#userDetailSkill) .dc-card-skill .dc-title{
   grid-column:1 / 4 !important;
   grid-row:2 !important;
-  height:calc(12px * 1.12 * 2) !important;
-  min-height:calc(12px * 1.12 * 2) !important;
-  max-height:calc(12px * 1.12 * 2) !important;
+  height:calc(12px * 1.12 * 2 + 6px) !important;
+  min-height:calc(12px * 1.12 * 2 + 6px) !important;
+  max-height:calc(12px * 1.12 * 2 + 6px) !important;
+  padding:2px 0 !important;
+  border-top:1px solid rgba(148,163,184,.24) !important;
+  border-bottom:1px solid rgba(148,163,184,.24) !important;
+  box-sizing:border-box !important;
   align-self:start !important;
   align-items:flex-start !important;
 }
@@ -8849,6 +8853,22 @@ body.skill-target-columns :is(#viewSkill,#userDetailSkill) .dc-card-skill .dc-pa
   grid-column:1 !important;
   grid-row:1 !important;
   justify-content:flex-start !important;
+}
+/* 横並びカードの3種類のバッジは同じ縦寸法 */
+body.skill-target-columns :is(#viewSkill,#userDetailSkill) .dc-card-skill :is(
+  .dc-part .p-badge,
+  .dc-fc .fc-unified-badge,
+  .dc-option .opt-badge
+){
+  height:15px !important;
+  min-height:15px !important;
+  max-height:15px !important;
+  box-sizing:border-box !important;
+}
+body.skill-target-columns :is(#viewSkill,#userDetailSkill) .dc-card-skill .dc-part .p-badge{
+  padding-top:0 !important;
+  padding-bottom:0 !important;
+  line-height:1 !important;
 }
 body.skill-target-columns :is(#viewSkill,#userDetailSkill) .dc-card-skill .dc-fc{
   grid-column:3 !important;
@@ -8960,9 +8980,9 @@ body.text-size-up.skill-target-columns :is(#viewSkill,#userDetailSkill) .dc-card
   font-size:13px !important;
 }
 body.text-size-up.skill-target-columns :is(#viewSkill,#userDetailSkill) .dc-card-skill .dc-title{
-  height:calc(13px * 1.12 * 2) !important;
-  min-height:calc(13px * 1.12 * 2) !important;
-  max-height:calc(13px * 1.12 * 2) !important;
+  height:calc(13px * 1.12 * 2 + 6px) !important;
+  min-height:calc(13px * 1.12 * 2 + 6px) !important;
+  max-height:calc(13px * 1.12 * 2 + 6px) !important;
 }
 body.text-size-up.skill-target-columns :is(#viewSkill,#userDetailSkill) .dc-card-skill .p-badge{
   font-size:12px !important;
@@ -9226,7 +9246,7 @@ body.text-size-up.skill-target-columns :is(#viewSkill,#userDetailSkill) .dc-card
     <div class="app-menu-version">
       <label>VERSION</label>
       <select id="versionSelect" class="version-select" aria-label="GITADORAバージョン"></select>
-      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 3.14.2</div>
+      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 3.14.3</div>
     </div>
   </div>
 </div>
@@ -9538,7 +9558,7 @@ body.text-size-up.skill-target-columns :is(#viewSkill,#userDetailSkill) .dc-card
 <div id="adminModal" class="admin-modal">
   <div class="admin-header">
     <div class="admin-title-row">
-      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 3.14.2</div></div>
+      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 3.14.3</div></div>
       <button id="btnCloseAdmin" class="admin-close">閉じる</button>
     </div>
     <div class="admin-tabs">
@@ -9615,6 +9635,6 @@ body.text-size-up.skill-target-columns :is(#viewSkill,#userDetailSkill) .dc-card
   </div>
 </div>
 
-<script type="module" src="./js/app.js?v=3_14_2"></script>
+<script type="module" src="./js/app.js?v=3_14_3"></script>
 </body>
 </html>
