@@ -9025,26 +9025,21 @@ body.light-mode .user-detail-sticky{
   position:sticky;
   top:0;
   z-index:5;
-  margin:0 -12px;
-  padding:5px 12px 8px;
+  margin:-12px -12px 0;
+  padding:6px 12px 7px;
   background:#0f172a;
   box-shadow:0 6px 10px rgba(0,0,0,.28);
 }
 .skill-ranking-range{
   display:grid;
-  grid-template-columns:minmax(0,1fr) 20px minmax(0,1fr) 96px;
-  align-items:end;
-  gap:7px;
-  padding:10px;
-  border:1px solid #334155;
-  border-radius:9px;
-  background:#111827;
+  grid-template-columns:minmax(0,1fr) 14px minmax(0,1fr) 82px;
+  align-items:center;
+  gap:5px;
 }
-.skill-ranking-range label,
 .skill-ranking-sort-wrap{
   display:flex;
   flex-direction:column;
-  gap:4px;
+  gap:0;
   color:#94a3b8;
   font-size:9px;
   font-weight:900;
@@ -9052,8 +9047,8 @@ body.light-mode .user-detail-sticky{
 .skill-ranking-range select,
 .skill-ranking-sort-wrap select{
   width:100%;
-  height:38px;
-  min-height:38px;
+  height:34px;
+  min-height:34px;
   padding:0 28px 0 10px;
   border:1px solid #475569;
   border-radius:7px;
@@ -9063,15 +9058,13 @@ body.light-mode .user-detail-sticky{
   font-weight:900;
 }
 .skill-ranking-range-separator{
-  align-self:center;
-  padding-top:15px;
   color:#94a3b8;
   text-align:center;
   font-weight:900;
 }
 .skill-ranking-load{
-  height:38px;
-  min-height:38px;
+  height:34px;
+  min-height:34px;
   border:1px solid #3b82f6;
   border-radius:7px;
   background:#2563eb;
@@ -9081,18 +9074,33 @@ body.light-mode .user-detail-sticky{
 }
 .skill-ranking-load:disabled{opacity:.55;}
 .skill-ranking-status{
-  min-height:18px;
-  padding:6px 2px 2px;
+  min-width:0;
+  padding:0 2px;
   color:#94a3b8;
   font-size:9px;
   font-weight:800;
+  line-height:1.15;
 }
 .skill-ranking-status.error{color:#fca5a5;}
+.skill-ranking-control-labels{
+  display:grid;
+  grid-template-columns:42% minmax(0,1fr);
+  align-items:end;
+  gap:8px;
+  margin-top:4px;
+}
+.skill-ranking-sort-label{
+  padding-left:2px;
+  color:#94a3b8;
+  font-size:9px;
+  font-weight:900;
+  line-height:1.15;
+}
 .skill-ranking-controls{
   display:flex;
   align-items:end;
   gap:8px;
-  margin-top:0;
+  margin-top:2px;
 }
 .skill-ranking-tabs{
   display:grid;
@@ -9100,16 +9108,16 @@ body.light-mode .user-detail-sticky{
   flex:0 0 42%;
   width:42%;
   max-width:220px;
-  height:38px;
-  padding:3px;
+  height:34px;
+  padding:2px;
   border:1px solid #334155;
   border-radius:8px;
   background:#111827;
   box-sizing:border-box;
 }
 .skill-ranking-tab{
-  height:30px;
-  min-height:30px;
+  height:28px;
+  min-height:28px;
   border:0;
   border-radius:6px;
   background:transparent;
@@ -9133,11 +9141,11 @@ body.light-mode .user-detail-sticky{
 .skill-ranking-list{
   display:flex;
   flex-direction:column;
-  gap:5px;
-  margin-top:8px;
+  gap:4px;
+  margin-top:5px;
 }
 .skill-ranking-row{
-  padding:7px;
+  padding:5px 7px;
   border:1px solid #334155;
   border-radius:8px;
   background:#111827;
@@ -9153,6 +9161,7 @@ body.light-mode .user-detail-sticky{
   color:#60a5fa;
   font-size:11px;
   font-weight:900;
+  line-height:1.1;
 }
 .skill-ranking-song{
   min-width:0;
@@ -9160,6 +9169,7 @@ body.light-mode .user-detail-sticky{
   color:#f8fafc;
   font-size:11px;
   font-weight:900;
+  line-height:1.1;
   text-overflow:ellipsis;
   white-space:nowrap;
 }
@@ -9177,13 +9187,14 @@ body.light-mode .user-detail-sticky{
   color:#94a3b8;
   font-size:9px;
   font-weight:900;
+  line-height:1.1;
   text-align:right;
 }
 .skill-ranking-metrics{
   display:grid;
   grid-template-columns:1fr 1fr 1.15fr;
-  margin-top:6px;
-  padding-top:6px;
+  margin-top:4px;
+  padding-top:4px;
   border-top:1px solid rgba(148,163,184,.24);
 }
 .skill-ranking-metric{
@@ -9201,22 +9212,25 @@ body.light-mode .user-detail-sticky{
   color:#94a3b8;
   font-size:8px;
   font-weight:900;
+  line-height:1.1;
 }
 .skill-ranking-metric strong{
   display:block;
-  margin-top:2px;
+  margin-top:1px;
   color:#f8fafc;
   font-size:12px;
   font-weight:900;
+  line-height:1.1;
   white-space:nowrap;
 }
 .skill-ranking-metric em{
   display:block;
-  margin-top:1px;
+  margin-top:0;
   color:#94a3b8;
   font-size:8px;
   font-style:normal;
   font-weight:800;
+  line-height:1.1;
   white-space:nowrap;
 }
 .skill-ranking-comparison.positive{color:#86efac;}
@@ -9233,7 +9247,6 @@ body.light-mode .user-detail-sticky{
 }
 body.light-mode .skill-ranking-dialog,
 body.light-mode .skill-ranking-head,
-body.light-mode .skill-ranking-range,
 body.light-mode .skill-ranking-tabs,
 body.light-mode .skill-ranking-row{
   background:#f8fafc;
@@ -9264,13 +9277,12 @@ body.light-mode .skill-ranking-sort-wrap select{
   .skill-ranking-head{padding:11px;}
   .skill-ranking-body{padding:9px;}
   .skill-ranking-fixed-controls{
-    margin:0 -9px;
-    padding:5px 9px 7px;
+    margin:-9px -9px 0;
+    padding:5px 9px 6px;
   }
   .skill-ranking-range{
-    grid-template-columns:minmax(0,1fr) 16px minmax(0,1fr);
+    grid-template-columns:minmax(0,1fr) 12px minmax(0,1fr) 76px;
   }
-  .skill-ranking-load{grid-column:1 / 4;}
   .skill-ranking-controls{align-items:stretch;}
   .skill-ranking-tabs{flex-basis:42%;width:42%;max-width:none;align-self:end;}
   .skill-ranking-sort-wrap{width:auto;flex:1 1 auto;}
@@ -9569,7 +9581,7 @@ body.light-mode #domModal .select-arrow-wrap::after{
     <div class="app-menu-version">
       <label>VERSION</label>
       <select id="versionSelect" class="version-select" aria-label="GITADORAバージョン"></select>
-      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 3.15.1</div>
+      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 3.15.2</div>
     </div>
   </div>
 </div>
@@ -9588,27 +9600,23 @@ body.light-mode #domModal .select-arrow-wrap::after{
       <button id="btnCloseSkillRanking" type="button" class="menu-back-btn">戻る</button>
     </div>
     <div class="skill-ranking-body">
-      <div class="skill-ranking-range">
-        <label>
-          下限
-          <select id="skillRankingMin" aria-label="TOTALスキル下限"></select>
-        </label>
-        <div class="skill-ranking-range-separator">～</div>
-        <label>
-          上限
-          <select id="skillRankingMax" aria-label="TOTALスキル上限"></select>
-        </label>
-        <button id="btnLoadSkillRanking" type="button" class="skill-ranking-load">表示する</button>
-      </div>
-      <div id="skillRankingStatus" class="skill-ranking-status"></div>
       <div class="skill-ranking-fixed-controls">
+        <div class="skill-ranking-range">
+          <select id="skillRankingMin" aria-label="TOTALスキル下限"></select>
+          <div class="skill-ranking-range-separator">～</div>
+          <select id="skillRankingMax" aria-label="TOTALスキル上限"></select>
+          <button id="btnLoadSkillRanking" type="button" class="skill-ranking-load">表示する</button>
+        </div>
+        <div class="skill-ranking-control-labels">
+          <div id="skillRankingStatus" class="skill-ranking-status"></div>
+          <div class="skill-ranking-sort-label">並び順</div>
+        </div>
         <div class="skill-ranking-controls">
           <div class="skill-ranking-tabs">
             <button type="button" class="skill-ranking-tab active" data-ranking-category="HOT">HOT</button>
             <button type="button" class="skill-ranking-tab" data-ranking-category="OTHER">OTHER</button>
           </div>
           <label class="skill-ranking-sort-wrap">
-            並び順
             <select id="skillRankingSort">
               <option value="percentage">割合</option>
               <option value="title">曲名</option>
@@ -9924,7 +9932,7 @@ body.light-mode #domModal .select-arrow-wrap::after{
 <div id="adminModal" class="admin-modal">
   <div class="admin-header">
     <div class="admin-title-row">
-      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 3.15.1</div></div>
+      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 3.15.2</div></div>
       <button id="btnCloseAdmin" class="admin-close">閉じる</button>
     </div>
     <div class="admin-tabs">
@@ -10001,6 +10009,6 @@ body.light-mode #domModal .select-arrow-wrap::after{
   </div>
 </div>
 
-<script type="module" src="./js/app.js?v=3_15_1"></script>
+<script type="module" src="./js/app.js?v=3_15_2"></script>
 </body>
 </html>
