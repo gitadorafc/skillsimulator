@@ -3514,7 +3514,10 @@ $('btnCloseMypage').addEventListener('click', () => closeMyPage(true));
 
 function detectSkillSyncGuideBrowser() {
   const ua = String(navigator.userAgent || '');
-  const isChrome = /(?:Chrome\/|CriOS\/|Chromium\/)/.test(ua)
+  const isMobileDevice = /(?:Android|iPhone|iPad|iPod)/.test(ua)
+    || navigator.userAgentData?.mobile === true;
+  const isChrome = isMobileDevice
+    && /(?:Chrome\/|CriOS\/|Chromium\/)/.test(ua)
     && !/(?:EdgA?\/|EdgiOS\/|OPR\/|Opera\/)/.test(ua);
   if (isChrome) return 'chrome';
 
@@ -3616,15 +3619,15 @@ function renderSkillSyncBrowserGuide() {
   const visualGuide = $('skillSyncVisualGuide');
   if (!guide || !legacyGuide || !visualGuide) return;
 
-  // 新しい図解は開発確認中のため管理者だけに表示する。
+  // ブラウザ別の図解を全ユーザーへ表示する。PC版Chromeは従来表示を使用。
   const detectedBrowser = detectSkillSyncGuideBrowser();
-  const browser = adminEnabled ? detectedBrowser : 'other';
+  const browser = detectedBrowser;
   const useVisualGuide = browser === 'safari' || browser === 'chrome';
   legacyGuide.classList.toggle('hidden', useVisualGuide);
   visualGuide.classList.toggle('hidden', !useVisualGuide);
   $('skillSyncLegacyChromeNote')?.classList.toggle(
     'hidden',
-    adminEnabled && detectedBrowser === 'other'
+    detectedBrowser === 'other'
   );
 
   if (useVisualGuide) {
