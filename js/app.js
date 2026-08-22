@@ -616,7 +616,7 @@ function scrollUserListPageToTop() {
   const stickyTopGap = 6;
 
   // 現在どこまでスクロールしていても、
-  // 新しいページの1人目が「検索窓＋項目行」の直下に来るよう絶対位置で補正する。
+  // 新しいページの1人目が「検索窓＋並び替え欄」の直下に来るよう絶対位置で補正する。
   const desiredFirstRowTop = headerHeight + stickyTopGap + stickyHeight;
   const currentFirstRowTop = firstRow.getBoundingClientRect().top;
   const targetY = Math.max(
@@ -1034,6 +1034,7 @@ function applyInstrumentUI() {
   document.querySelectorAll('[data-instrument]').forEach(b => b.classList.toggle('active', b.dataset.instrument === activeInstrument));
   $('partSelect').innerHTML = instrumentParts().map(p => `<option value="${p}">${p}</option>`).join('');
   if ($('instrumentLabel')) $('instrumentLabel').textContent = activeInstrument;
+  syncUserListSortControls();
 
   document.body.classList.toggle('dm-mode', activeInstrument === 'DM');
   if (activeInstrument === 'DM' && $('formOption')) {
@@ -2591,16 +2592,17 @@ function buildUserListPager(totalPages) {
   `;
 }
 
+function syncUserListSortControls() {
+  const keySelect = $('userListSortKey');
+  const directionSelect = $('userListSortDirection');
+  if (keySelect) keySelect.value = userListSort.key;
+  if (directionSelect) directionSelect.value = userListSort.dir;
+}
+
 function renderUsers() {
   const { key, dir } = userListSort;
   const sign = dir === 'asc' ? 1 : -1;
-
-  document.querySelectorAll('[data-user-sort]').forEach(btn => {
-    const active = btn.dataset.userSort === key;
-    btn.classList.toggle('active', active);
-    if (active) btn.dataset.sortDir = dir;
-    else delete btn.dataset.sortDir;
-  });
+  syncUserListSortControls();
 
   const users = [...publicUsers].sort((a, b) => {
     const gfA = Number(a.gf_skill) || 0, gfB = Number(b.gf_skill) || 0;
@@ -4210,16 +4212,13 @@ $('userSearch').addEventListener('input', () => {
   userSearchTimer = setTimeout(() => loadUsers({ resetPage: true }), 250);
 });
 
-document.querySelector('.user-list-header')?.addEventListener('click', e => {
-  const button = e.target.closest('[data-user-sort]');
-  if (!button) return;
-  const key = button.dataset.userSort;
-  if (userListSort.key === key) {
-    userListSort.dir = userListSort.dir === 'desc' ? 'asc' : 'desc';
-  } else {
-    userListSort.key = key;
-    userListSort.dir = key === 'name' ? 'asc' : 'desc';
-  }
+$('userListSortKey')?.addEventListener('change', event => {
+  userListSort.key = event.target.value;
+  userListPage = 0;
+  renderUsers();
+});
+$('userListSortDirection')?.addEventListener('change', event => {
+  userListSort.dir = event.target.value;
   userListPage = 0;
   renderUsers();
 });

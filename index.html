@@ -6672,7 +6672,7 @@ body.light-mode .rate-table-head-fixed{
 }
 
 
-/* === FIX151: ユーザーリスト固定領域を検索窓～項目行まで一体化 === */
+/* === FIX151: ユーザーリスト固定領域を検索窓～並び替え欄まで一体化 === */
 :root{
   --app-sticky-header-height:0px;
 }
@@ -6685,7 +6685,7 @@ body.light-mode .rate-table-head-fixed{
   z-index:auto !important;
 }
 
-/* 検索窓 + 項目行を1つの固定ブロックとして扱う */
+/* 検索窓 + 並び替え欄を1つの固定ブロックとして扱う */
 #viewUsers .user-list-sticky{
   position:sticky !important;
   top:var(--app-sticky-header-height) !important;
@@ -6975,7 +6975,7 @@ body:has(#viewUsers:not(.hidden)) .p-header{
   box-shadow:none !important;
 }
 
-/* 検索窓＋項目行までを固定エリアとして扱い、その最下部に影を付ける */
+/* 検索窓＋並び替え欄までを固定エリアとして扱い、その最下部に影を付ける */
 #viewUsers .user-list-sticky{
   box-shadow:0 5px 10px rgba(0,0,0,.28) !important;
 }
@@ -8968,6 +8968,82 @@ body.light-mode .user-detail-sticky{
   box-shadow:0 5px 10px rgba(15,23,42,.18) !important;
 }
 
+/* === APP VERSION 3.15.3: ユーザーリストの並び替えを2つの選択欄へ統一 === */
+#viewUsers .user-list-sort-controls{
+  position:relative !important;
+  top:auto !important;
+  z-index:auto !important;
+  display:grid;
+  grid-template-columns:minmax(0,1.45fr) minmax(0,1fr);
+  gap:6px;
+  width:100%;
+  margin:0;
+  padding:5px 6px;
+  border:1px solid #273449;
+  border-radius:7px;
+  background:#0b1220;
+  box-sizing:border-box;
+}
+#viewUsers .user-list-sort-field{
+  display:grid;
+  grid-template-columns:auto minmax(0,1fr);
+  align-items:center;
+  gap:5px;
+  min-width:0;
+  color:#94a3b8;
+  font-size:9px;
+  font-weight:900;
+  white-space:nowrap;
+}
+#viewUsers .user-list-sort-field select{
+  width:100%;
+  min-width:0;
+  height:34px;
+  min-height:34px;
+  padding-top:0;
+  padding-bottom:0;
+  padding-left:8px;
+  border:1px solid #475569;
+  border-radius:7px;
+  background-color:#0f172a;
+  color:#f8fafc;
+  font-size:11px;
+  font-weight:900;
+}
+#viewUsers .user-list-sticky .user-list-sort-controls{
+  background:#0b1220 !important;
+}
+body.light-mode #viewUsers .user-list-sort-controls,
+body.light-mode #viewUsers .user-list-sticky .user-list-sort-controls{
+  border-color:#94a3b8 !important;
+  background:#e2e8f0 !important;
+}
+body.light-mode #viewUsers .user-list-sort-field{
+  color:#64748b !important;
+}
+body.light-mode #viewUsers .user-list-sort-field select{
+  border-color:#94a3b8 !important;
+  background-color:#fff !important;
+  color:#111827 !important;
+}
+@media(max-width:430px){
+  #viewUsers .user-list-sort-controls{
+    grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);
+    gap:5px;
+    padding:4px 5px;
+  }
+  #viewUsers .user-list-sort-field{
+    gap:4px;
+    font-size:8px;
+  }
+  #viewUsers .user-list-sort-field select{
+    height:32px;
+    min-height:32px;
+    padding-left:6px;
+    font-size:10px;
+  }
+}
+
 /* === APP VERSION 3.15.0: 管理者限定 スキル対象ランキング === */
 .skill-ranking-dialog{
   width:min(94vw,760px);
@@ -9015,7 +9091,7 @@ body.light-mode .user-detail-sticky{
 .skill-ranking-body{
   position:relative;
   min-height:0;
-  padding:12px;
+  padding:0 12px 12px;
   overflow-y:auto;
   overscroll-behavior:contain;
   scrollbar-color:#64748b #0f172a;
@@ -9025,7 +9101,7 @@ body.light-mode .user-detail-sticky{
   position:sticky;
   top:0;
   z-index:5;
-  margin:-12px -12px 0;
+  margin:0 -12px;
   padding:6px 12px 7px;
   background:#0f172a;
   box-shadow:0 6px 10px rgba(0,0,0,.28);
@@ -9275,9 +9351,9 @@ body.light-mode .skill-ranking-sort-wrap select{
 @media(max-width:560px){
   .skill-ranking-dialog{width:96vw;max-height:94dvh;}
   .skill-ranking-head{padding:11px;}
-  .skill-ranking-body{padding:9px;}
+  .skill-ranking-body{padding:0 9px 9px;}
   .skill-ranking-fixed-controls{
-    margin:-9px -9px 0;
+    margin:0 -9px;
     padding:5px 9px 6px;
   }
   .skill-ranking-range{
@@ -9439,12 +9515,23 @@ body.light-mode #domModal .select-arrow-wrap::after{
         <div class="users-toolbar">
           <input id="userSearch" placeholder="ユーザー名を検索...">
         </div>
-        <div class="user-list-header" aria-label="ユーザーリストの並び替え">
-          <button type="button" class="user-sort-head name" data-user-sort="name">ユーザー名 <span class="sort-arrow"></span></button>
-          <button type="button" class="user-sort-head" data-user-sort="gf">GF <span class="sort-arrow"></span></button>
-          <button type="button" class="user-sort-head" data-user-sort="dm">DM <span class="sort-arrow"></span></button>
-          <button type="button" class="user-sort-head" data-user-sort="total">TOTAL <span class="sort-arrow"></span></button>
-          <span class="user-list-rival-head">RIVAL</span>
+        <div class="user-list-sort-controls" aria-label="ユーザーリストの並び替え">
+          <label class="user-list-sort-field">
+            <span>項目</span>
+            <select id="userListSortKey" aria-label="並び替える項目">
+              <option value="name">ユーザー名</option>
+              <option value="gf">GFスキル</option>
+              <option value="dm">DMスキル</option>
+              <option value="total">TOTALスキル</option>
+            </select>
+          </label>
+          <label class="user-list-sort-field">
+            <span>並び順</span>
+            <select id="userListSortDirection" aria-label="並び順">
+              <option value="desc">降順</option>
+              <option value="asc">昇順</option>
+            </select>
+          </label>
         </div>
       </div>
       <div id="userList"></div>
@@ -9581,7 +9668,7 @@ body.light-mode #domModal .select-arrow-wrap::after{
     <div class="app-menu-version">
       <label>VERSION</label>
       <select id="versionSelect" class="version-select" aria-label="GITADORAバージョン"></select>
-      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 3.15.2</div>
+      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 3.15.3</div>
     </div>
   </div>
 </div>
@@ -9932,7 +10019,7 @@ body.light-mode #domModal .select-arrow-wrap::after{
 <div id="adminModal" class="admin-modal">
   <div class="admin-header">
     <div class="admin-title-row">
-      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 3.15.2</div></div>
+      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 3.15.3</div></div>
       <button id="btnCloseAdmin" class="admin-close">閉じる</button>
     </div>
     <div class="admin-tabs">
@@ -10009,6 +10096,6 @@ body.light-mode #domModal .select-arrow-wrap::after{
   </div>
 </div>
 
-<script type="module" src="./js/app.js?v=3_15_2"></script>
+<script type="module" src="./js/app.js?v=3_15_3"></script>
 </body>
 </html>
