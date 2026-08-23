@@ -605,11 +605,11 @@ body { background:#0b1220; }
 @keyframes skill-sparkle-band-glow-light {
   0%,100% {
     filter:none;
-    box-shadow:inset 7px 0 0 rgba(255,255,255,.06),inset -7px 0 0 rgba(255,255,255,.06),0 0 2px rgba(190,24,93,.18);
+    box-shadow:inset 5px 0 0 rgba(255,255,255,.06),inset -5px 0 0 rgba(255,255,255,.06),0 0 2px rgba(190,24,93,.18);
   }
   50% {
     filter:none;
-    box-shadow:inset 7px 0 0 rgba(255,255,255,.42),inset -7px 0 0 rgba(255,255,255,.42),0 0 4px rgba(190,24,93,.38);
+    box-shadow:inset 5px 0 0 rgba(255,255,255,.42),inset -5px 0 0 rgba(255,255,255,.42),0 0 4px rgba(190,24,93,.38);
   }
 }
 @keyframes skill-sparkle-border-pulse {
@@ -9456,7 +9456,7 @@ body.light-mode .skill-ranking-sort-wrap select{
   .skill-ranking-metric{padding:0 5px;}
 }
 
-/* APP VERSION 3.17.7: 9500帯の全発光周期統一／ライト背景・枠明暗／編集ボタン統一 */
+/* APP VERSION 3.17.8: 9500帯を含むスキル値左右帯の太さを5pxへ統一 */
 select:not([multiple]){
   -webkit-appearance:none !important;
   appearance:none !important;
@@ -9663,16 +9663,6 @@ body.text-size-up.skill-target-columns :is(#viewAllManage,#userDetailRecords) .d
 body.text-size-up.skill-target-columns :is(#viewAllManage,#userDetailRecords) .dc-card-manage .dc-skill {
   font-size:13px !important;
 }
-@media(max-width:520px) {
-  body.skill-target-columns :is(#viewSkill,#userDetailSkill,#viewAllManage,#userDetailRecords) .dc-card .dc-skill,
-  body.text-size-up.skill-target-columns :is(#viewSkill,#userDetailSkill,#viewAllManage,#userDetailRecords) .dc-card .dc-skill {
-    font-size:10px !important;
-    letter-spacing:-.1px !important;
-    padding-left:2px !important;
-    padding-right:2px !important;
-  }
-}
-
 /* ダークモードの登録曲編集ボタンは、通常・横並びとも青背景＋白文字に統一。 */
 body:not(.light-mode) #viewAllManage .dc-edit .m-action-btn.btn-e {
   background:#2563eb !important;
@@ -9982,7 +9972,7 @@ body.light-mode .rate-compare-edit-button:active {
     <div class="app-menu-version">
       <label>VERSION</label>
       <select id="versionSelect" class="version-select" aria-label="GITADORAバージョン"></select>
-      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 3.17.7</div>
+      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 3.17.8</div>
     </div>
   </div>
 </div>
@@ -10331,7 +10321,7 @@ body.light-mode .rate-compare-edit-button:active {
 <div id="adminModal" class="admin-modal">
   <div class="admin-header">
     <div class="admin-title-row">
-      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 3.17.7</div></div>
+      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 3.17.8</div></div>
       <button id="btnCloseAdmin" class="admin-close">閉じる</button>
     </div>
     <div class="admin-tabs">
@@ -10408,6 +10398,6 @@ body.light-mode .rate-compare-edit-button:active {
   </div>
 </div>
 
-<script type="module" src="./js/app.js?v=3_17_7"></script>
+<script type="module" src="./js/app.js?v=3_17_8"></script>
 </body>
 </html>
