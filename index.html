@@ -588,11 +588,6 @@ body { background:#0b1220; }
   inherits:false;
   initial-value:.03;
 }
-@property --skill-text-light-alpha {
-  syntax:"<number>";
-  inherits:false;
-  initial-value:.06;
-}
 @property --skill-border-light-alpha {
   syntax:"<number>";
   inherits:false;
@@ -605,17 +600,9 @@ body { background:#0b1220; }
   0% { background-position:0 0,180% 0; }
   100% { background-position:0 0,-80% 0; }
 }
-@keyframes skill-sparkle-text-sweep-light {
-  0% { background-position:0 0,0 0,180% 0; }
-  100% { background-position:0 0,0 0,-80% 0; }
-}
 @keyframes skill-sparkle-text-glow {
   0%,100% { filter:brightness(.94) saturate(1.04) drop-shadow(0 0 .45px rgba(255,255,255,.28)) drop-shadow(0 0 1.1px rgba(236,72,153,.22)); }
   50% { filter:brightness(1.12) saturate(1.14) drop-shadow(0 0 .85px rgba(255,255,255,.58)) drop-shadow(0 0 2.3px rgba(236,72,153,.44)); }
-}
-@keyframes skill-sparkle-text-glow-light {
-  0%,100% { --skill-text-light-alpha:.06; }
-  50% { --skill-text-light-alpha:.3; }
 }
 @keyframes skill-sparkle-band-glow {
   0%,100% { filter:brightness(1.02) saturate(1.08); }
@@ -667,9 +654,7 @@ body.light-mode .user-list-row-sparkle-rainbow:active {
   animation:skill-sparkle-text-sweep var(--skill-sparkle-cycle) linear infinite,skill-sparkle-text-glow var(--skill-sparkle-cycle) ease-in-out infinite !important;
 }
 body.light-mode :is(.score-val,.user-list-skill-value,.user-detail-skill-value).score-rank-sparkle-rainbow {
-  filter:none !important;
-  text-shadow:0 1px .45px rgba(15,23,42,.5),0 0 1.1px rgba(190,24,93,.42) !important;
-  animation:skill-sparkle-text-sweep-light var(--skill-sparkle-cycle) linear infinite,skill-sparkle-text-glow-light var(--skill-sparkle-cycle) ease-in-out infinite !important;
+  animation:skill-sparkle-text-sweep var(--skill-sparkle-cycle) linear infinite,skill-sparkle-text-glow var(--skill-sparkle-cycle) ease-in-out infinite !important;
 }
 @media (prefers-reduced-motion: reduce) {
   .score-rank-sparkle-rainbow,
@@ -682,10 +667,6 @@ body.light-mode :is(.score-val,.user-list-skill-value,.user-detail-skill-value).
   :is(.score-val,.user-list-skill-value,.user-detail-skill-value).score-rank-sparkle-rainbow {
     animation:none !important;
     filter:drop-shadow(0 0 .8px rgba(236,72,153,.42)) !important;
-  }
-  body.light-mode :is(.score-val,.user-list-skill-value,.user-detail-skill-value).score-rank-sparkle-rainbow {
-    --skill-text-light-alpha:.18;
-    filter:none !important;
   }
   body.light-mode .skill-box-sparkle-rainbow {
     --skill-band-light-alpha:.26;
@@ -9470,7 +9451,7 @@ body.light-mode .skill-ranking-sort-wrap select{
   .skill-ranking-metric{padding:0 5px;}
 }
 
-/* APP VERSION 3.17.12: ライト9500帯をダーク同等の明暗幅へ統一・Chromeユーザーリスト安定化 */
+/* APP VERSION 3.17.13: ライトのヘッダー・他ユーザー詳細・ユーザーリストをダークと同一描画へ統一 */
 select:not([multiple]){
   -webkit-appearance:none !important;
   appearance:none !important;
@@ -10009,7 +9990,7 @@ body.light-mode #viewAllManage .dc-edit .m-action-btn.btn-e:active {
     <div class="app-menu-version">
       <label>VERSION</label>
       <select id="versionSelect" class="version-select" aria-label="GITADORAバージョン"></select>
-      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 3.17.12</div>
+      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 3.17.13</div>
     </div>
   </div>
 </div>
@@ -10358,7 +10339,7 @@ body.light-mode #viewAllManage .dc-edit .m-action-btn.btn-e:active {
 <div id="adminModal" class="admin-modal">
   <div class="admin-header">
     <div class="admin-title-row">
-      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 3.17.12</div></div>
+      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 3.17.13</div></div>
       <button id="btnCloseAdmin" class="admin-close">閉じる</button>
     </div>
     <div class="admin-tabs">
@@ -10435,6 +10416,6 @@ body.light-mode #viewAllManage .dc-edit .m-action-btn.btn-e:active {
   </div>
 </div>
 
-<script type="module" src="./js/app.js?v=3_17_12"></script>
+<script type="module" src="./js/app.js?v=3_17_13"></script>
 </body>
 </html>
