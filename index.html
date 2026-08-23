@@ -9419,7 +9419,7 @@ body.light-mode .skill-ranking-sort-wrap select{
   .skill-ranking-metric{padding:0 5px;}
 }
 
-/* APP VERSION 3.17.3: ヘッダー9500帯をユーザーリストと同じキラキラ表示へ統一 */
+/* APP VERSION 3.17.4: 横並び登録曲を左HOT・右OTHERへ固定／ライト時の枠色を統一 */
 select:not([multiple]){
   -webkit-appearance:none !important;
   appearance:none !important;
@@ -9500,6 +9500,11 @@ body.skill-target-columns #recordTypeFilter {
 }
 body.skill-target-columns .record-filter-row {
   grid-template-columns:1fr !important;
+}
+body.skill-target-columns .record-column-placeholder {
+  min-width:0 !important;
+  visibility:hidden !important;
+  pointer-events:none !important;
 }
 
 /* 登録曲の横並びカード：1段目バッジ / 2段目曲名 / 3段目数値 / 4段目編集。 */
@@ -9916,7 +9921,7 @@ body.light-mode .rate-compare-edit-button {
     <div class="app-menu-version">
       <label>VERSION</label>
       <select id="versionSelect" class="version-select" aria-label="GITADORAバージョン"></select>
-      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 3.17.3</div>
+      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 3.17.4</div>
     </div>
   </div>
 </div>
@@ -10265,7 +10270,7 @@ body.light-mode .rate-compare-edit-button {
 <div id="adminModal" class="admin-modal">
   <div class="admin-header">
     <div class="admin-title-row">
-      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 3.17.3</div></div>
+      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 3.17.4</div></div>
       <button id="btnCloseAdmin" class="admin-close">閉じる</button>
     </div>
     <div class="admin-tabs">
@@ -10342,6 +10347,6 @@ body.light-mode .rate-compare-edit-button {
   </div>
 </div>
 
-<script type="module" src="./js/app.js?v=3_17_3"></script>
+<script type="module" src="./js/app.js?v=3_17_4"></script>
 </body>
 </html>

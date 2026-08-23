@@ -170,7 +170,10 @@ function installSkillColorCss() {
 
     const cardBorderRule =
       `.m-card:has(.skill-box-${row.rank}),` +
-      `.sk-row:has(.skill-box-${row.rank}){--song-skill-border:${borderPaint};}`;
+      `.sk-row:has(.skill-box-${row.rank}){--song-skill-border:${borderPaint};}` +
+      // ライトモードは登録曲・スキル対象とも、外枠をスキル値の左右帯と同じ配色へ揃える。
+      `body.light-mode .m-card:has(.skill-box-${row.rank}),` +
+      `body.light-mode .sk-row:has(.skill-box-${row.rank}){--song-skill-border:${sidePaint};}`;
 
     return textRule + sparkleTextRule + songBoxRule + sparkleBandRule + cardBorderRule;
   }).join('\n');
@@ -2187,6 +2190,34 @@ function renderSkill() {
     </div></div>`;
 }
 
+function renderRegisteredCardList(data, mode = 'MANAGE') {
+  if (!document.body.classList.contains('skill-target-columns')) {
+    return data.map((record, index) => createCard(record, index + 1, mode)).join('');
+  }
+
+  // 横並び表示では、左列をHOT、右列をOTHERに固定する。
+  // 各列の中では、呼び出し元で確定したスキル値順を維持する。
+  const hotRows = data.filter(record => Boolean(record.is_hot));
+  const otherRows = data.filter(record => !record.is_hot);
+  const rowCount = Math.max(hotRows.length, otherRows.length);
+  const cards = [];
+
+  for (let index = 0; index < rowCount; index += 1) {
+    cards.push(
+      hotRows[index]
+        ? createCard(hotRows[index], index + 1, mode)
+        : '<div class="record-column-placeholder" aria-hidden="true"></div>'
+    );
+    cards.push(
+      otherRows[index]
+        ? createCard(otherRows[index], index + 1, mode)
+        : '<div class="record-column-placeholder" aria-hidden="true"></div>'
+    );
+  }
+
+  return cards.join('');
+}
+
 function renderManage() {
   const keyword = $('domSearch').value.trim().toLowerCase();
   const typeFilter = document.body.classList.contains('skill-target-columns')
@@ -2212,7 +2243,7 @@ function renderManage() {
     .sort((a,b) => Number(b.skill) - Number(a.skill));
 
   $('viewAllManage').innerHTML =
-    data.map((r,i) => createCard(r,i+1)).join('') ||
+    renderRegisteredCardList(data) ||
     '<div class="empty-state">条件に一致する登録データがありません</div>';
 }
 
@@ -2820,7 +2851,7 @@ async function loadViewedUserRegisteredScores() {
       <div class="sk-section">
         <h2>登録曲 ${data.length}件</h2>
         <div class="list-container">
-          ${data.map((r,i) => createCard(r,i+1,'PUBLIC')).join('') || '<div class="empty-state">登録曲がありません</div>'}
+          ${renderRegisteredCardList(data, 'PUBLIC') || '<div class="empty-state">登録曲がありません</div>'}
         </div>
       </div>`;
   } catch (e) {
