@@ -96,18 +96,21 @@ function installSkillColorCss() {
     const textPaint = skillColorVerticalCss(row);
     const textRule = row.type === 'solid'
       ? `.score-rank-${row.rank}{background:none!important;-webkit-background-clip:border-box!important;background-clip:border-box!important;-webkit-text-fill-color:${row.color}!important;color:${row.color}!important;filter:none!important;}`
-      : `.score-rank-${row.rank}{background:${textPaint}!important;-webkit-background-clip:text!important;background-clip:text!important;-webkit-text-fill-color:transparent!important;color:transparent!important;filter:none!important;}`;
+      : row.rank === 'sparkle-rainbow'
+        ? `.score-rank-sparkle-rainbow{background-image:${textPaint}!important;-webkit-background-clip:text!important;background-clip:text!important;-webkit-text-fill-color:transparent!important;color:transparent!important;filter:none!important;}`
+        : `.score-rank-${row.rank}{background:${textPaint}!important;-webkit-background-clip:text!important;background-clip:text!important;-webkit-text-fill-color:transparent!important;color:transparent!important;filter:none!important;}`;
 
     const sparkleTextRule = row.rank === 'sparkle-rainbow'
-      ? `.score-rank-sparkle-rainbow{position:relative!important;overflow:visible!important;}` +
-        `.score-rank-sparkle-rainbow::before,.score-rank-sparkle-rainbow::after{` +
-        `position:absolute;z-index:4;pointer-events:none;line-height:1;` +
-        `background:none!important;background-clip:border-box!important;-webkit-background-clip:border-box!important;` +
-        `-webkit-text-fill-color:#fff7c2!important;color:#fff7c2!important;` +
-        `filter:drop-shadow(0 0 3px rgba(255,255,255,.95)) drop-shadow(0 0 6px rgba(250,204,21,.72))!important;` +
-        `animation:skill-sparkle-twinkle 1.8s ease-in-out infinite;}` +
-        `.score-rank-sparkle-rainbow::before{content:"✦";font-size:8px;right:-6px;top:-4px;}` +
-        `.score-rank-sparkle-rainbow::after{content:"✧";font-size:7px;left:-5px;bottom:-3px;animation-delay:.75s;}`
+      ? `.score-rank-sparkle-rainbow{` +
+        `background-image:${textPaint},linear-gradient(110deg,transparent 30%,rgba(255,255,255,.15) 41%,#ffffff 49%,rgba(255,255,255,.22) 57%,transparent 69%)!important;` +
+        `background-size:100% 100%,260% 100%!important;` +
+        `background-position:0 0,180% 0;` +
+        `background-repeat:no-repeat!important;` +
+        `background-blend-mode:screen!important;` +
+        `-webkit-background-clip:text!important;background-clip:text!important;` +
+        `-webkit-text-fill-color:transparent!important;color:transparent!important;` +
+        `filter:drop-shadow(0 0 2px rgba(255,255,255,.58)) drop-shadow(0 0 4px rgba(236,72,153,.42))!important;` +
+        `animation:skill-sparkle-text-sweep 2.35s linear infinite,skill-sparkle-text-glow 1.55s ease-in-out infinite!important;}`
       : '';
 
     // 曲別Skillは数字を白で固定し、左右の帯だけをスキルカラーにする。
@@ -146,17 +149,30 @@ function installSkillColorCss() {
       `border-left:0!important;border-right:0!important;` +
       `box-sizing:border-box!important;}`;
 
+    const sparkleBandRule = row.rank === 'sparkle-rainbow'
+      ? `.skill-box-sparkle-rainbow{` +
+        `background-size:7px 100%,7px 100%!important;` +
+        `box-shadow:inset 9px 0 9px -8px rgba(255,255,255,.95),inset -9px 0 9px -8px rgba(255,255,255,.95),0 0 6px rgba(236,72,153,.38)!important;` +
+        `animation:skill-sparkle-band-glow 1.55s ease-in-out infinite!important;}` +
+        `body.light-mode .skill-box-sparkle-rainbow{` +
+        `background-size:7px 100%,7px 100%!important;` +
+        `box-shadow:inset 10px 0 10px -8px rgba(255,255,255,1),inset -10px 0 10px -8px rgba(255,255,255,1),0 0 7px rgba(190,24,93,.62)!important;` +
+        `animation:skill-sparkle-band-glow-light 1.45s ease-in-out infinite!important;}`
+      : '';
+
     // スキル対象・登録曲の「外枠だけ」は170degグラデーションにする。
     // スキル値の左右帯、ヘッダー、共有画像には sidePaint をそのまま使うため影響しない。
-    const borderPaint = row.type === 'solid'
-      ? row.color
-      : `linear-gradient(170deg, ${row.stops.map(([color,pos]) => `${color} ${pos}%`).join(', ')})`;
+    const borderPaint = row.rank === 'sparkle-rainbow'
+      ? `linear-gradient(170deg,#ffffff 0%,#e60000 4%,#f05a00 15%,#e6b800 27%,#fff7c2 32%,#12a936 43%,#00aeb5 56%,#ffffff 62%,#1559e6 70%,#681fd1 84%,#bf16ad 96%,#ffffff 100%)`
+      : row.type === 'solid'
+        ? row.color
+        : `linear-gradient(170deg, ${row.stops.map(([color,pos]) => `${color} ${pos}%`).join(', ')})`;
 
     const cardBorderRule =
       `.m-card:has(.skill-box-${row.rank}),` +
       `.sk-row:has(.skill-box-${row.rank}){--song-skill-border:${borderPaint};}`;
 
-    return textRule + sparkleTextRule + songBoxRule + cardBorderRule;
+    return textRule + sparkleTextRule + songBoxRule + sparkleBandRule + cardBorderRule;
   }).join('\n');
 
   document.head.appendChild(style);
@@ -186,6 +202,16 @@ function skillColorCanvasVerticalPaint(ctx, row, left, top, width, height) {
   if (row.type === 'solid') {
     g.addColorStop(0, row.color);
     g.addColorStop(1, '#ffffff');
+    return g;
+  }
+
+  // 9500帯は9000帯の配色を維持しながら、帯と枠の内部に白い輝きを挟む。
+  if (row.rank === 'sparkle-rainbow') {
+    [
+      ['#e60000', 0], ['#f05a00', .14], ['#ffffff', .22], ['#fff7c2', .245],
+      ['#e6b800', .29], ['#12a936', .43], ['#00aeb5', .56], ['#ffffff', .63],
+      ['#bfdbfe', .655], ['#1559e6', .72], ['#681fd1', .86], ['#bf16ad', 1]
+    ].forEach(([color, pos]) => g.addColorStop(pos, color));
     return g;
   }
 
@@ -543,6 +569,7 @@ let scores = [];
 let editingScoreId = null;
 let selectedSong = null;
 let scoreModalScrollY = 0;
+let rateComparisonEditScoreId = null;
 
 let adminAccessChecked = false;
 let primaryAdminEnabled = false;
@@ -846,6 +873,8 @@ async function saveFeatureSettings() {
       textSizeUp ? '1' : '0'
     );
     applyDisplayCustomization(skillTargetColumns, textSizeUp);
+    if (skillTargetColumns && $('recordTypeFilter')) $('recordTypeFilter').value = '';
+    render();
 
     const { error } = await supabase.rpc('set_my_feature_settings', {
       p_registration_public: $('settingRecordsPublic').checked,
@@ -1797,6 +1826,15 @@ function shareSkillImage() {
       // level
       x.fillStyle='#e5e7eb'; x.font='800 17px sans-serif';
       x.fillText(Number(r.level).toFixed(2),pos[4]+widths[4]/2,y+rowH/2);
+
+      // 共有画像の9500帯だけは、曲別SKILL帯と外枠の上に固定の輝きを重ねる。
+      // 画面側カードの枠内には光点を置かない。
+      if (songRow.rank === 'sparkle-rainbow') {
+        drawSkillColorCanvasSparkle(x, skillCellX + 5, barY + 11, 3.4, '#ffffff');
+        drawSkillColorCanvasSparkle(x, skillCellX + skillCellW - 5, barY + barH - 10, 3.4, '#fff7c2');
+        drawSkillColorCanvasSparkle(x, left + tableW * .72, y + 1.5, 3.2, '#ffffff');
+        drawSkillColorCanvasSparkle(x, left + 1.5, y + rowH * .66, 3, '#bfdbfe');
+      }
     });
 
     x.textAlign='left'; x.textBaseline='alphabetic';
@@ -2007,9 +2045,6 @@ function getSongSkillRank(skillValue) {
 function tintHeaderValues(hot, other, total) {
   const totalRank = getTotalSkillRank(total);
   const rankClass = `score-rank-${totalRank}`;
-  const subTotalRankClass = totalRank === 'sparkle-rainbow'
-    ? 'score-rank-deep-rainbow'
-    : rankClass;
 
   const allRankClasses = [
     'score-rank-white',
@@ -2039,8 +2074,8 @@ function tintHeaderValues(hot, other, total) {
     const el = $(id);
     if (!el) return;
     el.classList.remove(...allRankClasses);
-    // 9500帯の光点はTOTALだけ。HOT / OTHERは9000帯と同じ色に留める。
-    el.classList.add(id === 'txtGrandTotal' ? rankClass : subTotalRankClass);
+    // TOTALで決まった帯色をHOT / OTHERにも連動させる。
+    el.classList.add(rankClass);
   });
 }
 
@@ -2098,7 +2133,7 @@ function createCard(record, index, mode = 'MANAGE') {
   if (mode === 'SKILL') {
     return `
       <div class="sk-row dc-card dc-card-skill ${rowColor}"
-        ${record.song_id ? `data-compare-song="${record.song_id}" data-compare-title="${esc(record.title)}" data-compare-part="${esc(record.part)}"` : ''}>
+        ${record.song_id ? `data-compare-song="${record.song_id}" data-compare-title="${esc(record.title)}" data-compare-part="${esc(record.part)}" data-compare-edit-score="${record.score_id}"` : ''}>
         <div class="dc-part">${partMarkup}</div>
         <div class="dc-title smart-song-title" data-full-title="${esc(record.title)}">${titleMarkup}</div>
         <div class="dc-skill dc-skill-span ${boxColor}">${formatSkill(skill)}</div>
@@ -2154,7 +2189,9 @@ function renderSkill() {
 
 function renderManage() {
   const keyword = $('domSearch').value.trim().toLowerCase();
-  const typeFilter = $('recordTypeFilter')?.value || '';
+  const typeFilter = document.body.classList.contains('skill-target-columns')
+    ? ''
+    : ($('recordTypeFilter')?.value || '');
   const fcFilter = $('recordFcFilter')?.value || '';
 
   const data = scores
@@ -3019,8 +3056,13 @@ function formatOptionPercentage(value) {
   return Number.isInteger(num) ? String(num) : num.toFixed(1);
 }
 
-async function openRateComparison(songId, title, part) {
+async function openRateComparison(songId, title, part, editScoreId = null) {
+  rateComparisonEditScoreId = editScoreId && scores.some(row => String(row.score_id) === String(editScoreId))
+    ? String(editScoreId)
+    : null;
   $('rateCompareTitle').textContent = `${title} / ${part}`;
+  $('rateCompareEditArea')?.classList.toggle('hidden', !rateComparisonEditScoreId);
+  $('btnEditRateCompare')?.classList.toggle('hidden', !rateComparisonEditScoreId);
   $('ratePrivateComment').classList.add('hidden');
   $('ratePrivateComment').textContent = '';
   $('ratePersonalBest').classList.add('hidden');
@@ -3117,6 +3159,9 @@ async function openRateComparison(songId, title, part) {
 
 function closeRateComparison() {
   $('rateCompareMask').style.display = 'none';
+  rateComparisonEditScoreId = null;
+  $('rateCompareEditArea')?.classList.add('hidden');
+  $('btnEditRateCompare')?.classList.add('hidden');
 }
 
 async function openMyPage(fromMenu = false) {
@@ -4334,6 +4379,16 @@ $('userDetailTabs').addEventListener('click', async e => {
 });
 
 $('btnCloseRateCompare').addEventListener('click', closeRateComparison);
+$('btnEditRateCompare')?.addEventListener('click', async () => {
+  const score = scores.find(row => String(row.score_id) === String(rateComparisonEditScoreId));
+  if (!score) {
+    await showSiteDialog('編集する登録データを取得できませんでした。', 'エラー');
+    return;
+  }
+
+  closeRateComparison();
+  openScoreModal(score);
+});
 $('rateCompareMask').addEventListener('click', e => {
   if (e.target === $('rateCompareMask')) closeRateComparison();
 });
@@ -4466,7 +4521,8 @@ document.addEventListener('click', async e => {
     await openRateComparison(
       compareCard.dataset.compareSong,
       compareCard.dataset.compareTitle,
-      compareCard.dataset.comparePart
+      compareCard.dataset.comparePart,
+      compareCard.dataset.compareEditScore || null
     );
     return;
   }

@@ -582,73 +582,61 @@ body { background:#0b1220; }
   background:linear-gradient(90deg,rgba(0,119,255,.20),rgba(214,44,255,.16),rgba(255,45,141,.12),#111827 55%) !important;
 }
 
-/* === v3.16.0: 管理者先行 9500～ SPARKLE RAINBOW === */
-@keyframes skill-sparkle-twinkle {
-  0%,100% { opacity:.28; transform:scale(.72) rotate(0deg); }
-  45% { opacity:1; transform:scale(1.14) rotate(12deg); }
-  70% { opacity:.52; transform:scale(.9) rotate(5deg); }
+/* === v3.17.0: 管理者先行 9500～ SPARKLE RAINBOW === */
+@keyframes skill-sparkle-text-sweep {
+  0% { background-position:0 0,180% 0; }
+  100% { background-position:0 0,-80% 0; }
+}
+@keyframes skill-sparkle-text-glow {
+  0%,100% { filter:drop-shadow(0 0 1px rgba(255,255,255,.5)) drop-shadow(0 0 3px rgba(236,72,153,.35)); }
+  50% { filter:drop-shadow(0 0 3px rgba(255,255,255,.95)) drop-shadow(0 0 7px rgba(236,72,153,.78)); }
+}
+@keyframes skill-sparkle-band-glow {
+  0%,100% { filter:brightness(1.02) saturate(1.08); }
+  50% { filter:brightness(1.7) saturate(1.3); }
+}
+@keyframes skill-sparkle-band-glow-light {
+  0%,100% { filter:brightness(.92) saturate(1.25) contrast(1.12); }
+  50% { filter:brightness(1.35) saturate(1.5) contrast(1.25); }
 }
 @keyframes skill-sparkle-border-pulse {
-  0%,100% { opacity:.42; filter:brightness(.9); }
-  50% { opacity:1; filter:brightness(1.35); }
+  0%,100% { opacity:.78; filter:brightness(1.05) drop-shadow(0 0 1px rgba(255,255,255,.5)); }
+  50% { opacity:1; filter:brightness(1.85) drop-shadow(0 0 4px rgba(255,255,255,.95)); }
+}
+@keyframes skill-sparkle-row-glow {
+  0%,100% { filter:brightness(1); }
+  50% { filter:brightness(1.18); }
 }
 
-/* 190.00以上の登録曲・スキル対象は9000帯の枠色に小さな光点を追加。 */
+/* 190.00以上の登録曲・スキル対象は、枠そのものだけを明滅させる。 */
 :is(.m-card,.sk-row):has(.skill-box-sparkle-rainbow)::before {
-  animation:skill-sparkle-border-pulse 2.2s ease-in-out infinite;
-}
-:is(.m-card,.sk-row):has(.skill-box-sparkle-rainbow)::after {
-  content:"";
-  position:absolute;
-  inset:0;
-  z-index:3;
-  pointer-events:none;
-  border-radius:inherit;
-  background:
-    radial-gradient(circle at 5px 5px,rgba(255,255,255,1) 0 1px,rgba(245,208,254,.95) 1.5px,transparent 4px),
-    radial-gradient(circle at calc(100% - 7px) 35%,rgba(255,255,255,1) 0 1px,rgba(254,243,199,.9) 1.5px,transparent 4px),
-    radial-gradient(circle at 72% calc(100% - 4px),rgba(255,255,255,.95) 0 1px,rgba(191,219,254,.85) 1.5px,transparent 3.5px);
-  animation:skill-sparkle-twinkle 2s ease-in-out infinite;
+  padding:2px !important;
+  background-size:190% 190% !important;
+  animation:skill-sparkle-border-pulse 1.65s ease-in-out infinite !important;
 }
 
-/* プレイヤーリストは斜め配色にせず、9000帯の色味＋光点だけを使う。 */
+/* プレイヤーリストは枠内光点を使わず、行の枠とスキル文字だけを発光させる。 */
 .user-list-row-sparkle-rainbow {
   position:relative !important;
   overflow:hidden !important;
   border-color:#ff2d8d !important;
   background:linear-gradient(90deg,rgba(0,119,255,.20),rgba(214,44,255,.16),rgba(255,45,141,.12),#111827 58%) !important;
   box-shadow:inset 0 0 0 1px rgba(255,255,255,.03),0 0 9px rgba(236,72,153,.16) !important;
-}
-.user-list-row-sparkle-rainbow::after {
-  content:"";
-  position:absolute;
-  inset:0;
-  z-index:2;
-  pointer-events:none;
-  background:
-    radial-gradient(circle at 7px 7px,rgba(255,255,255,1) 0 1px,rgba(245,208,254,.9) 1.5px,transparent 4px),
-    radial-gradient(circle at 76% calc(100% - 6px),rgba(255,255,255,.95) 0 1px,rgba(254,243,199,.85) 1.5px,transparent 3.5px);
-  animation:skill-sparkle-twinkle 2.1s ease-in-out infinite;
-}
-.user-list-row-sparkle-rainbow > * {
-  position:relative;
-  z-index:3;
+  animation:skill-sparkle-row-glow 1.8s ease-in-out infinite !important;
 }
 body.light-mode .user-list-row-sparkle-rainbow,
 body.light-mode .user-list-row-sparkle-rainbow:active {
-  border-color:#db2777 !important;
-  background:linear-gradient(90deg,rgba(219,39,119,.10),rgba(124,58,237,.09),rgba(14,165,233,.08),#d8dde5 62%) !important;
-  box-shadow:inset 0 0 0 1px rgba(255,255,255,.36),0 0 8px rgba(219,39,119,.14) !important;
+  border:2px solid #db2777 !important;
+  background:linear-gradient(90deg,rgba(219,39,119,.16),rgba(124,58,237,.13),rgba(14,165,233,.11),#d8dde5 65%) !important;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.62),0 0 10px rgba(190,24,93,.36) !important;
 }
 @media (prefers-reduced-motion: reduce) {
-  .score-rank-sparkle-rainbow::before,
-  .score-rank-sparkle-rainbow::after,
+  .score-rank-sparkle-rainbow,
+  .skill-box-sparkle-rainbow,
   :is(.m-card,.sk-row):has(.skill-box-sparkle-rainbow)::before,
-  :is(.m-card,.sk-row):has(.skill-box-sparkle-rainbow)::after,
-  .user-list-row-sparkle-rainbow::after {
+  .user-list-row-sparkle-rainbow {
     animation:none !important;
-    opacity:.82 !important;
-    transform:none !important;
+    filter:brightness(1.28) drop-shadow(0 0 3px rgba(236,72,153,.5)) !important;
   }
 }
 
@@ -9437,7 +9425,7 @@ body.light-mode .skill-ranking-sort-wrap select{
   .skill-ranking-metric{padding:0 5px;}
 }
 
-/* APP VERSION 3.16.0: 管理者向け9500～SPARKLE RAINBOWを先行実装 */
+/* APP VERSION 3.17.0: 9500色調整・登録曲横並び・スキル対象詳細編集 */
 select:not([multiple]){
   -webkit-appearance:none !important;
   appearance:none !important;
@@ -9495,9 +9483,173 @@ body.light-mode #domModal .select-arrow-wrap::after{
 /* 後段のライトモード共通指定より9500帯を優先する。 */
 body.light-mode .user-list-row.user-list-row-sparkle-rainbow,
 body.light-mode .user-list-row.user-list-row-sparkle-rainbow:active {
-  border-color:#db2777 !important;
-  background:linear-gradient(90deg,rgba(219,39,119,.10),rgba(124,58,237,.09),rgba(14,165,233,.08),#d8dde5 62%) !important;
-  box-shadow:inset 0 0 0 1px rgba(255,255,255,.36),0 0 8px rgba(219,39,119,.14) !important;
+  border:2px solid #db2777 !important;
+  background:linear-gradient(90deg,rgba(219,39,119,.16),rgba(124,58,237,.13),rgba(14,165,233,.11),#d8dde5 65%) !important;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.62),0 0 10px rgba(190,24,93,.36) !important;
+}
+body.light-mode :is(.m-card,.sk-row):has(.skill-box-sparkle-rainbow)::before {
+  padding:2.3px !important;
+  opacity:1 !important;
+  filter:brightness(1.45) contrast(1.18) drop-shadow(0 0 3px rgba(190,24,93,.7));
+}
+
+/* 横並び設定を登録曲一覧にも適用する。 */
+body.skill-target-columns #viewAllManage:not(.hidden),
+body.skill-target-columns #userDetailRecords .list-container {
+  display:grid !important;
+  grid-template-columns:minmax(0,1fr) minmax(0,1fr) !important;
+  align-items:start !important;
+  gap:4px !important;
+}
+body.skill-target-columns #recordTypeFilter {
+  display:none !important;
+}
+body.skill-target-columns .record-filter-row {
+  grid-template-columns:1fr !important;
+}
+
+/* 登録曲の横並びカード：1段目バッジ / 2段目曲名 / 3段目数値 / 4段目編集。 */
+body.skill-target-columns :is(#viewAllManage,#userDetailRecords) .dc-card-manage {
+  grid-template-columns:repeat(3,minmax(0,1fr)) !important;
+  grid-template-rows:auto auto auto auto !important;
+  column-gap:4px !important;
+  row-gap:2px !important;
+  min-height:0 !important;
+  padding:4px !important;
+}
+body.skill-target-columns :is(#viewAllManage,#userDetailRecords) .dc-card-manage .dc-part {
+  grid-column:1 !important;
+  grid-row:1 !important;
+  justify-content:flex-start !important;
+}
+body.skill-target-columns :is(#viewAllManage,#userDetailRecords) .dc-card-manage .dc-option {
+  grid-column:2 !important;
+  grid-row:1 !important;
+  justify-content:center !important;
+}
+body.skill-target-columns :is(#viewAllManage,#userDetailRecords) .dc-card-manage .dc-fc {
+  grid-column:3 !important;
+  grid-row:1 !important;
+  justify-content:center !important;
+}
+body.skill-target-columns :is(#viewAllManage,#userDetailRecords) .dc-card-manage :is(
+  .dc-part .p-badge,
+  .dc-fc .fc-unified-badge,
+  .dc-option .opt-badge
+) {
+  height:15px !important;
+  min-height:15px !important;
+  max-height:15px !important;
+  box-sizing:border-box !important;
+  font-size:9px !important;
+  line-height:1.2 !important;
+}
+body.skill-target-columns :is(#viewAllManage,#userDetailRecords) .dc-card-manage .dc-part .p-badge {
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  padding-top:0 !important;
+  padding-bottom:0 !important;
+}
+body.skill-target-columns :is(#viewAllManage,#userDetailRecords) .dc-card-manage .dc-fc .fc-unified-badge {
+  width:100% !important;
+  max-width:64px !important;
+}
+body.skill-target-columns :is(#viewAllManage,#userDetailRecords) .dc-card-manage .dc-option .opt-badge {
+  width:100% !important;
+  max-width:66px !important;
+}
+body.skill-target-columns :is(#viewAllManage,#userDetailRecords) .dc-card-manage .dc-title {
+  grid-column:1 / 4 !important;
+  grid-row:2 !important;
+  height:calc(11px * 1.12 * 2 + 6px) !important;
+  min-height:calc(11px * 1.12 * 2 + 6px) !important;
+  max-height:calc(11px * 1.12 * 2 + 6px) !important;
+  padding:2px 0 !important;
+  border-top:1px solid rgba(148,163,184,.24) !important;
+  border-bottom:1px solid rgba(148,163,184,.24) !important;
+  box-sizing:border-box !important;
+  align-self:start !important;
+  align-items:flex-start !important;
+}
+body.skill-target-columns :is(#viewAllManage,#userDetailRecords) .dc-card-manage .dc-song-title {
+  font-size:11px !important;
+  line-height:1.12 !important;
+  max-height:2.24em !important;
+}
+body.skill-target-columns :is(#viewAllManage,#userDetailRecords) .dc-card-manage .dc-lv {
+  grid-column:1 !important;
+  grid-row:3 !important;
+  justify-content:flex-start !important;
+  text-align:left !important;
+  font-size:11px !important;
+}
+body.skill-target-columns :is(#viewAllManage,#userDetailRecords) .dc-card-manage .dc-rate {
+  grid-column:2 !important;
+  grid-row:3 !important;
+  justify-content:flex-start !important;
+  text-align:left !important;
+  font-size:11px !important;
+}
+body.skill-target-columns :is(#viewAllManage,#userDetailRecords) .dc-card-manage .dc-skill {
+  grid-column:3 !important;
+  grid-row:3 !important;
+  justify-self:end !important;
+  width:100% !important;
+  min-width:0 !important;
+  max-width:82px !important;
+  padding:3px 0 !important;
+  font-size:12px !important;
+}
+body.skill-target-columns #viewAllManage .dc-card-manage .dc-edit {
+  grid-column:1 / 4 !important;
+  grid-row:4 !important;
+  width:100% !important;
+  margin-top:2px !important;
+  padding-top:4px !important;
+  border-top:1px solid rgba(148,163,184,.24) !important;
+}
+body.skill-target-columns #viewAllManage .dc-card-manage .dc-edit .m-action-btn {
+  width:100% !important;
+  min-height:25px !important;
+  padding:3px 8px !important;
+}
+body.text-size-up.skill-target-columns :is(#viewAllManage,#userDetailRecords) .dc-card-manage .dc-title {
+  height:calc(12px * 1.12 * 2 + 6px) !important;
+  min-height:calc(12px * 1.12 * 2 + 6px) !important;
+  max-height:calc(12px * 1.12 * 2 + 6px) !important;
+}
+body.text-size-up.skill-target-columns :is(#viewAllManage,#userDetailRecords) .dc-card-manage :is(.dc-song-title,.dc-lv,.dc-rate) {
+  font-size:12px !important;
+}
+body.text-size-up.skill-target-columns :is(#viewAllManage,#userDetailRecords) .dc-card-manage .dc-skill {
+  font-size:13px !important;
+}
+
+/* 自分のスキル対象から開いた詳細だけ、4段目に編集ボタンを表示する。 */
+.rate-compare-edit-area {
+  padding:8px 14px 14px;
+  border-top:1px solid #334155;
+}
+.rate-compare-edit-button {
+  width:100%;
+  min-height:38px;
+  border:0;
+  border-radius:8px;
+  background:#2563eb;
+  color:#ffffff;
+  font-size:12px;
+  font-weight:900;
+}
+.rate-compare-edit-button:active {
+  background:#1d4ed8;
+}
+body.light-mode .rate-compare-edit-area {
+  border-top-color:#cbd5e1;
+}
+body.light-mode .rate-compare-edit-button {
+  background:#2563eb;
+  color:#ffffff;
 }
 
 </style>
@@ -9767,7 +9919,7 @@ body.light-mode .user-list-row.user-list-row-sparkle-rainbow:active {
     <div class="app-menu-version">
       <label>VERSION</label>
       <select id="versionSelect" class="version-select" aria-label="GITADORAバージョン"></select>
-      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 3.16.0</div>
+      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 3.17.0</div>
     </div>
   </div>
 </div>
@@ -9855,8 +10007,8 @@ body.light-mode .user-list-row.user-list-row-sparkle-rainbow:active {
 
       <label class="feature-setting-row">
         <span>
-          <strong>スキル対象の横並び表示</strong>
-          <small>HOTとOTHERを左右2列で表示します。</small>
+          <strong>スキル対象・登録曲の横並び表示</strong>
+          <small>曲一覧を左右2列で表示します。</small>
         </span>
         <input id="settingSkillTargetColumns" type="checkbox">
       </label>
@@ -10107,13 +10259,16 @@ body.light-mode .user-list-row.user-list-row-sparkle-rainbow:active {
     <div id="ratePersonalBest" class="rate-personal-best hidden"></div>
     <div id="rateOptionSummary" class="rate-option-summary"></div>
     <div id="rateCompareBody" class="rate-compare-body"></div>
+    <div id="rateCompareEditArea" class="rate-compare-edit-area hidden">
+      <button id="btnEditRateCompare" type="button" class="rate-compare-edit-button hidden">編集する</button>
+    </div>
   </div>
 </div>
 
 <div id="adminModal" class="admin-modal">
   <div class="admin-header">
     <div class="admin-title-row">
-      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 3.16.0</div></div>
+      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 3.17.0</div></div>
       <button id="btnCloseAdmin" class="admin-close">閉じる</button>
     </div>
     <div class="admin-tabs">
@@ -10190,6 +10345,6 @@ body.light-mode .user-list-row.user-list-row-sparkle-rainbow:active {
   </div>
 </div>
 
-<script type="module" src="./js/app.js?v=3_16_0"></script>
+<script type="module" src="./js/app.js?v=3_17_0"></script>
 </body>
 </html>
