@@ -6,8 +6,8 @@
 let adminEnabled = false;
 
 const SKILL_COLOR_TABLE = Object.freeze([
-  // 9500帯は管理者先行公開。配色は9000帯と同じで、表示側に光点を追加する。
-  { min: 9500, rank: 'sparkle-rainbow', type: 'gradient', direction: '90deg', adminOnly: true,
+  // 9500帯は全ユーザー公開。配色は9000帯と同じで、表示側に光点を追加する。
+  { min: 9500, rank: 'sparkle-rainbow', type: 'gradient', direction: '90deg',
     stops: [['#e60000',0],['#f05a00',14.2857],['#e6b800',28.5714],['#12a936',42.8571],['#00aeb5',57.1429],['#1559e6',71.4286],['#681fd1',85.7143],['#bf16ad',100]] },
   { min: 9000, rank: 'deep-rainbow', type: 'gradient', direction: '90deg',
     stops: [['#e60000',0],['#f05a00',14.2857],['#e6b800',28.5714],['#12a936',42.8571],['#00aeb5',57.1429],['#1559e6',71.4286],['#681fd1',85.7143],['#bf16ad',100]] },
@@ -46,7 +46,7 @@ const SKILL_COLOR_BY_RANK = Object.freeze(
 
 function getSkillColorRowByTotalValue(totalValue) {
   const value = Number(totalValue) || 0;
-  return SKILL_COLOR_TABLE.find(row => value >= row.min && (!row.adminOnly || adminEnabled))
+  return SKILL_COLOR_TABLE.find(row => value >= row.min)
     || SKILL_COLOR_TABLE[SKILL_COLOR_TABLE.length - 1];
 }
 
@@ -1530,7 +1530,7 @@ async function loadSkillTargetRanking() {
     const missingFunction = /get_skill_target_rankings|schema cache|PGRST202/i.test(String(error?.message || ''));
     status.className = 'skill-ranking-status error';
     status.textContent = missingFunction
-      ? 'Supabaseで v27_skill_target_ranking_public.sql を実行してください。'
+      ? 'Supabaseで v28_theoretical_max_account.sql を実行してください。'
       : `集計に失敗しました：${error?.message || '不明なエラー'}`;
   } finally {
     skillRankingState.loading = false;
@@ -3273,7 +3273,6 @@ async function deleteOwnAccount() {
 
 /* ---------- 管理者 ---------- */
 async function checkAdminAccess() {
-  const wasAdminEnabled = adminEnabled;
   try {
     adminEnabled = await isAdmin();
   } catch (e) {
@@ -3306,8 +3305,6 @@ async function checkAdminAccess() {
   // 保存済みライトモード設定を全ユーザーに反映。
   applyLightMode();
 
-  // 管理者判定前に通常色で先行描画されていた場合、9500帯へ即時更新する。
-  if (!wasAdminEnabled && adminEnabled) render();
 }
 
 async function adminBulkDeleteCurrentScores() {
