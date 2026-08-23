@@ -97,7 +97,7 @@ function installSkillColorCss() {
     const textRule = row.type === 'solid'
       ? `.score-rank-${row.rank}{background:none!important;-webkit-background-clip:border-box!important;background-clip:border-box!important;-webkit-text-fill-color:${row.color}!important;color:${row.color}!important;filter:none!important;}`
       : row.rank === 'sparkle-rainbow'
-        ? `.score-rank-sparkle-rainbow{background-image:${textPaint}!important;-webkit-background-clip:text!important;background-clip:text!important;-webkit-text-fill-color:transparent!important;color:transparent!important;filter:none!important;}`
+        ? `.score-rank-sparkle-rainbow{background-image:${textPaint}!important;-webkit-background-clip:text!important;background-clip:text!important;-webkit-text-fill-color:transparent!important;color:transparent!important;}`
         : `.score-rank-${row.rank}{background:${textPaint}!important;-webkit-background-clip:text!important;background-clip:text!important;-webkit-text-fill-color:transparent!important;color:transparent!important;filter:none!important;}`;
 
     const sparkleTextRule = row.rank === 'sparkle-rainbow'
@@ -109,7 +109,7 @@ function installSkillColorCss() {
         `background-blend-mode:screen!important;` +
         `-webkit-background-clip:text!important;background-clip:text!important;` +
         `-webkit-text-fill-color:transparent!important;color:transparent!important;` +
-        `filter:drop-shadow(0 0 2px rgba(255,255,255,.58)) drop-shadow(0 0 4px rgba(236,72,153,.42))!important;` +
+        `filter:drop-shadow(0 0 .45px rgba(255,255,255,.32)) drop-shadow(0 0 1.2px rgba(236,72,153,.24));` +
         `animation:skill-sparkle-text-sweep 2.35s linear infinite,skill-sparkle-text-glow 1.55s ease-in-out infinite!important;}`
       : '';
 
