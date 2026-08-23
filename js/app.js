@@ -110,7 +110,7 @@ function installSkillColorCss() {
         `-webkit-background-clip:text!important;background-clip:text!important;` +
         `-webkit-text-fill-color:transparent!important;color:transparent!important;` +
         `filter:drop-shadow(0 0 .45px rgba(255,255,255,.32)) drop-shadow(0 0 1.2px rgba(236,72,153,.24));` +
-        `animation:skill-sparkle-text-sweep 2.35s linear infinite,skill-sparkle-text-glow var(--skill-sparkle-cycle,1.6s) ease-in-out infinite!important;}`
+        `animation:skill-sparkle-text-sweep var(--skill-sparkle-cycle,1.6s) linear infinite,skill-sparkle-text-glow var(--skill-sparkle-cycle,1.6s) ease-in-out infinite!important;}`
       : '';
 
     // 曲別Skillは数字を白で固定し、左右の帯だけをスキルカラーにする。
@@ -152,11 +152,11 @@ function installSkillColorCss() {
     const sparkleBandRule = row.rank === 'sparkle-rainbow'
       ? `.skill-box-sparkle-rainbow{` +
         `background-size:7px 100%,7px 100%!important;` +
-        `box-shadow:inset 9px 0 9px -8px rgba(255,255,255,.95),inset -9px 0 9px -8px rgba(255,255,255,.95),0 0 6px rgba(236,72,153,.38)!important;` +
+        `box-shadow:inset 9px 0 9px -8px rgba(255,255,255,.95),inset -9px 0 9px -8px rgba(255,255,255,.95),0 0 6px rgba(236,72,153,.38);` +
         `animation:skill-sparkle-band-glow var(--skill-sparkle-cycle,1.6s) ease-in-out infinite!important;}` +
         `body.light-mode .skill-box-sparkle-rainbow{` +
         `background-size:7px 100%,7px 100%!important;` +
-        `box-shadow:inset 10px 0 10px -8px rgba(255,255,255,1),inset -10px 0 10px -8px rgba(255,255,255,1),0 0 7px rgba(190,24,93,.62)!important;` +
+        `box-shadow:inset 7px 0 0 rgba(255,255,255,.08),inset -7px 0 0 rgba(255,255,255,.08),0 0 2px rgba(190,24,93,.2);` +
         `animation:skill-sparkle-band-glow-light var(--skill-sparkle-cycle,1.6s) ease-in-out infinite!important;}`
       : '';
 
