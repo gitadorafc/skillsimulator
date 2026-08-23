@@ -9723,6 +9723,134 @@ body.light-mode #viewAllManage .dc-edit .m-action-btn.btn-e:active {
   background:#eff6ff !important;
 }
 
+/* APP VERSION 3.18.5: 管理画面のライトモード対応 */
+body.light-mode .admin-modal {
+  color-scheme:light;
+  background:#f8fafc !important;
+  color:#111827 !important;
+}
+body.light-mode .admin-header {
+  background:#ffffff !important;
+  color:#111827 !important;
+  border-bottom-color:#cbd5e1 !important;
+  box-shadow:0 3px 8px rgba(15,23,42,.12);
+}
+body.light-mode .admin-title,
+body.light-mode .admin-card-title {
+  color:#111827 !important;
+}
+body.light-mode .admin-code-version,
+body.light-mode .admin-card-meta,
+body.light-mode .admin-request-title-wrap label,
+body.light-mode .admin-master-summary,
+body.light-mode .admin-master-pager {
+  color:#64748b !important;
+}
+body.light-mode .admin-close {
+  background:#ffffff !important;
+  color:#2563eb !important;
+  -webkit-text-fill-color:#2563eb !important;
+  border:1px solid #94a3b8 !important;
+}
+body.light-mode .admin-tab {
+  background:#e2e8f0 !important;
+  color:#475569 !important;
+  -webkit-text-fill-color:#475569 !important;
+  border:1px solid transparent !important;
+}
+body.light-mode .admin-tab.active {
+  background:#2563eb !important;
+  color:#ffffff !important;
+  -webkit-text-fill-color:#ffffff !important;
+  border-color:#2563eb !important;
+}
+body.light-mode .admin-toolbar input {
+  background:#ffffff !important;
+  color:#111827 !important;
+  -webkit-text-fill-color:#111827 !important;
+  caret-color:#111827 !important;
+  border-color:#94a3b8 !important;
+  box-shadow:none !important;
+}
+body.light-mode .admin-toolbar input::placeholder {
+  color:#64748b !important;
+  -webkit-text-fill-color:#64748b !important;
+  opacity:1 !important;
+}
+body.light-mode .admin-toolbar input:focus {
+  outline:2px solid rgba(37,99,235,.20) !important;
+  border-color:#2563eb !important;
+}
+body.light-mode .admin-toolbar button {
+  background:#2563eb !important;
+  color:#ffffff !important;
+  -webkit-text-fill-color:#ffffff !important;
+}
+body.light-mode .admin-card {
+  background:#ffffff !important;
+  color:#111827 !important;
+  border:1px solid #cbd5e1 !important;
+  box-shadow:0 1px 3px rgba(15,23,42,.12) !important;
+}
+body.light-mode .master-sheet-wrap,
+body.light-mode .master-sheet,
+body.light-mode .master-sheet td {
+  background:#ffffff !important;
+  color:#111827 !important;
+}
+body.light-mode .master-sheet th {
+  background:#e2e8f0 !important;
+  color:#111827 !important;
+}
+body.light-mode .master-sheet th,
+body.light-mode .master-sheet td {
+  border-color:#cbd5e1 !important;
+}
+body.light-mode .master-sheet input[type="text"],
+body.light-mode .master-sheet input[type="number"],
+body.light-mode .request-title-edit,
+body.light-mode .request-level-edit,
+body.light-mode .admin-form-sheet input,
+body.light-mode .admin-form-sheet select,
+body.light-mode .admin-form-sheet textarea {
+  background:#ffffff !important;
+  color:#111827 !important;
+  -webkit-text-fill-color:#111827 !important;
+  caret-color:#111827 !important;
+  border-color:#94a3b8 !important;
+}
+body.light-mode .master-sheet input::placeholder,
+body.light-mode .request-title-edit::placeholder,
+body.light-mode .request-level-edit::placeholder,
+body.light-mode .admin-form-sheet input::placeholder,
+body.light-mode .admin-form-sheet textarea::placeholder {
+  color:#64748b !important;
+  -webkit-text-fill-color:#64748b !important;
+  opacity:1 !important;
+}
+body.light-mode .admin-master-pager button {
+  background:#ffffff !important;
+  color:#111827 !important;
+  -webkit-text-fill-color:#111827 !important;
+  border-color:#94a3b8 !important;
+}
+body.light-mode .admin-form-sheet {
+  background:#ffffff !important;
+  color:#111827 !important;
+}
+body.light-mode .admin-form-sheet label {
+  color:#475569 !important;
+}
+body.light-mode .feedback-admin-message,
+body.light-mode .feedback-admin-reply-box {
+  background:#f8fafc !important;
+  color:#1e293b !important;
+  border-color:#cbd5e1 !important;
+}
+body.light-mode .feedback-admin-reply-label {
+  color:#475569 !important;
+}
+
 </style>
   <link rel="preconnect" href="https://challenges.cloudflare.com">
   <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" defer></script>
@@ -9990,7 +10118,7 @@ body.light-mode #viewAllManage .dc-edit .m-action-btn.btn-e:active {
     <div class="app-menu-version">
       <label>VERSION</label>
       <select id="versionSelect" class="version-select" aria-label="GITADORAバージョン"></select>
-      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 3.18.4</div>
+      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 3.18.5</div>
     </div>
   </div>
 </div>
@@ -10339,7 +10467,7 @@ body.light-mode #viewAllManage .dc-edit .m-action-btn.btn-e:active {
 <div id="adminModal" class="admin-modal">
   <div class="admin-header">
     <div class="admin-title-row">
-      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 3.18.4</div></div>
+      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 3.18.5</div></div>
       <button id="btnCloseAdmin" class="admin-close">閉じる</button>
     </div>
     <div class="admin-tabs">
@@ -10416,6 +10544,6 @@ body.light-mode #viewAllManage .dc-edit .m-action-btn.btn-e:active {
   </div>
 </div>
 
-<script type="module" src="./js/app.js?v=3_18_4"></script>
+<script type="module" src="./js/app.js?v=3_18_5"></script>
 </body>
 </html>
