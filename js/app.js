@@ -2811,7 +2811,8 @@ function renderViewedUserSkill() {
   const rankClass = `score-rank-${getTotalSkillRank(target.total)}`;
   ['userDetailTotal', 'userDetailHot', 'userDetailOther'].forEach(id => {
     const el = $(id);
-    el.className = `user-detail-skill-value ${rankClass}`;
+    // 自分のヘッダーと同じscore-val描画をそのまま使う。
+    el.className = `score-val user-detail-skill-value ${rankClass}`;
   });
 
   $('userDetailSkill').innerHTML = `
