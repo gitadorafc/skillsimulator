@@ -155,7 +155,15 @@ function installSkillColorCss() {
         `box-shadow:none!important;` +
         `animation:skill-sparkle-band-glow var(--skill-sparkle-cycle,1.6s) ease-in-out infinite!important;}` +
         `body.light-mode .skill-box-sparkle-rainbow{` +
-        `background-size:5px 100%,5px 100%!important;` +
+        `background-image:` +
+          `linear-gradient(rgba(255,255,255,var(--skill-band-light-alpha)) 0 100%),` +
+          `linear-gradient(rgba(255,255,255,var(--skill-band-light-alpha)) 0 100%),` +
+          `${sidePaint},${sidePaint}!important;` +
+        `background-position:left top,right top,left top,right top!important;` +
+        `background-size:5px 100%,5px 100%,5px 100%,5px 100%!important;` +
+        `background-repeat:no-repeat,no-repeat,no-repeat,no-repeat!important;` +
+        `background-color:#f3f4f6!important;` +
+        `filter:none!important;opacity:1!important;` +
         `box-shadow:none!important;` +
         `animation:skill-sparkle-band-glow-light var(--skill-sparkle-cycle,1.6s) ease-in-out infinite!important;}`
       : '';
