@@ -583,17 +583,20 @@ body { background:#0b1220; }
 }
 
 /* === v3.17.0: 管理者先行 9500～ SPARKLE RAINBOW === */
+:root {
+  --skill-sparkle-cycle:1.6s;
+}
 @keyframes skill-sparkle-text-sweep {
   0% { background-position:0 0,180% 0; }
   100% { background-position:0 0,-80% 0; }
 }
 @keyframes skill-sparkle-text-glow {
-  0%,100% { filter:drop-shadow(0 0 .45px rgba(255,255,255,.32)) drop-shadow(0 0 1.2px rgba(236,72,153,.24)); }
-  50% { filter:drop-shadow(0 0 .9px rgba(255,255,255,.62)) drop-shadow(0 0 2.6px rgba(236,72,153,.48)); }
+  0%,100% { filter:brightness(.94) saturate(1.04) drop-shadow(0 0 .45px rgba(255,255,255,.28)) drop-shadow(0 0 1.1px rgba(236,72,153,.22)); }
+  50% { filter:brightness(1.12) saturate(1.14) drop-shadow(0 0 .85px rgba(255,255,255,.58)) drop-shadow(0 0 2.3px rgba(236,72,153,.44)); }
 }
 @keyframes skill-sparkle-text-glow-light {
-  0%,100% { filter:drop-shadow(0 1px .35px rgba(15,23,42,.44)) drop-shadow(0 0 .8px rgba(190,24,93,.48)); }
-  50% { filter:drop-shadow(0 1px .55px rgba(15,23,42,.62)) drop-shadow(0 0 1.8px rgba(190,24,93,.72)) drop-shadow(0 0 2.5px rgba(124,58,237,.34)); }
+  0%,100% { filter:brightness(.90) saturate(1.08) contrast(1.06) drop-shadow(0 1px .35px rgba(15,23,42,.44)) drop-shadow(0 0 .8px rgba(190,24,93,.44)); }
+  50% { filter:brightness(1.08) saturate(1.22) contrast(1.12) drop-shadow(0 1px .5px rgba(15,23,42,.58)) drop-shadow(0 0 1.6px rgba(190,24,93,.66)) drop-shadow(0 0 2.2px rgba(124,58,237,.3)); }
 }
 @keyframes skill-sparkle-band-glow {
   0%,100% { filter:brightness(1.02) saturate(1.08); }
@@ -616,7 +619,7 @@ body { background:#0b1220; }
 :is(.m-card,.sk-row):has(.skill-box-sparkle-rainbow)::before {
   padding:2px !important;
   background-size:190% 190% !important;
-  animation:skill-sparkle-border-pulse 1.65s ease-in-out infinite !important;
+  animation:skill-sparkle-border-pulse var(--skill-sparkle-cycle) ease-in-out infinite !important;
 }
 
 /* プレイヤーリストは枠内光点を使わず、行の枠とスキル文字だけを発光させる。 */
@@ -626,7 +629,7 @@ body { background:#0b1220; }
   border-color:#ff2d8d !important;
   background:linear-gradient(90deg,rgba(0,119,255,.20),rgba(214,44,255,.16),rgba(255,45,141,.12),#111827 58%) !important;
   box-shadow:inset 0 0 0 1px rgba(255,255,255,.03),0 0 9px rgba(236,72,153,.16) !important;
-  animation:skill-sparkle-row-glow 1.8s ease-in-out infinite !important;
+  animation:skill-sparkle-row-glow var(--skill-sparkle-cycle) ease-in-out infinite !important;
 }
 body.light-mode .user-list-row-sparkle-rainbow,
 body.light-mode .user-list-row-sparkle-rainbow:active {
@@ -635,11 +638,11 @@ body.light-mode .user-list-row-sparkle-rainbow:active {
   box-shadow:inset 0 0 0 1px rgba(255,255,255,.62),0 0 10px rgba(190,24,93,.36) !important;
 }
 /* ヘッダーとユーザーリストの9500値は、テーマ別の小さな文字グローを使う。 */
-:is(.score-val,.user-list-skill-value).score-rank-sparkle-rainbow {
-  animation:skill-sparkle-text-sweep 2.35s linear infinite,skill-sparkle-text-glow 1.55s ease-in-out infinite !important;
+:is(.score-val,.user-list-skill-value,.user-detail-skill-value).score-rank-sparkle-rainbow {
+  animation:skill-sparkle-text-sweep 2.35s linear infinite,skill-sparkle-text-glow var(--skill-sparkle-cycle) ease-in-out infinite !important;
 }
-body.light-mode :is(.score-val,.user-list-skill-value).score-rank-sparkle-rainbow {
-  animation:skill-sparkle-text-sweep 2.35s linear infinite,skill-sparkle-text-glow-light 1.55s ease-in-out infinite !important;
+body.light-mode :is(.score-val,.user-list-skill-value,.user-detail-skill-value).score-rank-sparkle-rainbow {
+  animation:skill-sparkle-text-sweep 2.35s linear infinite,skill-sparkle-text-glow-light var(--skill-sparkle-cycle) ease-in-out infinite !important;
 }
 @media (prefers-reduced-motion: reduce) {
   .score-rank-sparkle-rainbow,
@@ -649,11 +652,11 @@ body.light-mode :is(.score-val,.user-list-skill-value).score-rank-sparkle-rainbo
     animation:none !important;
     filter:brightness(1.28) drop-shadow(0 0 3px rgba(236,72,153,.5)) !important;
   }
-  :is(.score-val,.user-list-skill-value).score-rank-sparkle-rainbow {
+  :is(.score-val,.user-list-skill-value,.user-detail-skill-value).score-rank-sparkle-rainbow {
     animation:none !important;
     filter:drop-shadow(0 0 .8px rgba(236,72,153,.42)) !important;
   }
-  body.light-mode :is(.score-val,.user-list-skill-value).score-rank-sparkle-rainbow {
+  body.light-mode :is(.score-val,.user-list-skill-value,.user-detail-skill-value).score-rank-sparkle-rainbow {
     filter:drop-shadow(0 1px .45px rgba(15,23,42,.55)) drop-shadow(0 0 1px rgba(190,24,93,.55)) !important;
   }
 }
@@ -5927,7 +5930,7 @@ body.light-mode .user-list-skill-value:not(.score-rank-sparkle-rainbow){
 }
 
 /* ユーザー詳細ヘッダーもライト専用の色加工をしない */
-body.light-mode .user-detail-summary strong.user-detail-skill-value{
+body.light-mode .user-detail-summary strong.user-detail-skill-value:not(.score-rank-sparkle-rainbow){
   -webkit-text-stroke:0 !important;
   text-shadow:none !important;
   filter:none !important;
@@ -5941,7 +5944,7 @@ body.light-mode .user-detail-summary strong.user-detail-skill-value{
 
 body.light-mode .score-val:not(.score-rank-sparkle-rainbow),
 body.light-mode .user-list-skill-value:not(.score-rank-sparkle-rainbow),
-body.light-mode .user-detail-summary strong.user-detail-skill-value{
+body.light-mode .user-detail-summary strong.user-detail-skill-value:not(.score-rank-sparkle-rainbow){
   -webkit-text-stroke:0 !important;
   filter:none !important;
   text-shadow:
@@ -9437,7 +9440,7 @@ body.light-mode .skill-ranking-sort-wrap select{
   .skill-ranking-metric{padding:0 5px;}
 }
 
-/* APP VERSION 3.17.5: 9500スキル値の発光をダーク／ライト別に調整 */
+/* APP VERSION 3.17.6: 9500帯の明暗周期統一／スマホ横並びスキル値縮小 */
 select:not([multiple]){
   -webkit-appearance:none !important;
   appearance:none !important;
@@ -9644,6 +9647,15 @@ body.text-size-up.skill-target-columns :is(#viewAllManage,#userDetailRecords) .d
 }
 body.text-size-up.skill-target-columns :is(#viewAllManage,#userDetailRecords) .dc-card-manage .dc-skill {
   font-size:13px !important;
+}
+@media(max-width:520px) {
+  body.skill-target-columns :is(#viewSkill,#userDetailSkill,#viewAllManage,#userDetailRecords) .dc-card .dc-skill,
+  body.text-size-up.skill-target-columns :is(#viewSkill,#userDetailSkill,#viewAllManage,#userDetailRecords) .dc-card .dc-skill {
+    font-size:10px !important;
+    letter-spacing:-.1px !important;
+    padding-left:2px !important;
+    padding-right:2px !important;
+  }
 }
 
 /* 自分のスキル対象から開いた詳細だけ、4段目に編集ボタンを表示する。 */
@@ -9939,7 +9951,7 @@ body.light-mode .rate-compare-edit-button {
     <div class="app-menu-version">
       <label>VERSION</label>
       <select id="versionSelect" class="version-select" aria-label="GITADORAバージョン"></select>
-      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 3.17.5</div>
+      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 3.17.6</div>
     </div>
   </div>
 </div>
@@ -10288,7 +10300,7 @@ body.light-mode .rate-compare-edit-button {
 <div id="adminModal" class="admin-modal">
   <div class="admin-header">
     <div class="admin-title-row">
-      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 3.17.5</div></div>
+      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 3.17.6</div></div>
       <button id="btnCloseAdmin" class="admin-close">閉じる</button>
     </div>
     <div class="admin-tabs">
@@ -10365,6 +10377,6 @@ body.light-mode .rate-compare-edit-button {
   </div>
 </div>
 
-<script type="module" src="./js/app.js?v=3_17_5"></script>
+<script type="module" src="./js/app.js?v=3_17_6"></script>
 </body>
 </html>
