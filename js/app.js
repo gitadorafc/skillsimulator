@@ -1865,7 +1865,7 @@ function shareSkillImage() {
   c.toBlob(async blob=>{
     if(!blob) return;
     const file=new File([blob],`GITADORA_${activeInstrument}_skill.png`,{type:'image/png'});
-    const text=`GITADORA ${activeInstrument} SKILL ${Number(target.total).toFixed(2)}`;
+    const text=`GITADORA ${activeInstrument} SKILL ${Number(target.total).toFixed(2)}\n#GITADORASkillSimulator`;
     try{
       if(navigator.share && (!navigator.canShare || navigator.canShare({files:[file]}))){
         await navigator.share({files:[file],title:'GITADORA Skill Simulator',text});
