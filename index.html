@@ -582,6 +582,76 @@ body { background:#0b1220; }
   background:linear-gradient(90deg,rgba(0,119,255,.20),rgba(214,44,255,.16),rgba(255,45,141,.12),#111827 55%) !important;
 }
 
+/* === v3.16.0: 管理者先行 9500～ SPARKLE RAINBOW === */
+@keyframes skill-sparkle-twinkle {
+  0%,100% { opacity:.28; transform:scale(.72) rotate(0deg); }
+  45% { opacity:1; transform:scale(1.14) rotate(12deg); }
+  70% { opacity:.52; transform:scale(.9) rotate(5deg); }
+}
+@keyframes skill-sparkle-border-pulse {
+  0%,100% { opacity:.42; filter:brightness(.9); }
+  50% { opacity:1; filter:brightness(1.35); }
+}
+
+/* 190.00以上の登録曲・スキル対象は9000帯の枠色に小さな光点を追加。 */
+:is(.m-card,.sk-row):has(.skill-box-sparkle-rainbow)::before {
+  animation:skill-sparkle-border-pulse 2.2s ease-in-out infinite;
+}
+:is(.m-card,.sk-row):has(.skill-box-sparkle-rainbow)::after {
+  content:"";
+  position:absolute;
+  inset:0;
+  z-index:3;
+  pointer-events:none;
+  border-radius:inherit;
+  background:
+    radial-gradient(circle at 5px 5px,rgba(255,255,255,1) 0 1px,rgba(245,208,254,.95) 1.5px,transparent 4px),
+    radial-gradient(circle at calc(100% - 7px) 35%,rgba(255,255,255,1) 0 1px,rgba(254,243,199,.9) 1.5px,transparent 4px),
+    radial-gradient(circle at 72% calc(100% - 4px),rgba(255,255,255,.95) 0 1px,rgba(191,219,254,.85) 1.5px,transparent 3.5px);
+  animation:skill-sparkle-twinkle 2s ease-in-out infinite;
+}
+
+/* プレイヤーリストは斜め配色にせず、9000帯の色味＋光点だけを使う。 */
+.user-list-row-sparkle-rainbow {
+  position:relative !important;
+  overflow:hidden !important;
+  border-color:#ff2d8d !important;
+  background:linear-gradient(90deg,rgba(0,119,255,.20),rgba(214,44,255,.16),rgba(255,45,141,.12),#111827 58%) !important;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.03),0 0 9px rgba(236,72,153,.16) !important;
+}
+.user-list-row-sparkle-rainbow::after {
+  content:"";
+  position:absolute;
+  inset:0;
+  z-index:2;
+  pointer-events:none;
+  background:
+    radial-gradient(circle at 7px 7px,rgba(255,255,255,1) 0 1px,rgba(245,208,254,.9) 1.5px,transparent 4px),
+    radial-gradient(circle at 76% calc(100% - 6px),rgba(255,255,255,.95) 0 1px,rgba(254,243,199,.85) 1.5px,transparent 3.5px);
+  animation:skill-sparkle-twinkle 2.1s ease-in-out infinite;
+}
+.user-list-row-sparkle-rainbow > * {
+  position:relative;
+  z-index:3;
+}
+body.light-mode .user-list-row-sparkle-rainbow,
+body.light-mode .user-list-row-sparkle-rainbow:active {
+  border-color:#db2777 !important;
+  background:linear-gradient(90deg,rgba(219,39,119,.10),rgba(124,58,237,.09),rgba(14,165,233,.08),#d8dde5 62%) !important;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.36),0 0 8px rgba(219,39,119,.14) !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  .score-rank-sparkle-rainbow::before,
+  .score-rank-sparkle-rainbow::after,
+  :is(.m-card,.sk-row):has(.skill-box-sparkle-rainbow)::before,
+  :is(.m-card,.sk-row):has(.skill-box-sparkle-rainbow)::after,
+  .user-list-row-sparkle-rainbow::after {
+    animation:none !important;
+    opacity:.82 !important;
+    transform:none !important;
+  }
+}
+
 /* === v14.7 共通通知モーダル === */
 .site-dialog-mask {
   position: fixed;
@@ -9367,7 +9437,7 @@ body.light-mode .skill-ranking-sort-wrap select{
   .skill-ranking-metric{padding:0 5px;}
 }
 
-/* APP VERSION 3.15.4: ライトモードの全プルダウンを登録タブの濃い▼へ統一 */
+/* APP VERSION 3.16.0: 管理者向け9500～SPARKLE RAINBOWを先行実装 */
 select:not([multiple]){
   -webkit-appearance:none !important;
   appearance:none !important;
@@ -9420,6 +9490,14 @@ body.light-mode #domModal .select-arrow-wrap::after{
   background-size:6px 6px,6px 6px !important;
   background-repeat:no-repeat !important;
   transform:translateY(-50%) !important;
+}
+
+/* 後段のライトモード共通指定より9500帯を優先する。 */
+body.light-mode .user-list-row.user-list-row-sparkle-rainbow,
+body.light-mode .user-list-row.user-list-row-sparkle-rainbow:active {
+  border-color:#db2777 !important;
+  background:linear-gradient(90deg,rgba(219,39,119,.10),rgba(124,58,237,.09),rgba(14,165,233,.08),#d8dde5 62%) !important;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.36),0 0 8px rgba(219,39,119,.14) !important;
 }
 
 </style>
@@ -9689,7 +9767,7 @@ body.light-mode #domModal .select-arrow-wrap::after{
     <div class="app-menu-version">
       <label>VERSION</label>
       <select id="versionSelect" class="version-select" aria-label="GITADORAバージョン"></select>
-      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 3.15.4</div>
+      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 3.16.0</div>
     </div>
   </div>
 </div>
@@ -10035,7 +10113,7 @@ body.light-mode #domModal .select-arrow-wrap::after{
 <div id="adminModal" class="admin-modal">
   <div class="admin-header">
     <div class="admin-title-row">
-      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 3.15.4</div></div>
+      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 3.16.0</div></div>
       <button id="btnCloseAdmin" class="admin-close">閉じる</button>
     </div>
     <div class="admin-tabs">
@@ -10112,6 +10190,6 @@ body.light-mode #domModal .select-arrow-wrap::after{
   </div>
 </div>
 
-<script type="module" src="./js/app.js?v=3_15_4"></script>
+<script type="module" src="./js/app.js?v=3_16_0"></script>
 </body>
 </html>

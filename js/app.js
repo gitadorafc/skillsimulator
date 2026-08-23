@@ -3,7 +3,12 @@
    サイト表示・ユーザーリスト・共有画像は、すべてこのテーブルを参照する。
    配色を変更するときは原則ここだけ変更する。
 */
+let adminEnabled = false;
+
 const SKILL_COLOR_TABLE = Object.freeze([
+  // 9500帯は管理者先行公開。配色は9000帯と同じで、表示側に光点を追加する。
+  { min: 9500, rank: 'sparkle-rainbow', type: 'gradient', direction: '90deg', adminOnly: true,
+    stops: [['#e60000',0],['#f05a00',14.2857],['#e6b800',28.5714],['#12a936',42.8571],['#00aeb5',57.1429],['#1559e6',71.4286],['#681fd1',85.7143],['#bf16ad',100]] },
   { min: 9000, rank: 'deep-rainbow', type: 'gradient', direction: '90deg',
     stops: [['#e60000',0],['#f05a00',14.2857],['#e6b800',28.5714],['#12a936',42.8571],['#00aeb5',57.1429],['#1559e6',71.4286],['#681fd1',85.7143],['#bf16ad',100]] },
   { min: 8500, rank: 'rainbow', type: 'gradient', direction: '90deg',
@@ -41,7 +46,8 @@ const SKILL_COLOR_BY_RANK = Object.freeze(
 
 function getSkillColorRowByTotalValue(totalValue) {
   const value = Number(totalValue) || 0;
-  return SKILL_COLOR_TABLE.find(row => value >= row.min) || SKILL_COLOR_TABLE[SKILL_COLOR_TABLE.length - 1];
+  return SKILL_COLOR_TABLE.find(row => value >= row.min && (!row.adminOnly || adminEnabled))
+    || SKILL_COLOR_TABLE[SKILL_COLOR_TABLE.length - 1];
 }
 
 function skillColorCss(row) {
@@ -64,7 +70,7 @@ function skillColorVerticalCss(row) {
   // 0～100%をそのまま使うと中央の緑～青付近しか見えない。
   // 色・順番は左右帯と完全に同じまま、停止位置だけ12～88%へ圧縮して
   // 赤～紫まで文字の中に見えるようにする。
-  if (row.rank === 'rainbow' || row.rank === 'deep-rainbow') {
+  if (row.rank === 'rainbow' || row.rank === 'deep-rainbow' || row.rank === 'sparkle-rainbow') {
     const stops = row.stops.map(([color,pos]) => {
       const mapped = 12 + (Number(pos) / 100) * 76;
       return `${color} ${mapped}%`;
@@ -91,6 +97,18 @@ function installSkillColorCss() {
     const textRule = row.type === 'solid'
       ? `.score-rank-${row.rank}{background:none!important;-webkit-background-clip:border-box!important;background-clip:border-box!important;-webkit-text-fill-color:${row.color}!important;color:${row.color}!important;filter:none!important;}`
       : `.score-rank-${row.rank}{background:${textPaint}!important;-webkit-background-clip:text!important;background-clip:text!important;-webkit-text-fill-color:transparent!important;color:transparent!important;filter:none!important;}`;
+
+    const sparkleTextRule = row.rank === 'sparkle-rainbow'
+      ? `.score-rank-sparkle-rainbow{position:relative!important;overflow:visible!important;}` +
+        `.score-rank-sparkle-rainbow::before,.score-rank-sparkle-rainbow::after{` +
+        `position:absolute;z-index:4;pointer-events:none;line-height:1;` +
+        `background:none!important;background-clip:border-box!important;-webkit-background-clip:border-box!important;` +
+        `-webkit-text-fill-color:#fff7c2!important;color:#fff7c2!important;` +
+        `filter:drop-shadow(0 0 3px rgba(255,255,255,.95)) drop-shadow(0 0 6px rgba(250,204,21,.72))!important;` +
+        `animation:skill-sparkle-twinkle 1.8s ease-in-out infinite;}` +
+        `.score-rank-sparkle-rainbow::before{content:"✦";font-size:8px;right:-6px;top:-4px;}` +
+        `.score-rank-sparkle-rainbow::after{content:"✧";font-size:7px;left:-5px;bottom:-3px;animation-delay:.75s;}`
+      : '';
 
     // 曲別Skillは数字を白で固定し、左右の帯だけをスキルカラーにする。
     // 左右帯は「上→下」の縦グラデーションに統一する。
@@ -138,7 +156,7 @@ function installSkillColorCss() {
       `.m-card:has(.skill-box-${row.rank}),` +
       `.sk-row:has(.skill-box-${row.rank}){--song-skill-border:${borderPaint};}`;
 
-    return textRule + songBoxRule + cardBorderRule;
+    return textRule + sparkleTextRule + songBoxRule + cardBorderRule;
   }).join('\n');
 
   document.head.appendChild(style);
@@ -181,7 +199,7 @@ function skillColorCanvasVerticalPaint(ctx, row, left, top, width, height) {
 // 登録曲のRAINBOW外枠と同じ170deg相当の角度をCanvas上で再現する。
 // 8500未満のグラデーションは従来どおり縦方向のままにする。
 function skillColorCanvasShareTextPaint(ctx, row, left, top, width, height) {
-  if (!row || (row.rank !== 'rainbow' && row.rank !== 'deep-rainbow')) {
+  if (!row || !['rainbow', 'deep-rainbow', 'sparkle-rainbow'].includes(row.rank)) {
     return skillColorCanvasVerticalPaint(ctx, row, left, top, width, height);
   }
 
@@ -204,6 +222,34 @@ function skillColorCanvasShareTextPaint(ctx, row, left, top, width, height) {
     g.addColorStop(Number(pos) / 100, color);
   });
   return g;
+}
+
+function drawSkillColorCanvasSparkle(ctx, centerX, centerY, size = 9, color = '#fff7c2') {
+  ctx.save();
+  ctx.strokeStyle = color;
+  ctx.fillStyle = '#ffffff';
+  ctx.lineWidth = Math.max(1.4, size * .14);
+  ctx.shadowColor = color;
+  ctx.shadowBlur = size * .75;
+  ctx.beginPath();
+  ctx.moveTo(centerX - size, centerY);
+  ctx.lineTo(centerX + size, centerY);
+  ctx.moveTo(centerX, centerY - size);
+  ctx.lineTo(centerX, centerY + size);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.arc(centerX, centerY, Math.max(1.2, size * .16), 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+}
+
+function drawShareTotalSparkles(ctx, row, nameX, nameWidth, totalX, totalWidth, top, height) {
+  if (row?.rank !== 'sparkle-rainbow') return;
+
+  // ユーザー名とTOTAL値の周囲だけに、控えめな固定光点を描画する。
+  drawSkillColorCanvasSparkle(ctx, nameX + Math.min(nameWidth * .18, 72), top + 5, 8, '#f5d0fe');
+  drawSkillColorCanvasSparkle(ctx, totalX + totalWidth + 9, top + height * .22, 10, '#fef3c7');
+  drawSkillColorCanvasSparkle(ctx, totalX + totalWidth * .72, top + height + 3, 6, '#bfdbfe');
 }
 import { supabase } from './supabase.js?v=21_57';
 import { register, login, logout, changePassword, getSession, validateUsername } from './auth.js?v=21_84';
@@ -498,7 +544,6 @@ let editingScoreId = null;
 let selectedSong = null;
 let scoreModalScrollY = 0;
 
-let adminEnabled = false;
 let adminAccessChecked = false;
 let primaryAdminEnabled = false;
 let adminTab = 'songs';
@@ -1555,6 +1600,17 @@ function shareSkillImage() {
   x.fillStyle = totalPaint(target.total, totalX, 132, totalWidth, 52);
   x.fillText(shareTotal, totalX, shareLineY);
 
+  drawShareTotalSparkles(
+    x,
+    getSkillColorRowByTotalValue(target.total),
+    54,
+    nameWidth,
+    totalX,
+    totalWidth,
+    132,
+    52
+  );
+
   x.fillStyle = '#94a3b8';
   x.font = '800 26px sans-serif';
   x.fillText(`HOT ${Number(target.hot).toFixed(2)}   OTHER ${Number(target.other).toFixed(2)}`,54,220);
@@ -1949,7 +2005,11 @@ function getSongSkillRank(skillValue) {
 }
 
 function tintHeaderValues(hot, other, total) {
-  const rankClass = `score-rank-${getTotalSkillRank(total)}`;
+  const totalRank = getTotalSkillRank(total);
+  const rankClass = `score-rank-${totalRank}`;
+  const subTotalRankClass = totalRank === 'sparkle-rainbow'
+    ? 'score-rank-deep-rainbow'
+    : rankClass;
 
   const allRankClasses = [
     'score-rank-white',
@@ -1970,6 +2030,7 @@ function tintHeaderValues(hot, other, total) {
     'score-rank-gold',
     'score-rank-rainbow',
     'score-rank-deep-rainbow',
+    'score-rank-sparkle-rainbow',
     'm-gold-text',
     'm-rainbow-text'
   ];
@@ -1978,7 +2039,8 @@ function tintHeaderValues(hot, other, total) {
     const el = $(id);
     if (!el) return;
     el.classList.remove(...allRankClasses);
-    el.classList.add(rankClass);
+    // 9500帯の光点はTOTALだけ。HOT / OTHERは9000帯と同じ色に留める。
+    el.classList.add(id === 'txtGrandTotal' ? rankClass : subTotalRankClass);
   });
 }
 
@@ -2642,7 +2704,7 @@ function renderUsers() {
     const rivalLabel = `${activeInstrument}ライバル`;
 
     return `
-      <div class="user-list-row" data-user-open="${user.user_id}" data-user-name="${esc(user.username)}">
+      <div class="user-list-row user-list-row-${getTotalSkillRank(Math.max(gf, dm))}" data-user-open="${user.user_id}" data-user-name="${esc(user.username)}">
         <div class="user-list-name">${esc(user.username)}${user.is_self ? '（自分）' : ''}</div>
         <div class="user-list-skill user-list-gf"><div class="user-list-skill-value ${gfClass}">${formatSkill(gf)}</div></div>
         <div class="user-list-skill user-list-dm"><div class="user-list-skill-value ${dmClass}">${formatSkill(dm)}</div></div>
@@ -3126,6 +3188,7 @@ async function deleteOwnAccount() {
 
 /* ---------- 管理者 ---------- */
 async function checkAdminAccess() {
+  const wasAdminEnabled = adminEnabled;
   try {
     adminEnabled = await isAdmin();
   } catch (e) {
@@ -3157,6 +3220,9 @@ async function checkAdminAccess() {
 
   // 保存済みライトモード設定を全ユーザーに反映。
   applyLightMode();
+
+  // 管理者判定前に通常色で先行描画されていた場合、9500帯へ即時更新する。
+  if (!wasAdminEnabled && adminEnabled) render();
 }
 
 async function adminBulkDeleteCurrentScores() {
