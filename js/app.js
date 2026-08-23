@@ -110,7 +110,18 @@ function installSkillColorCss() {
         `-webkit-background-clip:text!important;background-clip:text!important;` +
         `-webkit-text-fill-color:transparent!important;color:transparent!important;` +
         `filter:drop-shadow(0 0 .45px rgba(255,255,255,.32)) drop-shadow(0 0 1.2px rgba(236,72,153,.24));` +
-        `animation:skill-sparkle-text-sweep var(--skill-sparkle-cycle,1.6s) linear infinite,skill-sparkle-text-glow var(--skill-sparkle-cycle,1.6s) ease-in-out infinite!important;}`
+        `animation:skill-sparkle-text-sweep var(--skill-sparkle-cycle,1.6s) linear infinite,skill-sparkle-text-glow var(--skill-sparkle-cycle,1.6s) ease-in-out infinite!important;}` +
+        `body.light-mode .score-rank-sparkle-rainbow{` +
+        `background-image:` +
+          `linear-gradient(rgba(255,255,255,var(--skill-text-light-alpha)) 0 100%),` +
+          `${textPaint},` +
+          `linear-gradient(110deg,transparent 30%,rgba(255,255,255,.15) 41%,#ffffff 49%,rgba(255,255,255,.22) 57%,transparent 69%)!important;` +
+        `background-size:100% 100%,100% 100%,260% 100%!important;` +
+        `background-position:0 0,0 0,180% 0;` +
+        `background-repeat:no-repeat,no-repeat,no-repeat!important;` +
+        `background-blend-mode:normal!important;` +
+        `filter:none!important;` +
+        `animation:skill-sparkle-text-sweep-light var(--skill-sparkle-cycle,1.6s) linear infinite,skill-sparkle-text-glow-light var(--skill-sparkle-cycle,1.6s) ease-in-out infinite!important;}`
       : '';
 
     // 曲別Skillは数字を白で固定し、左右の帯だけをスキルカラーにする。
@@ -179,9 +190,9 @@ function installSkillColorCss() {
     const cardBorderRule =
       `.m-card:has(.skill-box-${row.rank}),` +
       `.sk-row:has(.skill-box-${row.rank}){--song-skill-border:${borderPaint};}` +
-      // ライトモードは登録曲・スキル対象とも、外枠をスキル値の左右帯と同じ配色へ揃える。
+      // 9500帯を含め、ライトモードもダークと同じ斜めグラデーション枠を使う。
       `body.light-mode .m-card:has(.skill-box-${row.rank}),` +
-      `body.light-mode .sk-row:has(.skill-box-${row.rank}){--song-skill-border:${sidePaint};}`;
+      `body.light-mode .sk-row:has(.skill-box-${row.rank}){--song-skill-border:${borderPaint};}`;
 
     return textRule + sparkleTextRule + songBoxRule + sparkleBandRule + cardBorderRule;
   }).join('\n');
