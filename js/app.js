@@ -152,11 +152,11 @@ function installSkillColorCss() {
     const sparkleBandRule = row.rank === 'sparkle-rainbow'
       ? `.skill-box-sparkle-rainbow{` +
         `background-size:5px 100%,5px 100%!important;` +
-        `box-shadow:inset 9px 0 9px -8px rgba(255,255,255,.95),inset -9px 0 9px -8px rgba(255,255,255,.95),0 0 6px rgba(236,72,153,.38);` +
+        `box-shadow:none!important;` +
         `animation:skill-sparkle-band-glow var(--skill-sparkle-cycle,1.6s) ease-in-out infinite!important;}` +
         `body.light-mode .skill-box-sparkle-rainbow{` +
         `background-size:5px 100%,5px 100%!important;` +
-        `box-shadow:inset 5px 0 0 rgba(255,255,255,.08),inset -5px 0 0 rgba(255,255,255,.08),0 0 2px rgba(190,24,93,.2);` +
+        `box-shadow:none!important;` +
         `animation:skill-sparkle-band-glow-light var(--skill-sparkle-cycle,1.6s) ease-in-out infinite!important;}`
       : '';
 
