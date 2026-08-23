@@ -292,7 +292,7 @@ import { supabase } from './supabase.js?v=21_57';
 import { register, login, logout, changePassword, getSession, validateUsername } from './auth.js?v=21_84';
 import { initAuthCaptcha, prepareAuthCaptcha, getAuthCaptchaToken, resetAuthCaptcha } from './captcha.js?v=21_84';
 import { PARTS, GF_PARTS, DM_PARTS, partsForInstrument, normalizeSongTitleForMatch, searchSongTitles, getSongByTitleAndPart, requestSongMaster, requestSongLevelCorrection } from './songs.js?v=21_116';
-import { calcSkill, formatLevel, formatRate, formatSkill, getMyScores, saveScore, deleteScore } from './scores.js?v=21_110';
+import { calcSkill, formatLevel, formatRate, formatSkill, getMyScores, saveScore, deleteScore } from './scores.js?v=3_18_2';
 import { getGameVersions } from './versions.js?v=21_57';
 const {
   isAdmin,
@@ -1887,18 +1887,31 @@ async function getMyPrivateScoreComments() {
   const { data: userData, error: userError } = await supabase.auth.getUser();
   if (userError || !userData.user) return new Map();
 
-  const { data, error } = await supabase
-    .from('user_scores')
-    .select('id,private_comment')
-    .eq('user_id', userData.user.id);
+  const pageSize = 1000;
+  const rows = [];
+  let from = 0;
 
-  if (error) {
-    // SQL未適用時でもアプリ全体を止めず、コメント機能だけ無効にする。
-    console.warn('曲コメント取得失敗:', error);
-    return new Map();
+  while (true) {
+    const { data, error } = await supabase
+      .from('user_scores')
+      .select('id,private_comment')
+      .eq('user_id', userData.user.id)
+      .order('id', { ascending: true })
+      .range(from, from + pageSize - 1);
+
+    if (error) {
+      // SQL未適用時でもアプリ全体を止めず、コメント機能だけ無効にする。
+      console.warn('曲コメント取得失敗:', error);
+      return new Map();
+    }
+
+    const page = data ?? [];
+    rows.push(...page);
+    if (page.length < pageSize) break;
+    from += pageSize;
   }
 
-  return new Map((data ?? []).map(row => [row.id, row.private_comment || '']));
+  return new Map(rows.map(row => [row.id, row.private_comment || '']));
 }
 
 async function savePrivateScoreComment({ scoreId = null, songId = null, requestId = null, comment = '' }) {

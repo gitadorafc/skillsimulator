@@ -582,7 +582,7 @@ body { background:#0b1220; }
   background:linear-gradient(90deg,rgba(0,119,255,.20),rgba(214,44,255,.16),rgba(255,45,141,.12),#111827 55%) !important;
 }
 
-/* === v3.18.1: 共有文にハッシュタグを追加 === */
+/* === v3.18.2: 大量スコア取得時のBad Requestを修正 === */
 @property --skill-band-light-alpha {
   syntax:"<number>";
   inherits:false;
@@ -9451,7 +9451,7 @@ body.light-mode .skill-ranking-sort-wrap select{
   .skill-ranking-metric{padding:0 5px;}
 }
 
-/* APP VERSION 3.18.1: 共有文に #GITADORASkillSimulator を追加 */
+/* APP VERSION 3.18.2: 理論値アカウントの大量スコアをページ取得 */
 select:not([multiple]){
   -webkit-appearance:none !important;
   appearance:none !important;
@@ -9990,7 +9990,7 @@ body.light-mode #viewAllManage .dc-edit .m-action-btn.btn-e:active {
     <div class="app-menu-version">
       <label>VERSION</label>
       <select id="versionSelect" class="version-select" aria-label="GITADORAバージョン"></select>
-      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 3.18.1</div>
+      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 3.18.2</div>
     </div>
   </div>
 </div>
@@ -10339,7 +10339,7 @@ body.light-mode #viewAllManage .dc-edit .m-action-btn.btn-e:active {
 <div id="adminModal" class="admin-modal">
   <div class="admin-header">
     <div class="admin-title-row">
-      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 3.18.1</div></div>
+      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 3.18.2</div></div>
       <button id="btnCloseAdmin" class="admin-close">閉じる</button>
     </div>
     <div class="admin-tabs">
@@ -10416,6 +10416,6 @@ body.light-mode #viewAllManage .dc-edit .m-action-btn.btn-e:active {
   </div>
 </div>
 
-<script type="module" src="./js/app.js?v=3_18_1"></script>
+<script type="module" src="./js/app.js?v=3_18_2"></script>
 </body>
 </html>

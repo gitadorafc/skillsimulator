@@ -15,76 +15,57 @@ export async function getMyScores(versionId = null) {
     throw new Error('ログイン情報を取得できません。');
   }
 
-  const { data: scoreRows, error: scoreError } = await supabase
-    .from('user_scores')
-    .select('id,user_id,song_id,song_request_id,achievement_rate,fc,play_option,created_at,updated_at')
-    .eq('user_id', userData.user.id)
-    .order('updated_at', { ascending: false });
+  // 大量のsong_idを.in()でURLへ並べると、理論値アカウントのような
+  // 数千件の登録でURL長上限を超える。結合済みVIEWをページ取得する。
+  const pageSize = 1000;
+  const rows = [];
+  let from = 0;
 
-  if (scoreError) throw scoreError;
+  while (true) {
+    let query = supabase
+      .from('my_score_details')
+      .select('score_id,user_id,song_id,song_request_id,is_hot,title,part,level,achievement_rate,fc,play_option,skill,pending_master,request_status,created_at,updated_at,version_id')
+      .order('updated_at', { ascending: false })
+      .range(from, from + pageSize - 1);
 
-  const rows = scoreRows ?? [];
-  if (!rows.length) return [];
+    if (versionId) query = query.eq('version_id', versionId);
 
-  const songIds = [...new Set(rows.map(r => r.song_id).filter(Boolean))];
-  const requestIds = [...new Set(rows.map(r => r.song_request_id).filter(Boolean))];
-
-  let songs = [];
-  let requests = [];
-
-  if (songIds.length) {
-    const { data, error } = await supabase
-      .from('songs')
-      .select('id,is_hot,title,part,level,version_id')
-      .in('id', songIds);
+    const { data, error } = await query;
     if (error) throw error;
-    songs = data ?? [];
-  }
 
-  if (requestIds.length) {
-    const { data, error } = await supabase
-      .from('song_requests')
-      .select('id,title,part,proposed_level,status,version_id')
-      .in('id', requestIds);
-    if (error) throw error;
-    requests = data ?? [];
-  }
+    const page = data ?? [];
+    rows.push(...page);
 
-  const songMap = new Map(songs.map(row => [row.id, row]));
-  const requestMap = new Map(requests.map(row => [row.id, row]));
+    if (page.length < pageSize) break;
+    from += pageSize;
+  }
 
   const result = [];
 
   for (const row of rows) {
-    const song = row.song_id ? songMap.get(row.song_id) : null;
-    const request = row.song_request_id ? requestMap.get(row.song_request_id) : null;
-
-    const rowVersionId = song?.version_id ?? request?.version_id ?? null;
-    if (versionId && rowVersionId !== versionId) continue;
-
-    const level = Number(song?.level ?? request?.proposed_level);
+    const level = Number(row.level);
     const rate = Number(row.achievement_rate);
 
     if (!Number.isFinite(level) || !Number.isFinite(rate)) continue;
 
     result.push({
-      score_id: row.id,
+      score_id: row.score_id,
       user_id: row.user_id,
       song_id: row.song_id,
       song_request_id: row.song_request_id,
-      is_hot: Boolean(song?.is_hot),
-      title: song?.title ?? request?.title ?? '',
-      part: song?.part ?? request?.part ?? '',
+      is_hot: Boolean(row.is_hot),
+      title: row.title ?? '',
+      part: row.part ?? '',
       level,
       achievement_rate: rate,
       fc: row.fc,
       play_option: row.play_option,
-      skill: calcSkill(level, rate),
-      pending_master: Boolean(row.song_request_id),
-      request_status: request?.status ?? null,
+      skill: Number.isFinite(Number(row.skill)) ? Number(row.skill) : calcSkill(level, rate),
+      pending_master: Boolean(row.pending_master),
+      request_status: row.request_status ?? null,
       created_at: row.created_at,
       updated_at: row.updated_at,
-      version_id: rowVersionId
+      version_id: row.version_id ?? null
     });
   }
 
