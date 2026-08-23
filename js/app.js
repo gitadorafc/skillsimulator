@@ -2155,7 +2155,7 @@ function createCard(record, index, mode = 'MANAGE') {
 
         <div class="dc-fc">${fcBadge}</div>
         <div class="dc-lv">Lv <strong>${formatLevel(record.level)}</strong></div>
-        <div class="dc-rate">達成率 <strong>${formatRate(record.achievement_rate)}%</strong></div>
+        <div class="dc-rate"><span class="dc-field-label">達成率 </span><strong>${formatRate(record.achievement_rate)}%</strong></div>
         <div class="dc-option">${optionBadge}</div>
       </div>`;
   }
@@ -2169,7 +2169,7 @@ function createCard(record, index, mode = 'MANAGE') {
 
       <div class="dc-fc">${fcBadge}</div>
       <div class="dc-lv">Lv <strong>${formatLevel(record.level)}</strong></div>
-      <div class="dc-rate">達成率 <strong>${formatRate(record.achievement_rate)}%</strong></div>
+      <div class="dc-rate"><span class="dc-field-label">達成率 </span><strong>${formatRate(record.achievement_rate)}%</strong></div>
       <div class="dc-option">${optionBadge}</div>
       <div class="dc-edit"><button class="m-action-btn btn-e" data-edit="${record.score_id}">編集</button></div>
     </div>`;

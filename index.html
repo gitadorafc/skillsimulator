@@ -9425,7 +9425,7 @@ body.light-mode .skill-ranking-sort-wrap select{
   .skill-ranking-metric{padding:0 5px;}
 }
 
-/* APP VERSION 3.17.0: 9500色調整・登録曲横並び・スキル対象詳細編集 */
+/* APP VERSION 3.17.2: 横並び登録曲の達成率ラベルを非表示 */
 select:not([multiple]){
   -webkit-appearance:none !important;
   appearance:none !important;
@@ -9590,6 +9590,9 @@ body.skill-target-columns :is(#viewAllManage,#userDetailRecords) .dc-card-manage
   justify-content:flex-start !important;
   text-align:left !important;
   font-size:11px !important;
+}
+body.skill-target-columns :is(#viewAllManage,#userDetailRecords) .dc-card-manage .dc-rate .dc-field-label {
+  display:none !important;
 }
 body.skill-target-columns :is(#viewAllManage,#userDetailRecords) .dc-card-manage .dc-skill {
   grid-column:3 !important;
@@ -9919,7 +9922,7 @@ body.light-mode .rate-compare-edit-button {
     <div class="app-menu-version">
       <label>VERSION</label>
       <select id="versionSelect" class="version-select" aria-label="GITADORAバージョン"></select>
-      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 3.17.0</div>
+      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 3.17.2</div>
     </div>
   </div>
 </div>
@@ -10007,7 +10010,7 @@ body.light-mode .rate-compare-edit-button {
 
       <label class="feature-setting-row">
         <span>
-          <strong>スキル対象・登録曲の横並び表示</strong>
+          <strong>HOT/OTHERの横並び表示</strong>
           <small>曲一覧を左右2列で表示します。</small>
         </span>
         <input id="settingSkillTargetColumns" type="checkbox">
@@ -10268,7 +10271,7 @@ body.light-mode .rate-compare-edit-button {
 <div id="adminModal" class="admin-modal">
   <div class="admin-header">
     <div class="admin-title-row">
-      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 3.17.0</div></div>
+      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 3.17.2</div></div>
       <button id="btnCloseAdmin" class="admin-close">閉じる</button>
     </div>
     <div class="admin-tabs">
@@ -10345,6 +10348,6 @@ body.light-mode .rate-compare-edit-button {
   </div>
 </div>
 
-<script type="module" src="./js/app.js?v=3_17_0"></script>
+<script type="module" src="./js/app.js?v=3_17_2"></script>
 </body>
 </html>
