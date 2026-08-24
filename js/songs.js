@@ -22,33 +22,49 @@ async function findNormalizedSong(title, part, versionId = null) {
   const normalized = normalizeSongTitleForMatch(title);
   if (!normalized || !part || !versionId) return null;
 
-  const { data, error } = await supabase
-    .from('songs')
-    .select('id,is_hot,title,part,level,version_id')
-    .eq('part', part)
-    .eq('version_id', versionId);
+  // Supabaseの標準取得上限は1,000件。曲マスターがそれを超えても
+  // 後半の曲を新規曲と誤判定しないよう、対象パートを全ページ照合する。
+  const pageSize = 1000;
+  for (let from = 0; ; from += pageSize) {
+    const { data, error } = await supabase
+      .from('songs')
+      .select('id,is_hot,title,part,level,version_id')
+      .eq('part', part)
+      .eq('version_id', versionId)
+      .order('id', { ascending: true })
+      .range(from, from + pageSize - 1);
 
-  if (error) throw error;
+    if (error) throw error;
 
-  return (data ?? []).find(
-    row => normalizeSongTitleForMatch(row.title) === normalized
-  ) ?? null;
+    const match = (data ?? []).find(
+      row => normalizeSongTitleForMatch(row.title) === normalized
+    );
+    if (match) return match;
+    if (!data || data.length < pageSize) return null;
+  }
 }
 
 async function findCanonicalSongTitle(title, versionId = null) {
   const normalized = normalizeSongTitleForMatch(title);
   if (!normalized || !versionId) return null;
 
-  const { data, error } = await supabase
-    .from('songs')
-    .select('title')
-    .eq('version_id', versionId);
+  const pageSize = 1000;
+  for (let from = 0; ; from += pageSize) {
+    const { data, error } = await supabase
+      .from('songs')
+      .select('id,title')
+      .eq('version_id', versionId)
+      .order('id', { ascending: true })
+      .range(from, from + pageSize - 1);
 
-  if (error) throw error;
+    if (error) throw error;
 
-  return (data ?? []).find(
-    row => normalizeSongTitleForMatch(row.title) === normalized
-  )?.title ?? null;
+    const match = (data ?? []).find(
+      row => normalizeSongTitleForMatch(row.title) === normalized
+    );
+    if (match) return match.title;
+    if (!data || data.length < pageSize) return null;
+  }
 }
 
 export async function searchSongTitles(keyword = '', instrument = 'GF', versionId = null) {
@@ -157,7 +173,7 @@ export async function requestSongMaster({ title, part, proposedLevel, versionId 
       .from('song_requests')
       .select('id,title,part,proposed_level,status')
       .eq('requester_id', userData.user.id)
-      .eq('title', cleanTitle)
+      .eq('title', payload.title)
       .eq('part', part)
       .eq('version_id', versionId)
       .eq('status', 'pending')

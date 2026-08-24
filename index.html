@@ -10258,6 +10258,171 @@ body.text-size-up .skill-ranking-empty{
   font-size:12px !important;
 }
 
+/* === APP VERSION 4.1.0: ユーザーリスト選択欄 / GF初期オプション / アカウント切り替え === */
+#viewUsers #userListSortKey{
+  width:calc(8.5em + 42px) !important;
+  padding-right:34px !important;
+}
+#viewUsers #userListSortDirection{
+  width:calc(4em + 42px) !important;
+  padding-right:34px !important;
+}
+
+.feature-setting-select{
+  flex:0 0 auto;
+  width:124px;
+  min-height:38px;
+  padding:5px 32px 5px 10px;
+  border:1px solid #475569;
+  border-radius:7px;
+  background-color:#0f172a;
+  color:#f8fafc;
+  font-size:12px;
+  font-weight:900;
+}
+body.light-mode .feature-setting-select{
+  border-color:#94a3b8 !important;
+  background-color:#ffffff !important;
+  color:#111827 !important;
+}
+
+.account-switch-dialog{
+  width:min(92vw,520px);
+  max-height:min(90dvh,760px);
+  overflow:auto;
+}
+.account-switch-body{
+  display:grid;
+  gap:10px;
+}
+.account-switch-list{
+  display:grid;
+  gap:7px;
+}
+.account-switch-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  padding:10px;
+  border:1px solid #334155;
+  border-radius:9px;
+  background:#111827;
+}
+.account-switch-row.current{
+  border-color:#2563eb;
+  background:#172554;
+}
+.account-switch-row > div:first-child{
+  display:grid;
+  gap:2px;
+  min-width:0;
+}
+.account-switch-row strong{
+  overflow:hidden;
+  color:#f8fafc;
+  font-size:13px;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+.account-switch-row small,
+.account-switch-empty,
+.account-switch-note{
+  color:#94a3b8;
+  font-size:10px;
+}
+.account-switch-actions{
+  display:flex;
+  gap:5px;
+  flex:0 0 auto;
+}
+.account-switch-actions button{
+  min-height:32px;
+  padding:5px 9px;
+  border:1px solid #2563eb;
+  border-radius:7px;
+  background:#2563eb;
+  color:#ffffff;
+  font-size:11px;
+  font-weight:900;
+}
+.account-switch-actions button:disabled{
+  border-color:#475569;
+  background:#334155;
+  color:#cbd5e1;
+}
+.account-switch-actions .account-switch-remove{
+  border-color:#64748b;
+  background:transparent;
+  color:#cbd5e1;
+}
+.account-switch-add{
+  display:grid;
+  gap:7px;
+  padding-top:10px;
+  border-top:1px solid #334155;
+}
+.account-switch-add strong{
+  font-size:13px;
+}
+.account-switch-add input{
+  width:100%;
+  min-height:42px;
+  padding:8px 10px;
+  border:1px solid #475569;
+  border-radius:7px;
+  background:#0f172a;
+  color:#f8fafc;
+  font-size:16px;
+  box-sizing:border-box;
+}
+.account-switch-add-button{
+  min-height:42px;
+  border:0;
+  border-radius:8px;
+  background:#2563eb;
+  color:#ffffff;
+  font-weight:900;
+}
+.account-switch-status{
+  min-height:1.3em;
+  color:#fca5a5;
+  font-size:10px;
+  white-space:pre-wrap;
+}
+#accountSwitchCaptchaHost .auth-captcha-wrap{
+  margin:0;
+}
+body.light-mode .account-switch-row{
+  border-color:#cbd5e1;
+  background:#ffffff;
+}
+body.light-mode .account-switch-row.current{
+  border-color:#2563eb;
+  background:#eff6ff;
+}
+body.light-mode .account-switch-row strong,
+body.light-mode .account-switch-add strong{
+  color:#111827;
+}
+body.light-mode .account-switch-row small,
+body.light-mode .account-switch-empty,
+body.light-mode .account-switch-note{
+  color:#64748b;
+}
+body.light-mode .account-switch-actions .account-switch-remove{
+  border-color:#94a3b8;
+  color:#334155;
+}
+body.light-mode .account-switch-add{
+  border-color:#cbd5e1;
+}
+body.light-mode .account-switch-add input{
+  border-color:#94a3b8;
+  background:#ffffff;
+  color:#111827;
+}
+
 /* 要望・不具合 */
 body.text-size-up :is(
   .feedback-env-note,
@@ -10323,9 +10488,11 @@ body.text-size-up :is(
         パスワードは忘れないように保管してください。原則、パスワードを忘れた場合は再登録が必要です。<br>
         どうしてもパスワードの再発行が必要な場合は、管理者の <a href="https://x.com/fizz_rky" target="_blank" rel="noopener noreferrer">X（旧Twitter）</a> へ直接ご連絡ください。
       </div>
-      <div class="auth-captcha-wrap">
-        <div id="authTurnstile"></div>
-        <div id="authCaptchaStatus" class="auth-captcha-status" aria-live="polite"></div>
+      <div id="authCaptchaHome">
+        <div id="authCaptchaWrap" class="auth-captcha-wrap">
+          <div id="authTurnstile"></div>
+          <div id="authCaptchaStatus" class="auth-captcha-status" aria-live="polite"></div>
+        </div>
       </div>
       <button id="authSubmit" type="submit">ログイン</button>
     </form>
@@ -10532,6 +10699,7 @@ body.text-size-up :is(
     <div class="app-menu-head"><strong>MENU</strong><button id="btnCloseMenu" type="button">×</button></div>
     <button id="btnMenuMypage" type="button" class="app-menu-item">マイページ <span>›</span></button>
     <button id="btnMenuFeatureSettings" type="button" class="app-menu-item">機能設定 <span>›</span></button>
+    <button id="btnMenuAccountSwitch" type="button" class="app-menu-item hidden">アカウント切り替え <span>›</span></button>
     <button id="btnMenuSkillSync" type="button" class="app-menu-item">スキル対象同期 <span>›</span></button>
     <button id="btnMenuShareSkill" type="button" class="app-menu-item">スキル対象の画像共有 <span>›</span></button>
     <button id="btnMenuSkillRanking" type="button" class="app-menu-item">スキル対象ランキング <span>›</span></button>
@@ -10543,7 +10711,7 @@ body.text-size-up :is(
     <div class="app-menu-version">
       <label>VERSION</label>
       <select id="versionSelect" class="version-select" aria-label="GITADORAバージョン"></select>
-      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 4.0.8</div>
+      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 4.1.0</div>
     </div>
   </div>
 </div>
@@ -10666,6 +10834,20 @@ body.text-size-up :is(
 
       <label class="feature-setting-row">
         <span>
+          <strong>GFのデフォルトオプション</strong>
+          <small>新規登録・同期で新しく追加されるGF譜面に適用します。</small>
+        </span>
+        <select id="settingGfDefaultOption" class="feature-setting-select">
+          <option value="NORMAL">正規</option>
+          <option value="RAN">RAN</option>
+          <option value="SRA">SRA</option>
+          <option value="RAN+">RAN+</option>
+          <option value="SRA+">SRA+</option>
+        </select>
+      </label>
+
+      <label class="feature-setting-row">
+        <span>
           <strong>登録曲を公開</strong>
           <small>ONにすると、他ユーザーがあなたの登録曲一覧を閲覧できます。</small>
         </span>
@@ -10682,6 +10864,27 @@ body.text-size-up :is(
 
       <div id="featureSettingsStatus" class="feature-settings-status"></div>
       <button id="btnSaveFeatureSettings" type="button" class="btn-submit feature-settings-save">保存する</button>
+    </div>
+  </div>
+</div>
+
+<div id="accountSwitchMask" class="site-dialog-mask">
+  <div class="feature-settings-dialog account-switch-dialog">
+    <div class="app-menu-head">
+      <strong>アカウント切り替え</strong>
+      <button id="btnCloseAccountSwitch" type="button" class="menu-back-btn">戻る</button>
+    </div>
+    <div class="account-switch-body">
+      <div class="account-switch-note">この端末に保存した管理者アカウントを切り替えます。パスワードは保存しません。</div>
+      <div id="accountSwitchList" class="account-switch-list"></div>
+      <div class="account-switch-add">
+        <strong>管理者アカウントを追加</strong>
+        <input id="accountSwitchUsername" autocomplete="username" maxlength="32" placeholder="ユーザー名">
+        <input id="accountSwitchPassword" type="password" autocomplete="current-password" placeholder="パスワード">
+        <div id="accountSwitchCaptchaHost"></div>
+        <div id="accountSwitchStatus" class="account-switch-status"></div>
+        <button id="btnAddSwitchAccount" type="button" class="account-switch-add-button">追加して切り替える</button>
+      </div>
     </div>
   </div>
 </div>
@@ -10911,7 +11114,7 @@ body.text-size-up :is(
 <div id="adminModal" class="admin-modal">
   <div class="admin-header">
     <div class="admin-title-row">
-      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 4.0.8</div></div>
+      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 4.1.0</div></div>
       <button id="btnCloseAdmin" class="admin-close">閉じる</button>
     </div>
     <div class="admin-tabs">
@@ -10988,6 +11191,6 @@ body.text-size-up :is(
   </div>
 </div>
 
-<script type="module" src="./js/app.js?v=4_0_8"></script>
+<script type="module" src="./js/app.js?v=4_1_0"></script>
 </body>
 </html>

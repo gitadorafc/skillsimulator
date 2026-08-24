@@ -166,6 +166,93 @@ export async function login(username, password, getCaptchaToken, resetCaptcha) {
   throw firstError;
 }
 
+async function verifyAdminAccessToken(accessToken) {
+  const response = await fetch(`${SUPABASE_URL}/rest/v1/rpc/is_admin`, {
+    method: 'POST',
+    headers: {
+      apikey: SUPABASE_ANON_KEY,
+      Authorization: `Bearer ${accessToken}`,
+      'Content-Type': 'application/json'
+    },
+    body: '{}'
+  });
+
+  const payload = await response.json().catch(() => null);
+  if (!response.ok) {
+    throw new Error(payload?.message || '管理者権限を確認できませんでした。');
+  }
+  if (payload !== true) {
+    throw new Error('管理者アカウントのみ追加できます。');
+  }
+}
+
+// アカウント切り替え用。現在のSupabaseセッションは変更せずに認証し、
+// 管理者であることを確認したセッション情報だけを返す。
+// パスワードは保存しない。
+export async function loginForAccountSwitch(username, password, getCaptchaToken, resetCaptcha) {
+  const clean = normalizeUsername(username);
+  if (!validateUsername(clean)) {
+    throw new Error('アカウント名を入力してください。');
+  }
+
+  const isCaptchaError = error => {
+    const text = `${error?.message || ''} ${error?.code || ''}`.toLowerCase();
+    return text.includes('captcha');
+  };
+
+  const signIn = async email => {
+    const captchaToken = await getCaptchaToken();
+    try {
+      const payload = await authRequest('token?grant_type=password', {
+        email,
+        password,
+        gotrue_meta_security: captchaSecurity(captchaToken)
+      });
+      return { payload, error: null };
+    } catch (error) {
+      if (resetCaptcha) await resetCaptcha();
+      return { payload: null, error };
+    }
+  };
+
+  const hashedEmail = await hashedUsernameToEmail(clean);
+  let result = await signIn(hashedEmail);
+  if (result.error && isCaptchaError(result.error)) throw result.error;
+  const firstError = result.error;
+
+  if (result.error) {
+    const oldCaseInsensitive = normalizeUsername(clean).toLowerCase();
+    const bytes = new TextEncoder().encode(oldCaseInsensitive);
+    const digest = await crypto.subtle.digest('SHA-256', bytes);
+    const hex = Array.from(new Uint8Array(digest))
+      .map(b => b.toString(16).padStart(2, '0'))
+      .join('');
+    const oldHashedEmail = `u_${hex}@${USERNAME_DOMAIN}`;
+
+    if (oldHashedEmail !== hashedEmail) {
+      result = await signIn(oldHashedEmail);
+      if (result.error && isCaptchaError(result.error)) throw result.error;
+    }
+  }
+
+  if (result.error && /^[A-Za-z0-9_]{3,32}$/.test(clean)) {
+    result = await signIn(legacyUsernameToEmail(clean));
+    if (result.error && isCaptchaError(result.error)) throw result.error;
+  }
+
+  if (result.error || !result.payload?.access_token || !result.payload?.refresh_token) {
+    throw firstError || result.error || new Error('ログインに失敗しました。');
+  }
+
+  await verifyAdminAccessToken(result.payload.access_token);
+  return {
+    username: clean,
+    access_token: result.payload.access_token,
+    refresh_token: result.payload.refresh_token,
+    user: result.payload.user || null
+  };
+}
+
 export async function logout() {
   const { error } = await supabase.auth.signOut();
   if (error) throw error;

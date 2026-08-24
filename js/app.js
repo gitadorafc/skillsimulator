@@ -289,9 +289,9 @@ function drawShareTotalSparkles(ctx, row, nameX, nameWidth, totalX, totalWidth, 
   drawSkillColorCanvasSparkle(ctx, totalX + totalWidth * .72, top + height + 3, 6, '#bfdbfe');
 }
 import { supabase } from './supabase.js?v=21_57';
-import { register, login, logout, changePassword, getSession, validateUsername } from './auth.js?v=21_84';
+import { register, login, loginForAccountSwitch, logout, changePassword, getSession, validateUsername } from './auth.js?v=4_1_0';
 import { initAuthCaptcha, prepareAuthCaptcha, getAuthCaptchaToken, resetAuthCaptcha } from './captcha.js?v=21_84';
-import { PARTS, GF_PARTS, DM_PARTS, partsForInstrument, normalizeSongTitleForMatch, searchSongTitles, getSongByTitleAndPart, requestSongMaster, requestSongLevelCorrection } from './songs.js?v=21_116';
+import { PARTS, GF_PARTS, DM_PARTS, partsForInstrument, normalizeSongTitleForMatch, searchSongTitles, getSongByTitleAndPart, requestSongMaster, requestSongLevelCorrection } from './songs.js?v=4_1_0';
 import { calcSkill, formatLevel, formatRate, formatSkill, getMyScores, saveScore, deleteScore } from './scores.js?v=3_18_4';
 import { getGameVersions } from './versions.js?v=21_57';
 const {
@@ -412,7 +412,8 @@ async function importSkillSyncRecords(payload) {
     // 新VERSION初回登録では直前VERSIONのオプション/コメントを引き継ぐ。
     const { data, error } = await supabase.rpc('sync_skill_records', {
       p_records: rows,
-      p_version_id: activeVersionId
+      p_version_id: activeVersionId,
+      p_default_gf_option: getGfDefaultOption()
     });
 
     if (error) throw error;
@@ -622,6 +623,7 @@ const GLOBAL_SCROLL_LOCK_OVERLAYS = [
   '#mypageModal',
   '#skillSyncMask',
   '#skillShareMask',
+  '#accountSwitchMask',
   '#rateCompareMask',
   '#siteDialogMask',
   '#adminModal',
@@ -844,6 +846,24 @@ const DISPLAY_CUSTOMIZATION_KEYS = Object.freeze({
   textSizeUp: 'gitadora_text_size_up'
 });
 
+const GF_DEFAULT_OPTIONS = Object.freeze(['NORMAL','RAN','SRA','RAN+','SRA+']);
+const GF_DEFAULT_OPTION_STORAGE_PREFIX = 'gitadora_gf_default_option:';
+
+function getGfDefaultOptionStorageKey() {
+  return `${GF_DEFAULT_OPTION_STORAGE_PREFIX}${currentUserId || 'anonymous'}`;
+}
+
+function getGfDefaultOption() {
+  const value = localStorage.getItem(getGfDefaultOptionStorageKey()) || 'NORMAL';
+  return GF_DEFAULT_OPTIONS.includes(value) ? value : 'NORMAL';
+}
+
+function setGfDefaultOption(value) {
+  const normalized = GF_DEFAULT_OPTIONS.includes(value) ? value : 'NORMAL';
+  localStorage.setItem(getGfDefaultOptionStorageKey(), normalized);
+  return normalized;
+}
+
 function applyDisplayCustomization(skillTargetColumns = null, textSizeUp = null) {
   const columnsEnabled = (
     skillTargetColumns == null
@@ -940,6 +960,11 @@ async function openFeatureSettings() {
       localStorage.getItem(DISPLAY_CUSTOMIZATION_KEYS.textSizeUp) === '1';
   }
 
+  const gfDefaultOptionInput = $('settingGfDefaultOption');
+  if (gfDefaultOptionInput) {
+    gfDefaultOptionInput.value = getGfDefaultOption();
+  }
+
   try {
     const settings = await getMyFeatureSettings();
     $('settingRecordsPublic').checked = Boolean(settings.registration_public);
@@ -977,6 +1002,7 @@ async function saveFeatureSettings() {
       DISPLAY_CUSTOMIZATION_KEYS.textSizeUp,
       textSizeUp ? '1' : '0'
     );
+    setGfDefaultOption($('settingGfDefaultOption')?.value || 'NORMAL');
     applyDisplayCustomization(skillTargetColumns, textSizeUp);
     if (skillTargetColumns && $('recordTypeFilter')) $('recordTypeFilter').value = '';
     render();
@@ -1272,6 +1298,14 @@ async function init() {
       return;
     }
 
+    if (event === 'TOKEN_REFRESHED' && session && adminEnabled) {
+      rememberAdminAccountSession(
+        session,
+        $('headerUsername')?.textContent || ''
+      );
+      return;
+    }
+
     if (event === 'SIGNED_OUT' || !session) {
       adminEnabled = false;
       adminAccessChecked = false;
@@ -1279,9 +1313,11 @@ async function init() {
       applyDisplayCustomization(false, false);
       applyLightMode(false);
       $('btnAdmin').classList.add('hidden');
+      $('btnMenuAccountSwitch')?.classList.add('hidden');
       closeSkillTargetRanking();
       $('menuOfuseSupport')?.classList.add('hidden');
       closeAdmin();
+      closeAccountSwitch();
       hide('authScreen');
       hide('appScreen');
       show('introScreen');
@@ -1292,6 +1328,175 @@ async function init() {
 
 let myPageOpenedFromMenu = false;
 let skillShareSelection = 'GF';
+const ADMIN_ACCOUNT_SWITCH_STORAGE_KEY = 'gitadora_admin_account_sessions_v1';
+
+function readStoredAdminAccounts() {
+  try {
+    const parsed = JSON.parse(localStorage.getItem(ADMIN_ACCOUNT_SWITCH_STORAGE_KEY) || '[]');
+    if (!Array.isArray(parsed)) return [];
+    return parsed.filter(account =>
+      account &&
+      account.userId &&
+      account.username &&
+      account.accessToken &&
+      account.refreshToken
+    );
+  } catch (_) {
+    return [];
+  }
+}
+
+function writeStoredAdminAccounts(accounts) {
+  const unique = new Map();
+  for (const account of accounts ?? []) {
+    if (!account?.userId) continue;
+    unique.set(account.userId, account);
+  }
+  localStorage.setItem(
+    ADMIN_ACCOUNT_SWITCH_STORAGE_KEY,
+    JSON.stringify([...unique.values()].slice(-8))
+  );
+}
+
+function rememberAdminAccountSession(session, username = '') {
+  if (!session?.user?.id || !session?.access_token || !session?.refresh_token) return;
+  const accounts = readStoredAdminAccounts().filter(
+    account => account.userId !== session.user.id
+  );
+  accounts.push({
+    userId: session.user.id,
+    username: String(username || session.user.user_metadata?.username || '').trim() || '管理者',
+    accessToken: session.access_token,
+    refreshToken: session.refresh_token,
+    updatedAt: Date.now()
+  });
+  writeStoredAdminAccounts(accounts);
+}
+
+function moveAccountSwitchCaptcha(toModal) {
+  const wrap = $('authCaptchaWrap');
+  const destination = toModal ? $('accountSwitchCaptchaHost') : $('authCaptchaHome');
+  if (wrap && destination && wrap.parentElement !== destination) {
+    destination.appendChild(wrap);
+  }
+}
+
+function renderAccountSwitchList() {
+  const target = $('accountSwitchList');
+  if (!target) return;
+  const accounts = readStoredAdminAccounts();
+  target.innerHTML = accounts.length
+    ? accounts.map(account => {
+        const isCurrent = account.userId === currentUserId;
+        return `
+          <div class="account-switch-row${isCurrent ? ' current' : ''}">
+            <div>
+              <strong>${esc(account.username)}</strong>
+              <small>${isCurrent ? '現在のアカウント' : '切り替え可能'}</small>
+            </div>
+            <div class="account-switch-actions">
+              <button type="button" data-switch-admin-account="${esc(account.userId)}" ${isCurrent ? 'disabled' : ''}>
+                ${isCurrent ? '使用中' : '切り替え'}
+              </button>
+              ${isCurrent ? '' : `<button type="button" class="account-switch-remove" data-remove-admin-account="${esc(account.userId)}">削除</button>`}
+            </div>
+          </div>`;
+      }).join('')
+    : '<div class="account-switch-empty">保存済みの管理者アカウントはありません。</div>';
+}
+
+async function openAccountSwitch() {
+  if (!adminEnabled) {
+    await showSiteDialog('管理者のみ利用できます。', '権限エラー');
+    return;
+  }
+
+  closeMenu();
+  const { data } = await supabase.auth.getSession();
+  if (data?.session) {
+    rememberAdminAccountSession(data.session, $('headerUsername')?.textContent || '');
+  }
+  renderAccountSwitchList();
+  $('accountSwitchUsername').value = '';
+  $('accountSwitchPassword').value = '';
+  $('accountSwitchStatus').textContent = '';
+  $('accountSwitchMask').style.display = 'flex';
+  moveAccountSwitchCaptcha(true);
+  try {
+    await prepareAuthCaptcha();
+  } catch (error) {
+    $('accountSwitchStatus').textContent = error?.message || 'セキュリティ確認を準備できませんでした。';
+  }
+}
+
+function closeAccountSwitch(returnToMenu = false) {
+  $('accountSwitchMask').style.display = 'none';
+  $('accountSwitchPassword').value = '';
+  moveAccountSwitchCaptcha(false);
+  if (returnToMenu) openMenu();
+}
+
+async function activateStoredAdminAccount(userId) {
+  const account = readStoredAdminAccounts().find(item => item.userId === userId);
+  if (!account) throw new Error('保存済みのアカウント情報が見つかりません。');
+
+  const { data, error } = await supabase.auth.setSession({
+    access_token: account.accessToken,
+    refresh_token: account.refreshToken
+  });
+  if (error || !data?.session) {
+    writeStoredAdminAccounts(
+      readStoredAdminAccounts().filter(item => item.userId !== userId)
+    );
+    throw error || new Error('セッションの有効期限が切れています。再度追加してください。');
+  }
+
+  rememberAdminAccountSession(data.session, account.username);
+  location.reload();
+}
+
+async function addAdminSwitchAccount() {
+  const username = $('accountSwitchUsername').value.trim();
+  const password = $('accountSwitchPassword').value;
+  const button = $('btnAddSwitchAccount');
+  const original = button.textContent;
+
+  try {
+    if (!username || !password) throw new Error('ユーザー名とパスワードを入力してください。');
+    button.disabled = true;
+    button.textContent = '確認中...';
+    $('accountSwitchStatus').textContent = '';
+
+    const result = await loginForAccountSwitch(
+      username,
+      password,
+      getAuthCaptchaToken,
+      resetAuthCaptcha
+    );
+
+    const candidate = {
+      user: result.user,
+      access_token: result.access_token,
+      refresh_token: result.refresh_token
+    };
+    rememberAdminAccountSession(candidate, result.username);
+
+    const { data, error } = await supabase.auth.setSession({
+      access_token: result.access_token,
+      refresh_token: result.refresh_token
+    });
+    if (error || !data?.session) throw error || new Error('アカウントを切り替えられませんでした。');
+
+    rememberAdminAccountSession(data.session, result.username);
+    location.reload();
+  } catch (error) {
+    $('accountSwitchStatus').textContent = error?.message || 'アカウントを追加できませんでした。';
+  } finally {
+    button.disabled = false;
+    button.textContent = original;
+  }
+}
+
 function openMenu() {
   $('menuOfuseSupport')?.classList.remove('hidden');
   $('menuMask').style.display = 'flex';
@@ -2595,7 +2800,7 @@ function openScoreModal(score = null) {
   $('formFc').value = score?.fc === 'FC' ? 'FC' : '';
   $('formOption').value = activeInstrument === 'DM'
     ? 'NORMAL'
-    : (score?.play_option || 'NORMAL');
+    : (score?.play_option || getGfDefaultOption());
   updateDmBassMirrorFieldVisibility();
   $('formDmOption').value =
     activeInstrument === 'DM' &&
@@ -2695,7 +2900,9 @@ async function suggestSongs() {
   selectedSong = null;
   if (!editingScoreId) {
     previousScoreSettingsRequestSeq++;
-    $('formOption').value = 'NORMAL';
+    $('formOption').value = activeInstrument === 'GF'
+      ? getGfDefaultOption()
+      : 'NORMAL';
     $('formDmOption').value = 'NORMAL';
     $('formPrivateComment').value = '';
   }
@@ -3563,6 +3770,7 @@ async function checkAdminAccess() {
 
   adminAccessChecked = true;
   $('btnAdmin').classList.toggle('hidden', !adminEnabled);
+  $('btnMenuAccountSwitch')?.classList.toggle('hidden', !adminEnabled);
   $('btnMenuSkillRanking')?.classList.remove('hidden');
   $('menuOfuseSupport')?.classList.remove('hidden');
   $('scorePrivateCommentGroup')?.classList.remove('hidden');
@@ -3576,6 +3784,18 @@ async function checkAdminAccess() {
       primaryAdminEnabled = data === true;
     } catch (e) {
       console.error('primary admin check failed:', e);
+    }
+
+    try {
+      const { data } = await supabase.auth.getSession();
+      if (data?.session) {
+        rememberAdminAccountSession(
+          data.session,
+          $('headerUsername')?.textContent || ''
+        );
+      }
+    } catch (e) {
+      console.error('account switch session save failed:', e);
     }
   }
   $('adminBulkDeleteArea')?.classList.toggle('hidden', !primaryAdminEnabled);
@@ -5091,6 +5311,37 @@ $('settingLightMode').addEventListener('change', e => {
   applyLightMode(e.target.checked);
 });
 $('btnSaveXId').addEventListener('click', saveMyXId);
+$('btnMenuAccountSwitch')?.addEventListener('click', openAccountSwitch);
+$('btnCloseAccountSwitch')?.addEventListener('click', () => closeAccountSwitch(true));
+$('accountSwitchMask')?.addEventListener('click', event => {
+  if (event.target === $('accountSwitchMask')) closeAccountSwitch();
+});
+$('btnAddSwitchAccount')?.addEventListener('click', addAdminSwitchAccount);
+$('accountSwitchList')?.addEventListener('click', async event => {
+  const switchButton = event.target.closest('[data-switch-admin-account]');
+  const removeButton = event.target.closest('[data-remove-admin-account]');
+
+  if (switchButton && !switchButton.disabled) {
+    try {
+      switchButton.disabled = true;
+      switchButton.textContent = '切り替え中...';
+      await activateStoredAdminAccount(switchButton.dataset.switchAdminAccount);
+    } catch (error) {
+      $('accountSwitchStatus').textContent = error?.message || 'アカウントを切り替えられませんでした。';
+      renderAccountSwitchList();
+    }
+    return;
+  }
+
+  if (removeButton) {
+    writeStoredAdminAccounts(
+      readStoredAdminAccounts().filter(
+        account => account.userId !== removeButton.dataset.removeAdminAccount
+      )
+    );
+    renderAccountSwitchList();
+  }
+});
 
 $('btnMenuSkillSync').addEventListener('click', openSkillSyncDialog);
 $('btnMenuShareSkill').addEventListener('click', openSkillShareDialog);
