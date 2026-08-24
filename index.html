@@ -9849,15 +9849,15 @@ body.light-mode .feedback-admin-reply-label {
   color:#475569 !important;
 }
 
-/* APP VERSION 3.18.7: 登録曲・曲詳細の編集ボタンをコンパクト化 */
+/* APP VERSION 3.19.1: 登録曲の編集ボタンをスキル値と同幅に統一 */
 #viewAllManage .dc-edit {
   justify-content:flex-end !important;
 }
 #viewAllManage .dc-edit .m-action-btn.btn-e,
 body.light-mode #viewAllManage .dc-edit .m-action-btn.btn-e {
-  width:100% !important;
-  min-width:0 !important;
-  max-width:var(--dc-side-w) !important;
+  width:65px !important;
+  min-width:65px !important;
+  max-width:65px !important;
   min-height:24px !important;
   height:24px !important;
   padding:2px 6px !important;
@@ -9891,7 +9891,7 @@ body.skill-target-columns #viewAllManage .dc-card-manage .dc-edit .m-action-btn.
   line-height:1.2;
 }
 
-/* APP VERSION 3.19.0: 管理者向け共有対象選択 */
+/* APP VERSION 3.19.1: 全ユーザー向け共有対象選択 */
 .skill-share-dialog {
   width:min(92vw,420px);
   overflow:hidden;
@@ -10247,7 +10247,7 @@ body.light-mode .skill-share-option.active {
     <div class="app-menu-version">
       <label>VERSION</label>
       <select id="versionSelect" class="version-select" aria-label="GITADORAバージョン"></select>
-      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 3.19.0</div>
+      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 3.19.1</div>
     </div>
   </div>
 </div>
@@ -10264,7 +10264,7 @@ body.light-mode .skill-share-option.active {
       <div class="skill-share-options" role="group" aria-label="共有する機種">
         <button type="button" class="skill-share-option" data-skill-share-selection="GF" aria-pressed="false">GFのみ</button>
         <button type="button" class="skill-share-option" data-skill-share-selection="DM" aria-pressed="false">DMのみ</button>
-        <button type="button" class="skill-share-option" data-skill-share-selection="BOTH" aria-pressed="false">両方（2枚）</button>
+        <button type="button" class="skill-share-option" data-skill-share-selection="BOTH" aria-pressed="false">両方</button>
       </div>
       <button id="btnExecuteSkillShare" type="button" class="skill-share-execute">共有画像を作成する</button>
     </div>
@@ -10607,7 +10607,7 @@ body.light-mode .skill-share-option.active {
     <div id="rateOptionSummary" class="rate-option-summary"></div>
     <div id="rateCompareBody" class="rate-compare-body"></div>
     <div id="rateCompareEditArea" class="rate-compare-edit-area hidden">
-      <button id="btnEditRateCompare" type="button" class="rate-compare-edit-button hidden">曲データを編集する。</button>
+      <button id="btnEditRateCompare" type="button" class="rate-compare-edit-button hidden">曲データを編集する</button>
     </div>
   </div>
 </div>
@@ -10615,7 +10615,7 @@ body.light-mode .skill-share-option.active {
 <div id="adminModal" class="admin-modal">
   <div class="admin-header">
     <div class="admin-title-row">
-      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 3.19.0</div></div>
+      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 3.19.1</div></div>
       <button id="btnCloseAdmin" class="admin-close">閉じる</button>
     </div>
     <div class="admin-tabs">
@@ -10692,6 +10692,6 @@ body.light-mode .skill-share-option.active {
   </div>
 </div>
 
-<script type="module" src="./js/app.js?v=3_19_0"></script>
+<script type="module" src="./js/app.js?v=3_19_1"></script>
 </body>
 </html>

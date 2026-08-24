@@ -1205,13 +1205,6 @@ function updateSkillShareSelection(selection) {
 
 function openSkillShareDialog() {
   closeMenu();
-  if (!adminEnabled) {
-    shareSkillImage(activeInstrument).catch(async error => {
-      await showSiteDialog('共有に失敗しました: ' + error.message, 'エラー');
-    });
-    return;
-  }
-
   updateSkillShareSelection(activeInstrument);
   $('skillShareMask').style.display = 'flex';
 }
