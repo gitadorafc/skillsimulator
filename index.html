@@ -657,21 +657,19 @@ body.light-mode :is(.score-val,.user-list-skill-value,.user-detail-skill-value).
   animation:skill-sparkle-text-sweep var(--skill-sparkle-cycle) linear infinite,skill-sparkle-text-glow var(--skill-sparkle-cycle) ease-in-out infinite !important;
 }
 @media (prefers-reduced-motion: reduce) {
-  .score-rank-sparkle-rainbow,
-  .skill-box-sparkle-rainbow,
-  :is(.m-card,.sk-row):has(.skill-box-sparkle-rainbow)::before,
-  .user-list-row-sparkle-rainbow {
-    animation:none !important;
-    filter:brightness(1.28) drop-shadow(0 0 3px rgba(236,72,153,.5)) !important;
+  /* iPhoneの「視差効果を減らす」がONでも、9500帯の演出だけは維持する。 */
+  body:not(.light-mode) .score-rank-sparkle-rainbow {
+    animation:skill-sparkle-text-sweep var(--skill-sparkle-cycle) linear infinite,
+      skill-sparkle-text-glow var(--skill-sparkle-cycle) ease-in-out infinite !important;
   }
-  :is(.score-val,.user-list-skill-value,.user-detail-skill-value).score-rank-sparkle-rainbow {
-    animation:none !important;
-    filter:drop-shadow(0 0 .8px rgba(236,72,153,.42)) !important;
+  body:not(.light-mode) .skill-box-sparkle-rainbow {
+    animation:skill-sparkle-band-glow var(--skill-sparkle-cycle) ease-in-out infinite !important;
   }
-  body.light-mode .skill-box-sparkle-rainbow {
-    --skill-band-light-alpha:.26;
-    filter:none !important;
-    opacity:1 !important;
+  body:not(.light-mode) :is(.m-card,.sk-row):has(.skill-box-sparkle-rainbow)::before {
+    animation:skill-sparkle-border-pulse var(--skill-sparkle-cycle) ease-in-out infinite !important;
+  }
+  body:not(.light-mode) .user-list-row-sparkle-rainbow {
+    animation:skill-sparkle-row-glow var(--skill-sparkle-cycle) ease-in-out infinite !important;
   }
 }
 
@@ -10118,7 +10116,7 @@ body.light-mode .feedback-admin-reply-label {
     <div class="app-menu-version">
       <label>VERSION</label>
       <select id="versionSelect" class="version-select" aria-label="GITADORAバージョン"></select>
-      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 3.18.5</div>
+      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 3.18.6</div>
     </div>
   </div>
 </div>
@@ -10467,7 +10465,7 @@ body.light-mode .feedback-admin-reply-label {
 <div id="adminModal" class="admin-modal">
   <div class="admin-header">
     <div class="admin-title-row">
-      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 3.18.5</div></div>
+      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 3.18.6</div></div>
       <button id="btnCloseAdmin" class="admin-close">閉じる</button>
     </div>
     <div class="admin-tabs">
@@ -10544,6 +10542,6 @@ body.light-mode .feedback-admin-reply-label {
   </div>
 </div>
 
-<script type="module" src="./js/app.js?v=3_18_5"></script>
+<script type="module" src="./js/app.js?v=3_18_6"></script>
 </body>
 </html>
