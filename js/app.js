@@ -1704,6 +1704,8 @@ async function createSkillShareFile(instrument) {
   const target = totals(instrument);
   const rowsHot = target.hotRows || [];
   const rowsOther = target.otherRows || [];
+  // 新しい共有画像レイアウトは、確認中のため管理者だけに適用する。
+  const useAdminShareLayout = adminEnabled;
 
   // スマホで見やすいよう、HOT / OTHER を左右2カラムに戻す。
   // 背景はダークのまま維持。
@@ -1856,61 +1858,131 @@ async function createSkillShareFile(instrument) {
       x.textAlign='center'; x.textBaseline='middle';
       x.fillText(String(i+1),pos[0]+widths[0]/2,y+rowH/2);
 
-      // title + part
+      // title + badges
       x.textAlign='left';
       x.textBaseline='middle';
       x.fillStyle='#f8fafc'; x.font='800 16px sans-serif';
       let titleText=String(r.title||'');
       while(x.measureText(titleText).width > widths[1]-16 && titleText.length>4) titleText=titleText.slice(0,-1);
       if(titleText!==String(r.title||'')) titleText=titleText.slice(0,-1)+'…';
-      // 曲名は上枠線とパート表示の間で上下余白が均等になる位置へ。
       x.fillText(titleText,pos[1]+8,y+19);
-      x.textBaseline='alphabetic';
-      x.fillStyle='#94a3b8'; x.font='700 12px sans-serif';
-      // パートは従来より少し下へ。
+
       const partText = String(r.part || '');
       const partX = pos[1] + 8;
-      const partY = y + 48;
-      x.fillText(partText, partX, partY);
-
-      // GFのRAN系とDMのバスミラーをパート右側に表示。
       const optionText = String(r.play_option || 'NORMAL').toUpperCase();
       const optionLabel = optionText === 'BASS_MIRROR' ? 'バスミラー' : optionText;
       const showOption =
         (partText.endsWith('-D') && optionText === 'BASS_MIRROR') ||
         (!partText.endsWith('-D') && optionText !== 'NORMAL');
-      if (showOption) {
-        const optionStyles = {
-          'RAN':  { text:'#86efac', border:'#15803d', bg:'rgba(20,83,45,.34)' },
-          'SRA':  { text:'#fdba74', border:'#c2410c', bg:'rgba(124,45,18,.38)' },
-          'RAN+': { text:'#4ade80', border:'#166534', bg:'rgba(20,83,45,.34)' },
-          'SRA+': { text:'#fb923c', border:'#9a3412', bg:'rgba(124,45,18,.38)' },
-          'BASS_MIRROR': { text:'#c4b5fd', border:'#7c3aed', bg:'rgba(76,29,149,.28)' }
-        };
-        const st = optionStyles[optionText] || { text:'#cbd5e1', border:'#475569', bg:'rgba(30,41,59,.5)' };
+      const badge = Number(r.achievement_rate)===100
+        ? 'EXC'
+        : (String(r.fc||'').toUpperCase()==='FC' ? 'FC' : '');
 
+      const optionStyles = {
+        'RAN':  { text:'#86efac', border:'#15803d', bg:'rgba(20,83,45,.34)' },
+        'SRA':  { text:'#fdba74', border:'#c2410c', bg:'rgba(124,45,18,.38)' },
+        'RAN+': { text:'#4ade80', border:'#166534', bg:'rgba(20,83,45,.34)' },
+        'SRA+': { text:'#fb923c', border:'#9a3412', bg:'rgba(124,45,18,.38)' },
+        'BASS_MIRROR': { text:'#c4b5fd', border:'#7c3aed', bg:'rgba(76,29,149,.28)' }
+      };
+
+      if (useAdminShareLayout) {
+        // 横並びカードと同じ順序で、列位置を固定して描画する。
+        // オプションがない場合も専用列を空けるため、FC/EXCは左へ詰まらない。
+        const badgeY = y + 36;
+        const badgeH = 16;
+        const partW = 50;
+        const optionW = 54;
+        const fcW = 40;
+        const badgeGap = 6;
+        const optionX = partX + partW + badgeGap;
+        const fcX = optionX + optionW + badgeGap;
+
+        const partStyle = partText.startsWith('MAS')
+          ? { bg:'#d32df0', text:'#ffffff' }
+          : partText.startsWith('EXT')
+            ? { bg:'#ff2a2a', text:'#ffffff' }
+            : partText.startsWith('ADV')
+              ? { bg:'#ffcc00', text:'#000000' }
+              : { bg:'#4da6ff', text:'#ffffff' };
+        x.fillStyle = partStyle.bg;
+        x.beginPath();
+        x.roundRect(partX, badgeY, partW, badgeH, 3);
+        x.fill();
+        x.fillStyle = partStyle.text;
         x.font = '900 9px sans-serif';
-        const optionW = Math.max(34, Math.ceil(x.measureText(optionLabel).width) + 12);
-        const optionH = 15;
-        const optionX = partX + x.measureText(partText).width + 12;
-        const optionY = y + 36;
+        x.textAlign = 'center';
+        x.textBaseline = 'middle';
+        x.fillText(partText, partX + partW / 2, badgeY + badgeH / 2 + .5);
 
-        // 曲名セル内に収まる場合だけ描画。
-        if (optionX + optionW <= pos[2] - 5) {
+        if (showOption) {
+          const st = optionStyles[optionText] || { text:'#cbd5e1', border:'#475569', bg:'rgba(30,41,59,.5)' };
           x.fillStyle = st.bg;
           x.beginPath();
-          x.roundRect(optionX, optionY, optionW, optionH, 3);
+          x.roundRect(optionX, badgeY, optionW, badgeH, 3);
           x.fill();
           x.strokeStyle = st.border;
           x.lineWidth = 1;
           x.stroke();
-
           x.fillStyle = st.text;
-          x.textAlign = 'center';
-          x.textBaseline = 'middle';
-          x.fillText(optionLabel, optionX + optionW / 2, optionY + optionH / 2 + .5);
-          x.textAlign = 'left';
-          x.textBaseline = 'alphabetic';
+          x.font = '900 9px sans-serif';
+          x.fillText(optionLabel, optionX + optionW / 2, badgeY + badgeH / 2 + .5);
+        }
+
+        if (badge) {
+          const bg=x.createLinearGradient(fcX,badgeY,fcX,badgeY+badgeH);
+          if(badge==='EXC'){
+            bg.addColorStop(0,'#fef08a');
+            bg.addColorStop(1,'#f59e0b');
+          }else{
+            bg.addColorStop(0,'#ffffff');
+            bg.addColorStop(.5,'#cbd5e1');
+            bg.addColorStop(1,'#94a3b8');
+          }
+          x.fillStyle=bg;
+          x.beginPath();
+          x.roundRect(fcX,badgeY,fcW,badgeH,3);
+          x.fill();
+          x.strokeStyle=badge==='EXC'?'#b45309':'#475569';
+          x.lineWidth=1;
+          x.stroke();
+          x.fillStyle=badge==='EXC'?'#7f1d1d':'#1e3a8a';
+          x.font='900 9px sans-serif';
+          x.fillText(badge,fcX+fcW/2,badgeY+badgeH/2+.5);
+        }
+
+        x.textAlign='left';
+        x.textBaseline='alphabetic';
+      } else {
+        // 一般ユーザーは従来レイアウトを維持する。
+        x.textBaseline='alphabetic';
+        x.fillStyle='#94a3b8'; x.font='700 12px sans-serif';
+        const partY = y + 48;
+        x.fillText(partText, partX, partY);
+
+        if (showOption) {
+          const st = optionStyles[optionText] || { text:'#cbd5e1', border:'#475569', bg:'rgba(30,41,59,.5)' };
+          x.font = '900 9px sans-serif';
+          const optionW = Math.max(34, Math.ceil(x.measureText(optionLabel).width) + 12);
+          const optionH = 15;
+          const optionX = partX + x.measureText(partText).width + 12;
+          const optionY = y + 36;
+
+          if (optionX + optionW <= pos[2] - 5) {
+            x.fillStyle = st.bg;
+            x.beginPath();
+            x.roundRect(optionX, optionY, optionW, optionH, 3);
+            x.fill();
+            x.strokeStyle = st.border;
+            x.lineWidth = 1;
+            x.stroke();
+            x.fillStyle = st.text;
+            x.textAlign = 'center';
+            x.textBaseline = 'middle';
+            x.fillText(optionLabel, optionX + optionW / 2, optionY + optionH / 2 + .5);
+            x.textAlign = 'left';
+            x.textBaseline = 'alphabetic';
+          }
         }
       }
 
@@ -1934,7 +2006,7 @@ async function createSkillShareFile(instrument) {
       x.fillRect(skillCellX+skillCellW-barW-2,barY,barW,barH);
 
       x.fillStyle='#ffffff';
-      x.font='900 19px sans-serif';
+      x.font=useAdminShareLayout ? '900 20px sans-serif' : '900 19px sans-serif';
       x.textAlign='center';
       x.textBaseline='middle';
       x.shadowColor='rgba(0,0,0,.9)';
@@ -1943,14 +2015,16 @@ async function createSkillShareFile(instrument) {
       x.shadowBlur=0;
       x.shadowColor='transparent';
 
-      // achievement + badge
-      x.fillStyle='#f8fafc'; x.font='900 16px sans-serif';
-      x.fillText(`${Number(r.achievement_rate).toFixed(2)}%`,pos[3]+widths[3]/2,y+18);
+      // 管理者用新レイアウトでは達成率を上下中央へ置き、FC/EXCは曲名列へ移す。
+      x.fillStyle='#f8fafc';
+      x.font=useAdminShareLayout ? '900 20px sans-serif' : '900 16px sans-serif';
+      x.fillText(
+        `${Number(r.achievement_rate).toFixed(2)}%`,
+        pos[3]+widths[3]/2,
+        useAdminShareLayout ? y+rowH/2 : y+18
+      );
 
-      const badge = Number(r.achievement_rate)===100
-        ? 'EXC'
-        : (String(r.fc||'').toUpperCase()==='FC' ? 'FC' : '');
-      if(badge){
+      if(!useAdminShareLayout && badge){
         // 画面上のスキル対象 / 登録曲と同じFC・EXC配色。
         // 共有画像では少し小さめにする。
         const bw=40,bh=15,bx=pos[3]+(widths[3]-bw)/2,by=y+34;
@@ -1978,7 +2052,8 @@ async function createSkillShareFile(instrument) {
       }
 
       // level
-      x.fillStyle='#e5e7eb'; x.font='800 17px sans-serif';
+      x.fillStyle='#e5e7eb';
+      x.font=useAdminShareLayout ? '900 20px sans-serif' : '800 17px sans-serif';
       x.fillText(Number(r.level).toFixed(2),pos[4]+widths[4]/2,y+rowH/2);
 
       // 共有画像の9500帯だけは、曲別SKILL帯と外枠の上に固定の輝きを重ねる。
