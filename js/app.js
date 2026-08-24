@@ -406,24 +406,6 @@ async function importSkillSyncRecords(payload) {
   try {
     setSkillSyncStatus(`同期中… ${rows.length}件を一括処理しています`, 'running');
 
-    // 管理者限定公開中のGALAXY WAVEは、公式スキル対象ページから取得した
-    // 曲名・パート・難易度・HOT/OTHERを、そのまま当該VERSIONの曲マスターへ反映する。
-    // これにより旧VERSIONの初回同期で大量の登録依頼を発生させない。
-    if (adminEnabled && activeVersion?.code === 'GALAXY_WAVE') {
-      setSkillSyncStatus(`同期中… GALAXY WAVEの曲マスターを準備しています`, 'running');
-      const masterRows = rows.map(row => ({
-        version_id: activeVersionId,
-        title: row.title,
-        part: row.part,
-        level: row.level,
-        is_hot: row.category === 'HOT'
-      }));
-      const { error: masterError } = await supabase
-        .from('songs')
-        .upsert(masterRows, { onConflict: 'version_id,title,part' });
-      if (masterError) throw masterError;
-    }
-
     // DB側RPCで一括処理。同一VERSIONの既存FC/オプションは維持し、
     // 新VERSION初回登録では直前VERSIONのオプション/コメントを引き継ぐ。
     const { data, error } = await supabase.rpc('sync_skill_records', {
