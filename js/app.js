@@ -1899,12 +1899,12 @@ async function createSkillShareFile(instrument) {
         const optionX = fcX + badgeW + badgeGap;
 
         const partStyle = partText.startsWith('MAS')
-          ? { bg:'#d32df0', text:'#ffffff' }
+          ? { bg:'#dc5af0', text:'#ffffff' }
           : partText.startsWith('EXT')
-            ? { bg:'#ff2a2a', text:'#ffffff' }
+            ? { bg:'#ff5656', text:'#ffffff' }
             : partText.startsWith('ADV')
-              ? { bg:'#ffcc00', text:'#000000' }
-              : { bg:'#4da6ff', text:'#ffffff' };
+              ? { bg:'#f5d65b', text:'#000000' }
+              : { bg:'#76b8f5', text:'#ffffff' };
         x.fillStyle = partStyle.bg;
         x.beginPath();
         x.roundRect(partX, badgeY, badgeW, badgeH, 3);
