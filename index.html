@@ -9982,6 +9982,70 @@ body.light-mode .skill-share-option.active {
   color:#fff;
 }
 
+/* APP VERSION 3.19.3: iPhoneホーム画面版の引っ張って更新 */
+.pull-refresh-indicator {
+  position:fixed;
+  top:max(6px,env(safe-area-inset-top));
+  left:50%;
+  z-index:2500;
+  display:none;
+  align-items:center;
+  gap:7px;
+  min-height:34px;
+  padding:0 12px;
+  border:1px solid #475569;
+  border-radius:999px;
+  background:rgba(15,23,42,.94);
+  color:#e2e8f0;
+  box-shadow:0 5px 18px rgba(0,0,0,.32);
+  opacity:0;
+  transform:translate(-50%,var(--pull-refresh-y,-54px));
+  transition:transform .2s ease,opacity .16s ease;
+  pointer-events:none;
+  white-space:nowrap;
+}
+body.ios-standalone-pull-enabled.pull-refresh-pulling .pull-refresh-indicator,
+body.ios-standalone-pull-enabled.pull-refresh-refreshing .pull-refresh-indicator {
+  display:flex;
+  opacity:1;
+}
+body.pull-refresh-pulling .pull-refresh-indicator {
+  transition:none;
+}
+.pull-refresh-icon {
+  width:16px;
+  height:16px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  color:#60a5fa;
+  font-size:17px;
+  font-weight:900;
+  line-height:1;
+}
+.pull-refresh-label {
+  font-size:11px;
+  font-weight:900;
+}
+body.pull-refresh-ready .pull-refresh-indicator {
+  border-color:#60a5fa;
+}
+body.pull-refresh-refreshing .pull-refresh-icon {
+  animation:pull-refresh-spin .7s linear infinite;
+}
+@keyframes pull-refresh-spin {
+  to { transform:rotate(360deg); }
+}
+body.light-mode .pull-refresh-indicator {
+  border-color:#94a3b8;
+  background:rgba(248,250,252,.96);
+  color:#0f172a;
+  box-shadow:0 5px 18px rgba(15,23,42,.2);
+}
+body.light-mode .pull-refresh-icon {
+  color:#2563eb;
+}
+
 </style>
   <link rel="preconnect" href="https://challenges.cloudflare.com">
   <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" defer></script>
@@ -9991,6 +10055,11 @@ body.light-mode .skill-share-option.active {
   // body以下が描画される前に、headで判定したテーマを引き継ぐ。
   document.body.classList.toggle('light-mode', document.documentElement.classList.contains('light-mode'));
 </script>
+
+<div id="pullRefreshIndicator" class="pull-refresh-indicator" aria-hidden="true">
+  <span class="pull-refresh-icon">↻</span>
+  <span class="pull-refresh-label">引っ張って更新</span>
+</div>
 
 
 <div id="introScreen" class="intro-screen hidden">
@@ -10249,7 +10318,7 @@ body.light-mode .skill-share-option.active {
     <div class="app-menu-version">
       <label>VERSION</label>
       <select id="versionSelect" class="version-select" aria-label="GITADORAバージョン"></select>
-      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 3.19.2</div>
+      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 3.19.3</div>
     </div>
   </div>
 </div>
@@ -10617,7 +10686,7 @@ body.light-mode .skill-share-option.active {
 <div id="adminModal" class="admin-modal">
   <div class="admin-header">
     <div class="admin-title-row">
-      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 3.19.2</div></div>
+      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 3.19.3</div></div>
       <button id="btnCloseAdmin" class="admin-close">閉じる</button>
     </div>
     <div class="admin-tabs">
@@ -10694,6 +10763,6 @@ body.light-mode .skill-share-option.active {
   </div>
 </div>
 
-<script type="module" src="./js/app.js?v=3_19_2"></script>
+<script type="module" src="./js/app.js?v=3_19_3"></script>
 </body>
 </html>

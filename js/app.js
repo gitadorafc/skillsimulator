@@ -681,6 +681,95 @@ function syncGlobalModalScrollLock() {
   }
 }
 
+function initIosStandalonePullToRefresh() {
+  const isIos = /iPhone|iPad|iPod/i.test(navigator.userAgent) ||
+    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  const isStandalone = navigator.standalone === true ||
+    window.matchMedia?.('(display-mode: standalone)').matches;
+  const indicator = $('pullRefreshIndicator');
+
+  if (!isIos || !isStandalone || !indicator) return;
+
+  const icon = indicator.querySelector('.pull-refresh-icon');
+  const label = indicator.querySelector('.pull-refresh-label');
+  const ignoredTargets = 'input,select,textarea,button,a,[contenteditable="true"]';
+  const releaseThreshold = 72;
+  let tracking = false;
+  let refreshing = false;
+  let startX = 0;
+  let startY = 0;
+  let pullDistance = 0;
+
+  document.body.classList.add('ios-standalone-pull-enabled');
+
+  const reset = () => {
+    tracking = false;
+    pullDistance = 0;
+    document.body.classList.remove('pull-refresh-pulling', 'pull-refresh-ready');
+    document.documentElement.style.removeProperty('--pull-refresh-y');
+    if (icon) icon.style.transform = '';
+    if (label) label.textContent = '引っ張って更新';
+  };
+
+  document.addEventListener('touchstart', event => {
+    if (refreshing || event.touches.length !== 1) return;
+    if ((window.scrollY || window.pageYOffset || 0) > 0) return;
+    if (globalModalScrollLocked || hasVisibleGlobalOverlay()) return;
+    if (document.body.classList.contains('score-modal-open')) return;
+    if (event.target.closest?.(ignoredTargets)) return;
+
+    tracking = true;
+    startX = event.touches[0].clientX;
+    startY = event.touches[0].clientY;
+    pullDistance = 0;
+  }, { passive: true });
+
+  document.addEventListener('touchmove', event => {
+    if (!tracking || refreshing || event.touches.length !== 1) return;
+
+    const deltaX = event.touches[0].clientX - startX;
+    const deltaY = event.touches[0].clientY - startY;
+    if (Math.abs(deltaX) > Math.abs(deltaY)) {
+      reset();
+      return;
+    }
+    if (deltaY <= 0 || (window.scrollY || window.pageYOffset || 0) > 0) {
+      reset();
+      return;
+    }
+
+    if (deltaY > 6) event.preventDefault();
+    pullDistance = deltaY;
+    const visualDistance = Math.min(92, deltaY * .52);
+    document.body.classList.add('pull-refresh-pulling');
+    document.body.classList.toggle('pull-refresh-ready', pullDistance >= releaseThreshold);
+    document.documentElement.style.setProperty('--pull-refresh-y', `${-54 + visualDistance}px`);
+    if (icon) icon.style.transform = `rotate(${Math.min(300, deltaY * 3)}deg)`;
+    if (label) label.textContent = pullDistance >= releaseThreshold ? '離して更新' : '引っ張って更新';
+  }, { passive: false });
+
+  const finishPull = () => {
+    if (!tracking || refreshing) return;
+    tracking = false;
+
+    if (pullDistance < releaseThreshold) {
+      reset();
+      return;
+    }
+
+    refreshing = true;
+    document.body.classList.remove('pull-refresh-pulling', 'pull-refresh-ready');
+    document.body.classList.add('pull-refresh-refreshing');
+    document.documentElement.style.setProperty('--pull-refresh-y', '10px');
+    if (icon) icon.style.transform = '';
+    if (label) label.textContent = '更新中...';
+    setTimeout(() => window.location.reload(), 120);
+  };
+
+  document.addEventListener('touchend', finishPull, { passive: true });
+  document.addEventListener('touchcancel', reset, { passive: true });
+}
+
 
 function syncAppStickyHeaderHeight() {
   const header = document.querySelector('.p-header');
@@ -2336,6 +2425,24 @@ function renderManage() {
   $('viewAllManage').innerHTML =
     renderRegisteredCardList(data) ||
     '<div class="empty-state">条件に一致する登録データがありません</div>';
+
+  requestAnimationFrame(syncRegisteredEditButtonWidths);
+}
+
+function syncRegisteredEditButtonWidths() {
+  document.querySelectorAll('#viewAllManage .dc-card-manage').forEach(card => {
+    const skillBox = card.querySelector('.dc-skill');
+    const editButton = card.querySelector('.dc-edit .m-action-btn.btn-e');
+    if (!skillBox || !editButton) return;
+
+    const width = skillBox.getBoundingClientRect().width;
+    if (!Number.isFinite(width) || width <= 0) return;
+
+    const cssWidth = `${width}px`;
+    editButton.style.setProperty('width', cssWidth, 'important');
+    editButton.style.setProperty('min-width', cssWidth, 'important');
+    editButton.style.setProperty('max-width', cssWidth, 'important');
+  });
 }
 
 function render() {
@@ -4972,9 +5079,13 @@ GLOBAL_SCROLL_LOCK_OVERLAYS.forEach(selector => {
   }
 });
 requestAnimationFrame(syncGlobalModalScrollLock);
+initIosStandalonePullToRefresh();
 
 // ヘッダーの実際の高さを使ってユーザーリスト固定位置を決める。
-window.addEventListener('resize', syncAppStickyHeaderHeight);
+window.addEventListener('resize', () => {
+  syncAppStickyHeaderHeight();
+  syncRegisteredEditButtonWidths();
+});
 window.addEventListener('orientationchange', () => setTimeout(syncAppStickyHeaderHeight, 80));
 
 const appHeaderResizeObserver = typeof ResizeObserver !== 'undefined'
