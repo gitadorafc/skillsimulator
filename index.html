@@ -10280,6 +10280,20 @@ body.text-size-up .skill-ranking-empty{
   font-size:12px;
   font-weight:900;
 }
+
+.mypage-user-switch{
+  margin-top:16px;
+  padding-top:14px;
+  border-top:1px solid #334155;
+}
+.mypage-user-switch-button{
+  width:100%;
+  min-height:42px;
+  margin-bottom:5px;
+}
+body.light-mode .mypage-user-switch{
+  border-color:#cbd5e1;
+}
 body.light-mode .feature-setting-select{
   border-color:#94a3b8 !important;
   background-color:#ffffff !important;
@@ -10352,9 +10366,11 @@ body.light-mode .feature-setting-select{
   color:#cbd5e1;
 }
 .account-switch-actions .account-switch-remove{
-  border-color:#64748b;
-  background:transparent;
-  color:#cbd5e1;
+  width:auto;
+  min-height:32px;
+  border-color:#7f1d1d;
+  background:#2a1115;
+  color:#fca5a5;
 }
 .account-switch-add{
   display:grid;
@@ -10411,8 +10427,10 @@ body.light-mode .account-switch-note{
   color:#64748b;
 }
 body.light-mode .account-switch-actions .account-switch-remove{
-  border-color:#94a3b8;
-  color:#334155;
+  border-color:#ef4444;
+  background:#fee2e2;
+  color:#b91c1c;
+  -webkit-text-fill-color:#b91c1c;
 }
 body.light-mode .account-switch-add{
   border-color:#cbd5e1;
@@ -10699,7 +10717,6 @@ body.text-size-up :is(
     <div class="app-menu-head"><strong>MENU</strong><button id="btnCloseMenu" type="button">×</button></div>
     <button id="btnMenuMypage" type="button" class="app-menu-item">マイページ <span>›</span></button>
     <button id="btnMenuFeatureSettings" type="button" class="app-menu-item">機能設定 <span>›</span></button>
-    <button id="btnMenuAccountSwitch" type="button" class="app-menu-item hidden">アカウント切り替え <span>›</span></button>
     <button id="btnMenuSkillSync" type="button" class="app-menu-item">スキル対象同期 <span>›</span></button>
     <button id="btnMenuShareSkill" type="button" class="app-menu-item">スキル対象の画像共有 <span>›</span></button>
     <button id="btnMenuSkillRanking" type="button" class="app-menu-item">スキル対象ランキング <span>›</span></button>
@@ -10711,7 +10728,7 @@ body.text-size-up :is(
     <div class="app-menu-version">
       <label>VERSION</label>
       <select id="versionSelect" class="version-select" aria-label="GITADORAバージョン"></select>
-      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 4.1.0</div>
+      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 4.1.1</div>
     </div>
   </div>
 </div>
@@ -10871,14 +10888,14 @@ body.text-size-up :is(
 <div id="accountSwitchMask" class="site-dialog-mask">
   <div class="feature-settings-dialog account-switch-dialog">
     <div class="app-menu-head">
-      <strong>アカウント切り替え</strong>
+      <strong>ユーザー切り替え</strong>
       <button id="btnCloseAccountSwitch" type="button" class="menu-back-btn">戻る</button>
     </div>
     <div class="account-switch-body">
-      <div class="account-switch-note">この端末に保存した管理者アカウントを切り替えます。パスワードは保存しません。</div>
+      <div class="account-switch-note">この端末に保存した管理者ユーザーを切り替えます。パスワードは保存しません。</div>
       <div id="accountSwitchList" class="account-switch-list"></div>
       <div class="account-switch-add">
-        <strong>管理者アカウントを追加</strong>
+        <strong>管理者ユーザーを追加</strong>
         <input id="accountSwitchUsername" autocomplete="username" maxlength="32" placeholder="ユーザー名">
         <input id="accountSwitchPassword" type="password" autocomplete="current-password" placeholder="パスワード">
         <div id="accountSwitchCaptchaHost"></div>
@@ -10992,6 +11009,11 @@ body.text-size-up :is(
         <button id="btnSaveXId" type="button" class="btn-name-change">保存</button>
       </div>
       <div class="section-note">任意項目です。公開設定がONの場合のみ、他ユーザーにXへのリンクが表示されます。</div>
+    </div>
+
+    <div id="mypageUserSwitchBlock" class="mypage-user-switch hidden">
+      <button id="btnMypageUserSwitch" type="button" class="btn-name-change mypage-user-switch-button">ユーザー切り替え</button>
+      <div class="section-note">この端末に保存した管理者ユーザーを切り替えます。</div>
     </div>
 
     <div class="mypage-logout-zone">
@@ -11114,7 +11136,7 @@ body.text-size-up :is(
 <div id="adminModal" class="admin-modal">
   <div class="admin-header">
     <div class="admin-title-row">
-      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 4.1.0</div></div>
+      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 4.1.1</div></div>
       <button id="btnCloseAdmin" class="admin-close">閉じる</button>
     </div>
     <div class="admin-tabs">
@@ -11191,6 +11213,6 @@ body.text-size-up :is(
   </div>
 </div>
 
-<script type="module" src="./js/app.js?v=4_1_0"></script>
+<script type="module" src="./js/app.js?v=4_1_1"></script>
 </body>
 </html>

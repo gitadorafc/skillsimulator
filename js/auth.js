@@ -182,7 +182,7 @@ async function verifyAdminAccessToken(accessToken) {
     throw new Error(payload?.message || '管理者権限を確認できませんでした。');
   }
   if (payload !== true) {
-    throw new Error('管理者アカウントのみ追加できます。');
+    throw new Error('管理者ユーザーのみ追加できます。');
   }
 }
 

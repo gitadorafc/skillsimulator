@@ -1313,7 +1313,7 @@ async function init() {
       applyDisplayCustomization(false, false);
       applyLightMode(false);
       $('btnAdmin').classList.add('hidden');
-      $('btnMenuAccountSwitch')?.classList.add('hidden');
+      $('mypageUserSwitchBlock')?.classList.add('hidden');
       closeSkillTargetRanking();
       $('menuOfuseSupport')?.classList.add('hidden');
       closeAdmin();
@@ -1395,14 +1395,14 @@ function renderAccountSwitchList() {
               <small>${isCurrent ? '現在のアカウント' : '切り替え可能'}</small>
             </div>
             <div class="account-switch-actions">
+              ${isCurrent ? '' : `<button type="button" class="btn-danger-wide account-switch-remove" data-remove-admin-account="${esc(account.userId)}">削除</button>`}
               <button type="button" data-switch-admin-account="${esc(account.userId)}" ${isCurrent ? 'disabled' : ''}>
                 ${isCurrent ? '使用中' : '切り替え'}
               </button>
-              ${isCurrent ? '' : `<button type="button" class="account-switch-remove" data-remove-admin-account="${esc(account.userId)}">削除</button>`}
             </div>
           </div>`;
       }).join('')
-    : '<div class="account-switch-empty">保存済みの管理者アカウントはありません。</div>';
+    : '<div class="account-switch-empty">保存済みの管理者ユーザーはありません。</div>';
 }
 
 async function openAccountSwitch() {
@@ -1411,7 +1411,7 @@ async function openAccountSwitch() {
     return;
   }
 
-  closeMenu();
+  $('mypageModal').style.display = 'none';
   const { data } = await supabase.auth.getSession();
   if (data?.session) {
     rememberAdminAccountSession(data.session, $('headerUsername')?.textContent || '');
@@ -1429,16 +1429,16 @@ async function openAccountSwitch() {
   }
 }
 
-function closeAccountSwitch(returnToMenu = false) {
+function closeAccountSwitch(returnToMyPage = false) {
   $('accountSwitchMask').style.display = 'none';
   $('accountSwitchPassword').value = '';
   moveAccountSwitchCaptcha(false);
-  if (returnToMenu) openMenu();
+  if (returnToMyPage) $('mypageModal').style.display = 'flex';
 }
 
 async function activateStoredAdminAccount(userId) {
   const account = readStoredAdminAccounts().find(item => item.userId === userId);
-  if (!account) throw new Error('保存済みのアカウント情報が見つかりません。');
+  if (!account) throw new Error('保存済みのユーザー情報が見つかりません。');
 
   const { data, error } = await supabase.auth.setSession({
     access_token: account.accessToken,
@@ -1485,12 +1485,12 @@ async function addAdminSwitchAccount() {
       access_token: result.access_token,
       refresh_token: result.refresh_token
     });
-    if (error || !data?.session) throw error || new Error('アカウントを切り替えられませんでした。');
+    if (error || !data?.session) throw error || new Error('ユーザーを切り替えられませんでした。');
 
     rememberAdminAccountSession(data.session, result.username);
     location.reload();
   } catch (error) {
-    $('accountSwitchStatus').textContent = error?.message || 'アカウントを追加できませんでした。';
+    $('accountSwitchStatus').textContent = error?.message || 'ユーザーを追加できませんでした。';
   } finally {
     button.disabled = false;
     button.textContent = original;
@@ -3770,7 +3770,7 @@ async function checkAdminAccess() {
 
   adminAccessChecked = true;
   $('btnAdmin').classList.toggle('hidden', !adminEnabled);
-  $('btnMenuAccountSwitch')?.classList.toggle('hidden', !adminEnabled);
+  $('mypageUserSwitchBlock')?.classList.toggle('hidden', !adminEnabled);
   $('btnMenuSkillRanking')?.classList.remove('hidden');
   $('menuOfuseSupport')?.classList.remove('hidden');
   $('scorePrivateCommentGroup')?.classList.remove('hidden');
@@ -5311,10 +5311,10 @@ $('settingLightMode').addEventListener('change', e => {
   applyLightMode(e.target.checked);
 });
 $('btnSaveXId').addEventListener('click', saveMyXId);
-$('btnMenuAccountSwitch')?.addEventListener('click', openAccountSwitch);
+$('btnMypageUserSwitch')?.addEventListener('click', openAccountSwitch);
 $('btnCloseAccountSwitch')?.addEventListener('click', () => closeAccountSwitch(true));
 $('accountSwitchMask')?.addEventListener('click', event => {
-  if (event.target === $('accountSwitchMask')) closeAccountSwitch();
+  if (event.target === $('accountSwitchMask')) closeAccountSwitch(true);
 });
 $('btnAddSwitchAccount')?.addEventListener('click', addAdminSwitchAccount);
 $('accountSwitchList')?.addEventListener('click', async event => {
@@ -5327,13 +5327,22 @@ $('accountSwitchList')?.addEventListener('click', async event => {
       switchButton.textContent = '切り替え中...';
       await activateStoredAdminAccount(switchButton.dataset.switchAdminAccount);
     } catch (error) {
-      $('accountSwitchStatus').textContent = error?.message || 'アカウントを切り替えられませんでした。';
+      $('accountSwitchStatus').textContent = error?.message || 'ユーザーを切り替えられませんでした。';
       renderAccountSwitchList();
     }
     return;
   }
 
   if (removeButton) {
+    const account = readStoredAdminAccounts().find(
+      item => item.userId === removeButton.dataset.removeAdminAccount
+    );
+    const confirmed = await showSiteConfirm(
+      `保存済みのユーザー「${account?.username || ''}」を切り替え一覧から削除しますか？\nアカウント本体や登録データは削除されません。`,
+      '保存済みユーザーの削除',
+      '削除する'
+    );
+    if (!confirmed) return;
     writeStoredAdminAccounts(
       readStoredAdminAccounts().filter(
         account => account.userId !== removeButton.dataset.removeAdminAccount
