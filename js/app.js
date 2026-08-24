@@ -1899,18 +1899,18 @@ async function createSkillShareFile(instrument) {
         const optionX = fcX + badgeW + badgeGap;
 
         const partStyle = partText.startsWith('MAS')
-          ? { bg:'#e06bf0', text:'#ffffff' }
+          ? { bg:'#dc5af0', text:'#ffffff' }
           : partText.startsWith('EXT')
-            ? { bg:'#ff7070', text:'#ffffff' }
+            ? { bg:'#ff5656', text:'#ffffff' }
             : partText.startsWith('ADV')
-              ? { bg:'#f3dc76', text:'#000000' }
-              : { bg:'#89c2f4', text:'#ffffff' };
+              ? { bg:'#f5d65b', text:'#000000' }
+              : { bg:'#76b8f5', text:'#ffffff' };
         x.fillStyle = partStyle.bg;
         x.beginPath();
         x.roundRect(partX, badgeY, badgeW, badgeH, 3);
         x.fill();
         x.fillStyle = partStyle.text;
-        x.font = '900 10px sans-serif';
+        x.font = '900 11px sans-serif';
         x.textAlign = 'center';
         x.textBaseline = 'middle';
         x.fillText(partText, partX + badgeW / 2, badgeY + badgeH / 2 + .5);
@@ -1933,7 +1933,7 @@ async function createSkillShareFile(instrument) {
           x.lineWidth=1;
           x.stroke();
           x.fillStyle=badge==='EXC'?'#7f1d1d':'#1e3a8a';
-          x.font='900 10px sans-serif';
+          x.font='900 11px sans-serif';
           x.fillText(badge,fcX+badgeW/2,badgeY+badgeH/2+.5);
         }
 
@@ -1947,7 +1947,7 @@ async function createSkillShareFile(instrument) {
           x.lineWidth = 1;
           x.stroke();
           x.fillStyle = st.text;
-          x.font = '900 10px sans-serif';
+          x.font = '900 11px sans-serif';
           x.fillText(optionLabel, optionX + badgeW / 2, badgeY + badgeH / 2 + .5);
         }
 
