@@ -1705,7 +1705,7 @@ async function createSkillShareFile(instrument) {
   const rowsHot = target.hotRows || [];
   const rowsOther = target.otherRows || [];
   // 新しい共有画像レイアウトは、確認中のため管理者だけに適用する。
-  const useAdminShareLayout = adminEnabled;
+  const useUnifiedShareLayout = true;
 
   // スマホで見やすいよう、HOT / OTHER を左右2カラムに戻す。
   // 背景はダークのまま維持。
@@ -1862,7 +1862,7 @@ async function createSkillShareFile(instrument) {
       x.textAlign='left';
       x.textBaseline='middle';
       x.fillStyle='#f8fafc';
-      x.font=useAdminShareLayout ? '900 20px sans-serif' : '800 16px sans-serif';
+      x.font=useUnifiedShareLayout ? '900 20px sans-serif' : '800 16px sans-serif';
       let titleText=String(r.title||'');
       while(x.measureText(titleText).width > widths[1]-16 && titleText.length>4) titleText=titleText.slice(0,-1);
       if(titleText!==String(r.title||'')) titleText=titleText.slice(0,-1)+'…';
@@ -1887,12 +1887,12 @@ async function createSkillShareFile(instrument) {
         'BASS_MIRROR': { text:'#c4b5fd', border:'#7c3aed', bg:'rgba(76,29,149,.28)' }
       };
 
-      if (useAdminShareLayout) {
+      if (useUnifiedShareLayout) {
         // 横並びカードと同じ「パート / FC・EXC / オプション」の順序で、
         // 3種類のバッジを同じ寸法に固定して描画する。
         // FC・EXCやオプションがない場合も、それぞれの列位置は詰めない。
         const badgeY = y + 36;
-        const badgeW = 56;
+        const badgeW = 62;
         const badgeH = 17;
         const badgeGap = 6;
         const fcX = partX + badgeW + badgeGap;
@@ -1910,7 +1910,7 @@ async function createSkillShareFile(instrument) {
         x.roundRect(partX, badgeY, badgeW, badgeH, 3);
         x.fill();
         x.fillStyle = partStyle.text;
-        x.font = '900 11px sans-serif';
+        x.font = '900 12px sans-serif';
         x.textAlign = 'center';
         x.textBaseline = 'middle';
         x.fillText(partText, partX + badgeW / 2, badgeY + badgeH / 2 + .5);
@@ -1933,7 +1933,7 @@ async function createSkillShareFile(instrument) {
           x.lineWidth=1;
           x.stroke();
           x.fillStyle=badge==='EXC'?'#7f1d1d':'#1e3a8a';
-          x.font='900 11px sans-serif';
+          x.font='900 12px sans-serif';
           x.fillText(badge,fcX+badgeW/2,badgeY+badgeH/2+.5);
         }
 
@@ -1947,7 +1947,7 @@ async function createSkillShareFile(instrument) {
           x.lineWidth = 1;
           x.stroke();
           x.fillStyle = st.text;
-          x.font = '900 11px sans-serif';
+          x.font = '900 12px sans-serif';
           x.fillText(optionLabel, optionX + badgeW / 2, badgeY + badgeH / 2 + .5);
         }
 
@@ -2006,7 +2006,7 @@ async function createSkillShareFile(instrument) {
       x.fillRect(skillCellX+skillCellW-barW-2,barY,barW,barH);
 
       x.fillStyle='#ffffff';
-      x.font=useAdminShareLayout ? '900 20px sans-serif' : '900 19px sans-serif';
+      x.font=useUnifiedShareLayout ? '900 20px sans-serif' : '900 19px sans-serif';
       x.textAlign='center';
       x.textBaseline='middle';
       x.shadowColor='rgba(0,0,0,.9)';
@@ -2017,14 +2017,14 @@ async function createSkillShareFile(instrument) {
 
       // 管理者用新レイアウトでは達成率を上下中央へ置き、FC/EXCは曲名列へ移す。
       x.fillStyle='#f8fafc';
-      x.font=useAdminShareLayout ? '800 18px sans-serif' : '900 16px sans-serif';
+      x.font=useUnifiedShareLayout ? '800 18px sans-serif' : '900 16px sans-serif';
       x.fillText(
         `${Number(r.achievement_rate).toFixed(2)}%`,
         pos[3]+widths[3]/2,
-        useAdminShareLayout ? y+rowH/2 : y+18
+        useUnifiedShareLayout ? y+rowH/2 : y+18
       );
 
-      if(!useAdminShareLayout && badge){
+      if(!useUnifiedShareLayout && badge){
         // 画面上のスキル対象 / 登録曲と同じFC・EXC配色。
         // 共有画像では少し小さめにする。
         const bw=40,bh=15,bx=pos[3]+(widths[3]-bw)/2,by=y+34;
@@ -2053,7 +2053,7 @@ async function createSkillShareFile(instrument) {
 
       // level
       x.fillStyle='#e5e7eb';
-      x.font=useAdminShareLayout ? '800 18px sans-serif' : '800 17px sans-serif';
+      x.font=useUnifiedShareLayout ? '800 18px sans-serif' : '800 17px sans-serif';
       x.fillText(Number(r.level).toFixed(2),pos[4]+widths[4]/2,y+rowH/2);
 
       // 共有画像の9500帯だけは、曲別SKILL帯と外枠の上に固定の輝きを重ねる。
