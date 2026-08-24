@@ -1180,7 +1180,7 @@ function updateActiveVersionLabel() {
   const label = $('headerActiveVersion');
   if (!label) return;
   const name = activeVersion?.name || activeVersion?.code || '';
-  label.textContent = name;
+  label.textContent = name ? `Ver. ${name}` : '';
   label.title = name;
 }
 
