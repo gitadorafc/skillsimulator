@@ -1861,7 +1861,8 @@ async function createSkillShareFile(instrument) {
       // title + badges
       x.textAlign='left';
       x.textBaseline='middle';
-      x.fillStyle='#f8fafc'; x.font='800 16px sans-serif';
+      x.fillStyle='#f8fafc';
+      x.font=useAdminShareLayout ? '900 20px sans-serif' : '800 16px sans-serif';
       let titleText=String(r.title||'');
       while(x.measureText(titleText).width > widths[1]-16 && titleText.length>4) titleText=titleText.slice(0,-1);
       if(titleText!==String(r.title||'')) titleText=titleText.slice(0,-1)+'…';
@@ -1887,16 +1888,15 @@ async function createSkillShareFile(instrument) {
       };
 
       if (useAdminShareLayout) {
-        // 横並びカードと同じ順序で、列位置を固定して描画する。
-        // オプションがない場合も専用列を空けるため、FC/EXCは左へ詰まらない。
+        // 横並びカードと同じ「パート / FC・EXC / オプション」の順序で、
+        // 3種類のバッジを同じ寸法に固定して描画する。
+        // FC・EXCやオプションがない場合も、それぞれの列位置は詰めない。
         const badgeY = y + 36;
-        const badgeH = 16;
-        const partW = 50;
-        const optionW = 54;
-        const fcW = 40;
+        const badgeW = 56;
+        const badgeH = 17;
         const badgeGap = 6;
-        const optionX = partX + partW + badgeGap;
-        const fcX = optionX + optionW + badgeGap;
+        const fcX = partX + badgeW + badgeGap;
+        const optionX = fcX + badgeW + badgeGap;
 
         const partStyle = partText.startsWith('MAS')
           ? { bg:'#d32df0', text:'#ffffff' }
@@ -1907,27 +1907,13 @@ async function createSkillShareFile(instrument) {
               : { bg:'#4da6ff', text:'#ffffff' };
         x.fillStyle = partStyle.bg;
         x.beginPath();
-        x.roundRect(partX, badgeY, partW, badgeH, 3);
+        x.roundRect(partX, badgeY, badgeW, badgeH, 3);
         x.fill();
         x.fillStyle = partStyle.text;
-        x.font = '900 9px sans-serif';
+        x.font = '900 10px sans-serif';
         x.textAlign = 'center';
         x.textBaseline = 'middle';
-        x.fillText(partText, partX + partW / 2, badgeY + badgeH / 2 + .5);
-
-        if (showOption) {
-          const st = optionStyles[optionText] || { text:'#cbd5e1', border:'#475569', bg:'rgba(30,41,59,.5)' };
-          x.fillStyle = st.bg;
-          x.beginPath();
-          x.roundRect(optionX, badgeY, optionW, badgeH, 3);
-          x.fill();
-          x.strokeStyle = st.border;
-          x.lineWidth = 1;
-          x.stroke();
-          x.fillStyle = st.text;
-          x.font = '900 9px sans-serif';
-          x.fillText(optionLabel, optionX + optionW / 2, badgeY + badgeH / 2 + .5);
-        }
+        x.fillText(partText, partX + badgeW / 2, badgeY + badgeH / 2 + .5);
 
         if (badge) {
           const bg=x.createLinearGradient(fcX,badgeY,fcX,badgeY+badgeH);
@@ -1941,14 +1927,28 @@ async function createSkillShareFile(instrument) {
           }
           x.fillStyle=bg;
           x.beginPath();
-          x.roundRect(fcX,badgeY,fcW,badgeH,3);
+          x.roundRect(fcX,badgeY,badgeW,badgeH,3);
           x.fill();
           x.strokeStyle=badge==='EXC'?'#b45309':'#475569';
           x.lineWidth=1;
           x.stroke();
           x.fillStyle=badge==='EXC'?'#7f1d1d':'#1e3a8a';
-          x.font='900 9px sans-serif';
-          x.fillText(badge,fcX+fcW/2,badgeY+badgeH/2+.5);
+          x.font='900 10px sans-serif';
+          x.fillText(badge,fcX+badgeW/2,badgeY+badgeH/2+.5);
+        }
+
+        if (showOption) {
+          const st = optionStyles[optionText] || { text:'#cbd5e1', border:'#475569', bg:'rgba(30,41,59,.5)' };
+          x.fillStyle = st.bg;
+          x.beginPath();
+          x.roundRect(optionX, badgeY, badgeW, badgeH, 3);
+          x.fill();
+          x.strokeStyle = st.border;
+          x.lineWidth = 1;
+          x.stroke();
+          x.fillStyle = st.text;
+          x.font = '900 10px sans-serif';
+          x.fillText(optionLabel, optionX + badgeW / 2, badgeY + badgeH / 2 + .5);
         }
 
         x.textAlign='left';
@@ -2017,7 +2017,7 @@ async function createSkillShareFile(instrument) {
 
       // 管理者用新レイアウトでは達成率を上下中央へ置き、FC/EXCは曲名列へ移す。
       x.fillStyle='#f8fafc';
-      x.font=useAdminShareLayout ? '900 20px sans-serif' : '900 16px sans-serif';
+      x.font=useAdminShareLayout ? '800 18px sans-serif' : '900 16px sans-serif';
       x.fillText(
         `${Number(r.achievement_rate).toFixed(2)}%`,
         pos[3]+widths[3]/2,
@@ -2053,7 +2053,7 @@ async function createSkillShareFile(instrument) {
 
       // level
       x.fillStyle='#e5e7eb';
-      x.font=useAdminShareLayout ? '900 20px sans-serif' : '800 17px sans-serif';
+      x.font=useAdminShareLayout ? '800 18px sans-serif' : '800 17px sans-serif';
       x.fillText(Number(r.level).toFixed(2),pos[4]+widths[4]/2,y+rowH/2);
 
       // 共有画像の9500帯だけは、曲別SKILL帯と外枠の上に固定の輝きを重ねる。
