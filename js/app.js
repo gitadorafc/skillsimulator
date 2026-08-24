@@ -1947,7 +1947,9 @@ async function createSkillShareFile(instrument) {
           x.lineWidth = 1;
           x.stroke();
           x.fillStyle = st.text;
-          x.font = '900 12px sans-serif';
+          x.font = optionText === 'BASS_MIRROR'
+            ? '900 11px sans-serif'
+            : '900 12px sans-serif';
           x.fillText(optionLabel, optionX + badgeW / 2, badgeY + badgeH / 2 + .5);
         }
 
@@ -1991,7 +1993,7 @@ async function createSkillShareFile(instrument) {
       const sv=Number(r.skill)||0;
       const skillCellX=pos[2];
       const skillCellW=widths[2];
-      const barW=6;
+      const barW=7;
       const barY=y+5;
       const barH=rowH-10;
       const songRow=getSkillColorRowByTotalValue(sv*50);
