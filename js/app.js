@@ -289,7 +289,7 @@ function drawShareTotalSparkles(ctx, row, nameX, nameWidth, totalX, totalWidth, 
   drawSkillColorCanvasSparkle(ctx, totalX + totalWidth * .72, top + height + 3, 6, '#bfdbfe');
 }
 import { supabase } from './supabase.js?v=21_57';
-import { register, login, loginForAccountSwitch, logout, changePassword, getSession, validateUsername } from './auth.js?v=4_1_0';
+import { register, login, loginForAccountSwitch, logout, changePassword, getSession, validateUsername } from './auth.js?v=4_1_2';
 import { initAuthCaptcha, prepareAuthCaptcha, getAuthCaptchaToken, resetAuthCaptcha } from './captcha.js?v=21_84';
 import { PARTS, GF_PARTS, DM_PARTS, partsForInstrument, normalizeSongTitleForMatch, searchSongTitles, getSongByTitleAndPart, requestSongMaster, requestSongLevelCorrection } from './songs.js?v=4_1_0';
 import { calcSkill, formatLevel, formatRate, formatSkill, getMyScores, saveScore, deleteScore } from './scores.js?v=3_18_4';
@@ -1365,7 +1365,7 @@ function rememberAdminAccountSession(session, username = '') {
   );
   accounts.push({
     userId: session.user.id,
-    username: String(username || session.user.user_metadata?.username || '').trim() || '管理者',
+    username: String(username || session.user.user_metadata?.username || '').trim() || 'ユーザー',
     accessToken: session.access_token,
     refreshToken: session.refresh_token,
     updatedAt: Date.now()
@@ -1396,21 +1396,16 @@ function renderAccountSwitchList() {
             </div>
             <div class="account-switch-actions">
               ${isCurrent ? '' : `<button type="button" class="btn-danger-wide account-switch-remove" data-remove-admin-account="${esc(account.userId)}">削除</button>`}
-              <button type="button" data-switch-admin-account="${esc(account.userId)}" ${isCurrent ? 'disabled' : ''}>
+              <button type="button" class="app-primary-button" data-switch-admin-account="${esc(account.userId)}" ${isCurrent ? 'disabled' : ''}>
                 ${isCurrent ? '使用中' : '切り替え'}
               </button>
             </div>
           </div>`;
       }).join('')
-    : '<div class="account-switch-empty">保存済みの管理者ユーザーはありません。</div>';
+    : '<div class="account-switch-empty">保存済みのユーザーはありません。</div>';
 }
 
 async function openAccountSwitch() {
-  if (!adminEnabled) {
-    await showSiteDialog('管理者のみ利用できます。', '権限エラー');
-    return;
-  }
-
   $('mypageModal').style.display = 'none';
   const { data } = await supabase.auth.getSession();
   if (data?.session) {
@@ -3770,7 +3765,7 @@ async function checkAdminAccess() {
 
   adminAccessChecked = true;
   $('btnAdmin').classList.toggle('hidden', !adminEnabled);
-  $('mypageUserSwitchBlock')?.classList.toggle('hidden', !adminEnabled);
+  $('mypageUserSwitchBlock')?.classList.remove('hidden');
   $('btnMenuSkillRanking')?.classList.remove('hidden');
   $('menuOfuseSupport')?.classList.remove('hidden');
   $('scorePrivateCommentGroup')?.classList.remove('hidden');
@@ -3786,17 +3781,17 @@ async function checkAdminAccess() {
       console.error('primary admin check failed:', e);
     }
 
-    try {
-      const { data } = await supabase.auth.getSession();
-      if (data?.session) {
-        rememberAdminAccountSession(
-          data.session,
-          $('headerUsername')?.textContent || ''
-        );
-      }
-    } catch (e) {
-      console.error('account switch session save failed:', e);
+  }
+  try {
+    const { data } = await supabase.auth.getSession();
+    if (data?.session) {
+      rememberAdminAccountSession(
+        data.session,
+        $('headerUsername')?.textContent || ''
+      );
     }
+  } catch (e) {
+    console.error('user switch session save failed:', e);
   }
   $('adminBulkDeleteArea')?.classList.toggle('hidden', !primaryAdminEnabled);
 

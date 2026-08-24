@@ -166,28 +166,8 @@ export async function login(username, password, getCaptchaToken, resetCaptcha) {
   throw firstError;
 }
 
-async function verifyAdminAccessToken(accessToken) {
-  const response = await fetch(`${SUPABASE_URL}/rest/v1/rpc/is_admin`, {
-    method: 'POST',
-    headers: {
-      apikey: SUPABASE_ANON_KEY,
-      Authorization: `Bearer ${accessToken}`,
-      'Content-Type': 'application/json'
-    },
-    body: '{}'
-  });
-
-  const payload = await response.json().catch(() => null);
-  if (!response.ok) {
-    throw new Error(payload?.message || '管理者権限を確認できませんでした。');
-  }
-  if (payload !== true) {
-    throw new Error('管理者ユーザーのみ追加できます。');
-  }
-}
-
 // アカウント切り替え用。現在のSupabaseセッションは変更せずに認証し、
-// 管理者であることを確認したセッション情報だけを返す。
+// 切り替えに使用するセッション情報だけを返す。
 // パスワードは保存しない。
 export async function loginForAccountSwitch(username, password, getCaptchaToken, resetCaptcha) {
   const clean = normalizeUsername(username);
@@ -244,7 +224,6 @@ export async function loginForAccountSwitch(username, password, getCaptchaToken,
     throw firstError || result.error || new Error('ログインに失敗しました。');
   }
 
-  await verifyAdminAccessToken(result.payload.access_token);
   return {
     username: clean,
     access_token: result.payload.access_token,

@@ -10281,6 +10281,22 @@ body.text-size-up .skill-ranking-empty{
   font-weight:900;
 }
 
+/* 青背景の主要ボタンは、ダーク・ライトとも白文字を標準とする。 */
+.app-primary-button,
+body.light-mode button.app-primary-button{
+  border-color:#1d4ed8 !important;
+  background:#2563eb !important;
+  color:#ffffff !important;
+  -webkit-text-fill-color:#ffffff !important;
+}
+.app-primary-button:disabled,
+body.light-mode button.app-primary-button:disabled{
+  border-color:#94a3b8 !important;
+  background:#cbd5e1 !important;
+  color:#475569 !important;
+  -webkit-text-fill-color:#475569 !important;
+}
+
 .mypage-user-switch{
   margin-top:16px;
   padding-top:14px;
@@ -10728,7 +10744,7 @@ body.text-size-up :is(
     <div class="app-menu-version">
       <label>VERSION</label>
       <select id="versionSelect" class="version-select" aria-label="GITADORAバージョン"></select>
-      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 4.1.1</div>
+      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 4.1.2</div>
     </div>
   </div>
 </div>
@@ -10892,15 +10908,15 @@ body.text-size-up :is(
       <button id="btnCloseAccountSwitch" type="button" class="menu-back-btn">戻る</button>
     </div>
     <div class="account-switch-body">
-      <div class="account-switch-note">この端末に保存した管理者ユーザーを切り替えます。パスワードは保存しません。</div>
+      <div class="account-switch-note">この端末に保存したユーザーを切り替えます。パスワードは保存しません。</div>
       <div id="accountSwitchList" class="account-switch-list"></div>
       <div class="account-switch-add">
-        <strong>管理者ユーザーを追加</strong>
+        <strong>ユーザーを追加</strong>
         <input id="accountSwitchUsername" autocomplete="username" maxlength="32" placeholder="ユーザー名">
         <input id="accountSwitchPassword" type="password" autocomplete="current-password" placeholder="パスワード">
         <div id="accountSwitchCaptchaHost"></div>
         <div id="accountSwitchStatus" class="account-switch-status"></div>
-        <button id="btnAddSwitchAccount" type="button" class="account-switch-add-button">追加して切り替える</button>
+        <button id="btnAddSwitchAccount" type="button" class="account-switch-add-button app-primary-button">追加して切り替える</button>
       </div>
     </div>
   </div>
@@ -11012,8 +11028,8 @@ body.text-size-up :is(
     </div>
 
     <div id="mypageUserSwitchBlock" class="mypage-user-switch hidden">
-      <button id="btnMypageUserSwitch" type="button" class="btn-name-change mypage-user-switch-button">ユーザー切り替え</button>
-      <div class="section-note">この端末に保存した管理者ユーザーを切り替えます。</div>
+      <button id="btnMypageUserSwitch" type="button" class="btn-name-change mypage-user-switch-button app-primary-button">ユーザー切り替え</button>
+      <div class="section-note">この端末に保存したユーザーを切り替えます。</div>
     </div>
 
     <div class="mypage-logout-zone">
@@ -11136,7 +11152,7 @@ body.text-size-up :is(
 <div id="adminModal" class="admin-modal">
   <div class="admin-header">
     <div class="admin-title-row">
-      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 4.1.1</div></div>
+      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 4.1.2</div></div>
       <button id="btnCloseAdmin" class="admin-close">閉じる</button>
     </div>
     <div class="admin-tabs">
@@ -11213,6 +11229,6 @@ body.text-size-up :is(
   </div>
 </div>
 
-<script type="module" src="./js/app.js?v=4_1_1"></script>
+<script type="module" src="./js/app.js?v=4_1_2"></script>
 </body>
 </html>
