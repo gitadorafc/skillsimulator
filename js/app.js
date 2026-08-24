@@ -617,6 +617,7 @@ const GLOBAL_SCROLL_LOCK_OVERLAYS = [
   '#rivalManageMask',
   '#mypageModal',
   '#skillSyncMask',
+  '#skillShareMask',
   '#rateCompareMask',
   '#siteDialogMask',
   '#adminModal',
@@ -1187,10 +1188,56 @@ async function init() {
 
 
 let myPageOpenedFromMenu = false;
+let skillShareSelection = 'GF';
 function openMenu() {
   $('menuOfuseSupport')?.classList.remove('hidden');
   $('menuMask').style.display = 'flex';
 }
+
+function updateSkillShareSelection(selection) {
+  skillShareSelection = ['GF', 'DM', 'BOTH'].includes(selection) ? selection : activeInstrument;
+  document.querySelectorAll('[data-skill-share-selection]').forEach(button => {
+    const selected = button.dataset.skillShareSelection === skillShareSelection;
+    button.classList.toggle('active', selected);
+    button.setAttribute('aria-pressed', String(selected));
+  });
+}
+
+function openSkillShareDialog() {
+  closeMenu();
+  if (!adminEnabled) {
+    shareSkillImage(activeInstrument).catch(async error => {
+      await showSiteDialog('共有に失敗しました: ' + error.message, 'エラー');
+    });
+    return;
+  }
+
+  updateSkillShareSelection(activeInstrument);
+  $('skillShareMask').style.display = 'flex';
+}
+
+function closeSkillShareDialog(returnToMenu = false) {
+  $('skillShareMask').style.display = 'none';
+  if (returnToMenu) openMenu();
+}
+
+async function executeSkillShare() {
+  const button = $('btnExecuteSkillShare');
+  const originalText = button.textContent;
+  button.disabled = true;
+  button.textContent = skillShareSelection === 'BOTH' ? '2枚を生成中...' : '画像を生成中...';
+
+  try {
+    await shareSkillImage(skillShareSelection);
+    closeSkillShareDialog();
+  } catch (error) {
+    await showSiteDialog('共有に失敗しました: ' + error.message, 'エラー');
+  } finally {
+    button.disabled = false;
+    button.textContent = originalText;
+  }
+}
+
 function openRivalManage() {
   closeMenu();
   $('rivalManageMask').style.display = 'flex';
@@ -1557,8 +1604,8 @@ function closeSkillTargetRanking(returnToMenu = false) {
   if (returnToMenu) openMenu();
 }
 
-function shareSkillImage() {
-  const target = totals();
+async function createSkillShareFile(instrument) {
+  const target = totals(instrument);
   const rowsHot = target.hotRows || [];
   const rowsOther = target.otherRows || [];
 
@@ -1598,7 +1645,7 @@ function shareSkillImage() {
   // header: 以前のシンプルなレイアウトに戻す
   x.fillStyle = '#f8fafc';
   x.font = '900 42px sans-serif';
-  const shareGameTitle = activeInstrument === 'GF'
+  const shareGameTitle = instrument === 'GF'
     ? 'GITADORA GuitarFreaks Skill'
     : 'GITADORA DrumMania Skill';
   x.fillText(shareGameTitle, 54, 82);
@@ -1862,25 +1909,54 @@ function shareSkillImage() {
   x.fillText(new Date().toLocaleDateString('ja-JP'),W-64,H-41);
   x.textAlign='left';
 
-  c.toBlob(async blob=>{
-    if(!blob) return;
-    const file=new File([blob],`GITADORA_${activeInstrument}_skill.png`,{type:'image/png'});
-    const text=`GITADORA ${activeInstrument} SKILL ${Number(target.total).toFixed(2)}\n#GITADORASkillSimulator`;
-    try{
-      if(navigator.share && (!navigator.canShare || navigator.canShare({files:[file]}))){
-        await navigator.share({files:[file],title:'GITADORA Skill Simulator',text});
-      }else{
-        const a=document.createElement('a');
-        a.href=URL.createObjectURL(blob);
-        a.download=file.name;
-        a.click();
-        setTimeout(()=>URL.revokeObjectURL(a.href),2000);
-        await showSiteDialog('画像を保存しました。XやInstagramの投稿画面から画像を選択してください。','共有画像');
-      }
-    }catch(e){
-      if(e?.name!=='AbortError') await showSiteDialog('共有に失敗しました: '+e.message,'エラー');
+  const blob = await new Promise((resolve, reject) => {
+    c.toBlob(result => {
+      if (result) resolve(result);
+      else reject(new Error(`${instrument}の共有画像を生成できませんでした。`));
+    }, 'image/png');
+  });
+
+  return new File([blob], `GITADORA_${instrument}_skill.png`, { type: 'image/png' });
+}
+
+function downloadSkillShareFiles(files) {
+  files.forEach((file, index) => {
+    const url = URL.createObjectURL(file);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = file.name;
+    document.body.appendChild(a);
+    setTimeout(() => {
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 2000);
+    }, index * 180);
+  });
+}
+
+async function shareSkillImage(selection = activeInstrument) {
+  const instruments = selection === 'BOTH' ? ['GF', 'DM'] : [selection];
+  const files = await Promise.all(instruments.map(createSkillShareFile));
+  const skillText = instruments
+    .map(instrument => `GITADORA ${instrument} SKILL ${Number(totals(instrument).total).toFixed(2)}`)
+    .join('\n');
+  const text = `${skillText}\n#GITADORASkillSimulator`;
+
+  try {
+    if (navigator.share && (!navigator.canShare || navigator.canShare({ files }))) {
+      await navigator.share({ files, title: 'GITADORA Skill Simulator', text });
+    } else {
+      downloadSkillShareFiles(files);
+      const message = files.length === 2
+        ? 'GF・DMの共有画像2枚を保存しました。XやInstagramの投稿画面から画像を選択してください。'
+        : '画像を保存しました。XやInstagramの投稿画面から画像を選択してください。';
+      await showSiteDialog(message, '共有画像');
     }
-  },'image/png');
+  } catch (e) {
+    if (e?.name !== 'AbortError') {
+      await showSiteDialog('共有に失敗しました: ' + e.message, 'エラー');
+    }
+  }
 }
 
 async function getMyPrivateScoreComments() {
@@ -2023,11 +2099,12 @@ async function loadScores() {
 }
 
 
-function getOwnSkillTargetRows() {
+function getOwnSkillTargetRows(instrument = activeInstrument) {
   const bestByTitle = new Map();
+  const instrumentPartSet = new Set(partsForInstrument(instrument));
 
   for (const row of scores) {
-    if (!isCurrentInstrumentPart(row.part)) continue;
+    if (!instrumentPartSet.has(String(row.part || ''))) continue;
     if (row.pending_master) continue;
     if (/\(CLASSIC\)\s*$/i.test(String(row.title || ''))) continue;
 
@@ -2052,8 +2129,8 @@ function calcTargetTotals(targetRows) {
   return { hot, other, total: hot + other, hotRows, otherRows };
 }
 
-function totals() {
-  return calcTargetTotals(getOwnSkillTargetRows());
+function totals(instrument = activeInstrument) {
+  return calcTargetTotals(getOwnSkillTargetRows(instrument));
 }
 
 
@@ -4825,7 +4902,15 @@ $('settingLightMode').addEventListener('change', e => {
 $('btnSaveXId').addEventListener('click', saveMyXId);
 
 $('btnMenuSkillSync').addEventListener('click', openSkillSyncDialog);
-$('btnMenuShareSkill').addEventListener('click', () => { closeMenu(); shareSkillImage(); });
+$('btnMenuShareSkill').addEventListener('click', openSkillShareDialog);
+$('btnCloseSkillShare').addEventListener('click', () => closeSkillShareDialog(true));
+$('skillShareMask').addEventListener('click', event => {
+  if (event.target === $('skillShareMask')) closeSkillShareDialog();
+});
+document.querySelectorAll('[data-skill-share-selection]').forEach(button => {
+  button.addEventListener('click', () => updateSkillShareSelection(button.dataset.skillShareSelection));
+});
+$('btnExecuteSkillShare').addEventListener('click', executeSkillShare);
 $('btnMenuSkillRanking').addEventListener('click', openSkillTargetRanking);
 $('btnCloseSkillRanking').addEventListener('click', () => closeSkillTargetRanking(true));
 $('skillRankingMask').addEventListener('click', e => {
