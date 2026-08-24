@@ -387,8 +387,10 @@ async function importSkillSyncRecords(payload) {
     unique.set(`${normalizeSongTitleForMatch(title)}\u0000${part}`, {
       title,
       part,
-      rate: Math.floor((rate + Number.EPSILON) * 100) / 100,
-      level: Math.floor((level + Number.EPSILON) * 100) / 100,
+      // 公式ページの表示値は小数第2位まで確定済み。
+      // Math.floorでは80.71が浮動小数誤差で80.70になるため、表示桁へ正規化する。
+      rate: Number(rate.toFixed(2)),
+      level: Number(level.toFixed(2)),
       category
     });
   }
