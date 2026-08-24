@@ -2100,6 +2100,19 @@ button:disabled {
   gap:7px;
   min-width:0;
 }
+.header-active-version{
+  display:block;
+  min-width:0;
+  max-width:180px;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  color:#64748b;
+  font-size:10px;
+  font-weight:800;
+  letter-spacing:.04em;
+  line-height:1.2;
+}
 .header-version-control{
   display:flex;
   align-items:center;
@@ -2148,7 +2161,12 @@ button:disabled {
     padding:4px !important;
     gap:4px !important;
   }
-  .header-mode-controls{gap:4px;}
+  .header-mode-controls{flex:1;min-width:0;gap:4px;}
+  .header-active-version{
+    flex:1;
+    max-width:142px;
+    font-size:8.5px;
+  }
   .header-version-control{gap:3px;}
   .header-version-control .version-bar-label{
     font-size:7px;
@@ -5165,6 +5183,9 @@ body.light-mode .user-detail-sticky{
 body.light-mode .score-box{
   background:#f3f4f6 !important;
   border-color:#64748b !important;
+}
+body.light-mode .header-active-version{
+  color:#64748b !important;
 }
 
 /* MENUボタン：背景と同色、三本線は黒 */
@@ -10114,6 +10135,7 @@ body.light-mode .pull-refresh-icon {
     <div class="user-header-row">
       <div class="header-mode-controls">
         <div class="instrument-switch" aria-label="ゲーム切替"><button class="instrument-btn active" data-instrument="GF">GF</button><button class="instrument-btn" data-instrument="DM">DM</button></div>
+        <span id="headerActiveVersion" class="header-active-version" aria-label="参照中のバージョン" aria-live="polite"></span>
       </div>
       <div class="header-account-controls">
         <button id="btnAdmin" class="admin-entry hidden">管理</button>
@@ -10318,7 +10340,7 @@ body.light-mode .pull-refresh-icon {
     <div class="app-menu-version">
       <label>VERSION</label>
       <select id="versionSelect" class="version-select" aria-label="GITADORAバージョン"></select>
-      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 3.20.6</div>
+      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 3.20.7</div>
     </div>
   </div>
 </div>
@@ -10686,7 +10708,7 @@ body.light-mode .pull-refresh-icon {
 <div id="adminModal" class="admin-modal">
   <div class="admin-header">
     <div class="admin-title-row">
-      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 3.20.6</div></div>
+      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 3.20.7</div></div>
       <button id="btnCloseAdmin" class="admin-close">閉じる</button>
     </div>
     <div class="admin-tabs">
@@ -10763,6 +10785,6 @@ body.light-mode .pull-refresh-icon {
   </div>
 </div>
 
-<script type="module" src="./js/app.js?v=3_20_6"></script>
+<script type="module" src="./js/app.js?v=3_20_7"></script>
 </body>
 </html>

@@ -1173,6 +1173,15 @@ async function loadGameVersionOptions() {
     .map(v => `<option value="${v.id}">${esc(v.name)}</option>`)
     .join('');
   $('versionSelect').value = activeVersionId;
+  updateActiveVersionLabel();
+}
+
+function updateActiveVersionLabel() {
+  const label = $('headerActiveVersion');
+  if (!label) return;
+  const name = activeVersion?.name || activeVersion?.code || '';
+  label.textContent = name;
+  label.title = name;
 }
 
 async function switchGameVersion(versionId) {
@@ -1182,6 +1191,7 @@ async function switchGameVersion(versionId) {
   activeVersion = next;
   activeVersionId = next.id;
   localStorage.setItem('gitadora_version_id', activeVersionId);
+  updateActiveVersionLabel();
 
   selectedSong = null;
   editingScoreId = null;
