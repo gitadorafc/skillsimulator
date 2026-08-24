@@ -10067,6 +10067,204 @@ body.light-mode .pull-refresh-icon {
   color:#2563eb;
 }
 
+/* === APP VERSION 4.0.1: 文字サイズUP適用範囲の再調整 === */
+
+/* 上部VERSIONは、ダークでは視認性を上げ、ライトでは文字色を一段濃くする。 */
+.header-active-version{
+  color:#94a3b8;
+}
+body.light-mode .header-active-version{
+  color:#475569 !important;
+}
+
+/* 文字サイズUPで意図せず縮小していた箇所は、通常時のサイズを維持する。 */
+body.text-size-up .menu-entry{
+  font-size:20px !important;
+}
+body.text-size-up .score-val{
+  font-size:18px !important;
+}
+body.text-size-up .favorite-toggle{
+  font-size:20px !important;
+}
+body.text-size-up .mypage-sheet input{
+  font-size:16px !important;
+}
+
+/* 上部VERSION */
+body.text-size-up .header-active-version{
+  font-size:10px !important;
+}
+
+/* 登録タブ：通常表示と横並び表示で、編集ボタンの指定サイズを分ける。 */
+body.text-size-up:not(.skill-target-columns) #viewAllManage .dc-edit .m-action-btn.btn-e{
+  font-size:15px !important;
+}
+body.text-size-up.skill-target-columns #viewAllManage .dc-card-manage .dc-edit .m-action-btn.btn-e{
+  font-size:12px !important;
+}
+
+/* ユーザーリスト：選択欄を内容とフォントサイズに応じた幅にし、左寄せする。 */
+#viewUsers .user-list-sort-controls{
+  grid-template-columns:max-content max-content !important;
+  justify-content:start !important;
+  align-items:center !important;
+}
+#viewUsers .user-list-sort-field{
+  grid-template-columns:auto max-content !important;
+  width:max-content !important;
+}
+#viewUsers #userListSortKey{
+  width:calc(7.5em + 28px) !important;
+}
+#viewUsers #userListSortDirection{
+  width:calc(3em + 28px) !important;
+}
+body.text-size-up #viewUsers .user-list-sort-field{
+  font-size:10px !important;
+}
+body.text-size-up #viewUsers .user-list-sort-field select{
+  font-size:15px !important;
+}
+body.text-size-up .user-list-name{
+  font-size:12px !important;
+}
+body.text-size-up :is(.user-list-skill-value,.user-list-total-skill){
+  font-size:11px !important;
+}
+
+/* 曲詳細 */
+body.text-size-up .rate-personal-best-label{
+  font-size:11px !important;
+}
+body.text-size-up .rate-personal-best-value{
+  font-size:14px !important;
+}
+body.text-size-up .rate-personal-best-version{
+  font-size:11px !important;
+}
+body.text-size-up .rate-personal-best-badges :is(.fc-unified-badge,.opt-badge,.history-option-badge){
+  font-size:10px !important;
+}
+body.text-size-up .option-share-title{
+  font-size:10px !important;
+}
+body.text-size-up .rate-value{
+  font-size:15px !important;
+}
+body.text-size-up .rate-skill{
+  font-size:12px !important;
+}
+body.text-size-up .rate-private-comment{
+  font-size:13px !important;
+}
+
+/* 曲登録・編集 */
+body.text-size-up #domModal .f-group label{
+  font-size:12px !important;
+}
+body.text-size-up #domModal :is(
+  #formTitle,
+  #partSelect,
+  #formLevel,
+  #formRate,
+  #formFc,
+  #formOption,
+  #formDmOption,
+  #formPrivateComment
+){
+  font-size:14px !important;
+}
+body.text-size-up #domModal :is(.level-correction-title,.master-request-title){
+  font-size:11px !important;
+}
+body.text-size-up #domModal :is(.level-correction-note,.master-request-note){
+  font-size:10px !important;
+}
+body.text-size-up #domModal #btnOpenLevelCorrection,
+body.text-size-up #domModal #btnSendLevelCorrection{
+  font-size:11px !important;
+}
+body.text-size-up #domModal .score-private-comment-note{
+  font-size:10px !important;
+}
+body.text-size-up #domModal .btn-delete-editing-score,
+body.text-size-up #domModal :is(.btn-submit,.btn-cancel){
+  font-size:14px !important;
+}
+
+/* MENU / How to use / マイページ */
+body.text-size-up .app-menu-version label{
+  font-size:11px !important;
+}
+body.text-size-up .howto-body b{
+  font-size:15px !important;
+}
+body.text-size-up .mypage-title-row h3{
+  font-size:17px !important;
+}
+body.text-size-up .mypage-sheet > label,
+body.text-size-up .mypage-x-block > label{
+  font-size:12px !important;
+}
+
+/* スキル対象同期 */
+body.text-size-up .skill-sync-kicker{
+  font-size:11px !important;
+}
+body.text-size-up .skill-sync-status{
+  font-size:12px !important;
+}
+body.text-size-up .sync-visual-content > strong{
+  font-size:14px !important;
+}
+body.text-size-up .sync-visual-content p{
+  font-size:11.5px !important;
+}
+@media(max-width:420px){
+  body.text-size-up .sync-visual-content > strong{
+    font-size:13px !important;
+  }
+  body.text-size-up .sync-visual-content p{
+    font-size:10.5px !important;
+  }
+}
+
+/* スキル対象の画像共有 */
+body.text-size-up .skill-share-note{
+  font-size:14px !important;
+}
+
+/* スキル対象ランキング */
+body.text-size-up .skill-ranking-context,
+body.text-size-up :is(.skill-ranking-status,.skill-ranking-sort-label){
+  font-size:11px !important;
+}
+body.text-size-up :is(.skill-ranking-position,.skill-ranking-song){
+  font-size:12px !important;
+}
+body.text-size-up .skill-ranking-row :is(.p-badge,.skill-ranking-level){
+  font-size:11px !important;
+}
+body.text-size-up .skill-ranking-metric small{
+  font-size:10px !important;
+}
+body.text-size-up .skill-ranking-empty{
+  font-size:12px !important;
+}
+
+/* 要望・不具合 */
+body.text-size-up :is(
+  .feedback-env-note,
+  .feedback-admin-env,
+  .feedback-history-env,
+  .feedback-history-head span,
+  .feedback-history-date,
+  .feedback-history-status
+){
+  font-size:12px !important;
+}
+
 </style>
   <link rel="preconnect" href="https://challenges.cloudflare.com">
   <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" defer></script>
@@ -10340,7 +10538,7 @@ body.light-mode .pull-refresh-icon {
     <div class="app-menu-version">
       <label>VERSION</label>
       <select id="versionSelect" class="version-select" aria-label="GITADORAバージョン"></select>
-      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 4.0.0</div>
+      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 4.0.1</div>
     </div>
   </div>
 </div>
@@ -10708,7 +10906,7 @@ body.light-mode .pull-refresh-icon {
 <div id="adminModal" class="admin-modal">
   <div class="admin-header">
     <div class="admin-title-row">
-      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 4.0.0</div></div>
+      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 4.0.1</div></div>
       <button id="btnCloseAdmin" class="admin-close">閉じる</button>
     </div>
     <div class="admin-tabs">
@@ -10785,6 +10983,6 @@ body.light-mode .pull-refresh-icon {
   </div>
 </div>
 
-<script type="module" src="./js/app.js?v=4_0_0"></script>
+<script type="module" src="./js/app.js?v=4_0_1"></script>
 </body>
 </html>

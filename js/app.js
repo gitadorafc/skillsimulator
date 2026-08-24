@@ -1866,7 +1866,7 @@ async function createSkillShareFile(instrument) {
       // 曲名は上枠線とパート表示の間で上下余白が均等になる位置へ。
       x.fillText(titleText,pos[1]+8,y+19);
       x.textBaseline='alphabetic';
-      x.fillStyle='#94a3b8'; x.font='700 11px sans-serif';
+      x.fillStyle='#94a3b8'; x.font='700 12px sans-serif';
       // パートは従来より少し下へ。
       const partText = String(r.part || '');
       const partX = pos[1] + 8;
@@ -1892,7 +1892,7 @@ async function createSkillShareFile(instrument) {
         x.font = '900 9px sans-serif';
         const optionW = Math.max(34, Math.ceil(x.measureText(optionLabel).width) + 12);
         const optionH = 15;
-        const optionX = partX + x.measureText(partText).width + 8;
+        const optionX = partX + x.measureText(partText).width + 12;
         const optionY = y + 36;
 
         // 曲名セル内に収まる場合だけ描画。
@@ -1944,7 +1944,7 @@ async function createSkillShareFile(instrument) {
       x.shadowColor='transparent';
 
       // achievement + badge
-      x.fillStyle='#f8fafc'; x.font='900 15px sans-serif';
+      x.fillStyle='#f8fafc'; x.font='900 16px sans-serif';
       x.fillText(`${Number(r.achievement_rate).toFixed(2)}%`,pos[3]+widths[3]/2,y+18);
 
       const badge = Number(r.achievement_rate)===100
@@ -1999,7 +1999,7 @@ async function createSkillShareFile(instrument) {
 
   // footer
   x.fillStyle='#0b1424'; x.fillRect(54,H-62,W-108,30);
-  x.fillStyle='#94a3b8'; x.font='700 14px sans-serif';
+  x.fillStyle='#94a3b8'; x.font='700 24px sans-serif';
   x.fillText('GITADORA Skill Simulator',64,H-41);
   x.textAlign='right';
   x.fillText(new Date().toLocaleDateString('ja-JP'),W-64,H-41);
