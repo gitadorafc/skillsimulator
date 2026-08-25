@@ -91,15 +91,15 @@ export async function deleteMasterSong(id) {
 }
 
 export async function getAdminUsers(keyword = '') {
-  let query = supabase
-    .from('profiles')
-    .select('id,username,created_at')
-    .order('created_at', { ascending: false })
-    .limit(1000);
+  const { data, error } = await supabase.rpc('admin_list_users', {
+    p_search: String(keyword || '').trim()
+  });
+  if (error) throw error;
+  return data ?? [];
+}
 
-  if (keyword.trim()) query = query.ilike('username', `%${keyword.trim()}%`);
-
-  const { data, error } = await query;
+export async function getAdminFeatureSettingUsage() {
+  const { data, error } = await supabase.rpc('get_display_setting_usage');
   if (error) throw error;
   return data ?? [];
 }

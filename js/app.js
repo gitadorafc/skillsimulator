@@ -301,6 +301,7 @@ const {
   saveMasterSong,
   deleteMasterSong,
   getAdminUsers,
+  getAdminFeatureSettingUsage,
   getPendingSongRequests,
   approveSongRequest,
   rejectSongRequest,
@@ -569,7 +570,7 @@ async function deleteMasterSongTitle(title) {
   if (error) throw error;
 }
 
-import * as adminApi from './admin.js?v=21_57';
+import * as adminApi from './admin.js?v=4_2_0';
 import { listUserSummaries, getUserSkillTargets, getSongRateComparison, getSongPersonalBestHistory, getSongOptionDistribution, getMyFavorites, addFavorite, removeFavorite } from './users.js?v=3_6_0';
 
 let activeInstrument = localStorage.getItem('gitadora_instrument') === 'DM' ? 'DM' : 'GF';
@@ -592,6 +593,7 @@ let primaryAdminEnabled = false;
 let adminTab = 'songs';
 let adminSongs = [];
 let adminUsers = [];
+let adminUserSort = { key: 'created_at', dir: 'desc' };
 let adminSongPage = 0;
 const ADMIN_SONG_PAGE_SIZE = 100;
 let adminRequests = [];
@@ -864,6 +866,98 @@ function setGfDefaultOption(value) {
   return normalized;
 }
 
+function readLocalDisplaySettings() {
+  return {
+    lightMode: localStorage.getItem('gitadora_light_mode') === '1',
+    skillTargetColumns:
+      localStorage.getItem(DISPLAY_CUSTOMIZATION_KEYS.skillTargetColumns) === '1',
+    textSizeUp:
+      localStorage.getItem(DISPLAY_CUSTOMIZATION_KEYS.textSizeUp) === '1',
+    gfDefaultOption: getGfDefaultOption()
+  };
+}
+
+function writeLocalDisplaySettings(settings) {
+  const lightMode = Boolean(settings?.lightMode);
+  const skillTargetColumns = Boolean(settings?.skillTargetColumns);
+  const textSizeUp = Boolean(settings?.textSizeUp);
+  const gfDefaultOption = setGfDefaultOption(
+    settings?.gfDefaultOption || 'NORMAL'
+  );
+
+  localStorage.setItem('gitadora_light_mode', lightMode ? '1' : '0');
+  localStorage.setItem(
+    DISPLAY_CUSTOMIZATION_KEYS.skillTargetColumns,
+    skillTargetColumns ? '1' : '0'
+  );
+  localStorage.setItem(
+    DISPLAY_CUSTOMIZATION_KEYS.textSizeUp,
+    textSizeUp ? '1' : '0'
+  );
+
+  applyLightMode(lightMode);
+  applyDisplayCustomization(skillTargetColumns, textSizeUp);
+
+  return {
+    lightMode,
+    skillTargetColumns,
+    textSizeUp,
+    gfDefaultOption
+  };
+}
+
+async function saveMyDisplaySettingsToSupabase(settings) {
+  const normalized = {
+    lightMode: Boolean(settings?.lightMode),
+    skillTargetColumns: Boolean(settings?.skillTargetColumns),
+    textSizeUp: Boolean(settings?.textSizeUp),
+    gfDefaultOption: GF_DEFAULT_OPTIONS.includes(settings?.gfDefaultOption)
+      ? settings.gfDefaultOption
+      : 'NORMAL'
+  };
+
+  const { error } = await supabase.rpc('set_my_display_settings', {
+    p_light_mode: normalized.lightMode,
+    p_skill_target_columns: normalized.skillTargetColumns,
+    p_text_size_up: normalized.textSizeUp,
+    p_gf_default_option: normalized.gfDefaultOption
+  });
+  if (error) throw error;
+  return normalized;
+}
+
+async function syncMyDisplaySettings() {
+  if (!currentUserId) return readLocalDisplaySettings();
+
+  const localSettings = readLocalDisplaySettings();
+
+  try {
+    const { data, error } = await supabase.rpc('get_my_display_settings');
+    if (error) throw error;
+
+    const row = Array.isArray(data) ? data[0] : data;
+
+    // 初回だけ現在の端末設定をSupabaseへ移行する。
+    // DBの初期値で既存設定を上書きしない。
+    if (!row?.has_settings) {
+      await saveMyDisplaySettingsToSupabase(localSettings);
+      return writeLocalDisplaySettings(localSettings);
+    }
+
+    // 移行後はSupabaseを正として別端末にも同じ設定を反映する。
+    return writeLocalDisplaySettings({
+      lightMode: Boolean(row.light_mode),
+      skillTargetColumns: Boolean(row.skill_target_columns),
+      textSizeUp: Boolean(row.text_size_up),
+      gfDefaultOption: row.gf_default_option || 'NORMAL'
+    });
+  } catch (error) {
+    // SQL未適用時や一時的な通信障害でも従来の端末設定で利用を継続する。
+    console.warn('表示設定のSupabase同期に失敗しました:', error);
+    return writeLocalDisplaySettings(localSettings);
+  }
+}
+
 function applyDisplayCustomization(skillTargetColumns = null, textSizeUp = null) {
   const columnsEnabled = (
     skillTargetColumns == null
@@ -989,21 +1083,15 @@ async function saveFeatureSettings() {
     $('featureSettingsStatus').textContent = '';
 
     const light = $('settingLightMode').checked;
-    localStorage.setItem('gitadora_light_mode', light ? '1' : '0');
-    applyLightMode(light);
-
     const skillTargetColumns = Boolean($('settingSkillTargetColumns')?.checked);
     const textSizeUp = Boolean($('settingTextSizeUp')?.checked);
-    localStorage.setItem(
-      DISPLAY_CUSTOMIZATION_KEYS.skillTargetColumns,
-      skillTargetColumns ? '1' : '0'
-    );
-    localStorage.setItem(
-      DISPLAY_CUSTOMIZATION_KEYS.textSizeUp,
-      textSizeUp ? '1' : '0'
-    );
-    setGfDefaultOption($('settingGfDefaultOption')?.value || 'NORMAL');
-    applyDisplayCustomization(skillTargetColumns, textSizeUp);
+    const displaySettings = writeLocalDisplaySettings({
+      lightMode: light,
+      skillTargetColumns,
+      textSizeUp,
+      gfDefaultOption: $('settingGfDefaultOption')?.value || 'NORMAL'
+    });
+    await saveMyDisplaySettingsToSupabase(displaySettings);
     if (skillTargetColumns && $('recordTypeFilter')) $('recordTypeFilter').value = '';
     render();
 
@@ -1108,6 +1196,7 @@ async function showApp(session) {
   }
 
   $('headerUsername').textContent = username;
+  await syncMyDisplaySettings();
   await loadGameVersionOptions();
   await Promise.all([loadScores(), checkAdminAccess()]);
 }
@@ -3879,6 +3968,7 @@ async function switchAdminTab(tab) {
   else if (tab === 'requests') await loadAdminRequests();
   else if (tab === 'users') await loadAdminUsers();
   else if (tab === 'feedback') await loadAdminFeedback();
+  else if (tab === 'settings') await loadAdminSettingUsage();
 }
 
 async function loadAdminSongs() {
@@ -4064,7 +4154,23 @@ async function loadAdminUsers() {
   $('adminBody').innerHTML = '<div class="empty-state">読み込み中...</div>';
   try {
     adminUsers = await getAdminUsers($('adminUserSearch').value);
-    $('adminBody').innerHTML = adminUsers.map(user => `
+    const key = adminUserSort.key === 'last_sign_in_at'
+      ? 'last_sign_in_at'
+      : 'created_at';
+    const direction = adminUserSort.dir === 'asc' ? 1 : -1;
+    const sortedUsers = [...adminUsers].sort((a, b) => {
+      const aTime = a[key] ? new Date(a[key]).getTime() : null;
+      const bTime = b[key] ? new Date(b[key]).getTime() : null;
+      if (aTime == null && bTime != null) return 1;
+      if (aTime != null && bTime == null) return -1;
+      if (aTime !== bTime) return ((aTime || 0) - (bTime || 0)) * direction;
+      return String(a.username || '').localeCompare(String(b.username || ''), 'ja');
+    });
+    const formatAdminDate = value => value
+      ? new Date(value).toLocaleString('ja-JP')
+      : '未ログイン';
+
+    $('adminBody').innerHTML = sortedUsers.map(user => `
       <div class="admin-card">
         <div class="admin-card-top">
           <div class="admin-card-title">${esc(user.username)}</div>
@@ -4074,9 +4180,58 @@ async function loadAdminUsers() {
           </div>
         </div>
         <div class="admin-card-meta">
-          <span>${new Date(user.created_at).toLocaleString('ja-JP')}</span>
+          <span><b>登録日時</b> ${formatAdminDate(user.created_at)}</span>
+          <span><b>最終ログイン日時</b> ${formatAdminDate(user.last_sign_in_at)}</span>
         </div>
       </div>`).join('') || '<div class="empty-state">該当するユーザーがいません</div>';
+  } catch (e) {
+    $('adminBody').innerHTML = `<div class="empty-state">取得失敗: ${esc(e.message)}</div>`;
+  }
+}
+
+async function loadAdminSettingUsage() {
+  $('adminBody').classList.remove('admin-body-table');
+  $('adminBody').innerHTML = '<div class="empty-state">読み込み中...</div>';
+
+  try {
+    const rows = await getAdminFeatureSettingUsage();
+    const first = rows[0] || {};
+    const trackedCount = Number(first.tracked_count) || 0;
+    const totalUsers = Number(first.total_users) || 0;
+    const booleanRows = rows.filter(row => row.setting_key !== 'GF_DEFAULT_OPTION');
+    const optionRows = rows.filter(row => row.setting_key === 'GF_DEFAULT_OPTION');
+    const optionLabels = {
+      NORMAL: '正規',
+      RAN: 'RAN',
+      SRA: 'SRA',
+      'RAN+': 'RAN+',
+      'SRA+': 'SRA+'
+    };
+    const usageCard = (label, row) => `
+      <div class="admin-usage-card">
+        <span>${esc(label)}</span>
+        <strong>${Number(row?.usage_rate || 0).toFixed(1)}%</strong>
+        <small>${Number(row?.enabled_count || 0).toLocaleString('ja-JP')} / ${trackedCount.toLocaleString('ja-JP')}人</small>
+      </div>`;
+
+    $('adminBody').innerHTML = `
+      <div class="admin-usage-summary">
+        <div>
+          <strong>設定移行済み ${trackedCount.toLocaleString('ja-JP')} / ${totalUsers.toLocaleString('ja-JP')}人</strong>
+          <small>更新版を開いたユーザーから順次集計されます。</small>
+        </div>
+        <button id="btnRefreshAdminSettingUsage" type="button">再読み込み</button>
+      </div>
+      <div class="admin-usage-section-title">表示設定</div>
+      <div class="admin-usage-grid">
+        ${booleanRows.map(row => usageCard(row.setting_label, row)).join('')}
+      </div>
+      <div class="admin-usage-section-title">GFのデフォルトオプション</div>
+      <div class="admin-usage-grid admin-usage-options">
+        ${optionRows.map(row => usageCard(optionLabels[row.option_value] || row.option_value, row)).join('')}
+      </div>`;
+
+    $('btnRefreshAdminSettingUsage')?.addEventListener('click', loadAdminSettingUsage);
   } catch (e) {
     $('adminBody').innerHTML = `<div class="empty-state">取得失敗: ${esc(e.message)}</div>`;
   }
@@ -4805,6 +4960,16 @@ let adminUserSearchTimer = null;
 $('adminUserSearch').addEventListener('input', () => {
   clearTimeout(adminUserSearchTimer);
   adminUserSearchTimer = setTimeout(loadAdminUsers,250);
+});
+$('adminUserSortKey')?.addEventListener('change', event => {
+  adminUserSort.key = event.target.value === 'last_sign_in_at'
+    ? 'last_sign_in_at'
+    : 'created_at';
+  loadAdminUsers();
+});
+$('adminUserSortDir')?.addEventListener('change', event => {
+  adminUserSort.dir = event.target.value === 'asc' ? 'asc' : 'desc';
+  loadAdminUsers();
 });
 
 $('btnAdminAddSong').addEventListener('click', async () => {
