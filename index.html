@@ -10638,9 +10638,9 @@ body.light-mode .admin-usage-card{
   gap:5px;
 }
 .skill-history-row.has-compare{
-  grid-template-columns:minmax(0,1fr) auto auto;
+  grid-template-columns:minmax(0,1fr) auto auto auto;
 }
-.skill-history-open{
+.skill-history-summary{
   min-width:0;
   min-height:38px;
   padding:5px 9px;
@@ -10666,27 +10666,55 @@ body.light-mode .admin-usage-card{
   flex:0 0 auto;
   font-size:14px;
   font-weight:900;
+  font-family:"SFMono-Regular","Roboto Mono","Noto Sans Mono",Consolas,monospace;
+  font-variant-numeric:tabular-nums lining-nums;
+  font-feature-settings:"tnum" 1,"lnum" 1;
+  letter-spacing:0;
   white-space:nowrap;
 }
+.skill-history-display,
 .skill-history-delete{
-  min-width:50px;
-  padding:0 7px;
-  border:1px solid #ef4444;
+  min-width:46px;
+  padding:0 5px;
   border-radius:7px;
-  background:#3f171b;
-  color:#fca5a5;
   font-size:11px;
   font-weight:900;
 }
+.skill-history-display{
+  border:1px solid #3b82f6;
+  background:#172554;
+  color:#bfdbfe;
+}
+.skill-history-delete{
+  border:1px solid #ef4444;
+  background:#3f171b;
+  color:#fca5a5;
+}
 .skill-history-compare{
-  min-width:50px;
-  padding:0 7px;
+  min-width:46px;
+  padding:0 5px;
   border:1px solid #3b82f6;
   border-radius:7px;
   background:#172554;
   color:#bfdbfe;
   font-size:11px;
   font-weight:900;
+}
+@media (max-width:430px){
+  .skill-history-row{gap:3px;}
+  .skill-history-summary{
+    padding:4px 5px;
+    gap:4px;
+    font-size:10px;
+  }
+  .skill-history-value{font-size:13px;}
+  .skill-history-display,
+  .skill-history-compare,
+  .skill-history-delete{
+    min-width:40px;
+    padding:0 3px;
+    font-size:10px;
+  }
 }
 .skill-history-unified-select{
   display:grid;
@@ -10710,10 +10738,6 @@ body.light-mode .admin-usage-card{
   font-size:11px;
   font-weight:900;
   line-height:1.25;
-}
-.skill-history-unified-action.secondary{
-  background:#172554;
-  color:#dbeafe;
 }
 .skill-history-unified-action:disabled{
   opacity:.55;
@@ -10767,12 +10791,12 @@ body.light-mode #btnCloseSkillHistory.menu-back-btn{
   background:#f8fafc;
   color:#2563eb;
 }
-body.light-mode .skill-history-open{
+body.light-mode .skill-history-summary{
   border-color:#9aacc4;
   background:#fff;
   color:#0f172a;
 }
-body.light-mode .skill-history-open strong{color:#0f172a;}
+body.light-mode .skill-history-summary strong{color:#0f172a;}
 body.light-mode .skill-history-save-title{color:#0f172a;}
 body.light-mode .skill-history-save-option{
   border-color:#9aacc4;
@@ -10789,6 +10813,7 @@ body.light-mode .skill-history-delete{
   background:#fff1f2;
   color:#dc2626;
 }
+body.light-mode .skill-history-display,
 body.light-mode .skill-history-compare{
   background:#eff6ff;
   color:#2563eb;
@@ -10797,10 +10822,6 @@ body.light-mode .skill-history-unified-action{
   border-color:#2563eb;
   background:#2563eb;
   color:#fff;
-}
-body.light-mode .skill-history-unified-action.secondary{
-  background:#eff6ff;
-  color:#2563eb;
 }
 body.light-mode .skill-history-more{
   border-color:#9aacc4;
@@ -10831,6 +10852,12 @@ body.light-mode .skill-history-save-option[data-skill-unified-selection="GF"].ac
 body.light-mode .skill-history-save-option[data-skill-unified-selection="DM"].active{
   border-color:#3caa2a;
   background:#3caa2a;
+  color:#fff;
+}
+.skill-history-save-option[data-skill-unified-selection="BOTH"].active,
+body.light-mode .skill-history-save-option[data-skill-unified-selection="BOTH"].active{
+  border-color:#926f4a;
+  background:#926f4a;
   color:#fff;
 }
 
@@ -11124,9 +11151,9 @@ body.text-size-up #menuMask .app-menu-group-label{
 
     <div class="app-menu-group-label">スキル機能</div>
     <button id="btnMenuSkillSync" type="button" class="app-menu-item">スキル対象同期 <span>›</span></button>
-    <button id="btnMenuSkillShareHistory" type="button" class="app-menu-item hidden">現在のスキル対象を共有・保存 <span>›</span></button>
-    <button id="btnMenuSkillHistory" type="button" class="app-menu-item">現在のスキル対象を保存 <span>›</span></button>
-    <button id="btnMenuShareSkill" type="button" class="app-menu-item">スキル対象の画像共有 <span>›</span></button>
+    <button id="btnMenuSkillShareHistory" type="button" class="app-menu-item">現在のスキル対象を共有・保存 <span>›</span></button>
+    <button id="btnMenuSkillHistory" type="button" class="app-menu-item hidden">現在のスキル対象を保存 <span>›</span></button>
+    <button id="btnMenuShareSkill" type="button" class="app-menu-item hidden">スキル対象の画像共有 <span>›</span></button>
     <button id="btnMenuSkillRanking" type="button" class="app-menu-item">スキル対象ランキング <span>›</span></button>
     <button id="btnMenuRivals" type="button" class="app-menu-item">ライバル管理 <span>›</span></button>
 
@@ -11138,7 +11165,7 @@ body.text-size-up #menuMask .app-menu-group-label{
     <div class="app-menu-version">
       <label>VERSION</label>
       <select id="versionSelect" class="version-select" aria-label="GITADORAバージョン"></select>
-      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 4.5.0</div>
+      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 4.5.1</div>
     </div>
   </div>
 </div>
@@ -11167,14 +11194,14 @@ body.text-size-up #menuMask .app-menu-group-label{
   <div class="skill-history-dialog" role="dialog" aria-modal="true" aria-labelledby="skillHistoryTitle">
     <div class="skill-history-head">
       <div>
-        <strong id="skillHistoryTitle">現在のスキル対象を保存</strong>
+        <strong id="skillHistoryTitle">現在のスキル対象を共有・保存</strong>
         <div id="skillHistoryContext" class="skill-history-context"></div>
       </div>
       <button id="btnCloseSkillHistory" type="button" class="menu-back-btn">戻る</button>
     </div>
     <div class="skill-history-body">
       <div id="skillHistoryListView">
-        <div id="skillHistoryLegacyControls">
+        <div id="skillHistoryLegacyControls" class="hidden">
           <div class="skill-history-save-title">現在のスキル対象を保存</div>
           <div class="skill-history-save-options" role="group" aria-label="保存する機種">
             <button type="button" class="skill-history-save-option" data-skill-history-instrument="GF" aria-pressed="false">GF</button>
@@ -11182,7 +11209,7 @@ body.text-size-up #menuMask .app-menu-group-label{
             <button id="btnSaveSkillHistory" type="button" class="skill-history-save-option skill-history-save-submit">保存する</button>
           </div>
         </div>
-        <div id="skillHistoryUnifiedControls" class="hidden">
+        <div id="skillHistoryUnifiedControls">
           <div class="skill-history-unified-select" role="group" aria-label="共有・保存する機種">
             <button type="button" class="skill-history-save-option" data-skill-unified-selection="GF" aria-pressed="false">GF</button>
             <button type="button" class="skill-history-save-option" data-skill-unified-selection="DM" aria-pressed="false">DM</button>
@@ -11190,7 +11217,7 @@ body.text-size-up #menuMask .app-menu-group-label{
           </div>
           <div class="skill-history-unified-actions">
             <button id="btnUnifiedSkillShare" type="button" class="skill-history-unified-action">画像を共有</button>
-            <button id="btnUnifiedSkillSave" type="button" class="skill-history-unified-action secondary">履歴に保存</button>
+            <button id="btnUnifiedSkillSave" type="button" class="skill-history-unified-action">履歴に保存</button>
             <button id="btnUnifiedSkillSaveShare" type="button" class="skill-history-unified-action">履歴に保存して共有</button>
           </div>
         </div>
@@ -11416,8 +11443,8 @@ body.text-size-up #menuMask .app-menu-group-label{
       <section><b>4. ライバルを登録する</b><p>ユーザーリストからGF / DMそれぞれ最大10人まで登録と解除ができます。<br>「ライバル管理」では登録しているライバルが一覧で確認できます。</p></section>
       <section><b>5. 登録曲詳細を見る</b><p>登録曲をタップすると以下の情報が閲覧可能です。<br>・歴代の自己ベスト<br>・全ユーザーのオプションの使用割合<br>・ライバルとの達成率比較</p></section>
       <section><b>6. スキル対象ランキングを見る</b><p>MENU →「スキル対象ランキング」から、指定したスキルの幅でスキル対象に入っている割合、平均スキル値、自分のスキルとの比較が確認できます。</p></section>
-      <section><b>7. 現在のスキル対象を保存する</b><p>MENU →「現在のスキル対象を保存」からGF / DMを選び、「保存する」を押すと現在のスキル対象を履歴として保存できます。<br>保存履歴をタップすると当時のスキル対象を画像で確認し、そのまま共有できます。</p></section>
-      <section><b>8. SNSへ共有する</b><p>MENU →「スキル対象の画像共有」から現在のGF / DMスキル対象画像を作成し、端末の共有メニューからXやInstagramなどへ送ったり、画像の保存ができます。</p></section>
+      <section><b>7. 現在のスキル対象を共有・保存する</b><p>MENU →「現在のスキル対象を共有・保存」からGF / DM / 両方を選び、画像の共有、履歴への保存、保存して共有ができます。</p></section>
+      <section><b>8. 保存履歴と比較する</b><p>保存履歴の「比較」を押すと、当時と現在のスキル対象を曲名・パート単位で比較できます。履歴をタップすると当時の画像を確認して共有できます。</p></section>
     </div>
   </div>
 </div>
@@ -11594,7 +11621,7 @@ body.text-size-up #menuMask .app-menu-group-label{
 <div id="adminModal" class="admin-modal">
   <div class="admin-header">
     <div class="admin-title-row">
-      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 4.5.0</div></div>
+      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 4.5.1</div></div>
       <button id="btnCloseAdmin" class="admin-close">閉じる</button>
     </div>
     <div class="admin-tabs">
@@ -11680,6 +11707,6 @@ body.text-size-up #menuMask .app-menu-group-label{
   </div>
 </div>
 
-<script type="module" src="./js/app.js?v=4_5_0"></script>
+<script type="module" src="./js/app.js?v=4_5_1"></script>
 </body>
 </html>

@@ -1590,9 +1590,7 @@ function showSkillHistoryListView() {
   releaseSkillHistoryPreview();
   $('skillHistoryPreviewView').classList.add('hidden');
   $('skillHistoryListView').classList.remove('hidden');
-  $('skillHistoryTitle').textContent = adminEnabled
-    ? '現在のスキル対象を共有・保存'
-    : '現在のスキル対象を保存';
+  $('skillHistoryTitle').textContent = '現在のスキル対象を共有・保存';
   $('skillHistoryContext').textContent = '';
   $('btnCloseSkillHistory').textContent = '戻る';
 }
@@ -1605,12 +1603,13 @@ function renderSkillHistoryList() {
   }
 
   list.innerHTML = skillHistoryRows.map(row => `
-    <div class="skill-history-row${adminEnabled ? ' has-compare' : ''}">
-      <button type="button" class="skill-history-open" data-open-skill-history="${esc(row.snapshot_id)}">
+    <div class="skill-history-row has-compare">
+      <div class="skill-history-summary">
         <span class="skill-history-date">${esc(formatSkillHistoryDate(row.saved_at))}</span>
         <strong class="skill-history-value score-rank-${getTotalSkillRank(row.total_skill)}">${Number(row.total_skill).toFixed(2)}</strong>
-      </button>
-      ${adminEnabled ? `<button type="button" class="skill-history-compare" data-compare-skill-history="${esc(row.snapshot_id)}">比較</button>` : ''}
+      </div>
+      <button type="button" class="skill-history-display" data-open-skill-history="${esc(row.snapshot_id)}">表示</button>
+      <button type="button" class="skill-history-compare" data-compare-skill-history="${esc(row.snapshot_id)}">比較</button>
       <button type="button" class="skill-history-delete" data-delete-skill-history="${esc(row.snapshot_id)}">削除</button>
     </div>
   `).join('');
@@ -1661,9 +1660,9 @@ async function openSkillHistory() {
   closeMenu();
   showSkillHistoryListView();
   updateSkillHistoryInstrument(activeInstrument, false);
-  $('skillHistoryLegacyControls')?.classList.toggle('hidden', adminEnabled);
-  $('skillHistoryUnifiedControls')?.classList.toggle('hidden', !adminEnabled);
-  if (adminEnabled) updateUnifiedSkillSelection(activeInstrument, false);
+  $('skillHistoryLegacyControls')?.classList.add('hidden');
+  $('skillHistoryUnifiedControls')?.classList.remove('hidden');
+  updateUnifiedSkillSelection(activeInstrument, false);
   $('skillHistoryStatus').textContent = '';
   $('skillHistoryMask').style.display = 'flex';
   await loadSkillHistory(true);
@@ -4200,9 +4199,9 @@ async function checkAdminAccess() {
   $('btnAdmin').classList.toggle('hidden', !adminEnabled);
   $('mypageUserSwitchBlock')?.classList.remove('hidden');
   $('btnMenuSkillRanking')?.classList.remove('hidden');
-  $('btnMenuSkillShareHistory')?.classList.toggle('hidden', !adminEnabled);
-  $('btnMenuSkillHistory')?.classList.toggle('hidden', adminEnabled);
-  $('btnMenuShareSkill')?.classList.toggle('hidden', adminEnabled);
+  $('btnMenuSkillShareHistory')?.classList.remove('hidden');
+  $('btnMenuSkillHistory')?.classList.add('hidden');
+  $('btnMenuShareSkill')?.classList.add('hidden');
   $('menuOfuseSupport')?.classList.remove('hidden');
   $('scorePrivateCommentGroup')?.classList.remove('hidden');
   updateDmBassMirrorFieldVisibility();
