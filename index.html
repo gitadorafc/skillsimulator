@@ -10590,6 +10590,27 @@ body.light-mode .admin-usage-card{
   font-size:14px;
   font-weight:900;
 }
+.skill-history-save-title{
+  margin:0 0 7px;
+  color:#e2e8f0;
+  font-size:13px;
+  font-weight:900;
+}
+.skill-history-save-options{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:7px;
+}
+.skill-history-save-option{
+  min-height:44px;
+  border:1px solid #64748b;
+  border-radius:9px;
+  background:#111827;
+  color:#e2e8f0;
+  font-size:13px;
+  font-weight:900;
+}
+.skill-history-save-option:active{background:#2563eb;color:#fff;}
 .skill-history-status{
   min-height:18px;
   padding:7px 2px 3px;
@@ -10622,6 +10643,16 @@ body.light-mode .admin-usage-card{
   text-align:left;
 }
 .skill-history-open strong{color:#f8fafc;font-size:15px;white-space:nowrap;}
+.skill-history-instrument{
+  min-width:30px;
+  padding:3px 6px;
+  border-radius:5px;
+  background:#2563eb;
+  color:#fff;
+  font-size:10px;
+  font-weight:900;
+  text-align:center;
+}
 .skill-history-delete{
   min-width:58px;
   padding:0 10px;
@@ -10685,6 +10716,13 @@ body.light-mode .skill-history-open{
   color:#0f172a;
 }
 body.light-mode .skill-history-open strong{color:#0f172a;}
+body.light-mode .skill-history-save-title{color:#0f172a;}
+body.light-mode .skill-history-save-option{
+  border-color:#9aacc4;
+  background:#fff;
+  color:#0f172a;
+}
+body.light-mode .skill-history-save-option:active{background:#2563eb;color:#fff;}
 body.light-mode .skill-history-delete{
   background:#fff1f2;
   color:#dc2626;
@@ -10958,7 +10996,7 @@ body.light-mode .skill-history-preview-image{border-color:#94a3b8;}
     <button id="btnMenuFeatureSettings" type="button" class="app-menu-item">機能設定 <span>›</span></button>
     <button id="btnMenuSkillSync" type="button" class="app-menu-item">スキル対象同期 <span>›</span></button>
     <button id="btnMenuShareSkill" type="button" class="app-menu-item">スキル対象の画像共有 <span>›</span></button>
-    <button id="btnMenuSkillHistory" type="button" class="app-menu-item hidden">スキル対象履歴 <span>›</span></button>
+    <button id="btnMenuSkillHistory" type="button" class="app-menu-item hidden">現在のスキル対象を保存 <span>›</span></button>
     <button id="btnMenuSkillRanking" type="button" class="app-menu-item">スキル対象ランキング <span>›</span></button>
     <button id="btnMenuRivals" type="button" class="app-menu-item">ライバル管理 <span>›</span></button>
     <button id="btnMenuHowTo" type="button" class="app-menu-item">How to use <span>›</span></button>
@@ -10968,7 +11006,7 @@ body.light-mode .skill-history-preview-image{border-color:#94a3b8;}
     <div class="app-menu-version">
       <label>VERSION</label>
       <select id="versionSelect" class="version-select" aria-label="GITADORAバージョン"></select>
-      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 4.3.0</div>
+      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 4.3.1</div>
     </div>
   </div>
 </div>
@@ -10997,14 +11035,19 @@ body.light-mode .skill-history-preview-image{border-color:#94a3b8;}
   <div class="skill-history-dialog" role="dialog" aria-modal="true" aria-labelledby="skillHistoryTitle">
     <div class="skill-history-head">
       <div>
-        <strong id="skillHistoryTitle">スキル対象履歴</strong>
+        <strong id="skillHistoryTitle">現在のスキル対象を保存</strong>
         <div id="skillHistoryContext" class="skill-history-context"></div>
       </div>
       <button id="btnCloseSkillHistory" type="button" class="menu-back-btn">戻る</button>
     </div>
     <div class="skill-history-body">
       <div id="skillHistoryListView">
-        <button id="btnSaveSkillHistory" type="button" class="skill-history-save">現在のスキル対象を保存</button>
+        <div class="skill-history-save-title">現在のスキル対象を保存</div>
+        <div class="skill-history-save-options" role="group" aria-label="保存する機種">
+          <button type="button" class="skill-history-save-option" data-save-skill-history="GF">GF</button>
+          <button type="button" class="skill-history-save-option" data-save-skill-history="DM">DM</button>
+          <button type="button" class="skill-history-save-option" data-save-skill-history="BOTH">両方</button>
+        </div>
         <div id="skillHistoryStatus" class="skill-history-status"></div>
         <div id="skillHistoryList" class="skill-history-list"></div>
         <button id="btnLoadMoreSkillHistory" type="button" class="skill-history-more hidden">さらに読み込む</button>
@@ -11403,7 +11446,7 @@ body.light-mode .skill-history-preview-image{border-color:#94a3b8;}
 <div id="adminModal" class="admin-modal">
   <div class="admin-header">
     <div class="admin-title-row">
-      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 4.3.0</div></div>
+      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 4.3.1</div></div>
       <button id="btnCloseAdmin" class="admin-close">閉じる</button>
     </div>
     <div class="admin-tabs">
@@ -11489,6 +11532,6 @@ body.light-mode .skill-history-preview-image{border-color:#94a3b8;}
   </div>
 </div>
 
-<script type="module" src="./js/app.js?v=4_3_0"></script>
+<script type="module" src="./js/app.js?v=4_3_1"></script>
 </body>
 </html>
