@@ -1654,7 +1654,6 @@ async function loadSkillHistory(reset = false) {
 }
 
 async function openSkillHistory() {
-  if (!adminEnabled) return;
   closeMenu();
   showSkillHistoryListView();
   updateSkillHistoryInstrument(activeInstrument, false);
@@ -4042,7 +4041,7 @@ async function checkAdminAccess() {
   $('btnAdmin').classList.toggle('hidden', !adminEnabled);
   $('mypageUserSwitchBlock')?.classList.remove('hidden');
   $('btnMenuSkillRanking')?.classList.remove('hidden');
-  $('btnMenuSkillHistory')?.classList.toggle('hidden', !adminEnabled);
+  $('btnMenuSkillHistory')?.classList.remove('hidden');
   $('menuOfuseSupport')?.classList.remove('hidden');
   $('scorePrivateCommentGroup')?.classList.remove('hidden');
   updateDmBassMirrorFieldVisibility();
