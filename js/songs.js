@@ -13,6 +13,7 @@ export function normalizeSongTitleForMatch(value) {
   return String(value ?? '')
     .normalize('NFKC')
     .replace(/[〜～]/g, '~')
+    .replace(/[\u00AD\u200B-\u200D\u2060\uFEFF]/g, '')
     .replace(/[\s\u00A0\u3000]+/g, ' ')
     .trim()
     .toLocaleLowerCase('ja-JP');

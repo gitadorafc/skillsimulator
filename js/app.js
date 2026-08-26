@@ -291,7 +291,7 @@ function drawShareTotalSparkles(ctx, row, nameX, nameWidth, totalX, totalWidth, 
 import { supabase } from './supabase.js?v=21_57';
 import { register, login, loginForAccountSwitch, logout, changePassword, getSession, validateUsername } from './auth.js?v=4_1_2';
 import { initAuthCaptcha, prepareAuthCaptcha, getAuthCaptchaToken, resetAuthCaptcha } from './captcha.js?v=21_84';
-import { PARTS, GF_PARTS, DM_PARTS, partsForInstrument, normalizeSongTitleForMatch, searchSongTitles, getSongByTitleAndPart, requestSongMaster, requestSongLevelCorrection } from './songs.js?v=4_1_0';
+import { PARTS, GF_PARTS, DM_PARTS, partsForInstrument, normalizeSongTitleForMatch, searchSongTitles, getSongByTitleAndPart, requestSongMaster, requestSongLevelCorrection } from './songs.js?v=4_2_1';
 import { calcSkill, formatLevel, formatRate, formatSkill, getMyScores, saveScore, deleteScore } from './scores.js?v=3_18_4';
 import { getGameVersions } from './versions.js?v=21_57';
 const {
@@ -688,96 +688,6 @@ function syncGlobalModalScrollLock() {
     unlockMainPageScroll();
   }
 }
-
-function initIosStandalonePullToRefresh() {
-  const isIos = /iPhone|iPad|iPod/i.test(navigator.userAgent) ||
-    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-  const isStandalone = navigator.standalone === true ||
-    window.matchMedia?.('(display-mode: standalone)').matches;
-  const indicator = $('pullRefreshIndicator');
-
-  if (!isIos || !isStandalone || !indicator) return;
-
-  const icon = indicator.querySelector('.pull-refresh-icon');
-  const label = indicator.querySelector('.pull-refresh-label');
-  const ignoredTargets = 'input,select,textarea,button,a,[contenteditable="true"]';
-  const releaseThreshold = 72;
-  let tracking = false;
-  let refreshing = false;
-  let startX = 0;
-  let startY = 0;
-  let pullDistance = 0;
-
-  document.body.classList.add('ios-standalone-pull-enabled');
-
-  const reset = () => {
-    tracking = false;
-    pullDistance = 0;
-    document.body.classList.remove('pull-refresh-pulling', 'pull-refresh-ready');
-    document.documentElement.style.removeProperty('--pull-refresh-y');
-    if (icon) icon.style.transform = '';
-    if (label) label.textContent = '引っ張って更新';
-  };
-
-  document.addEventListener('touchstart', event => {
-    if (refreshing || event.touches.length !== 1) return;
-    if ((window.scrollY || window.pageYOffset || 0) > 0) return;
-    if (globalModalScrollLocked || hasVisibleGlobalOverlay()) return;
-    if (document.body.classList.contains('score-modal-open')) return;
-    if (event.target.closest?.(ignoredTargets)) return;
-
-    tracking = true;
-    startX = event.touches[0].clientX;
-    startY = event.touches[0].clientY;
-    pullDistance = 0;
-  }, { passive: true });
-
-  document.addEventListener('touchmove', event => {
-    if (!tracking || refreshing || event.touches.length !== 1) return;
-
-    const deltaX = event.touches[0].clientX - startX;
-    const deltaY = event.touches[0].clientY - startY;
-    if (Math.abs(deltaX) > Math.abs(deltaY)) {
-      reset();
-      return;
-    }
-    if (deltaY <= 0 || (window.scrollY || window.pageYOffset || 0) > 0) {
-      reset();
-      return;
-    }
-
-    if (deltaY > 6) event.preventDefault();
-    pullDistance = deltaY;
-    const visualDistance = Math.min(92, deltaY * .52);
-    document.body.classList.add('pull-refresh-pulling');
-    document.body.classList.toggle('pull-refresh-ready', pullDistance >= releaseThreshold);
-    document.documentElement.style.setProperty('--pull-refresh-y', `${-54 + visualDistance}px`);
-    if (icon) icon.style.transform = `rotate(${Math.min(300, deltaY * 3)}deg)`;
-    if (label) label.textContent = pullDistance >= releaseThreshold ? '離して更新' : '引っ張って更新';
-  }, { passive: false });
-
-  const finishPull = () => {
-    if (!tracking || refreshing) return;
-    tracking = false;
-
-    if (pullDistance < releaseThreshold) {
-      reset();
-      return;
-    }
-
-    refreshing = true;
-    document.body.classList.remove('pull-refresh-pulling', 'pull-refresh-ready');
-    document.body.classList.add('pull-refresh-refreshing');
-    document.documentElement.style.setProperty('--pull-refresh-y', '10px');
-    if (icon) icon.style.transform = '';
-    if (label) label.textContent = '更新中...';
-    setTimeout(() => window.location.reload(), 120);
-  };
-
-  document.addEventListener('touchend', finishPull, { passive: true });
-  document.addEventListener('touchcancel', reset, { passive: true });
-}
-
 
 function syncAppStickyHeaderHeight() {
   const header = document.querySelector('.p-header');
@@ -5458,6 +5368,7 @@ document.addEventListener('click', async e => {
 $('btnIntroLogin').addEventListener('click', () => { showAuth('login').catch(console.error); });
 $('btnIntroRegister').addEventListener('click', () => { showAuth('register').catch(console.error); });
 $('btnMenu').addEventListener('click', openMenu);
+$('btnRefreshApp').addEventListener('click', () => window.location.reload());
 $('btnCloseMenu').addEventListener('click', closeMenu);
 $('menuMask').addEventListener('click', e => { if (e.target === $('menuMask')) closeMenu(); });
 $('btnMenuMypage').addEventListener('click', async () => { closeMenu(); await openMyPage(true); });
@@ -5590,7 +5501,6 @@ GLOBAL_SCROLL_LOCK_OVERLAYS.forEach(selector => {
   }
 });
 requestAnimationFrame(syncGlobalModalScrollLock);
-initIosStandalonePullToRefresh();
 
 // ヘッダーの実際の高さを使ってユーザーリスト固定位置を決める。
 window.addEventListener('resize', () => {
