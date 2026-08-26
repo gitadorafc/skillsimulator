@@ -1332,6 +1332,7 @@ let skillShareSelection = 'GF';
 const SKILL_HISTORY_PAGE_SIZE = 50;
 let skillHistoryRows = [];
 let skillHistoryOffset = 0;
+let skillHistoryInstrument = 'GF';
 let skillHistoryPreviewFile = null;
 let skillHistoryPreviewUrl = '';
 let skillHistoryPreviewSnapshot = null;
@@ -1575,6 +1576,7 @@ function showSkillHistoryListView() {
   $('skillHistoryPreviewView').classList.add('hidden');
   $('skillHistoryListView').classList.remove('hidden');
   $('skillHistoryTitle').textContent = '現在のスキル対象を保存';
+  $('skillHistoryContext').textContent = '';
   $('btnCloseSkillHistory').textContent = '戻る';
 }
 
@@ -1588,9 +1590,8 @@ function renderSkillHistoryList() {
   list.innerHTML = skillHistoryRows.map(row => `
     <div class="skill-history-row">
       <button type="button" class="skill-history-open" data-open-skill-history="${esc(row.snapshot_id)}">
-        <span>${esc(formatSkillHistoryDate(row.saved_at))}</span>
-        <span class="skill-history-instrument">${esc(row.instrument)}</span>
-        <strong>${Number(row.total_skill).toFixed(2)}</strong>
+        <span class="skill-history-date">${esc(formatSkillHistoryDate(row.saved_at))}</span>
+        <strong class="skill-history-value score-rank-${getTotalSkillRank(row.total_skill)}">${Number(row.total_skill).toFixed(2)}</strong>
       </button>
       <button type="button" class="skill-history-delete" data-delete-skill-history="${esc(row.snapshot_id)}">削除</button>
     </div>
@@ -1611,7 +1612,7 @@ async function loadSkillHistory(reset = false) {
 
   try {
     const { data, error } = await supabase.rpc('list_my_skill_target_snapshots', {
-      p_instrument: 'ALL',
+      p_instrument: skillHistoryInstrument,
       p_limit: SKILL_HISTORY_PAGE_SIZE,
       p_offset: skillHistoryOffset
     });
@@ -1626,7 +1627,7 @@ async function loadSkillHistory(reset = false) {
     skillHistoryOffset += rows.length;
     renderSkillHistoryList();
     moreButton.classList.toggle('hidden', rows.length < SKILL_HISTORY_PAGE_SIZE);
-    status.textContent = `履歴 ${skillHistoryRows.length}件`;
+    status.textContent = `${skillHistoryInstrument}の履歴 ${skillHistoryRows.length}件`;
   } catch (error) {
     console.error('skill history load failed:', error);
     moreButton.classList.add('hidden');
@@ -1642,7 +1643,7 @@ async function openSkillHistory() {
   if (!adminEnabled) return;
   closeMenu();
   showSkillHistoryListView();
-  $('skillHistoryContext').textContent = 'GF / DM';
+  updateSkillHistoryInstrument(activeInstrument, false);
   $('skillHistoryStatus').textContent = '';
   $('skillHistoryMask').style.display = 'flex';
   await loadSkillHistory(true);
@@ -1656,53 +1657,55 @@ function closeSkillHistory(returnToMenu = false) {
   if (returnToMenu) openMenu();
 }
 
-async function saveCurrentSkillHistory(selection, button) {
+function updateSkillHistoryInstrument(instrument, reload = true) {
+  skillHistoryInstrument = instrument === 'DM' ? 'DM' : 'GF';
+  document.querySelectorAll('[data-skill-history-instrument]').forEach(button => {
+    const active = button.dataset.skillHistoryInstrument === skillHistoryInstrument;
+    button.classList.toggle('active', active);
+    button.setAttribute('aria-pressed', String(active));
+  });
+  if (reload) loadSkillHistory(true).catch(console.error);
+}
+
+async function saveCurrentSkillHistory() {
+  const button = $('btnSaveSkillHistory');
   const originalText = button.textContent;
-  const instruments = selection === 'BOTH' ? ['GF', 'DM'] : [selection];
-  const targets = instruments.map(instrument => ({
-    instrument,
-    target: totals(instrument)
-  }));
-  const missing = targets.find(item =>
-    item.target.hotRows.length + item.target.otherRows.length === 0
-  );
-  if (missing) {
-    await showSiteDialog(`${missing.instrument}に保存できるスキル対象がありません。`, 'スキル対象履歴');
+  const instrument = skillHistoryInstrument;
+  const target = totals(instrument);
+  if (target.hotRows.length + target.otherRows.length === 0) {
+    await showSiteDialog(`${instrument}に保存できるスキル対象がありません。`, 'スキル対象履歴');
     return;
   }
 
-  const saveButtons = [...document.querySelectorAll('[data-save-skill-history]')];
-  saveButtons.forEach(item => { item.disabled = true; });
+  button.disabled = true;
   button.textContent = '保存中...';
   try {
-    for (const { instrument, target } of targets) {
-      const snapshotData = {
-        schema_version: 1,
-        username: String($('headerUsername')?.textContent || '').trim(),
-        version_name: String(activeVersion?.name || ''),
-        hot_rows: target.hotRows.map(serializeSkillHistoryRow),
-        other_rows: target.otherRows.map(serializeSkillHistoryRow)
-      };
+    const snapshotData = {
+      schema_version: 1,
+      username: String($('headerUsername')?.textContent || '').trim(),
+      version_name: String(activeVersion?.name || ''),
+      hot_rows: target.hotRows.map(serializeSkillHistoryRow),
+      other_rows: target.otherRows.map(serializeSkillHistoryRow)
+    };
 
-      const { error } = await supabase.rpc('save_my_skill_target_snapshot', {
-        p_instrument: instrument,
-        p_version_id: activeVersionId,
-        p_version_name: activeVersion?.name || '',
-        p_total_skill: Number(target.total) || 0,
-        p_hot_skill: Number(target.hot) || 0,
-        p_other_skill: Number(target.other) || 0,
-        p_snapshot_data: snapshotData
-      });
-      if (error) throw error;
-    }
+    const { error } = await supabase.rpc('save_my_skill_target_snapshot', {
+      p_instrument: instrument,
+      p_version_id: activeVersionId,
+      p_version_name: activeVersion?.name || '',
+      p_total_skill: Number(target.total) || 0,
+      p_hot_skill: Number(target.hot) || 0,
+      p_other_skill: Number(target.other) || 0,
+      p_snapshot_data: snapshotData
+    });
+    if (error) throw error;
 
     await loadSkillHistory(true);
-    $('skillHistoryStatus').textContent = `${selection === 'BOTH' ? 'GF・DM' : selection}の現在のスキル対象を保存しました。`;
+    $('skillHistoryStatus').textContent = `${instrument}の現在のスキル対象を保存しました。`;
   } catch (error) {
     console.error('skill history save failed:', error);
     await showSiteDialog(`履歴を保存できませんでした：${error?.message || '不明なエラー'}`, 'エラー');
   } finally {
-    saveButtons.forEach(item => { item.disabled = false; });
+    button.disabled = false;
     button.textContent = originalText;
   }
 }
@@ -5697,8 +5700,7 @@ $('btnMenuSkillHistory').addEventListener('click', openSkillHistory);
 $('btnCloseSkillHistory').addEventListener('click', () => {
   if (!$('skillHistoryPreviewView').classList.contains('hidden')) {
     showSkillHistoryListView();
-    $('skillHistoryContext').textContent = 'GF / DM';
-    $('skillHistoryStatus').textContent = `履歴 ${skillHistoryRows.length}件`;
+    $('skillHistoryStatus').textContent = `${skillHistoryInstrument}の履歴 ${skillHistoryRows.length}件`;
     return;
   }
   closeSkillHistory(true);
@@ -5706,11 +5708,12 @@ $('btnCloseSkillHistory').addEventListener('click', () => {
 $('skillHistoryMask').addEventListener('click', event => {
   if (event.target === $('skillHistoryMask')) closeSkillHistory();
 });
-document.querySelectorAll('[data-save-skill-history]').forEach(button => {
+document.querySelectorAll('[data-skill-history-instrument]').forEach(button => {
   button.addEventListener('click', () => {
-    saveCurrentSkillHistory(button.dataset.saveSkillHistory, button).catch(console.error);
+    updateSkillHistoryInstrument(button.dataset.skillHistoryInstrument, true);
   });
 });
+$('btnSaveSkillHistory').addEventListener('click', () => saveCurrentSkillHistory().catch(console.error));
 $('btnLoadMoreSkillHistory').addEventListener('click', () => loadSkillHistory(false));
 $('btnShareSkillHistory').addEventListener('click', shareSkillHistoryPreview);
 $('skillHistoryList').addEventListener('click', event => {

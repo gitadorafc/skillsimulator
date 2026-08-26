@@ -10599,68 +10599,80 @@ body.light-mode .admin-usage-card{
 .skill-history-save-options{
   display:grid;
   grid-template-columns:repeat(3,minmax(0,1fr));
-  gap:7px;
+  gap:5px;
 }
 .skill-history-save-option{
-  min-height:44px;
+  min-height:38px;
   border:1px solid #64748b;
-  border-radius:9px;
+  border-radius:8px;
   background:#111827;
   color:#e2e8f0;
-  font-size:13px;
+  font-size:12px;
   font-weight:900;
 }
-.skill-history-save-option:active{background:#2563eb;color:#fff;}
+.skill-history-save-option.active,
+.skill-history-save-submit{
+  border-color:#2563eb;
+  background:#2563eb;
+  color:#fff;
+}
 .skill-history-status{
-  min-height:18px;
-  padding:7px 2px 3px;
+  min-height:15px;
+  padding:4px 2px 2px;
   color:#94a3b8;
   font-size:10px;
   font-weight:800;
 }
-.skill-history-list{display:grid;gap:7px;}
+.skill-history-list-title{
+  margin:2px 1px 4px;
+  color:#cbd5e1;
+  font-size:11px;
+  font-weight:900;
+}
+.skill-history-list{display:grid;gap:4px;}
 .skill-history-row{
   min-width:0;
   display:grid;
   grid-template-columns:minmax(0,1fr) auto;
   align-items:stretch;
-  gap:7px;
+  gap:5px;
 }
 .skill-history-open{
   min-width:0;
-  min-height:48px;
-  padding:8px 11px;
+  min-height:38px;
+  padding:5px 9px;
   display:flex;
   align-items:center;
   justify-content:space-between;
-  gap:10px;
+  gap:7px;
   border:1px solid #334155;
-  border-radius:9px;
+  border-radius:7px;
   background:#111827;
   color:#e2e8f0;
-  font-size:13px;
+  font-size:11px;
   font-weight:900;
   text-align:left;
 }
-.skill-history-open strong{color:#f8fafc;font-size:15px;white-space:nowrap;}
-.skill-history-instrument{
-  min-width:30px;
-  padding:3px 6px;
-  border-radius:5px;
-  background:#2563eb;
-  color:#fff;
-  font-size:10px;
+.skill-history-date{
+  min-width:0;
+  flex:1 1 auto;
+  white-space:nowrap;
+  font-variant-numeric:tabular-nums;
+}
+.skill-history-value{
+  flex:0 0 auto;
+  font-size:14px;
   font-weight:900;
-  text-align:center;
+  white-space:nowrap;
 }
 .skill-history-delete{
-  min-width:58px;
-  padding:0 10px;
+  min-width:50px;
+  padding:0 7px;
   border:1px solid #ef4444;
-  border-radius:9px;
+  border-radius:7px;
   background:#3f171b;
   color:#fca5a5;
-  font-size:12px;
+  font-size:11px;
   font-weight:900;
 }
 .skill-history-more{
@@ -10705,6 +10717,7 @@ body.light-mode .skill-history-dialog{
 body.light-mode .skill-history-head{border-color:#cbd5e1;}
 body.light-mode .skill-history-context,
 body.light-mode .skill-history-status{color:#64748b;}
+body.light-mode .skill-history-list-title{color:#334155;}
 body.light-mode #btnCloseSkillHistory.menu-back-btn{
   border-color:#94a3b8;
   background:#f8fafc;
@@ -10722,7 +10735,12 @@ body.light-mode .skill-history-save-option{
   background:#fff;
   color:#0f172a;
 }
-body.light-mode .skill-history-save-option:active{background:#2563eb;color:#fff;}
+body.light-mode .skill-history-save-option.active,
+body.light-mode .skill-history-save-submit{
+  border-color:#2563eb;
+  background:#2563eb;
+  color:#fff;
+}
 body.light-mode .skill-history-delete{
   background:#fff1f2;
   color:#dc2626;
@@ -11006,7 +11024,7 @@ body.light-mode .skill-history-preview-image{border-color:#94a3b8;}
     <div class="app-menu-version">
       <label>VERSION</label>
       <select id="versionSelect" class="version-select" aria-label="GITADORAバージョン"></select>
-      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 4.3.1</div>
+      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 4.3.2</div>
     </div>
   </div>
 </div>
@@ -11044,11 +11062,12 @@ body.light-mode .skill-history-preview-image{border-color:#94a3b8;}
       <div id="skillHistoryListView">
         <div class="skill-history-save-title">現在のスキル対象を保存</div>
         <div class="skill-history-save-options" role="group" aria-label="保存する機種">
-          <button type="button" class="skill-history-save-option" data-save-skill-history="GF">GF</button>
-          <button type="button" class="skill-history-save-option" data-save-skill-history="DM">DM</button>
-          <button type="button" class="skill-history-save-option" data-save-skill-history="BOTH">両方</button>
+          <button type="button" class="skill-history-save-option" data-skill-history-instrument="GF" aria-pressed="false">GF</button>
+          <button type="button" class="skill-history-save-option" data-skill-history-instrument="DM" aria-pressed="false">DM</button>
+          <button id="btnSaveSkillHistory" type="button" class="skill-history-save-option skill-history-save-submit">保存</button>
         </div>
         <div id="skillHistoryStatus" class="skill-history-status"></div>
+        <div class="skill-history-list-title">保存履歴</div>
         <div id="skillHistoryList" class="skill-history-list"></div>
         <button id="btnLoadMoreSkillHistory" type="button" class="skill-history-more hidden">さらに読み込む</button>
       </div>
@@ -11446,7 +11465,7 @@ body.light-mode .skill-history-preview-image{border-color:#94a3b8;}
 <div id="adminModal" class="admin-modal">
   <div class="admin-header">
     <div class="admin-title-row">
-      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 4.3.1</div></div>
+      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 4.3.2</div></div>
       <button id="btnCloseAdmin" class="admin-close">閉じる</button>
     </div>
     <div class="admin-tabs">
@@ -11532,6 +11551,6 @@ body.light-mode .skill-history-preview-image{border-color:#94a3b8;}
   </div>
 </div>
 
-<script type="module" src="./js/app.js?v=4_3_1"></script>
+<script type="module" src="./js/app.js?v=4_3_2"></script>
 </body>
 </html>
