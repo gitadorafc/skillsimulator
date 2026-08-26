@@ -321,6 +321,7 @@ function getEamusementSyncEntry() {
   return `https://p.eagate.573.jp/game/gfdm/${getEamusementSlug()}/p/playdata/skill.html?gtype=gf&stype=1`;
 }
 let skillSyncInProgress = false;
+const SKILL_SYNC_CHUNK_SIZE = 25;
 
 function setSkillSyncStatus(message, state = '') {
   const el = $('skillSyncStatus');
@@ -407,22 +408,35 @@ async function importSkillSyncRecords(payload) {
   let completionMessage = '';
 
   try {
-    setSkillSyncStatus(`同期中… ${rows.length}件を一括処理しています`, 'running');
+    let saved = 0;
+    let requested = 0;
+    let skipped = 0;
 
-    // DB側RPCで一括処理。同一VERSIONの既存FC/オプションは維持し、
-    // 新VERSION初回登録では直前VERSIONのオプション/コメントを引き継ぐ。
-    const { data, error } = await supabase.rpc('sync_skill_records', {
-      p_records: rows,
-      p_version_id: activeVersionId,
-      p_default_gf_option: getGfDefaultOption()
-    });
+    // 100件前後を1回のRPCで処理すると、ユーザーの過去データ量によっては
+    // DBの制限時間を超えるため、小分けにして順番に保存する。
+    // 同じデータを再同期しても既存行は更新されるため、途中失敗後の再実行も安全。
+    for (let offset = 0; offset < rows.length; offset += SKILL_SYNC_CHUNK_SIZE) {
+      const chunk = rows.slice(offset, offset + SKILL_SYNC_CHUNK_SIZE);
+      const end = offset + chunk.length;
+      setSkillSyncStatus(`同期中… ${offset + 1}〜${end} / ${rows.length}件`, 'running');
 
-    if (error) throw error;
+      const { data, error } = await supabase.rpc('sync_skill_records', {
+        p_records: chunk,
+        p_version_id: activeVersionId,
+        p_default_gf_option: getGfDefaultOption()
+      });
 
-    const result = Array.isArray(data) ? data[0] : data;
-    const saved = Number(result?.saved_count) || 0;
-    const requested = Number(result?.requested_count) || 0;
-    const skipped = Number(result?.skipped_count) || 0;
+      if (error) {
+        const chunkError = new Error(`${offset + 1}〜${end}件目の保存に失敗しました：${error.message || error}`);
+        chunkError.cause = error;
+        throw chunkError;
+      }
+
+      const result = Array.isArray(data) ? data[0] : data;
+      saved += Number(result?.saved_count) || 0;
+      requested += Number(result?.requested_count) || 0;
+      skipped += Number(result?.skipped_count) || 0;
+    }
 
     await loadScores();
 
