@@ -10531,6 +10531,172 @@ body.light-mode .admin-usage-card{
   }
 }
 
+/* === APP VERSION 4.3.0: 管理者向けスキル対象履歴 === */
+.skill-history-dialog{
+  width:min(620px,calc(100vw - 24px));
+  max-height:calc(100dvh - 24px);
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+  border:1px solid #334155;
+  border-radius:14px;
+  background:#0f172a;
+  color:#e2e8f0;
+  box-shadow:0 18px 50px rgba(0,0,0,.42);
+}
+.skill-history-head{
+  min-height:58px;
+  padding:12px 14px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  border-bottom:1px solid #334155;
+}
+.skill-history-head > div{min-width:0;}
+.skill-history-head strong{font-size:18px;font-weight:900;}
+.skill-history-context{
+  margin-top:3px;
+  color:#94a3b8;
+  font-size:10px;
+  font-weight:800;
+}
+#btnCloseSkillHistory.menu-back-btn{
+  min-width:52px;
+  height:34px;
+  padding:0 11px;
+  border:1px solid #64748b;
+  border-radius:8px;
+  background:#111827;
+  color:#e2e8f0;
+  font-size:12px;
+  font-weight:900;
+}
+.skill-history-body{
+  min-height:0;
+  padding:12px;
+  overflow-y:auto;
+  overscroll-behavior:contain;
+  -webkit-overflow-scrolling:touch;
+}
+.skill-history-save,
+.skill-history-share{
+  width:100%;
+  min-height:46px;
+  border:0;
+  border-radius:9px;
+  background:#2563eb;
+  color:#fff;
+  font-size:14px;
+  font-weight:900;
+}
+.skill-history-status{
+  min-height:18px;
+  padding:7px 2px 3px;
+  color:#94a3b8;
+  font-size:10px;
+  font-weight:800;
+}
+.skill-history-list{display:grid;gap:7px;}
+.skill-history-row{
+  min-width:0;
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  align-items:stretch;
+  gap:7px;
+}
+.skill-history-open{
+  min-width:0;
+  min-height:48px;
+  padding:8px 11px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  border:1px solid #334155;
+  border-radius:9px;
+  background:#111827;
+  color:#e2e8f0;
+  font-size:13px;
+  font-weight:900;
+  text-align:left;
+}
+.skill-history-open strong{color:#f8fafc;font-size:15px;white-space:nowrap;}
+.skill-history-delete{
+  min-width:58px;
+  padding:0 10px;
+  border:1px solid #ef4444;
+  border-radius:9px;
+  background:#3f171b;
+  color:#fca5a5;
+  font-size:12px;
+  font-weight:900;
+}
+.skill-history-more{
+  width:100%;
+  min-height:40px;
+  margin-top:8px;
+  border:1px solid #475569;
+  border-radius:8px;
+  background:#1e293b;
+  color:#e2e8f0;
+  font-size:12px;
+  font-weight:900;
+}
+.skill-history-empty{
+  padding:24px 10px;
+  color:#94a3b8;
+  font-size:12px;
+  font-weight:800;
+  text-align:center;
+}
+.skill-history-preview-actions{
+  position:sticky;
+  top:-12px;
+  z-index:2;
+  padding:0 0 10px;
+  background:#0f172a;
+}
+.skill-history-preview-image{
+  display:block;
+  width:100%;
+  height:auto;
+  border:1px solid #334155;
+  border-radius:8px;
+  background:#07101d;
+}
+body.light-mode .skill-history-dialog{
+  border-color:#94a3b8;
+  background:#f3f4f6;
+  color:#0f172a;
+  box-shadow:0 18px 45px rgba(15,23,42,.24);
+}
+body.light-mode .skill-history-head{border-color:#cbd5e1;}
+body.light-mode .skill-history-context,
+body.light-mode .skill-history-status{color:#64748b;}
+body.light-mode #btnCloseSkillHistory.menu-back-btn{
+  border-color:#94a3b8;
+  background:#f8fafc;
+  color:#2563eb;
+}
+body.light-mode .skill-history-open{
+  border-color:#9aacc4;
+  background:#fff;
+  color:#0f172a;
+}
+body.light-mode .skill-history-open strong{color:#0f172a;}
+body.light-mode .skill-history-delete{
+  background:#fff1f2;
+  color:#dc2626;
+}
+body.light-mode .skill-history-more{
+  border-color:#9aacc4;
+  background:#fff;
+  color:#2563eb;
+}
+body.light-mode .skill-history-preview-actions{background:#f3f4f6;}
+body.light-mode .skill-history-preview-image{border-color:#94a3b8;}
+
 </style>
   <link rel="preconnect" href="https://challenges.cloudflare.com">
   <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" defer></script>
@@ -10792,6 +10958,7 @@ body.light-mode .admin-usage-card{
     <button id="btnMenuFeatureSettings" type="button" class="app-menu-item">機能設定 <span>›</span></button>
     <button id="btnMenuSkillSync" type="button" class="app-menu-item">スキル対象同期 <span>›</span></button>
     <button id="btnMenuShareSkill" type="button" class="app-menu-item">スキル対象の画像共有 <span>›</span></button>
+    <button id="btnMenuSkillHistory" type="button" class="app-menu-item hidden">スキル対象履歴 <span>›</span></button>
     <button id="btnMenuSkillRanking" type="button" class="app-menu-item">スキル対象ランキング <span>›</span></button>
     <button id="btnMenuRivals" type="button" class="app-menu-item">ライバル管理 <span>›</span></button>
     <button id="btnMenuHowTo" type="button" class="app-menu-item">How to use <span>›</span></button>
@@ -10801,7 +10968,7 @@ body.light-mode .admin-usage-card{
     <div class="app-menu-version">
       <label>VERSION</label>
       <select id="versionSelect" class="version-select" aria-label="GITADORAバージョン"></select>
-      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 4.2.1</div>
+      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 4.3.0</div>
     </div>
   </div>
 </div>
@@ -10821,6 +10988,33 @@ body.light-mode .admin-usage-card{
         <button type="button" class="skill-share-option" data-skill-share-selection="BOTH" aria-pressed="false">両方</button>
       </div>
       <button id="btnExecuteSkillShare" type="button" class="skill-share-execute">共有画像を作成する</button>
+    </div>
+  </div>
+</div>
+
+
+<div id="skillHistoryMask" class="site-dialog-mask">
+  <div class="skill-history-dialog" role="dialog" aria-modal="true" aria-labelledby="skillHistoryTitle">
+    <div class="skill-history-head">
+      <div>
+        <strong id="skillHistoryTitle">スキル対象履歴</strong>
+        <div id="skillHistoryContext" class="skill-history-context"></div>
+      </div>
+      <button id="btnCloseSkillHistory" type="button" class="menu-back-btn">戻る</button>
+    </div>
+    <div class="skill-history-body">
+      <div id="skillHistoryListView">
+        <button id="btnSaveSkillHistory" type="button" class="skill-history-save">現在のスキル対象を保存</button>
+        <div id="skillHistoryStatus" class="skill-history-status"></div>
+        <div id="skillHistoryList" class="skill-history-list"></div>
+        <button id="btnLoadMoreSkillHistory" type="button" class="skill-history-more hidden">さらに読み込む</button>
+      </div>
+      <div id="skillHistoryPreviewView" class="hidden">
+        <div class="skill-history-preview-actions">
+          <button id="btnShareSkillHistory" type="button" class="skill-history-share">共有する</button>
+        </div>
+        <img id="skillHistoryPreviewImage" class="skill-history-preview-image" alt="保存したスキル対象の共有画像">
+      </div>
     </div>
   </div>
 </div>
@@ -11209,7 +11403,7 @@ body.light-mode .admin-usage-card{
 <div id="adminModal" class="admin-modal">
   <div class="admin-header">
     <div class="admin-title-row">
-      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 4.2.1</div></div>
+      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 4.3.0</div></div>
       <button id="btnCloseAdmin" class="admin-close">閉じる</button>
     </div>
     <div class="admin-tabs">
@@ -11295,6 +11489,6 @@ body.light-mode .admin-usage-card{
   </div>
 </div>
 
-<script type="module" src="./js/app.js?v=4_2_1"></script>
+<script type="module" src="./js/app.js?v=4_3_0"></script>
 </body>
 </html>

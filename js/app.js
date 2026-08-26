@@ -625,6 +625,7 @@ const GLOBAL_SCROLL_LOCK_OVERLAYS = [
   '#mypageModal',
   '#skillSyncMask',
   '#skillShareMask',
+  '#skillHistoryMask',
   '#accountSwitchMask',
   '#rateCompareMask',
   '#siteDialogMask',
@@ -1314,6 +1315,7 @@ async function init() {
       $('btnAdmin').classList.add('hidden');
       $('mypageUserSwitchBlock')?.classList.add('hidden');
       closeSkillTargetRanking();
+      closeSkillHistory();
       $('menuOfuseSupport')?.classList.add('hidden');
       closeAdmin();
       closeAccountSwitch();
@@ -1327,6 +1329,12 @@ async function init() {
 
 let myPageOpenedFromMenu = false;
 let skillShareSelection = 'GF';
+const SKILL_HISTORY_PAGE_SIZE = 50;
+let skillHistoryRows = [];
+let skillHistoryOffset = 0;
+let skillHistoryPreviewFile = null;
+let skillHistoryPreviewUrl = '';
+let skillHistoryPreviewSnapshot = null;
 const ADMIN_ACCOUNT_SWITCH_STORAGE_KEY = 'gitadora_admin_account_sessions_v1';
 
 function readStoredAdminAccounts() {
@@ -1530,6 +1538,246 @@ async function executeSkillShare() {
   } finally {
     button.disabled = false;
     button.textContent = originalText;
+  }
+}
+
+function formatSkillHistoryDate(value) {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return '';
+  const pad = number => String(number).padStart(2, '0');
+  return `${date.getFullYear()}/${pad(date.getMonth() + 1)}/${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}`;
+}
+
+function serializeSkillHistoryRow(row) {
+  return {
+    title: String(row?.title || ''),
+    part: String(row?.part || ''),
+    level: Number(row?.level) || 0,
+    achievement_rate: Number(row?.achievement_rate) || 0,
+    skill: Number(row?.skill) || 0,
+    fc: row?.fc ? String(row.fc) : null,
+    play_option: String(row?.play_option || 'NORMAL'),
+    is_hot: Boolean(row?.is_hot)
+  };
+}
+
+function releaseSkillHistoryPreview() {
+  if (skillHistoryPreviewUrl) URL.revokeObjectURL(skillHistoryPreviewUrl);
+  skillHistoryPreviewUrl = '';
+  skillHistoryPreviewFile = null;
+  skillHistoryPreviewSnapshot = null;
+  const image = $('skillHistoryPreviewImage');
+  if (image) image.removeAttribute('src');
+}
+
+function showSkillHistoryListView() {
+  releaseSkillHistoryPreview();
+  $('skillHistoryPreviewView').classList.add('hidden');
+  $('skillHistoryListView').classList.remove('hidden');
+  $('skillHistoryTitle').textContent = 'スキル対象履歴';
+  $('btnCloseSkillHistory').textContent = '戻る';
+}
+
+function renderSkillHistoryList() {
+  const list = $('skillHistoryList');
+  if (!skillHistoryRows.length) {
+    list.innerHTML = '<div class="skill-history-empty">保存した履歴はありません。</div>';
+    return;
+  }
+
+  list.innerHTML = skillHistoryRows.map(row => `
+    <div class="skill-history-row">
+      <button type="button" class="skill-history-open" data-open-skill-history="${esc(row.snapshot_id)}">
+        <span>${esc(formatSkillHistoryDate(row.saved_at))}</span>
+        <strong>${Number(row.total_skill).toFixed(2)}</strong>
+      </button>
+      <button type="button" class="skill-history-delete" data-delete-skill-history="${esc(row.snapshot_id)}">削除</button>
+    </div>
+  `).join('');
+}
+
+async function loadSkillHistory(reset = false) {
+  if (reset) {
+    skillHistoryRows = [];
+    skillHistoryOffset = 0;
+    renderSkillHistoryList();
+  }
+
+  const moreButton = $('btnLoadMoreSkillHistory');
+  const status = $('skillHistoryStatus');
+  moreButton.disabled = true;
+  status.textContent = '履歴を読み込んでいます...';
+
+  try {
+    const { data, error } = await supabase.rpc('list_my_skill_target_snapshots', {
+      p_instrument: activeInstrument,
+      p_limit: SKILL_HISTORY_PAGE_SIZE,
+      p_offset: skillHistoryOffset
+    });
+    if (error) throw error;
+
+    const rows = (data || []).map(row => ({
+      ...row,
+      total_skill: Number(row.total_skill) || 0
+    }));
+    skillHistoryRows.push(...rows);
+    skillHistoryOffset += rows.length;
+    renderSkillHistoryList();
+    moreButton.classList.toggle('hidden', rows.length < SKILL_HISTORY_PAGE_SIZE);
+    status.textContent = `${activeInstrument}の履歴 ${skillHistoryRows.length}件`;
+  } catch (error) {
+    console.error('skill history load failed:', error);
+    moreButton.classList.add('hidden');
+    status.textContent = /list_my_skill_target_snapshots|schema cache|PGRST202/i.test(String(error?.message || ''))
+      ? 'Supabaseで v37_skill_target_history_admin_preview.sql を実行してください。'
+      : `履歴を取得できませんでした：${error?.message || '不明なエラー'}`;
+  } finally {
+    moreButton.disabled = false;
+  }
+}
+
+async function openSkillHistory() {
+  if (!adminEnabled) return;
+  closeMenu();
+  showSkillHistoryListView();
+  $('skillHistoryContext').textContent = activeInstrument;
+  $('skillHistoryStatus').textContent = '';
+  $('skillHistoryMask').style.display = 'flex';
+  await loadSkillHistory(true);
+}
+
+function closeSkillHistory(returnToMenu = false) {
+  releaseSkillHistoryPreview();
+  $('skillHistoryMask').style.display = 'none';
+  $('skillHistoryPreviewView').classList.add('hidden');
+  $('skillHistoryListView').classList.remove('hidden');
+  if (returnToMenu) openMenu();
+}
+
+async function saveCurrentSkillHistory() {
+  const button = $('btnSaveSkillHistory');
+  const originalText = button.textContent;
+  const target = totals(activeInstrument);
+  const targetCount = target.hotRows.length + target.otherRows.length;
+
+  if (!targetCount) {
+    await showSiteDialog('保存できるスキル対象がありません。', 'スキル対象履歴');
+    return;
+  }
+
+  button.disabled = true;
+  button.textContent = '保存中...';
+  try {
+    const snapshotData = {
+      schema_version: 1,
+      username: String($('headerUsername')?.textContent || '').trim(),
+      version_name: String(activeVersion?.name || ''),
+      hot_rows: target.hotRows.map(serializeSkillHistoryRow),
+      other_rows: target.otherRows.map(serializeSkillHistoryRow)
+    };
+
+    const { error } = await supabase.rpc('save_my_skill_target_snapshot', {
+      p_instrument: activeInstrument,
+      p_version_id: activeVersionId,
+      p_version_name: activeVersion?.name || '',
+      p_total_skill: Number(target.total) || 0,
+      p_hot_skill: Number(target.hot) || 0,
+      p_other_skill: Number(target.other) || 0,
+      p_snapshot_data: snapshotData
+    });
+    if (error) throw error;
+
+    await loadSkillHistory(true);
+    $('skillHistoryStatus').textContent = `${activeInstrument}の現在のスキル対象を保存しました。`;
+  } catch (error) {
+    console.error('skill history save failed:', error);
+    await showSiteDialog(`履歴を保存できませんでした：${error?.message || '不明なエラー'}`, 'エラー');
+  } finally {
+    button.disabled = false;
+    button.textContent = originalText;
+  }
+}
+
+async function openSkillHistoryPreview(snapshotId) {
+  const status = $('skillHistoryStatus');
+  status.textContent = '共有画像を生成しています...';
+  try {
+    const { data, error } = await supabase.rpc('get_my_skill_target_snapshot', {
+      p_snapshot_id: snapshotId
+    });
+    if (error) throw error;
+    const row = Array.isArray(data) ? data[0] : data;
+    if (!row) throw new Error('履歴が見つかりません。');
+
+    const stored = typeof row.snapshot_data === 'string'
+      ? JSON.parse(row.snapshot_data)
+      : (row.snapshot_data || {});
+    const snapshot = {
+      instrument: row.instrument,
+      versionName: row.version_name || stored.version_name || '',
+      username: stored.username || '',
+      savedAt: row.saved_at,
+      total: Number(row.total_skill) || 0,
+      hot: Number(row.hot_skill) || 0,
+      other: Number(row.other_skill) || 0,
+      hotRows: Array.isArray(stored.hot_rows) ? stored.hot_rows : [],
+      otherRows: Array.isArray(stored.other_rows) ? stored.other_rows : []
+    };
+
+    releaseSkillHistoryPreview();
+    skillHistoryPreviewFile = await createSkillShareFile(row.instrument, snapshot);
+    skillHistoryPreviewUrl = URL.createObjectURL(skillHistoryPreviewFile);
+    skillHistoryPreviewSnapshot = snapshot;
+    $('skillHistoryPreviewImage').src = skillHistoryPreviewUrl;
+    $('skillHistoryListView').classList.add('hidden');
+    $('skillHistoryPreviewView').classList.remove('hidden');
+    $('skillHistoryTitle').textContent = '保存したスキル対象';
+    $('skillHistoryContext').textContent = `${row.instrument} / ${formatSkillHistoryDate(row.saved_at)} / ${Number(row.total_skill).toFixed(2)}`;
+    status.textContent = '';
+    document.querySelector('.skill-history-body')?.scrollTo({ top: 0, behavior: 'auto' });
+  } catch (error) {
+    console.error('skill history preview failed:', error);
+    status.textContent = '';
+    await showSiteDialog(`履歴画像を生成できませんでした：${error?.message || '不明なエラー'}`, 'エラー');
+  }
+}
+
+async function shareSkillHistoryPreview() {
+  if (!skillHistoryPreviewFile || !skillHistoryPreviewSnapshot) return;
+  const button = $('btnShareSkillHistory');
+  const originalText = button.textContent;
+  button.disabled = true;
+  button.textContent = '共有中...';
+  try {
+    const snapshot = skillHistoryPreviewSnapshot;
+    await shareGeneratedSkillFiles(
+      [skillHistoryPreviewFile],
+      [`GITADORA ${snapshot.instrument} SKILL ${Number(snapshot.total).toFixed(2)}`]
+    );
+  } finally {
+    button.disabled = false;
+    button.textContent = originalText;
+  }
+}
+
+async function deleteSkillHistory(snapshotId) {
+  const row = skillHistoryRows.find(item => item.snapshot_id === snapshotId);
+  const confirmed = await showSiteConfirm(
+    `${formatSkillHistoryDate(row?.saved_at)}に保存したスキル対象履歴を削除しますか？`,
+    '履歴の削除',
+    '削除する'
+  );
+  if (!confirmed) return;
+
+  try {
+    const { error } = await supabase.rpc('delete_my_skill_target_snapshot', {
+      p_snapshot_id: snapshotId
+    });
+    if (error) throw error;
+    await loadSkillHistory(true);
+    $('skillHistoryStatus').textContent = '履歴を削除しました。';
+  } catch (error) {
+    await showSiteDialog(`履歴を削除できませんでした：${error?.message || '不明なエラー'}`, 'エラー');
   }
 }
 
@@ -1899,8 +2147,8 @@ function closeSkillTargetRanking(returnToMenu = false) {
   if (returnToMenu) openMenu();
 }
 
-async function createSkillShareFile(instrument) {
-  const target = totals(instrument);
+async function createSkillShareFile(instrument, snapshot = null) {
+  const target = snapshot || totals(instrument);
   const rowsHot = target.hotRows || [];
   const rowsOther = target.otherRows || [];
   // 新しい共有画像レイアウトは、確認中のため管理者だけに適用する。
@@ -1949,12 +2197,12 @@ async function createSkillShareFile(instrument) {
 
   x.fillStyle = '#94a3b8';
   x.font = '700 24px sans-serif';
-  x.fillText(activeVersion?.name || '', 54, 118);
+  x.fillText(snapshot?.versionName || activeVersion?.name || '', 54, 118);
 
   // ユーザー名 + TOTALスキルを横並び。
   // 旧ユーザー名(22px)と旧TOTAL(68px)の中間程度として42pxに統一。
   // 両方ともTOTALスキルカラーに準拠する。
-  const shareUsername = String($('headerUsername')?.textContent || '').trim();
+  const shareUsername = String(snapshot?.username || $('headerUsername')?.textContent || '').trim();
   const shareTotal = Number(target.total).toFixed(2);
   const shareLineY = 174;
   const shareFontSize = 42;
@@ -2278,7 +2526,7 @@ async function createSkillShareFile(instrument) {
   x.fillStyle='#94a3b8'; x.font='700 24px sans-serif';
   x.fillText('GITADORA Skill Simulator',64,H-41);
   x.textAlign='right';
-  x.fillText(new Date().toLocaleDateString('ja-JP'),W-64,H-41);
+  x.fillText(new Date(snapshot?.savedAt || Date.now()).toLocaleDateString('ja-JP'),W-64,H-41);
   x.textAlign='left';
 
   const blob = await new Promise((resolve, reject) => {
@@ -2309,10 +2557,13 @@ function downloadSkillShareFiles(files) {
 async function shareSkillImage(selection = activeInstrument) {
   const instruments = selection === 'BOTH' ? ['GF', 'DM'] : [selection];
   const files = await Promise.all(instruments.map(createSkillShareFile));
-  const skillText = instruments
-    .map(instrument => `GITADORA ${instrument} SKILL ${Number(totals(instrument).total).toFixed(2)}`)
-    .join('\n');
-  const text = `${skillText}\n#GITADORASkillSimulator`;
+  const skillLines = instruments
+    .map(instrument => `GITADORA ${instrument} SKILL ${Number(totals(instrument).total).toFixed(2)}`);
+  await shareGeneratedSkillFiles(files, skillLines);
+}
+
+async function shareGeneratedSkillFiles(files, skillLines) {
+  const text = `${skillLines.join('\n')}\n#GITADORASkillSimulator`;
 
   try {
     if (navigator.share && (!navigator.canShare || navigator.canShare({ files }))) {
@@ -3766,6 +4017,7 @@ async function checkAdminAccess() {
   $('btnAdmin').classList.toggle('hidden', !adminEnabled);
   $('mypageUserSwitchBlock')?.classList.remove('hidden');
   $('btnMenuSkillRanking')?.classList.remove('hidden');
+  $('btnMenuSkillHistory')?.classList.toggle('hidden', !adminEnabled);
   $('menuOfuseSupport')?.classList.remove('hidden');
   $('scorePrivateCommentGroup')?.classList.remove('hidden');
   updateDmBassMirrorFieldVisibility();
@@ -5433,6 +5685,33 @@ document.querySelectorAll('[data-skill-share-selection]').forEach(button => {
   button.addEventListener('click', () => updateSkillShareSelection(button.dataset.skillShareSelection));
 });
 $('btnExecuteSkillShare').addEventListener('click', executeSkillShare);
+$('btnMenuSkillHistory').addEventListener('click', openSkillHistory);
+$('btnCloseSkillHistory').addEventListener('click', () => {
+  if (!$('skillHistoryPreviewView').classList.contains('hidden')) {
+    showSkillHistoryListView();
+    $('skillHistoryContext').textContent = activeInstrument;
+    $('skillHistoryStatus').textContent = `${activeInstrument}の履歴 ${skillHistoryRows.length}件`;
+    return;
+  }
+  closeSkillHistory(true);
+});
+$('skillHistoryMask').addEventListener('click', event => {
+  if (event.target === $('skillHistoryMask')) closeSkillHistory();
+});
+$('btnSaveSkillHistory').addEventListener('click', saveCurrentSkillHistory);
+$('btnLoadMoreSkillHistory').addEventListener('click', () => loadSkillHistory(false));
+$('btnShareSkillHistory').addEventListener('click', shareSkillHistoryPreview);
+$('skillHistoryList').addEventListener('click', event => {
+  const openButton = event.target.closest('[data-open-skill-history]');
+  const deleteButton = event.target.closest('[data-delete-skill-history]');
+  if (deleteButton) {
+    deleteSkillHistory(deleteButton.dataset.deleteSkillHistory).catch(console.error);
+    return;
+  }
+  if (openButton) {
+    openSkillHistoryPreview(openButton.dataset.openSkillHistory).catch(console.error);
+  }
+});
 $('btnMenuSkillRanking').addEventListener('click', openSkillTargetRanking);
 $('btnCloseSkillRanking').addEventListener('click', () => closeSkillTargetRanking(true));
 $('skillRankingMask').addEventListener('click', e => {
