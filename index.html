@@ -10637,6 +10637,9 @@ body.light-mode .admin-usage-card{
   align-items:stretch;
   gap:5px;
 }
+.skill-history-row.has-compare{
+  grid-template-columns:minmax(0,1fr) auto auto;
+}
 .skill-history-open{
   min-width:0;
   min-height:38px;
@@ -10674,6 +10677,47 @@ body.light-mode .admin-usage-card{
   color:#fca5a5;
   font-size:11px;
   font-weight:900;
+}
+.skill-history-compare{
+  min-width:50px;
+  padding:0 7px;
+  border:1px solid #3b82f6;
+  border-radius:7px;
+  background:#172554;
+  color:#bfdbfe;
+  font-size:11px;
+  font-weight:900;
+}
+.skill-history-unified-select{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:5px;
+  margin-bottom:8px;
+}
+.skill-history-unified-actions{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:5px;
+}
+.skill-history-unified-action{
+  min-width:0;
+  min-height:42px;
+  padding:5px 3px;
+  border:1px solid #2563eb;
+  border-radius:8px;
+  background:#2563eb;
+  color:#fff;
+  font-size:11px;
+  font-weight:900;
+  line-height:1.25;
+}
+.skill-history-unified-action.secondary{
+  background:#172554;
+  color:#dbeafe;
+}
+.skill-history-unified-action:disabled{
+  opacity:.55;
+  cursor:wait;
 }
 .skill-history-more{
   width:100%;
@@ -10745,6 +10789,19 @@ body.light-mode .skill-history-delete{
   background:#fff1f2;
   color:#dc2626;
 }
+body.light-mode .skill-history-compare{
+  background:#eff6ff;
+  color:#2563eb;
+}
+body.light-mode .skill-history-unified-action{
+  border-color:#2563eb;
+  background:#2563eb;
+  color:#fff;
+}
+body.light-mode .skill-history-unified-action.secondary{
+  background:#eff6ff;
+  color:#2563eb;
+}
 body.light-mode .skill-history-more{
   border-color:#9aacc4;
   background:#fff;
@@ -10760,6 +10817,18 @@ body.light-mode .skill-history-save-option[data-skill-history-instrument="GF"].a
 }
 .skill-history-save-option[data-skill-history-instrument="DM"].active,
 body.light-mode .skill-history-save-option[data-skill-history-instrument="DM"].active{
+  border-color:#3caa2a;
+  background:#3caa2a;
+  color:#fff;
+}
+.skill-history-save-option[data-skill-unified-selection="GF"].active,
+body.light-mode .skill-history-save-option[data-skill-unified-selection="GF"].active{
+  border-color:#e8336a;
+  background:#e8336a;
+  color:#fff;
+}
+.skill-history-save-option[data-skill-unified-selection="DM"].active,
+body.light-mode .skill-history-save-option[data-skill-unified-selection="DM"].active{
   border-color:#3caa2a;
   background:#3caa2a;
   color:#fff;
@@ -11055,6 +11124,7 @@ body.text-size-up #menuMask .app-menu-group-label{
 
     <div class="app-menu-group-label">スキル機能</div>
     <button id="btnMenuSkillSync" type="button" class="app-menu-item">スキル対象同期 <span>›</span></button>
+    <button id="btnMenuSkillShareHistory" type="button" class="app-menu-item hidden">現在のスキル対象を共有・保存 <span>›</span></button>
     <button id="btnMenuSkillHistory" type="button" class="app-menu-item">現在のスキル対象を保存 <span>›</span></button>
     <button id="btnMenuShareSkill" type="button" class="app-menu-item">スキル対象の画像共有 <span>›</span></button>
     <button id="btnMenuSkillRanking" type="button" class="app-menu-item">スキル対象ランキング <span>›</span></button>
@@ -11068,7 +11138,7 @@ body.text-size-up #menuMask .app-menu-group-label{
     <div class="app-menu-version">
       <label>VERSION</label>
       <select id="versionSelect" class="version-select" aria-label="GITADORAバージョン"></select>
-      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 4.4.2</div>
+      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 4.5.0</div>
     </div>
   </div>
 </div>
@@ -11104,14 +11174,28 @@ body.text-size-up #menuMask .app-menu-group-label{
     </div>
     <div class="skill-history-body">
       <div id="skillHistoryListView">
-        <div class="skill-history-save-title">現在のスキル対象を保存</div>
-        <div class="skill-history-save-options" role="group" aria-label="保存する機種">
-          <button type="button" class="skill-history-save-option" data-skill-history-instrument="GF" aria-pressed="false">GF</button>
-          <button type="button" class="skill-history-save-option" data-skill-history-instrument="DM" aria-pressed="false">DM</button>
-          <button id="btnSaveSkillHistory" type="button" class="skill-history-save-option skill-history-save-submit">保存する</button>
+        <div id="skillHistoryLegacyControls">
+          <div class="skill-history-save-title">現在のスキル対象を保存</div>
+          <div class="skill-history-save-options" role="group" aria-label="保存する機種">
+            <button type="button" class="skill-history-save-option" data-skill-history-instrument="GF" aria-pressed="false">GF</button>
+            <button type="button" class="skill-history-save-option" data-skill-history-instrument="DM" aria-pressed="false">DM</button>
+            <button id="btnSaveSkillHistory" type="button" class="skill-history-save-option skill-history-save-submit">保存する</button>
+          </div>
+        </div>
+        <div id="skillHistoryUnifiedControls" class="hidden">
+          <div class="skill-history-unified-select" role="group" aria-label="共有・保存する機種">
+            <button type="button" class="skill-history-save-option" data-skill-unified-selection="GF" aria-pressed="false">GF</button>
+            <button type="button" class="skill-history-save-option" data-skill-unified-selection="DM" aria-pressed="false">DM</button>
+            <button type="button" class="skill-history-save-option" data-skill-unified-selection="BOTH" aria-pressed="false">両方</button>
+          </div>
+          <div class="skill-history-unified-actions">
+            <button id="btnUnifiedSkillShare" type="button" class="skill-history-unified-action">画像を共有</button>
+            <button id="btnUnifiedSkillSave" type="button" class="skill-history-unified-action secondary">履歴に保存</button>
+            <button id="btnUnifiedSkillSaveShare" type="button" class="skill-history-unified-action">履歴に保存して共有</button>
+          </div>
         </div>
         <div id="skillHistoryStatus" class="skill-history-status"></div>
-        <div class="skill-history-list-title">保存履歴</div>
+        <div id="skillHistoryListTitle" class="skill-history-list-title">保存履歴</div>
         <div id="skillHistoryList" class="skill-history-list"></div>
         <button id="btnLoadMoreSkillHistory" type="button" class="skill-history-more hidden">さらに読み込む</button>
       </div>
@@ -11510,7 +11594,7 @@ body.text-size-up #menuMask .app-menu-group-label{
 <div id="adminModal" class="admin-modal">
   <div class="admin-header">
     <div class="admin-title-row">
-      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 4.4.2</div></div>
+      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 4.5.0</div></div>
       <button id="btnCloseAdmin" class="admin-close">閉じる</button>
     </div>
     <div class="admin-tabs">
@@ -11596,6 +11680,6 @@ body.text-size-up #menuMask .app-menu-group-label{
   </div>
 </div>
 
-<script type="module" src="./js/app.js?v=4_4_2"></script>
+<script type="module" src="./js/app.js?v=4_5_0"></script>
 </body>
 </html>

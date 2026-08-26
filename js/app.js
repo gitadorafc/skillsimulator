@@ -1347,6 +1347,7 @@ const SKILL_HISTORY_PAGE_SIZE = 50;
 let skillHistoryRows = [];
 let skillHistoryOffset = 0;
 let skillHistoryInstrument = 'GF';
+let skillUnifiedSelection = 'GF';
 let skillHistoryPreviewFile = null;
 let skillHistoryPreviewUrl = '';
 let skillHistoryPreviewSnapshot = null;
@@ -1589,7 +1590,9 @@ function showSkillHistoryListView() {
   releaseSkillHistoryPreview();
   $('skillHistoryPreviewView').classList.add('hidden');
   $('skillHistoryListView').classList.remove('hidden');
-  $('skillHistoryTitle').textContent = '現在のスキル対象を保存';
+  $('skillHistoryTitle').textContent = adminEnabled
+    ? '現在のスキル対象を共有・保存'
+    : '現在のスキル対象を保存';
   $('skillHistoryContext').textContent = '';
   $('btnCloseSkillHistory').textContent = '戻る';
 }
@@ -1602,11 +1605,12 @@ function renderSkillHistoryList() {
   }
 
   list.innerHTML = skillHistoryRows.map(row => `
-    <div class="skill-history-row">
+    <div class="skill-history-row${adminEnabled ? ' has-compare' : ''}">
       <button type="button" class="skill-history-open" data-open-skill-history="${esc(row.snapshot_id)}">
         <span class="skill-history-date">${esc(formatSkillHistoryDate(row.saved_at))}</span>
         <strong class="skill-history-value score-rank-${getTotalSkillRank(row.total_skill)}">${Number(row.total_skill).toFixed(2)}</strong>
       </button>
+      ${adminEnabled ? `<button type="button" class="skill-history-compare" data-compare-skill-history="${esc(row.snapshot_id)}">比較</button>` : ''}
       <button type="button" class="skill-history-delete" data-delete-skill-history="${esc(row.snapshot_id)}">削除</button>
     </div>
   `).join('');
@@ -1657,6 +1661,9 @@ async function openSkillHistory() {
   closeMenu();
   showSkillHistoryListView();
   updateSkillHistoryInstrument(activeInstrument, false);
+  $('skillHistoryLegacyControls')?.classList.toggle('hidden', adminEnabled);
+  $('skillHistoryUnifiedControls')?.classList.toggle('hidden', !adminEnabled);
+  if (adminEnabled) updateUnifiedSkillSelection(activeInstrument, false);
   $('skillHistoryStatus').textContent = '';
   $('skillHistoryMask').style.display = 'flex';
   await loadSkillHistory(true);
@@ -1677,7 +1684,47 @@ function updateSkillHistoryInstrument(instrument, reload = true) {
     button.classList.toggle('active', active);
     button.setAttribute('aria-pressed', String(active));
   });
+  if ($('skillHistoryListTitle')) {
+    $('skillHistoryListTitle').textContent = `保存履歴（${skillHistoryInstrument}）`;
+  }
   if (reload) loadSkillHistory(true).catch(console.error);
+}
+
+function updateUnifiedSkillSelection(selection, reload = true) {
+  skillUnifiedSelection = ['GF', 'DM', 'BOTH'].includes(selection) ? selection : activeInstrument;
+  document.querySelectorAll('[data-skill-unified-selection]').forEach(button => {
+    const active = button.dataset.skillUnifiedSelection === skillUnifiedSelection;
+    button.classList.toggle('active', active);
+    button.setAttribute('aria-pressed', String(active));
+  });
+  // 「両方」は共有・保存対象だけを変え、現在表示中の履歴タブは維持する。
+  if (skillUnifiedSelection !== 'BOTH') {
+    updateSkillHistoryInstrument(skillUnifiedSelection, reload);
+  }
+}
+
+async function saveSkillHistoryForInstrument(instrument) {
+  const target = totals(instrument);
+  if (target.hotRows.length + target.otherRows.length === 0) {
+    throw new Error(`${instrument}に保存できるスキル対象がありません。`);
+  }
+  const snapshotData = {
+    schema_version: 1,
+    username: String($('headerUsername')?.textContent || '').trim(),
+    version_name: String(activeVersion?.name || ''),
+    hot_rows: target.hotRows.map(serializeSkillHistoryRow),
+    other_rows: target.otherRows.map(serializeSkillHistoryRow)
+  };
+  const { error } = await supabase.rpc('save_my_skill_target_snapshot', {
+    p_instrument: instrument,
+    p_version_id: activeVersionId,
+    p_version_name: activeVersion?.name || '',
+    p_total_skill: Number(target.total) || 0,
+    p_hot_skill: Number(target.hot) || 0,
+    p_other_skill: Number(target.other) || 0,
+    p_snapshot_data: snapshotData
+  });
+  if (error) throw error;
 }
 
 async function saveCurrentSkillHistory() {
@@ -1693,25 +1740,7 @@ async function saveCurrentSkillHistory() {
   button.disabled = true;
   button.textContent = '保存中...';
   try {
-    const snapshotData = {
-      schema_version: 1,
-      username: String($('headerUsername')?.textContent || '').trim(),
-      version_name: String(activeVersion?.name || ''),
-      hot_rows: target.hotRows.map(serializeSkillHistoryRow),
-      other_rows: target.otherRows.map(serializeSkillHistoryRow)
-    };
-
-    const { error } = await supabase.rpc('save_my_skill_target_snapshot', {
-      p_instrument: instrument,
-      p_version_id: activeVersionId,
-      p_version_name: activeVersion?.name || '',
-      p_total_skill: Number(target.total) || 0,
-      p_hot_skill: Number(target.hot) || 0,
-      p_other_skill: Number(target.other) || 0,
-      p_snapshot_data: snapshotData
-    });
-    if (error) throw error;
-
+    await saveSkillHistoryForInstrument(instrument);
     await loadSkillHistory(true);
     $('skillHistoryStatus').textContent = `${instrument}の現在のスキル対象を保存しました。`;
   } catch (error) {
@@ -1723,46 +1752,117 @@ async function saveCurrentSkillHistory() {
   }
 }
 
+async function executeUnifiedSkillAction(action) {
+  const buttons = [
+    $('btnUnifiedSkillShare'),
+    $('btnUnifiedSkillSave'),
+    $('btnUnifiedSkillSaveShare')
+  ].filter(Boolean);
+  const source = action === 'share'
+    ? $('btnUnifiedSkillShare')
+    : action === 'save'
+      ? $('btnUnifiedSkillSave')
+      : $('btnUnifiedSkillSaveShare');
+  const original = source.textContent;
+  const instruments = skillUnifiedSelection === 'BOTH' ? ['GF', 'DM'] : [skillUnifiedSelection];
+  buttons.forEach(button => { button.disabled = true; });
+  source.textContent = action === 'share' ? '生成中...' : '保存中...';
+  try {
+    if (action !== 'share') {
+      for (const instrument of instruments) await saveSkillHistoryForInstrument(instrument);
+      await loadSkillHistory(true);
+      $('skillHistoryStatus').textContent = `${instruments.join('・')}の現在のスキル対象を保存しました。`;
+    }
+    if (action !== 'save') {
+      source.textContent = '共有中...';
+      await shareSkillImage(skillUnifiedSelection);
+    }
+  } catch (error) {
+    console.error('unified skill share/save failed:', error);
+    await showSiteDialog(`処理できませんでした：${error?.message || '不明なエラー'}`, 'エラー');
+  } finally {
+    buttons.forEach(button => { button.disabled = false; });
+    source.textContent = original;
+  }
+}
+
+async function getSkillHistorySnapshot(snapshotId) {
+  const { data, error } = await supabase.rpc('get_my_skill_target_snapshot', {
+    p_snapshot_id: snapshotId
+  });
+  if (error) throw error;
+  const row = Array.isArray(data) ? data[0] : data;
+  if (!row) throw new Error('履歴が見つかりません。');
+  const stored = typeof row.snapshot_data === 'string'
+    ? JSON.parse(row.snapshot_data)
+    : (row.snapshot_data || {});
+  return {
+    snapshotId: row.snapshot_id || snapshotId,
+    versionId: row.version_id || null,
+    instrument: row.instrument,
+    versionName: row.version_name || stored.version_name || '',
+    username: stored.username || '',
+    savedAt: row.saved_at,
+    total: Number(row.total_skill) || 0,
+    hot: Number(row.hot_skill) || 0,
+    other: Number(row.other_skill) || 0,
+    hotRows: Array.isArray(stored.hot_rows) ? stored.hot_rows : [],
+    otherRows: Array.isArray(stored.other_rows) ? stored.other_rows : []
+  };
+}
+
 async function openSkillHistoryPreview(snapshotId) {
   const status = $('skillHistoryStatus');
   status.textContent = '共有画像を生成しています...';
   try {
-    const { data, error } = await supabase.rpc('get_my_skill_target_snapshot', {
-      p_snapshot_id: snapshotId
-    });
-    if (error) throw error;
-    const row = Array.isArray(data) ? data[0] : data;
-    if (!row) throw new Error('履歴が見つかりません。');
-
-    const stored = typeof row.snapshot_data === 'string'
-      ? JSON.parse(row.snapshot_data)
-      : (row.snapshot_data || {});
-    const snapshot = {
-      instrument: row.instrument,
-      versionName: row.version_name || stored.version_name || '',
-      username: stored.username || '',
-      savedAt: row.saved_at,
-      total: Number(row.total_skill) || 0,
-      hot: Number(row.hot_skill) || 0,
-      other: Number(row.other_skill) || 0,
-      hotRows: Array.isArray(stored.hot_rows) ? stored.hot_rows : [],
-      otherRows: Array.isArray(stored.other_rows) ? stored.other_rows : []
-    };
+    const snapshot = await getSkillHistorySnapshot(snapshotId);
 
     releaseSkillHistoryPreview();
-    skillHistoryPreviewFile = await createSkillShareFile(row.instrument, snapshot);
+    skillHistoryPreviewFile = await createSkillShareFile(snapshot.instrument, snapshot);
     skillHistoryPreviewUrl = URL.createObjectURL(skillHistoryPreviewFile);
     skillHistoryPreviewSnapshot = snapshot;
     $('skillHistoryPreviewImage').src = skillHistoryPreviewUrl;
     $('skillHistoryListView').classList.add('hidden');
     $('skillHistoryPreviewView').classList.remove('hidden');
-    $('skillHistoryContext').textContent = `${row.instrument} / ${formatSkillHistoryDate(row.saved_at)} / ${Number(row.total_skill).toFixed(2)}`;
+    $('skillHistoryContext').textContent = `${snapshot.instrument} / ${formatSkillHistoryDate(snapshot.savedAt)} / ${Number(snapshot.total).toFixed(2)}`;
     status.textContent = '';
     document.querySelector('.skill-history-body')?.scrollTo({ top: 0, behavior: 'auto' });
   } catch (error) {
     console.error('skill history preview failed:', error);
     status.textContent = '';
     await showSiteDialog(`履歴画像を生成できませんでした：${error?.message || '不明なエラー'}`, 'エラー');
+  }
+}
+
+async function openSkillHistoryComparison(snapshotId) {
+  const status = $('skillHistoryStatus');
+  status.textContent = '現在のスキル対象と比較しています...';
+  try {
+    const baseline = await getSkillHistorySnapshot(snapshotId);
+    if (baseline.versionId && String(baseline.versionId) !== String(activeVersionId)) {
+      throw new Error('現在参照中のバージョンと同じ履歴だけ比較できます。');
+    }
+    const current = totals(baseline.instrument);
+    if (!current.hotRows.length && !current.otherRows.length) {
+      throw new Error(`${baseline.instrument}に比較できる現在のスキル対象がありません。`);
+    }
+    releaseSkillHistoryPreview();
+    skillHistoryPreviewFile = await createSkillShareFile(baseline.instrument, null, baseline);
+    skillHistoryPreviewUrl = URL.createObjectURL(skillHistoryPreviewFile);
+    skillHistoryPreviewSnapshot = {
+      instrument: baseline.instrument,
+      total: Number(current.total) || 0
+    };
+    $('skillHistoryPreviewImage').src = skillHistoryPreviewUrl;
+    $('skillHistoryListView').classList.add('hidden');
+    $('skillHistoryPreviewView').classList.remove('hidden');
+    $('skillHistoryContext').textContent = `${baseline.instrument} / 現在と ${formatSkillHistoryDate(baseline.savedAt)} を比較`;
+    status.textContent = '';
+    document.querySelector('.skill-history-body')?.scrollTo({ top: 0, behavior: 'auto' });
+  } catch (error) {
+    console.error('skill history comparison failed:', error);
+    status.textContent = '';
+    await showSiteDialog(`比較画像を生成できませんでした：${error?.message || '不明なエラー'}`, 'エラー');
   }
 }
 
@@ -2171,17 +2271,18 @@ function closeSkillTargetRanking(returnToMenu = false) {
   if (returnToMenu) openMenu();
 }
 
-async function createSkillShareFile(instrument, snapshot = null) {
+async function createSkillShareFile(instrument, snapshot = null, comparisonBaseline = null) {
   const target = snapshot || totals(instrument);
   const rowsHot = target.hotRows || [];
   const rowsOther = target.otherRows || [];
+  const isComparison = Boolean(comparisonBaseline);
   // 新しい共有画像レイアウトは、確認中のため管理者だけに適用する。
   const useUnifiedShareLayout = true;
 
   // スマホで見やすいよう、HOT / OTHER を左右2カラムに戻す。
   // 背景はダークのまま維持。
   const W = 1400;
-  const H = 2000;
+  const H = isComparison ? 2200 : 2000;
   const c = document.createElement('canvas');
   c.width = W;
   c.height = H;
@@ -2270,6 +2371,12 @@ async function createSkillShareFile(instrument, snapshot = null) {
   x.fillStyle = '#94a3b8';
   x.font = '800 26px sans-serif';
   x.fillText(`HOT ${Number(target.hot).toFixed(2)}   OTHER ${Number(target.other).toFixed(2)}`,54,220);
+  if (isComparison) {
+    x.textAlign = 'right';
+    x.font = '800 18px sans-serif';
+    x.fillText(`比較: ${formatSkillHistoryDate(comparisonBaseline.savedAt)}`, W - 54, 220);
+    x.textAlign = 'left';
+  }
 
   const gap = 24;
   const colW = (W - 108 - gap) / 2;
@@ -2277,11 +2384,11 @@ async function createSkillShareFile(instrument, snapshot = null) {
   const leftOther = 54 + colW + gap;
   const tableTop = 256;
 
-  const drawTable = (sectionTitle, rows, left, accent) => {
+  const drawTable = (sectionTitle, rows, left, accent, baselineRows = []) => {
     const tableW = colW;
     const titleH = 40;
     const headerH = 48;
-    const rowH = 58;
+    const rowH = isComparison ? 66 : 58;
     const cols = [44, 326, 104, 106, 78]; // No / 譜面 / Skill / 達成率 / Lv
     const scale = tableW / cols.reduce((a,b)=>a+b,0);
     const widths = cols.map(v => v*scale);
@@ -2298,11 +2405,18 @@ async function createSkillShareFile(instrument, snapshot = null) {
     x.fillStyle='#111827'; x.fillRect(left,headTop,tableW,headerH);
     x.strokeStyle='#94a3b8'; x.lineWidth=1;
 
-    const labels=['No.','譜面','SKILL','達成率','Lv'];
+    const labels=[isComparison ? '順位' : 'No.','譜面','SKILL','達成率','Lv'];
     labels.forEach((label,i)=>{
       x.strokeRect(pos[i],headTop,widths[i],headerH);
       x.fillStyle='#e5e7eb'; x.font='800 14px sans-serif'; x.textAlign='center'; x.textBaseline='middle';
       x.fillText(label,pos[i]+widths[i]/2,headTop+headerH/2);
+    });
+
+    const baselineByTitle = new Map();
+    const comparisonKey = row => `${normalizeSongTitleForMatch(String(row?.title || ''))}\u0000${String(row?.part || '').toUpperCase()}`;
+    baselineRows.slice(0, 25).forEach((row, index) => {
+      const key = comparisonKey(row);
+      if (key && !baselineByTitle.has(key)) baselineByTitle.set(key, { row, index });
     });
 
     rows.slice(0,25).forEach((r,i)=>{
@@ -2324,10 +2438,31 @@ async function createSkillShareFile(instrument, snapshot = null) {
         x.stroke();
       }
 
-      // No.
-      x.fillStyle='#cbd5e1'; x.font='800 17px sans-serif';
+      // 順位。比較時は順位変動を淡い色で表示する。
+      const comparison = isComparison
+        ? baselineByTitle.get(comparisonKey(r))
+        : null;
+      const isNew = isComparison && !comparison;
+      const rankDirection = comparison
+        ? (i < comparison.index ? 'up' : i > comparison.index ? 'down' : 'same')
+        : (isNew ? 'new' : 'same');
+      const rankLabel = isNew
+        ? 'new'
+        : isComparison && rankDirection === 'up'
+          ? `${i + 1} ↑`
+          : isComparison && rankDirection === 'down'
+            ? `${i + 1} ↓`
+            : String(i + 1);
+      x.fillStyle = rankDirection === 'up'
+        ? '#fda4af'
+        : rankDirection === 'down'
+          ? '#93c5fd'
+          : rankDirection === 'new'
+            ? '#fdba74'
+            : '#cbd5e1';
+      x.font = isNew ? '900 14px sans-serif' : '800 17px sans-serif';
       x.textAlign='center'; x.textBaseline='middle';
-      x.fillText(String(i+1),pos[0]+widths[0]/2,y+rowH/2);
+      x.fillText(rankLabel,pos[0]+widths[0]/2,y+rowH/2);
 
       // title + badges
       x.textAlign='left';
@@ -2362,7 +2497,7 @@ async function createSkillShareFile(instrument, snapshot = null) {
         // 横並びカードと同じ「パート / FC・EXC / オプション」の順序で、
         // 3種類のバッジを同じ寸法に固定して描画する。
         // FC・EXCやオプションがない場合も、それぞれの列位置は詰めない。
-        const badgeY = y + 36;
+        const badgeY = y + (isComparison ? 42 : 36);
         const badgeW = 62;
         const badgeH = 17;
         const badgeGap = 6;
@@ -2484,9 +2619,28 @@ async function createSkillShareFile(instrument, snapshot = null) {
       x.textBaseline='middle';
       x.shadowColor='rgba(0,0,0,.9)';
       x.shadowBlur=2;
-      x.fillText(sv.toFixed(2),skillCellX+skillCellW/2,y+rowH/2);
+      const valueMainY = isComparison ? y + 21 : y + rowH / 2;
+      const valueDeltaY = y + 47;
+      x.fillText(sv.toFixed(2),skillCellX+skillCellW/2,valueMainY);
       x.shadowBlur=0;
       x.shadowColor='transparent';
+
+      const drawComparisonDelta = (currentValue, previousValue, centerX) => {
+        if (!isComparison) return;
+        x.font = '900 12px sans-serif';
+        x.textAlign = 'center';
+        x.textBaseline = 'middle';
+        if (isNew) {
+          x.fillStyle = '#fdba74';
+          x.fillText('new', centerX, valueDeltaY);
+          return;
+        }
+        const delta = Number(currentValue) - Number(previousValue);
+        x.fillStyle = delta > .0001 ? '#86efac' : delta < -.0001 ? '#93c5fd' : '#94a3b8';
+        const prefix = delta > .0001 ? '+' : delta < -.0001 ? '' : '±';
+        x.fillText(`${prefix}${Math.abs(delta) < .0001 ? '0.00' : delta.toFixed(2)}`, centerX, valueDeltaY);
+      };
+      drawComparisonDelta(sv, comparison?.row?.skill, skillCellX + skillCellW / 2);
 
       // 管理者用新レイアウトでは達成率を上下中央へ置き、FC/EXCは曲名列へ移す。
       x.fillStyle='#f8fafc';
@@ -2494,7 +2648,12 @@ async function createSkillShareFile(instrument, snapshot = null) {
       x.fillText(
         `${Number(r.achievement_rate).toFixed(2)}%`,
         pos[3]+widths[3]/2,
-        useUnifiedShareLayout ? y+rowH/2 : y+18
+        isComparison ? valueMainY : (useUnifiedShareLayout ? y+rowH/2 : y+18)
+      );
+      drawComparisonDelta(
+        Number(r.achievement_rate) || 0,
+        comparison?.row?.achievement_rate,
+        pos[3] + widths[3] / 2
       );
 
       if(!useUnifiedShareLayout && badge){
@@ -2542,8 +2701,8 @@ async function createSkillShareFile(instrument, snapshot = null) {
     x.textAlign='left'; x.textBaseline='alphabetic';
   };
 
-  drawTable('HOT TOP 25', rowsHot, leftHot, '#e94b88');
-  drawTable('OTHER TOP 25', rowsOther, leftOther, '#83c63d');
+  drawTable('HOT TOP 25', rowsHot, leftHot, '#e94b88', comparisonBaseline?.hotRows || []);
+  drawTable('OTHER TOP 25', rowsOther, leftOther, '#83c63d', comparisonBaseline?.otherRows || []);
 
   // footer
   x.fillStyle='#0b1424'; x.fillRect(54,H-62,W-108,30);
@@ -4041,7 +4200,9 @@ async function checkAdminAccess() {
   $('btnAdmin').classList.toggle('hidden', !adminEnabled);
   $('mypageUserSwitchBlock')?.classList.remove('hidden');
   $('btnMenuSkillRanking')?.classList.remove('hidden');
-  $('btnMenuSkillHistory')?.classList.remove('hidden');
+  $('btnMenuSkillShareHistory')?.classList.toggle('hidden', !adminEnabled);
+  $('btnMenuSkillHistory')?.classList.toggle('hidden', adminEnabled);
+  $('btnMenuShareSkill')?.classList.toggle('hidden', adminEnabled);
   $('menuOfuseSupport')?.classList.remove('hidden');
   $('scorePrivateCommentGroup')?.classList.remove('hidden');
   updateDmBassMirrorFieldVisibility();
@@ -5701,6 +5862,7 @@ $('accountSwitchList')?.addEventListener('click', async event => {
 
 $('btnMenuSkillSync').addEventListener('click', openSkillSyncDialog);
 $('btnMenuShareSkill').addEventListener('click', openSkillShareDialog);
+$('btnMenuSkillShareHistory').addEventListener('click', openSkillHistory);
 $('btnCloseSkillShare').addEventListener('click', () => closeSkillShareDialog(true));
 $('skillShareMask').addEventListener('click', event => {
   if (event.target === $('skillShareMask')) closeSkillShareDialog();
@@ -5726,14 +5888,27 @@ document.querySelectorAll('[data-skill-history-instrument]').forEach(button => {
     updateSkillHistoryInstrument(button.dataset.skillHistoryInstrument, true);
   });
 });
+document.querySelectorAll('[data-skill-unified-selection]').forEach(button => {
+  button.addEventListener('click', () => {
+    updateUnifiedSkillSelection(button.dataset.skillUnifiedSelection, true);
+  });
+});
 $('btnSaveSkillHistory').addEventListener('click', () => saveCurrentSkillHistory().catch(console.error));
+$('btnUnifiedSkillShare').addEventListener('click', () => executeUnifiedSkillAction('share'));
+$('btnUnifiedSkillSave').addEventListener('click', () => executeUnifiedSkillAction('save'));
+$('btnUnifiedSkillSaveShare').addEventListener('click', () => executeUnifiedSkillAction('save-share'));
 $('btnLoadMoreSkillHistory').addEventListener('click', () => loadSkillHistory(false));
 $('btnShareSkillHistory').addEventListener('click', shareSkillHistoryPreview);
 $('skillHistoryList').addEventListener('click', event => {
   const openButton = event.target.closest('[data-open-skill-history]');
+  const compareButton = event.target.closest('[data-compare-skill-history]');
   const deleteButton = event.target.closest('[data-delete-skill-history]');
   if (deleteButton) {
     deleteSkillHistory(deleteButton.dataset.deleteSkillHistory).catch(console.error);
+    return;
+  }
+  if (compareButton) {
+    openSkillHistoryComparison(compareButton.dataset.compareSkillHistory).catch(console.error);
     return;
   }
   if (openButton) {
