@@ -11019,6 +11019,32 @@ body.light-mode .admin-master-pager button.admin-master-page.active{
   .admin-master-nearby{ display:none; }
   .admin-master-jump select{ min-width:92px; }
 }
+
+/* === APP VERSION 4.6.7: ページ表示を「前へ・現在/全体・次へ」に統一 === */
+#userListPager .user-pager-status,
+.admin-master-pager .admin-master-status{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-width:76px;
+  height:34px;
+  padding:0 12px;
+  border:1px solid #475569;
+  border-radius:7px;
+  background:#111827;
+  color:#e5e7eb;
+  font-size:12px;
+  font-weight:900;
+  line-height:1;
+  box-sizing:border-box;
+}
+body.light-mode #userListPager .user-pager-status,
+body.light-mode .admin-master-pager .admin-master-status{
+  background:#f8fafc !important;
+  color:#111827 !important;
+  -webkit-text-fill-color:#111827 !important;
+  border-color:#94a3b8 !important;
+}
 </style>
   <link rel="preconnect" href="https://challenges.cloudflare.com">
   <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" defer></script>
@@ -11335,7 +11361,7 @@ body.light-mode .admin-master-pager button.admin-master-page.active{
     <div class="app-menu-version">
       <label>VERSION</label>
       <select id="versionSelect" class="version-select" aria-label="GITADORAバージョン"></select>
-      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 4.6.6</div>
+      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 4.6.7</div>
     </div>
   </div>
 </div>
@@ -11791,7 +11817,7 @@ body.light-mode .admin-master-pager button.admin-master-page.active{
 <div id="adminModal" class="admin-modal">
   <div class="admin-header">
     <div class="admin-title-row">
-      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 4.6.6</div></div>
+      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 4.6.7</div></div>
       <button id="btnCloseAdmin" class="admin-close">閉じる</button>
     </div>
     <div class="admin-tabs">
@@ -11878,6 +11904,6 @@ body.light-mode .admin-master-pager button.admin-master-page.active{
   </div>
 </div>
 
-<script type="module" src="./js/app.js?v=4_6_6"></script>
+<script type="module" src="./js/app.js?v=4_6_7"></script>
 </body>
 </html>

@@ -3692,37 +3692,10 @@ async function loadUsers({ resetPage = false } = {}) {
 function buildUserListPager(totalPages) {
   if (totalPages <= 1) return '';
 
-  const current = userListPage + 1;
-  const nearby = [];
-
-  // 現在ページ前後を直接選べるようにしつつ、
-  // どのページへでも移動できるネイティブ選択欄を中央に置く。
-  for (let p = Math.max(1, current - 2); p <= Math.min(totalPages, current + 2); p++) {
-    nearby.push(
-      `<button type="button"
-        class="user-pager-page ${p === current ? 'active' : ''}"
-        data-user-page-number="${p - 1}"
-        ${p === current ? 'aria-current="page"' : ''}>${p}</button>`
-    );
-  }
-
-  const pageOptions = Array.from({ length: totalPages }, (_, i) => {
-    const page = i + 1;
-    return `<option value="${i}" ${page === current ? 'selected' : ''}>${page} / ${totalPages}</option>`;
-  }).join('');
-
   return `
     <button type="button" class="user-pager-arrow" data-user-page="prev"
       ${userListPage <= 0 ? 'disabled' : ''} aria-label="前のページ">◀</button>
-
-    <div class="user-pager-nearby">${nearby.join('')}</div>
-
-    <label class="user-pager-jump" aria-label="ページを選択">
-      <select data-user-page-select>
-        ${pageOptions}
-      </select>
-    </label>
-
+    <span class="user-pager-status" aria-current="page">${userListPage + 1} / ${totalPages}</span>
     <button type="button" class="user-pager-arrow" data-user-page="next"
       ${userListPage + 1 >= totalPages ? 'disabled' : ''} aria-label="次のページ">▶</button>
   `;
@@ -4410,30 +4383,12 @@ async function switchAdminTab(tab) {
 function buildAdminMasterPager(totalPages) {
   if (totalPages <= 1) return '';
 
-  const current = adminSongPage + 1;
-  const nearby = [];
-  for (let page = Math.max(1, current - 2); page <= Math.min(totalPages, current + 2); page++) {
-    nearby.push(`
-      <button type="button"
-        class="admin-master-page ${page === current ? 'active' : ''}"
-        data-admin-master-page-number="${page - 1}"
-        ${page === current ? 'aria-current="page"' : ''}>${page}</button>`);
-  }
-
-  const options = Array.from({ length:totalPages }, (_, index) => `
-    <option value="${index}" ${index === adminSongPage ? 'selected' : ''}>
-      ${index + 1} / ${totalPages}
-    </option>`).join('');
-
   return `
     <button type="button" class="admin-master-arrow"
       data-admin-master-page="prev"
       ${adminSongPage <= 0 ? 'disabled' : ''}
       aria-label="前のページ">◀</button>
-    <div class="admin-master-nearby">${nearby.join('')}</div>
-    <label class="admin-master-jump" aria-label="ページを選択">
-      <select data-admin-master-page-select>${options}</select>
-    </label>
+    <span class="admin-master-status" aria-current="page">${adminSongPage + 1} / ${totalPages}</span>
     <button type="button" class="admin-master-arrow"
       data-admin-master-page="next"
       ${adminSongPage + 1 >= totalPages ? 'disabled' : ''}
@@ -4549,30 +4504,12 @@ async function loadAdminSongs() {
 
     const pager = $('adminBody').querySelector('.admin-master-pager');
     pager?.addEventListener('click', async event => {
-      const numberButton = event.target.closest('[data-admin-master-page-number]');
       const navButton = event.target.closest('[data-admin-master-page]');
-      let nextPage = adminSongPage;
+      if (!navButton || navButton.disabled) return;
+      const nextPage = navButton.dataset.adminMasterPage === 'prev'
+        ? adminSongPage - 1
+        : adminSongPage + 1;
 
-      if (numberButton && !numberButton.disabled) {
-        nextPage = Number(numberButton.dataset.adminMasterPageNumber);
-      } else if (navButton && !navButton.disabled) {
-        nextPage = navButton.dataset.adminMasterPage === 'prev'
-          ? adminSongPage - 1
-          : adminSongPage + 1;
-      } else {
-        return;
-      }
-
-      if (!Number.isInteger(nextPage) || nextPage < 0 || nextPage >= totalPages) return;
-      adminSongPage = nextPage;
-      await loadAdminSongs();
-      $('adminModal').scrollTo({ top:0, left:0, behavior:'auto' });
-    });
-
-    pager?.addEventListener('change', async event => {
-      const select = event.target.closest('[data-admin-master-page-select]');
-      if (!select) return;
-      const nextPage = Number(select.value);
       if (!Number.isInteger(nextPage) || nextPage < 0 || nextPage >= totalPages) return;
       adminSongPage = nextPage;
       await loadAdminSongs();
@@ -5545,15 +5482,9 @@ $('userListSortDirection')?.addEventListener('change', event => {
   renderUsers();
 });
 $('userListPager')?.addEventListener('click', e => {
-  const numberButton = e.target.closest('[data-user-page-number]');
   const navButton = e.target.closest('[data-user-page]');
 
-  if (numberButton && !numberButton.disabled) {
-    const nextPage = Number(numberButton.dataset.userPageNumber);
-    const totalPages = Math.max(1, Math.ceil(publicUsers.length / USER_LIST_PAGE_SIZE));
-    if (!Number.isInteger(nextPage) || nextPage < 0 || nextPage >= totalPages) return;
-    userListPage = nextPage;
-  } else if (navButton && !navButton.disabled) {
+  if (navButton && !navButton.disabled) {
     if (navButton.dataset.userPage === 'prev' && userListPage > 0) {
       userListPage--;
     } else if (navButton.dataset.userPage === 'next') {
@@ -5567,19 +5498,6 @@ $('userListPager')?.addEventListener('click', e => {
     return;
   }
 
-  renderUsers();
-  requestAnimationFrame(scrollUserListPageToTop);
-});
-
-$('userListPager')?.addEventListener('change', e => {
-  const select = e.target.closest('[data-user-page-select]');
-  if (!select) return;
-
-  const nextPage = Number(select.value);
-  const totalPages = Math.max(1, Math.ceil(publicUsers.length / USER_LIST_PAGE_SIZE));
-  if (!Number.isInteger(nextPage) || nextPage < 0 || nextPage >= totalPages) return;
-
-  userListPage = nextPage;
   renderUsers();
   requestAnimationFrame(scrollUserListPageToTop);
 });
