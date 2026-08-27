@@ -10944,6 +10944,81 @@ body.light-mode #btnAdminSaveAllSongs{
     min-height:40px;
   }
 }
+
+/* === APP VERSION 4.6.3: 曲マスターのページ番号ナビ === */
+.admin-master-pager{
+  gap:4px;
+  flex-wrap:nowrap;
+  padding-left:6px;
+  padding-right:6px;
+}
+.admin-master-nearby{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:4px;
+  min-width:0;
+}
+.admin-master-pager button.admin-master-page,
+.admin-master-pager button.admin-master-arrow{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:34px;
+  min-width:34px;
+  max-width:34px;
+  height:34px;
+  min-height:34px;
+  padding:0;
+  border:1px solid #475569;
+  border-radius:7px;
+  background:#111827;
+  color:#e5e7eb;
+  font-size:12px;
+  font-weight:900;
+}
+.admin-master-pager button.admin-master-page.active{
+  background:#2563eb;
+  border-color:#2563eb;
+  color:#fff;
+}
+.admin-master-jump{
+  flex:0 0 auto;
+  display:inline-flex;
+  align-items:center;
+}
+.admin-master-jump select{
+  height:34px;
+  min-width:76px;
+  padding:0 30px 0 8px !important;
+  border:1px solid #475569;
+  border-radius:7px;
+  background-color:#111827;
+  color:#e5e7eb;
+  background-position:calc(100% - 8px) 50% !important;
+  background-size:14px 14px !important;
+  font-size:12px;
+  font-weight:900;
+  text-align:center;
+}
+body.light-mode .admin-master-pager button.admin-master-page,
+body.light-mode .admin-master-pager button.admin-master-arrow,
+body.light-mode .admin-master-jump select{
+  background-color:#f8fafc !important;
+  color:#111827 !important;
+  -webkit-text-fill-color:#111827 !important;
+  border-color:#94a3b8 !important;
+}
+body.light-mode .admin-master-pager button.admin-master-page.active{
+  background:#2563eb !important;
+  color:#fff !important;
+  -webkit-text-fill-color:#fff !important;
+  border-color:#2563eb !important;
+}
+@media (max-width:520px){
+  .admin-master-nearby{ display:none; }
+  .admin-master-jump select{ min-width:92px; }
+}
 </style>
   <link rel="preconnect" href="https://challenges.cloudflare.com">
   <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" defer></script>
@@ -11260,7 +11335,7 @@ body.light-mode #btnAdminSaveAllSongs{
     <div class="app-menu-version">
       <label>VERSION</label>
       <select id="versionSelect" class="version-select" aria-label="GITADORAバージョン"></select>
-      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 4.6.2</div>
+      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 4.6.3</div>
     </div>
   </div>
 </div>
@@ -11716,7 +11791,7 @@ body.light-mode #btnAdminSaveAllSongs{
 <div id="adminModal" class="admin-modal">
   <div class="admin-header">
     <div class="admin-title-row">
-      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 4.6.2</div></div>
+      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 4.6.3</div></div>
       <button id="btnCloseAdmin" class="admin-close">閉じる</button>
     </div>
     <div class="admin-tabs">
@@ -11803,6 +11878,6 @@ body.light-mode #btnAdminSaveAllSongs{
   </div>
 </div>
 
-<script type="module" src="./js/app.js?v=4_6_2"></script>
+<script type="module" src="./js/app.js?v=4_6_3"></script>
 </body>
 </html>

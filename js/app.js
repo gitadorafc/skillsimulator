@@ -4381,6 +4381,39 @@ async function switchAdminTab(tab) {
   else if (tab === 'settings') await loadAdminSettingUsage();
 }
 
+function buildAdminMasterPager(totalPages) {
+  if (totalPages <= 1) return '';
+
+  const current = adminSongPage + 1;
+  const nearby = [];
+  for (let page = Math.max(1, current - 2); page <= Math.min(totalPages, current + 2); page++) {
+    nearby.push(`
+      <button type="button"
+        class="admin-master-page ${page === current ? 'active' : ''}"
+        data-admin-master-page-number="${page - 1}"
+        ${page === current ? 'aria-current="page"' : ''}>${page}</button>`);
+  }
+
+  const options = Array.from({ length:totalPages }, (_, index) => `
+    <option value="${index}" ${index === adminSongPage ? 'selected' : ''}>
+      ${index + 1} / ${totalPages}
+    </option>`).join('');
+
+  return `
+    <button type="button" class="admin-master-arrow"
+      data-admin-master-page="prev"
+      ${adminSongPage <= 0 ? 'disabled' : ''}
+      aria-label="前のページ">◀</button>
+    <div class="admin-master-nearby">${nearby.join('')}</div>
+    <label class="admin-master-jump" aria-label="ページを選択">
+      <select data-admin-master-page-select>${options}</select>
+    </label>
+    <button type="button" class="admin-master-arrow"
+      data-admin-master-page="next"
+      ${adminSongPage + 1 >= totalPages ? 'disabled' : ''}
+      aria-label="次のページ">▶</button>`;
+}
+
 async function loadAdminSongs() {
   $('adminBody').classList.add('admin-body-table');
   $('adminBody').innerHTML = '<div class="empty-state">読み込み中...</div>';
@@ -4480,9 +4513,7 @@ async function loadAdminSongs() {
         </table>
       </div>
       <div class="admin-master-pager">
-        <button id="btnAdminMasterPrev" type="button" ${adminSongPage <= 0 ? 'disabled' : ''}>← 前へ</button>
-        <span>${adminSongPage + 1} / ${totalPages}</span>
-        <button id="btnAdminMasterNext" type="button" ${adminSongPage + 1 >= totalPages ? 'disabled' : ''}>次へ →</button>
+        ${buildAdminMasterPager(totalPages)}
       </div>`;
 
     if (!rows.length && !adminNewSongRowVisible) {
@@ -4490,16 +4521,36 @@ async function loadAdminSongs() {
       return;
     }
 
-    $('btnAdminMasterPrev')?.addEventListener('click', async () => {
-      if (adminSongPage <= 0) return;
-      adminSongPage--;
+    const pager = $('adminBody').querySelector('.admin-master-pager');
+    pager?.addEventListener('click', async event => {
+      const numberButton = event.target.closest('[data-admin-master-page-number]');
+      const navButton = event.target.closest('[data-admin-master-page]');
+      let nextPage = adminSongPage;
+
+      if (numberButton && !numberButton.disabled) {
+        nextPage = Number(numberButton.dataset.adminMasterPageNumber);
+      } else if (navButton && !navButton.disabled) {
+        nextPage = navButton.dataset.adminMasterPage === 'prev'
+          ? adminSongPage - 1
+          : adminSongPage + 1;
+      } else {
+        return;
+      }
+
+      if (!Number.isInteger(nextPage) || nextPage < 0 || nextPage >= totalPages) return;
+      adminSongPage = nextPage;
       await loadAdminSongs();
+      $('adminModal').scrollTo({ top:0, left:0, behavior:'auto' });
     });
 
-    $('btnAdminMasterNext')?.addEventListener('click', async () => {
-      if (adminSongPage + 1 >= totalPages) return;
-      adminSongPage++;
+    pager?.addEventListener('change', async event => {
+      const select = event.target.closest('[data-admin-master-page-select]');
+      if (!select) return;
+      const nextPage = Number(select.value);
+      if (!Number.isInteger(nextPage) || nextPage < 0 || nextPage >= totalPages) return;
+      adminSongPage = nextPage;
       await loadAdminSongs();
+      $('adminModal').scrollTo({ top:0, left:0, behavior:'auto' });
     });
   } catch (e) {
     $('adminBody').innerHTML = `<div class="empty-state">取得失敗: ${esc(e.message)}</div>`;
