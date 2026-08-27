@@ -236,7 +236,14 @@ function skillColorCanvasVerticalPaint(ctx, row, left, top, width, height) {
 // 登録曲のRAINBOW外枠と同じ170deg相当の角度をCanvas上で再現する。
 // 8500未満のグラデーションは従来どおり縦方向のままにする。
 function skillColorCanvasShareTextPaint(ctx, row, left, top, width, height) {
-  if (!row || !['rainbow', 'deep-rainbow', 'sparkle-rainbow'].includes(row.rank)) {
+  if (!row) return '#ffffff';
+
+  // 0・1000・2000…の単色帯は、画面表示と同じ完全な単色にする。
+  // 白へのグラデーションを加えると、次の500刻みのグラデーション帯と
+  // 同じ見た目になってしまう。
+  if (row.type === 'solid') return row.color;
+
+  if (!['rainbow', 'deep-rainbow', 'sparkle-rainbow'].includes(row.rank)) {
     return skillColorCanvasVerticalPaint(ctx, row, left, top, width, height);
   }
 
@@ -2832,7 +2839,9 @@ async function shareSkillImage(selection = activeInstrument) {
 }
 
 async function shareGeneratedSkillFiles(files, skillLines) {
-  const text = `${skillLines.join('\n')}\n#GITADORASkillSimulator`;
+  // Xの共有画面で末尾のハッシュタグと認識候補が重なって見えないため、
+  // ハッシュタグの後に改行を入れてカーソル位置を次の行へ送る。
+  const text = `${skillLines.join('\n')}\n#GITADORASkillSimulator\n`;
 
   try {
     if (navigator.share && (!navigator.canShare || navigator.canShare({ files }))) {
