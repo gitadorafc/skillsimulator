@@ -2350,7 +2350,12 @@ function closeSkillTargetRanking(returnToMenu = false) {
 }
 
 async function createSkillShareFile(instrument, snapshot = null, comparisonBaseline = null) {
-  const target = snapshot || totals(instrument);
+  // Array.mapのコールバックとして渡された場合のindexなどを、
+  // 履歴スナップショットとして誤認しない。
+  const validSnapshot = snapshot && typeof snapshot === 'object' && !Array.isArray(snapshot)
+    ? snapshot
+    : null;
+  const target = validSnapshot || totals(instrument);
   const rowsHot = target.hotRows || [];
   const rowsOther = target.otherRows || [];
   const isComparison = Boolean(comparisonBaseline);
@@ -2400,12 +2405,12 @@ async function createSkillShareFile(instrument, snapshot = null, comparisonBasel
 
   x.fillStyle = '#94a3b8';
   x.font = '700 24px sans-serif';
-  x.fillText(snapshot?.versionName || activeVersion?.name || '', 54, 118);
+  x.fillText(validSnapshot?.versionName || activeVersion?.name || '', 54, 118);
 
   // ユーザー名 + TOTALスキルを横並び。
   // 旧ユーザー名(22px)と旧TOTAL(68px)の中間程度として42pxに統一。
   // 両方ともTOTALスキルカラーに準拠する。
-  const shareUsername = String(snapshot?.username || $('headerUsername')?.textContent || '').trim();
+  const shareUsername = String(validSnapshot?.username || $('headerUsername')?.textContent || '').trim();
   const shareTotal = Number(target.total).toFixed(2);
   const shareLineY = 174;
   const shareFontSize = 42;
@@ -2787,7 +2792,7 @@ async function createSkillShareFile(instrument, snapshot = null, comparisonBasel
   x.fillStyle='#94a3b8'; x.font='700 24px sans-serif';
   x.fillText('GITADORA Skill Simulator',64,H-41);
   x.textAlign='right';
-  x.fillText(new Date(snapshot?.savedAt || Date.now()).toLocaleDateString('ja-JP'),W-64,H-41);
+  x.fillText(new Date(validSnapshot?.savedAt || Date.now()).toLocaleDateString('ja-JP'),W-64,H-41);
   x.textAlign='left';
 
   const blob = await new Promise((resolve, reject) => {
@@ -2817,7 +2822,10 @@ function downloadSkillShareFiles(files) {
 
 async function shareSkillImage(selection = activeInstrument) {
   const instruments = selection === 'BOTH' ? ['GF', 'DM'] : [selection];
-  const files = await Promise.all(instruments.map(createSkillShareFile));
+  // mapが渡す(index, array)をsnapshot引数へ混入させない。
+  const files = await Promise.all(
+    instruments.map(instrument => createSkillShareFile(instrument))
+  );
   const skillLines = instruments
     .map(instrument => `GITADORA ${instrument} SKILL ${Number(totals(instrument).total).toFixed(2)}`);
   await shareGeneratedSkillFiles(files, skillLines);
