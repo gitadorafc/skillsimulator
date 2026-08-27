@@ -542,7 +542,7 @@ async function deleteMasterSongTitle(title) {
   if (error) throw error;
 }
 
-import * as adminApi from './admin.js?v=4_6_1';
+import * as adminApi from './admin.js?v=4_6_6';
 import { listUserSummaries, getUserSkillTargets, getSongRateComparison, getSongPersonalBestHistory, getSongOptionDistribution, getMyFavorites, addFavorite, removeFavorite } from './users.js?v=3_6_0';
 
 let activeInstrument = localStorage.getItem('gitadora_instrument') === 'DM' ? 'DM' : 'GF';
@@ -613,12 +613,29 @@ function adminSongInitialGroup(value) {
   return 'symbol';
 }
 
+function isKanjiFirstCharacter(value) {
+  const first = Array.from(String(value || ''))[0];
+  if (!first) return false;
+  const codePoint = first.codePointAt(0);
+  return (
+    (codePoint >= 0x3400 && codePoint <= 0x4DBF) ||
+    (codePoint >= 0x4E00 && codePoint <= 0x9FFF) ||
+    (codePoint >= 0xF900 && codePoint <= 0xFAFF) ||
+    (codePoint >= 0x20000 && codePoint <= 0x2FA1F) ||
+    codePoint === 0x3005 ||
+    codePoint === 0x3006 ||
+    codePoint === 0x3007
+  );
+}
+
 function adminSongCategory(row) {
-  const reading = String(row?.reading || '').trim();
+  const reading = String(row?.reading || '')
+    .replace(/[\u200B-\u200D\u2060\uFEFF]/g, '')
+    .trim();
   if (reading) return adminSongInitialGroup(reading);
 
   const title = String(row?.title || '').normalize('NFKC').trim();
-  if (/^(?:\p{Script=Han}|[々〆])/u.test(title)) return 'unclassified';
+  if (isKanjiFirstCharacter(title)) return 'unclassified';
   return adminSongInitialGroup(title);
 }
 
@@ -638,7 +655,7 @@ function renderAdminSongPickerCandidates() {
 
   const rows = adminSongPickerChoices
     .filter(row => group === 'new'
-      ? row.isNew
+      ? row.isHot
       : adminSongCategory(row) === group)
     .sort((a, b) => {
       const aKey = a.reading || a.title;

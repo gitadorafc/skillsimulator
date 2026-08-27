@@ -53,15 +53,24 @@ export async function getAdminSongMasterPage(keyword = '', page = 0, pageSize = 
 }
 
 export async function getAdminSongPickerChoices(versionId, instrument = 'GF') {
-  const { data, error } = await supabase.rpc('admin_list_song_picker', {
-    p_version_id: versionId,
-    p_instrument: instrument === 'DM' ? 'DM' : 'GF'
-  });
-  if (error) throw error;
-  return (data ?? []).map(row => ({
+  const all = [];
+  const pageSize = 500;
+  for (let offset = 0; ; offset += pageSize) {
+    const { data, error } = await supabase.rpc('admin_list_song_picker', {
+      p_version_id: versionId,
+      p_instrument: instrument === 'DM' ? 'DM' : 'GF',
+      p_limit: pageSize,
+      p_offset: offset
+    });
+    if (error) throw error;
+    all.push(...(data ?? []));
+    if (!data || data.length < pageSize) break;
+  }
+
+  return all.map(row => ({
     title: row.title,
     reading: row.reading || '',
-    isNew: Boolean(row.is_new)
+    isHot: Boolean(row.is_hot)
   }));
 }
 
