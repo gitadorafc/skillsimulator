@@ -542,7 +542,7 @@ async function deleteMasterSongTitle(title) {
   if (error) throw error;
 }
 
-import * as adminApi from './admin.js?v=4_6_0';
+import * as adminApi from './admin.js?v=4_6_1';
 import { listUserSummaries, getUserSkillTargets, getSongRateComparison, getSongPersonalBestHistory, getSongOptionDistribution, getMyFavorites, addFavorite, removeFavorite } from './users.js?v=3_6_0';
 
 let activeInstrument = localStorage.getItem('gitadora_instrument') === 'DM' ? 'DM' : 'GF';
@@ -604,6 +604,7 @@ function adminSongInitialGroup(value) {
     .normalize('NFKC')
     .trim()
     .replace(/[ァ-ヶ]/g, char => String.fromCharCode(char.charCodeAt(0) - 0x60));
+  if (!normalized) return 'unclassified';
   const first = normalized.charAt(0);
   if (/^[a-z]$/i.test(first)) return first.toUpperCase();
   for (const [group, characters] of Object.entries(ADMIN_SONG_KANA_GROUPS)) {
@@ -619,8 +620,17 @@ function renderAdminSongPickerCandidates() {
 
   const group = initialSelect.value;
   const currentTitle = $('formTitle')?.value || '';
+
+  if (!group) {
+    songSelect.innerHTML = '<option value="">選択してください</option>';
+    songSelect.disabled = true;
+    return;
+  }
+
   const rows = adminSongPickerChoices
-    .filter(row => !group || adminSongInitialGroup(row.reading || row.title) === group)
+    .filter(row => group === 'new'
+      ? row.isNew
+      : adminSongInitialGroup(row.reading) === group)
     .sort((a, b) => {
       const aKey = a.reading || a.title;
       const bKey = b.reading || b.title;
@@ -629,7 +639,7 @@ function renderAdminSongPickerCandidates() {
     });
 
   songSelect.innerHTML = `
-    <option value="">曲名を選択（${rows.length}曲）</option>
+    <option value="">選択してください（${rows.length}曲）</option>
     ${rows.map(row => `<option value="${esc(row.title)}">${esc(row.title)}</option>`).join('')}`;
   songSelect.value = rows.some(row => row.title === currentTitle) ? currentTitle : '';
   songSelect.disabled = rows.length === 0;

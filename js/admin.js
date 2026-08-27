@@ -60,7 +60,8 @@ export async function getAdminSongPickerChoices(versionId, instrument = 'GF') {
   if (error) throw error;
   return (data ?? []).map(row => ({
     title: row.title,
-    reading: row.reading || ''
+    reading: row.reading || '',
+    isNew: Boolean(row.is_new)
   }));
 }
 
