@@ -305,7 +305,9 @@ const {
   getPendingSongRequests,
   approveSongRequest,
   rejectSongRequest,
-  accountAdmin
+  accountAdmin,
+  getAdminSongPickerChoices,
+  saveMasterSongRows
 } = adminApi;
 
 // 曲マスター表の列順。admin.jsが古くても画面自体は起動できるようローカルにも保持。
@@ -485,90 +487,46 @@ async function processPendingSkillSync() {
 async function saveMasterSongRow({
   originalTitle = '',
   title,
+  reading = '',
   isHot = false,
   levels = {}
 }) {
-  const cleanTitle = String(title || '').trim();
-  const oldTitle = String(originalTitle || '').trim();
+  return saveMasterSongRows([{
+    originalTitle,
+    title,
+    reading,
+    isHot,
+    levels
+  }], activeVersionId);
+}
 
-  if (!cleanTitle) throw new Error('曲名を入力してください。');
+function collectMasterSongRow(tr) {
+  const levels = {};
+  MASTER_PARTS.forEach(part => {
+    levels[part] = tr.querySelector(`[data-master-level="${part}"]`)?.value ?? '';
+  });
 
-  const filledParts = MASTER_PARTS.filter(
-    part => String(levels[part] ?? '').trim() !== ''
-  );
+  return {
+    originalTitle: tr.dataset.originalTitle || '',
+    title: tr.querySelector('[data-master-title]')?.value || '',
+    reading: tr.querySelector('[data-master-reading]')?.value || '',
+    isHot: Boolean(tr.querySelector('[data-master-hot]')?.checked),
+    levels
+  };
+}
 
-  if (!filledParts.length) {
-    throw new Error('少なくとも1つの難易度を入力してください。');
-  }
+async function saveVisibleMasterSongs() {
+  const rows = Array.from(
+    $('adminBody').querySelectorAll('tr[data-master-row]')
+  ).map(collectMasterSongRow);
 
-  // 曲名変更
-  if (oldTitle && oldTitle !== cleanTitle) {
-    const { error: renameError } = await supabase
-      .from('songs')
-      .update({ title: cleanTitle })
-      .eq('title', oldTitle)
-      .eq('version_id', activeVersionId);
+  if (!rows.length) throw new Error('保存対象の曲がありません。');
 
-    if (renameError) throw renameError;
-  }
-
-  const { data: existing, error: existingError } = await supabase
-    .from('songs')
-    .select('id,part')
-    .eq('title', cleanTitle)
-    .eq('version_id', activeVersionId);
-
-  if (existingError) throw existingError;
-
-  const existingByPart = new Map(
-    (existing ?? []).map(row => [row.part, row])
-  );
-
-  for (const part of MASTER_PARTS) {
-    const raw = String(levels[part] ?? '').trim();
-    const current = existingByPart.get(part);
-
-    if (!raw) {
-      if (current) {
-        const { error } = await supabase
-          .from('songs')
-          .delete()
-          .eq('id', current.id);
-
-        if (error) throw error;
-      }
-      continue;
-    }
-
-    const level = Number(raw);
-
-    if (!Number.isFinite(level) || level <= 0 || level > 99.99) {
-      throw new Error(`${part} の難易度が不正です。`);
-    }
-
-    const { error } = await supabase
-      .from('songs')
-      .upsert({
-        is_hot: Boolean(isHot),
-        title: cleanTitle,
-        part,
-        version_id: activeVersionId,
-        level: Math.round((level + Number.EPSILON) * 100) / 100
-      }, {
-        onConflict: 'version_id,title,part'
-      });
-
-    if (error) throw error;
-  }
-
-  // HOTは曲単位で統一
-  const { error: hotError } = await supabase
-    .from('songs')
-    .update({ is_hot: Boolean(isHot) })
-    .eq('title', cleanTitle)
-    .eq('version_id', activeVersionId);
-
-  if (hotError) throw hotError;
+  const savedCount = await saveMasterSongRows(rows, activeVersionId);
+  adminSongPickerKey = '';
+  adminSongPickerChoices = [];
+  await loadAdminSongs();
+  return savedCount;
 }
 
 async function deleteMasterSongTitle(title) {
@@ -584,7 +542,7 @@ async function deleteMasterSongTitle(title) {
   if (error) throw error;
 }
 
-import * as adminApi from './admin.js?v=4_2_0';
+import * as adminApi from './admin.js?v=4_6_0';
 import { listUserSummaries, getUserSkillTargets, getSongRateComparison, getSongPersonalBestHistory, getSongOptionDistribution, getMyFavorites, addFavorite, removeFavorite } from './users.js?v=3_6_0';
 
 let activeInstrument = localStorage.getItem('gitadora_instrument') === 'DM' ? 'DM' : 'GF';
@@ -614,6 +572,8 @@ let adminRequests = [];
 let adminFeedback = [];
 let adminEditingSongId = null;
 let adminNewSongRowVisible = false;
+let adminSongPickerChoices = [];
+let adminSongPickerKey = '';
 let publicUsers = [];
 let favoriteUsers = { GF: [], DM: [] };
 let viewedUserScores = [];
@@ -625,6 +585,89 @@ let viewedUserRegisteredScores = [];
 let adminPasswordUserId = null;
 
 const $ = id => document.getElementById(id);
+
+const ADMIN_SONG_KANA_GROUPS = {
+  'あ':'ぁあぃいうぇえぉおゔ',
+  'か':'かがきぎくぐけげこご',
+  'さ':'さざしじすずせぜそぞ',
+  'た':'ただちぢっつづてでとど',
+  'な':'なにぬねの',
+  'は':'はばぱひびぴふぶぷへべぺほぼぽ',
+  'ま':'まみむめも',
+  'や':'ゃやゅゆょよ',
+  'ら':'らりるれろ',
+  'わ':'ゎわゐゑをん'
+};
+
+function adminSongInitialGroup(value) {
+  const normalized = String(value || '')
+    .normalize('NFKC')
+    .trim()
+    .replace(/[ァ-ヶ]/g, char => String.fromCharCode(char.charCodeAt(0) - 0x60));
+  const first = normalized.charAt(0);
+  if (/^[a-z]$/i.test(first)) return first.toUpperCase();
+  for (const [group, characters] of Object.entries(ADMIN_SONG_KANA_GROUPS)) {
+    if (characters.includes(first)) return group;
+  }
+  return 'symbol';
+}
+
+function renderAdminSongPickerCandidates() {
+  const initialSelect = $('adminSongInitialFilter');
+  const songSelect = $('adminSongCandidate');
+  if (!initialSelect || !songSelect) return;
+
+  const group = initialSelect.value;
+  const currentTitle = $('formTitle')?.value || '';
+  const rows = adminSongPickerChoices
+    .filter(row => !group || adminSongInitialGroup(row.reading || row.title) === group)
+    .sort((a, b) => {
+      const aKey = a.reading || a.title;
+      const bKey = b.reading || b.title;
+      return aKey.localeCompare(bKey, 'ja', { numeric:true, sensitivity:'base' }) ||
+        a.title.localeCompare(b.title, 'ja', { numeric:true, sensitivity:'base' });
+    });
+
+  songSelect.innerHTML = `
+    <option value="">曲名を選択（${rows.length}曲）</option>
+    ${rows.map(row => `<option value="${esc(row.title)}">${esc(row.title)}</option>`).join('')}`;
+  songSelect.value = rows.some(row => row.title === currentTitle) ? currentTitle : '';
+  songSelect.disabled = rows.length === 0;
+}
+
+async function prepareAdminSongPicker() {
+  const picker = $('adminSongPicker');
+  if (!picker) return;
+
+  picker.classList.toggle('hidden', !adminEnabled);
+  if (!adminEnabled || !activeVersionId) return;
+
+  const key = `${activeVersionId}:${activeInstrument}`;
+  if (adminSongPickerKey === key && adminSongPickerChoices.length) {
+    renderAdminSongPickerCandidates();
+    return;
+  }
+
+  const songSelect = $('adminSongCandidate');
+  if (songSelect) {
+    songSelect.disabled = true;
+    songSelect.innerHTML = '<option value="">曲名を読み込み中...</option>';
+  }
+
+  try {
+    const rows = await getAdminSongPickerChoices(activeVersionId, activeInstrument);
+    if (`${activeVersionId}:${activeInstrument}` !== key) return;
+    adminSongPickerChoices = rows;
+    adminSongPickerKey = key;
+    renderAdminSongPickerCandidates();
+  } catch (error) {
+    console.error('管理者用曲名候補の取得に失敗:', error);
+    if (songSelect) {
+      songSelect.disabled = true;
+      songSelect.innerHTML = '<option value="">候補を取得できません</option>';
+    }
+  }
+}
 
 let globalModalScrollY = 0;
 let globalModalScrollLocked = false;
@@ -3241,6 +3284,8 @@ function openScoreModal(score = null) {
   $('formPrivateComment').value = score?.private_comment || '';
 
   $('songSuggestions').innerHTML = '';
+  if ($('adminSongInitialFilter')) $('adminSongInitialFilter').value = '';
+  if ($('adminSongCandidate')) $('adminSongCandidate').value = '';
   $('btnSubmitForm').textContent = '保存する';
   $('editDeleteArea').classList.toggle('hidden', !score);
   hide('masterRequestArea');
@@ -3261,6 +3306,10 @@ function openScoreModal(score = null) {
   document.body.style.width = '100%';
 
   $('domModal').style.display = 'flex';
+
+  if (adminEnabled) {
+    prepareAdminSongPicker().catch(console.error);
+  }
 
   if (!score) {
     requestAnimationFrame(() => $('formTitle').focus({ preventScroll: true }));
@@ -4204,6 +4253,7 @@ async function checkAdminAccess() {
   $('btnMenuShareSkill')?.classList.add('hidden');
   $('menuOfuseSupport')?.classList.remove('hidden');
   $('scorePrivateCommentGroup')?.classList.remove('hidden');
+  $('adminSongPicker')?.classList.toggle('hidden', !adminEnabled);
   updateDmBassMirrorFieldVisibility();
 
   primaryAdminEnabled = false;
@@ -4350,6 +4400,7 @@ async function loadAdminSongs() {
             <tr>
               <th class="master-hot-cell">HOT</th>
               <th class="master-title-cell">曲名</th>
+              <th class="master-reading-cell">ふりがな</th>
               ${MASTER_PARTS.map(part => `<th class="master-level-cell">${part}</th>`).join('')}
               <th class="master-action-cell">操作</th>
             </tr>
@@ -4362,6 +4413,9 @@ async function loadAdminSongs() {
                 </td>
                 <td class="master-title-cell">
                   <input type="text" data-master-title value="" placeholder="曲名">
+                </td>
+                <td class="master-reading-cell">
+                  <input type="text" data-master-reading value="" placeholder="漢字曲など">
                 </td>
                 ${MASTER_PARTS.map(part => `
                   <td class="master-level-cell">
@@ -4387,6 +4441,9 @@ async function loadAdminSongs() {
                 </td>
                 <td class="master-title-cell">
                   <input type="text" data-master-title value="${esc(row.title)}">
+                </td>
+                <td class="master-reading-cell">
+                  <input type="text" data-master-reading value="${esc(row.reading || '')}" placeholder="漢字曲など">
                 </td>
                 ${MASTER_PARTS.map(part => `
                   <td class="master-level-cell">
@@ -5326,6 +5383,35 @@ $('btnAdminAddSong').addEventListener('click', async () => {
   const titleInput = $('adminBody').querySelector('[data-master-new-row] [data-master-title]');
   titleInput?.focus();
 });
+$('btnAdminSaveAllSongs')?.addEventListener('click', async () => {
+  const button = $('btnAdminSaveAllSongs');
+  const originalText = button.textContent;
+  try {
+    button.disabled = true;
+    button.textContent = '保存中...';
+    const savedCount = await saveVisibleMasterSongs();
+    await showSiteDialog(
+      `表示中の${savedCount}曲をまとめて保存しました。`,
+      '保存完了'
+    );
+  } catch (error) {
+    await showSiteDialog(
+      '曲マスターの一括保存に失敗しました: ' + error.message,
+      'エラー'
+    );
+  } finally {
+    button.disabled = false;
+    button.textContent = originalText;
+  }
+});
+$('adminSongInitialFilter')?.addEventListener('change', () => {
+  renderAdminSongPickerCandidates();
+});
+$('adminSongCandidate')?.addEventListener('change', async event => {
+  const title = event.target.value;
+  if (!title) return;
+  await selectSongTitle(title);
+});
 $('btnAdminCancelSong').addEventListener('click', closeAdminSongForm);
 $('btnAdminSaveSong').addEventListener('click', async () => {
   try {
@@ -5596,19 +5682,11 @@ document.addEventListener('click', async e => {
     const tr = adminRegisterMasterRow.closest('tr[data-master-new-row]');
     if (!tr) return;
 
-    const levels = {};
-    MASTER_PARTS.forEach(part => {
-      levels[part] = tr.querySelector(`[data-master-level="${part}"]`)?.value ?? '';
-    });
-
     try {
       adminRegisterMasterRow.disabled = true;
-      await saveMasterSongRow({
-        originalTitle: '',
-        title: tr.querySelector('[data-master-title]').value,
-        isHot: tr.querySelector('[data-master-hot]').checked,
-        levels
-      });
+      await saveMasterSongRow(collectMasterSongRow(tr));
+      adminSongPickerKey = '';
+      adminSongPickerChoices = [];
       adminNewSongRowVisible = false;
       await loadAdminSongs();
       await showSiteDialog('新規曲を登録しました。', '登録完了');
@@ -5632,19 +5710,11 @@ document.addEventListener('click', async e => {
     const tr = adminSaveMasterRow.closest('tr[data-master-row]');
     if (!tr) return;
 
-    const levels = {};
-    MASTER_PARTS.forEach(part => {
-      levels[part] = tr.querySelector(`[data-master-level="${part}"]`)?.value ?? '';
-    });
-
     try {
       adminSaveMasterRow.disabled = true;
-      await saveMasterSongRow({
-        originalTitle: tr.dataset.originalTitle,
-        title: tr.querySelector('[data-master-title]').value,
-        isHot: tr.querySelector('[data-master-hot]').checked,
-        levels
-      });
+      await saveMasterSongRow(collectMasterSongRow(tr));
+      adminSongPickerKey = '';
+      adminSongPickerChoices = [];
       await loadAdminSongs();
     } catch (e) {
       await showSiteDialog('曲マスター保存に失敗しました: ' + e.message, 'エラー');

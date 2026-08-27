@@ -38,6 +38,7 @@ export async function getAdminSongMasterPage(keyword = '', page = 0, pageSize = 
 
   const rows = (data ?? []).map(row => ({
     title: row.title,
+    reading: row.reading || '',
     is_hot: Boolean(row.is_hot),
     levels: row.levels ?? {},
     total_count: Number(row.total_count) || 0
@@ -49,6 +50,35 @@ export async function getAdminSongMasterPage(keyword = '', page = 0, pageSize = 
     page: safePage,
     pageSize: safeSize
   };
+}
+
+export async function getAdminSongPickerChoices(versionId, instrument = 'GF') {
+  const { data, error } = await supabase.rpc('admin_list_song_picker', {
+    p_version_id: versionId,
+    p_instrument: instrument === 'DM' ? 'DM' : 'GF'
+  });
+  if (error) throw error;
+  return (data ?? []).map(row => ({
+    title: row.title,
+    reading: row.reading || ''
+  }));
+}
+
+export async function saveMasterSongRows(rows, versionId) {
+  const payload = (rows ?? []).map(row => ({
+    original_title: String(row.originalTitle || '').trim(),
+    title: String(row.title || '').trim(),
+    reading: String(row.reading || '').trim(),
+    is_hot: Boolean(row.isHot),
+    levels: row.levels ?? {}
+  }));
+
+  const { data, error } = await supabase.rpc('admin_bulk_save_song_master', {
+    p_rows: payload,
+    p_version_id: versionId
+  });
+  if (error) throw error;
+  return Number(data) || 0;
 }
 
 export async function saveMasterSong({ id = null, isHot = false, title, part, level, versionId = null }) {

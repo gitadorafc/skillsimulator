@@ -1910,7 +1910,7 @@ button:disabled {
 #adminMasterTable td:last-child{
   width:112px;
 }
-#adminMasterTable td:nth-child(n+3):nth-child(-n+14) input{
+#adminMasterTable td:nth-child(n+4):nth-child(-n+15) input{
   width:100%;
   min-width:0;
   padding-left:7px;
@@ -10888,6 +10888,56 @@ body.text-size-up #menuMask .app-menu-group-label{
   font-size:10px !important;
 }
 
+/* === APP VERSION 4.6.0: 管理者向け曲名分類・ふりがな・一括保存 === */
+.admin-song-picker{
+  display:grid;
+  grid-template-columns:minmax(112px, .72fr) minmax(0, 1.7fr);
+  gap:8px;
+  margin-top:7px;
+}
+.admin-song-picker.hidden{ display:none !important; }
+.admin-song-picker select{
+  width:100%;
+  min-height:42px;
+  font-size:13px;
+}
+.master-reading-cell{
+  min-width:150px;
+  width:150px;
+}
+#adminMasterTable input[data-master-reading]{
+  width:100%;
+  min-width:0;
+  box-sizing:border-box;
+}
+#btnAdminSaveAllSongs{
+  background:#059669;
+  white-space:nowrap;
+}
+#btnAdminSaveAllSongs:disabled{
+  opacity:.55;
+}
+body.light-mode #btnAdminSaveAllSongs{
+  background:#059669;
+  color:#fff;
+}
+@media (max-width:600px){
+  .admin-song-picker{
+    grid-template-columns:112px minmax(0, 1fr);
+    gap:6px;
+  }
+  .admin-song-picker select{ font-size:12px; }
+  #adminSongToolbar{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+  }
+  #adminSongToolbar input{
+    grid-column:1 / -1;
+  }
+  #adminSongToolbar button{
+    min-height:40px;
+  }
+}
 </style>
   <link rel="preconnect" href="https://challenges.cloudflare.com">
   <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" defer></script>
@@ -11038,6 +11088,37 @@ body.text-size-up #menuMask .app-menu-group-label{
       <label>曲名</label>
       <input id="formTitle" autocomplete="off" placeholder="曲名を入力して候補から選択">
       <div id="songSuggestions" class="suggestion-list"></div>
+      <div id="adminSongPicker" class="admin-song-picker hidden">
+        <div class="select-arrow-wrap">
+          <select id="adminSongInitialFilter" aria-label="曲名の頭文字分類">
+            <option value="">頭文字（全曲）</option>
+            <option value="symbol">記号・数字</option>
+            <option value="A">A</option><option value="B">B</option>
+            <option value="C">C</option><option value="D">D</option>
+            <option value="E">E</option><option value="F">F</option>
+            <option value="G">G</option><option value="H">H</option>
+            <option value="I">I</option><option value="J">J</option>
+            <option value="K">K</option><option value="L">L</option>
+            <option value="M">M</option><option value="N">N</option>
+            <option value="O">O</option><option value="P">P</option>
+            <option value="Q">Q</option><option value="R">R</option>
+            <option value="S">S</option><option value="T">T</option>
+            <option value="U">U</option><option value="V">V</option>
+            <option value="W">W</option><option value="X">X</option>
+            <option value="Y">Y</option><option value="Z">Z</option>
+            <option value="あ">あ行</option><option value="か">か行</option>
+            <option value="さ">さ行</option><option value="た">た行</option>
+            <option value="な">な行</option><option value="は">は行</option>
+            <option value="ま">ま行</option><option value="や">や行</option>
+            <option value="ら">ら行</option><option value="わ">わ行</option>
+          </select>
+        </div>
+        <div class="select-arrow-wrap">
+          <select id="adminSongCandidate" aria-label="曲名候補">
+            <option value="">曲名を選択</option>
+          </select>
+        </div>
+      </div>
     </div>
 
     <div class="form-grid-two">
@@ -11165,7 +11246,7 @@ body.text-size-up #menuMask .app-menu-group-label{
     <div class="app-menu-version">
       <label>VERSION</label>
       <select id="versionSelect" class="version-select" aria-label="GITADORAバージョン"></select>
-      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 4.5.1</div>
+      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 4.6.0</div>
     </div>
   </div>
 </div>
@@ -11621,7 +11702,7 @@ body.text-size-up #menuMask .app-menu-group-label{
 <div id="adminModal" class="admin-modal">
   <div class="admin-header">
     <div class="admin-title-row">
-      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 4.5.1</div></div>
+      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 4.6.0</div></div>
       <button id="btnCloseAdmin" class="admin-close">閉じる</button>
     </div>
     <div class="admin-tabs">
@@ -11632,7 +11713,8 @@ body.text-size-up #menuMask .app-menu-group-label{
       <button class="admin-tab" data-admin-tab="settings">設定利用率</button>
     </div>
     <div id="adminSongToolbar" class="admin-toolbar">
-      <input id="adminSongSearch" placeholder="曲名を検索...">
+      <input id="adminSongSearch" placeholder="曲名・ふりがなを検索...">
+      <button id="btnAdminSaveAllSongs" type="button">まとめて保存</button>
       <button id="btnAdminAddSong">＋新規曲</button>
     </div>
     <div id="adminRequestToolbar" class="admin-toolbar hidden">
@@ -11707,6 +11789,6 @@ body.text-size-up #menuMask .app-menu-group-label{
   </div>
 </div>
 
-<script type="module" src="./js/app.js?v=4_5_1"></script>
+<script type="module" src="./js/app.js?v=4_6_0"></script>
 </body>
 </html>
