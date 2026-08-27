@@ -2887,7 +2887,11 @@ async function applyPreviousScoreSettings(title, part) {
   const cleanPart = String(part || '');
 
   // 前の曲・パートから値が残らないよう、取得前に初期値へ戻す。
-  $('formOption').value = 'NORMAL';
+  // GFは機能設定で保存したデフォルトオプションを維持し、
+  // 過去データが見つかった場合だけ、その曲の設定で上書きする。
+  $('formOption').value = activeInstrument === 'GF'
+    ? getGfDefaultOption()
+    : 'NORMAL';
   $('formDmOption').value = 'NORMAL';
   $('formPrivateComment').value = '';
   const initialOption = $('formOption').value;
