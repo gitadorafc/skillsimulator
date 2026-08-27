@@ -604,13 +604,22 @@ function adminSongInitialGroup(value) {
     .normalize('NFKC')
     .trim()
     .replace(/[ァ-ヶ]/g, char => String.fromCharCode(char.charCodeAt(0) - 0x60));
-  if (!normalized) return 'unclassified';
+  if (!normalized) return 'symbol';
   const first = normalized.charAt(0);
   if (/^[a-z]$/i.test(first)) return first.toUpperCase();
   for (const [group, characters] of Object.entries(ADMIN_SONG_KANA_GROUPS)) {
     if (characters.includes(first)) return group;
   }
   return 'symbol';
+}
+
+function adminSongCategory(row) {
+  const reading = String(row?.reading || '').trim();
+  if (reading) return adminSongInitialGroup(reading);
+
+  const title = String(row?.title || '').normalize('NFKC').trim();
+  if (/^(?:\p{Script=Han}|[々〆])/u.test(title)) return 'unclassified';
+  return adminSongInitialGroup(title);
 }
 
 function renderAdminSongPickerCandidates() {
@@ -630,7 +639,7 @@ function renderAdminSongPickerCandidates() {
   const rows = adminSongPickerChoices
     .filter(row => group === 'new'
       ? row.isNew
-      : adminSongInitialGroup(row.reading) === group)
+      : adminSongCategory(row) === group)
     .sort((a, b) => {
       const aKey = a.reading || a.title;
       const bKey = b.reading || b.title;
