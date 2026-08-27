@@ -549,7 +549,7 @@ async function deleteMasterSongTitle(title) {
   if (error) throw error;
 }
 
-import * as adminApi from './admin.js?v=4_6_6';
+import * as adminApi from './admin.js?v=4_7_0';
 import { listUserSummaries, getUserSkillTargets, getSongRateComparison, getSongPersonalBestHistory, getSongOptionDistribution, getMyFavorites, addFavorite, removeFavorite } from './users.js?v=3_6_0';
 
 let activeInstrument = localStorage.getItem('gitadora_instrument') === 'DM' ? 'DM' : 'GF';
@@ -682,8 +682,8 @@ async function prepareAdminSongPicker() {
   const picker = $('adminSongPicker');
   if (!picker) return;
 
-  picker.classList.toggle('hidden', !adminEnabled);
-  if (!adminEnabled || !activeVersionId) return;
+  picker.classList.remove('hidden');
+  if (!activeVersionId) return;
 
   const key = `${activeVersionId}:${activeInstrument}`;
   if (adminSongPickerKey === key && adminSongPickerChoices.length) {
@@ -704,7 +704,7 @@ async function prepareAdminSongPicker() {
     adminSongPickerKey = key;
     renderAdminSongPickerCandidates();
   } catch (error) {
-    console.error('管理者用曲名候補の取得に失敗:', error);
+    console.error('曲名候補の取得に失敗:', error);
     if (songSelect) {
       songSelect.disabled = true;
       songSelect.innerHTML = '<option value="">候補を取得できません</option>';
@@ -3364,9 +3364,7 @@ function openScoreModal(score = null) {
 
   $('domModal').style.display = 'flex';
 
-  if (adminEnabled) {
-    prepareAdminSongPicker().catch(console.error);
-  }
+  prepareAdminSongPicker().catch(console.error);
 
   if (!score) {
     requestAnimationFrame(() => $('formTitle').focus({ preventScroll: true }));
@@ -4283,7 +4281,7 @@ async function checkAdminAccess() {
   $('btnMenuShareSkill')?.classList.add('hidden');
   $('menuOfuseSupport')?.classList.remove('hidden');
   $('scorePrivateCommentGroup')?.classList.remove('hidden');
-  $('adminSongPicker')?.classList.toggle('hidden', !adminEnabled);
+  $('adminSongPicker')?.classList.remove('hidden');
   updateDmBassMirrorFieldVisibility();
 
   primaryAdminEnabled = false;

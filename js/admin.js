@@ -56,7 +56,7 @@ export async function getAdminSongPickerChoices(versionId, instrument = 'GF') {
   const all = [];
   const pageSize = 500;
   for (let offset = 0; ; offset += pageSize) {
-    const { data, error } = await supabase.rpc('admin_list_song_picker', {
+    const { data, error } = await supabase.rpc('list_song_picker', {
       p_version_id: versionId,
       p_instrument: instrument === 'DM' ? 'DM' : 'GF',
       p_limit: pageSize,
