@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>GITADORA Skill Simulator</title>
-<meta name="app-version" content="4.11.1">
+<meta name="app-version" content="4.11.2">
 <link rel="icon" type="image/svg+xml" href="./favicon.svg?v=21_7">
 <link rel="icon" type="image/png" sizes="48x48" href="./favicon-48x48.png?v=21_7">
 <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32x32.png?v=21_7">
@@ -11050,33 +11050,42 @@ body.light-mode .admin-master-pager button.admin-master-page.active{
   .admin-master-jump select{ min-width:92px; }
 }
 
-/* === APP VERSION 4.11.1: 登録曲のクリアランク／FCフィルタ === */
-#recordClearRankFilter {
-  width: 94px !important;
-  background-color: #f8fafc !important;
-  color: #111827 !important;
-  border-color: #cbd5e1 !important;
-  color-scheme: light;
-}
+/* === APP VERSION 4.11.2: 登録曲フィルタのテーマ・幅統一 === */
+#recordTypeFilter,
+#recordClearRankFilter,
 #recordFcFilter {
-  width: 68px !important;
-}
-body.light-mode #recordClearRankFilter {
   appearance: none !important;
   -webkit-appearance: none !important;
-  padding-right: 28px !important;
+  height: 38px !important;
+  padding: 0 32px 0 10px !important;
+  background-color: #111827 !important;
+  background-image:
+    linear-gradient(45deg, transparent 50%, #e5e7eb 50%),
+    linear-gradient(135deg, #e5e7eb 50%, transparent 50%) !important;
+  background-position:
+    calc(100% - 17px) 50%,
+    calc(100% - 11px) 50% !important;
+  background-size: 5px 5px, 5px 5px !important;
+  background-repeat: no-repeat !important;
+  color: #e5e7eb !important;
+  -webkit-text-fill-color: #e5e7eb !important;
+  border: 1px solid #475569 !important;
+  border-radius: 7px !important;
+  color-scheme: dark !important;
+}
+#recordClearRankFilter { width: 108px !important; }
+#recordFcFilter { width: 82px !important; }
+body.light-mode #recordTypeFilter,
+body.light-mode #recordClearRankFilter,
+body.light-mode #recordFcFilter {
   background-color: #f8fafc !important;
   background-image:
     linear-gradient(45deg, transparent 50%, #334155 50%),
     linear-gradient(135deg, #334155 50%, transparent 50%) !important;
-  background-position:
-    calc(100% - 15px) 50%,
-    calc(100% - 10px) 50% !important;
-  background-size: 5px 5px, 5px 5px !important;
-  background-repeat: no-repeat !important;
   color: #111827 !important;
   -webkit-text-fill-color: #111827 !important;
-  border-color: #94a3b8 !important;
+  border: 1px solid #94a3b8 !important;
+  color-scheme: light !important;
 }
 
 /* === APP VERSION 4.6.7: ページ表示を「前へ・現在/全体・次へ」に統一 === */
@@ -11208,8 +11217,8 @@ body.light-mode .admin-master-pager .admin-master-status{
             <span>クリアランク</span>
             <select id="recordClearRankFilter" aria-label="クリアランクフィルタ">
               <option value="">選択</option>
-              <option value="SS_OR_HIGHER">SS以上</option>
-              <option value="S_OR_HIGHER">S以上</option>
+              <option value="SS">SS</option>
+              <option value="S">S</option>
               <option value="BELOW_S">S未満</option>
             </select>
           </label>
@@ -11433,7 +11442,7 @@ body.light-mode .admin-master-pager .admin-master-status{
     <div class="app-menu-version">
       <label>VERSION</label>
       <select id="versionSelect" class="version-select" aria-label="GITADORAバージョン"></select>
-      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 4.11.1</div>
+      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 4.11.2</div>
     </div>
   </div>
 </div>
@@ -11889,7 +11898,7 @@ body.light-mode .admin-master-pager .admin-master-status{
 <div id="adminModal" class="admin-modal">
   <div class="admin-header">
     <div class="admin-title-row">
-      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 4.11.1</div></div>
+      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 4.11.2</div></div>
       <button id="btnCloseAdmin" class="admin-close">閉じる</button>
     </div>
     <div class="admin-tabs">
@@ -11976,7 +11985,7 @@ body.light-mode .admin-master-pager .admin-master-status{
   </div>
 </div>
 
-<script type="module" src="./js/app.js?v=4_11_1"></script>
+<script type="module" src="./js/app.js?v=4_11_2"></script>
 <script src="./js/version-check.js?v=4_10_0" defer></script>
 </body>
 </html>

@@ -3245,8 +3245,8 @@ function renderManage() {
       if (fcFilter === 'EXC') return fc === 'EXC';
 
       const matchesClearRank = (() => {
-        if (clearRankFilter === 'SS_OR_HIGHER') return achievementRate >= 95;
-        if (clearRankFilter === 'S_OR_HIGHER') return achievementRate >= 80;
+        if (clearRankFilter === 'SS') return achievementRate >= 95 && achievementRate <= 100;
+        if (clearRankFilter === 'S') return achievementRate >= 80 && achievementRate < 95;
         if (clearRankFilter === 'BELOW_S') return achievementRate < 80;
         return true;
       })();
