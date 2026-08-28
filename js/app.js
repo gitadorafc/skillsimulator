@@ -3250,7 +3250,12 @@ function renderManage() {
         if (clearRankFilter === 'BELOW_S') return achievementRate < 80;
         return true;
       })();
-      const matchesFc = fcFilter !== 'FC' || fc === 'FC';
+      const matchesFc =
+        fcFilter === 'FC'
+          ? fc === 'FC'
+          : fcFilter === 'NONE'
+            ? fc !== 'FC' && fc !== 'EXC'
+            : true;
 
       return matchesClearRank && matchesFc;
     })

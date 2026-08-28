@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>GITADORA Skill Simulator</title>
-<meta name="app-version" content="4.11.2">
+<meta name="app-version" content="4.11.3">
 <link rel="icon" type="image/svg+xml" href="./favicon.svg?v=21_7">
 <link rel="icon" type="image/png" sizes="48x48" href="./favicon-48x48.png?v=21_7">
 <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32x32.png?v=21_7">
@@ -11050,7 +11050,7 @@ body.light-mode .admin-master-pager button.admin-master-page.active{
   .admin-master-jump select{ min-width:92px; }
 }
 
-/* === APP VERSION 4.11.2: 登録曲フィルタのテーマ・幅統一 === */
+/* === APP VERSION 4.11.3: 登録曲フィルタの矢印統一 === */
 #recordTypeFilter,
 #recordClearRankFilter,
 #recordFcFilter {
@@ -11059,13 +11059,9 @@ body.light-mode .admin-master-pager button.admin-master-page.active{
   height: 38px !important;
   padding: 0 32px 0 10px !important;
   background-color: #111827 !important;
-  background-image:
-    linear-gradient(45deg, transparent 50%, #e5e7eb 50%),
-    linear-gradient(135deg, #e5e7eb 50%, transparent 50%) !important;
-  background-position:
-    calc(100% - 17px) 50%,
-    calc(100% - 11px) 50% !important;
-  background-size: 5px 5px, 5px 5px !important;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Cpath d='M4 6.5 8 10l4-3.5' fill='none' stroke='%23e5e7eb' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") !important;
+  background-position: calc(100% - 10px) 50% !important;
+  background-size: 16px 16px !important;
   background-repeat: no-repeat !important;
   color: #e5e7eb !important;
   -webkit-text-fill-color: #e5e7eb !important;
@@ -11079,9 +11075,7 @@ body.light-mode #recordTypeFilter,
 body.light-mode #recordClearRankFilter,
 body.light-mode #recordFcFilter {
   background-color: #f8fafc !important;
-  background-image:
-    linear-gradient(45deg, transparent 50%, #334155 50%),
-    linear-gradient(135deg, #334155 50%, transparent 50%) !important;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Cpath d='M4 6.5 8 10l4-3.5' fill='none' stroke='%23334155' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") !important;
   color: #111827 !important;
   -webkit-text-fill-color: #111827 !important;
   border: 1px solid #94a3b8 !important;
@@ -11228,6 +11222,7 @@ body.light-mode .admin-master-pager .admin-master-status{
               <option value="">選択</option>
               <option value="EXC">EXC</option>
               <option value="FC">FC</option>
+              <option value="NONE">未FC</option>
             </select>
           </label>
         </div>
@@ -11442,7 +11437,7 @@ body.light-mode .admin-master-pager .admin-master-status{
     <div class="app-menu-version">
       <label>VERSION</label>
       <select id="versionSelect" class="version-select" aria-label="GITADORAバージョン"></select>
-      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 4.11.2</div>
+      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 4.11.3</div>
     </div>
   </div>
 </div>
@@ -11898,7 +11893,7 @@ body.light-mode .admin-master-pager .admin-master-status{
 <div id="adminModal" class="admin-modal">
   <div class="admin-header">
     <div class="admin-title-row">
-      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 4.11.2</div></div>
+      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 4.11.3</div></div>
       <button id="btnCloseAdmin" class="admin-close">閉じる</button>
     </div>
     <div class="admin-tabs">
@@ -11985,7 +11980,7 @@ body.light-mode .admin-master-pager .admin-master-status{
   </div>
 </div>
 
-<script type="module" src="./js/app.js?v=4_11_2"></script>
+<script type="module" src="./js/app.js?v=4_11_3"></script>
 <script src="./js/version-check.js?v=4_10_0" defer></script>
 </body>
 </html>
