@@ -3226,10 +3226,8 @@ function renderManage() {
   const typeFilter = document.body.classList.contains('skill-target-columns')
     ? ''
     : ($('recordTypeFilter')?.value || '');
-  const rankFilters = new Set(
-    Array.from(document.querySelectorAll('[data-record-rank-filter]:checked'))
-      .map(input => input.value)
-  );
+  const clearRankFilter = $('recordClearRankFilter')?.value || '';
+  const fcFilter = $('recordFcFilter')?.value || '';
 
   const data = scores
     .filter(r => isCurrentInstrumentPart(r.part))
@@ -3240,17 +3238,21 @@ function renderManage() {
       return true;
     })
     .filter(r => {
-      if (rankFilters.size === 0) return true;
-
       const achievementRate = Number(r.achievement_rate);
       const fc = String(r.fc || '').toUpperCase();
 
-      return (
-        (rankFilters.has('S') && achievementRate >= 80 && achievementRate < 95) ||
-        (rankFilters.has('SS') && achievementRate >= 95 && achievementRate < 100) ||
-        (rankFilters.has('FC') && fc === 'FC') ||
-        (rankFilters.has('EXC') && fc === 'EXC')
-      );
+      // EXCは達成率100%が前提のため、クリアランクより優先する。
+      if (fcFilter === 'EXC') return fc === 'EXC';
+
+      const matchesClearRank = (() => {
+        if (clearRankFilter === 'SS_OR_HIGHER') return achievementRate >= 95;
+        if (clearRankFilter === 'S_OR_HIGHER') return achievementRate >= 80;
+        if (clearRankFilter === 'BELOW_S') return achievementRate < 80;
+        return true;
+      })();
+      const matchesFc = fcFilter !== 'FC' || fc === 'FC';
+
+      return matchesClearRank && matchesFc;
     })
     .sort((a,b) => Number(b.skill) - Number(a.skill));
 
@@ -5017,9 +5019,8 @@ document.querySelectorAll('.p-tab-btn').forEach(btn => {
 
 $('domSearch').addEventListener('input', renderManage);
 $('recordTypeFilter').addEventListener('change', renderManage);
-document.querySelectorAll('[data-record-rank-filter]').forEach(input => {
-  input.addEventListener('change', renderManage);
-});
+$('recordClearRankFilter').addEventListener('change', renderManage);
+$('recordFcFilter').addEventListener('change', renderManage);
 
 $('btnOpenLevelCorrection').addEventListener('click', () => {
   $('correctionLevel').value = selectedSong ? formatLevel(selectedSong.level) : '';

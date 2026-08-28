@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>GITADORA Skill Simulator</title>
-<meta name="app-version" content="4.11.0">
+<meta name="app-version" content="4.11.1">
 <link rel="icon" type="image/svg+xml" href="./favicon.svg?v=21_7">
 <link rel="icon" type="image/png" sizes="48x48" href="./favicon-48x48.png?v=21_7">
 <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32x32.png?v=21_7">
@@ -1527,37 +1527,32 @@ button:disabled {
 }
 .record-rank-filter-group {
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   justify-content: flex-start;
-  gap: 10px;
+  gap: 7px;
   min-width: 0;
   min-height: 38px;
 }
-.record-rank-filter {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
+.record-rank-filter-field {
+  display: flex;
+  flex: 0 0 auto;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 3px;
   color: #e5e7eb;
-  font-size: 12px;
+  font-size: 10px;
   font-weight: 900;
-  line-height: 1;
   white-space: nowrap;
-  cursor: pointer;
 }
-.record-rank-filter input {
-  width: 18px;
-  height: 18px;
-  margin: 0;
-  accent-color: #2563eb;
-  cursor: pointer;
+.record-rank-filter-field select {
+  width: auto !important;
+  min-width: 0;
+  height: 38px;
+  padding-left: 8px;
+  padding-right: 28px;
 }
-body.light-mode .record-rank-filter {
+body.light-mode .record-rank-filter-field {
   color: #111827;
-}
-@media (max-width: 420px) {
-  .record-rank-filter-group { gap: 7px; }
-  .record-rank-filter { font-size: 11px; }
-  .record-rank-filter input { width: 17px; height: 17px; }
 }
 
 /* 難易度修正依頼 */
@@ -11055,6 +11050,35 @@ body.light-mode .admin-master-pager button.admin-master-page.active{
   .admin-master-jump select{ min-width:92px; }
 }
 
+/* === APP VERSION 4.11.1: 登録曲のクリアランク／FCフィルタ === */
+#recordClearRankFilter {
+  width: 94px !important;
+  background-color: #f8fafc !important;
+  color: #111827 !important;
+  border-color: #cbd5e1 !important;
+  color-scheme: light;
+}
+#recordFcFilter {
+  width: 68px !important;
+}
+body.light-mode #recordClearRankFilter {
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  padding-right: 28px !important;
+  background-color: #f8fafc !important;
+  background-image:
+    linear-gradient(45deg, transparent 50%, #334155 50%),
+    linear-gradient(135deg, #334155 50%, transparent 50%) !important;
+  background-position:
+    calc(100% - 15px) 50%,
+    calc(100% - 10px) 50% !important;
+  background-size: 5px 5px, 5px 5px !important;
+  background-repeat: no-repeat !important;
+  color: #111827 !important;
+  -webkit-text-fill-color: #111827 !important;
+  border-color: #94a3b8 !important;
+}
+
 /* === APP VERSION 4.6.7: ページ表示を「前へ・現在/全体・次へ」に統一 === */
 #userListPager .user-pager-status,
 .admin-master-pager .admin-master-status{
@@ -11179,11 +11203,24 @@ body.light-mode .admin-master-pager .admin-master-status{
           <option value="OTHER">OTHER</option>
           <option value="HOT">HOT</option>
         </select>
-        <div class="record-rank-filter-group" role="group" aria-label="達成・フルコンフィルタ">
-          <label class="record-rank-filter"><input type="checkbox" value="S" data-record-rank-filter><span>S</span></label>
-          <label class="record-rank-filter"><input type="checkbox" value="SS" data-record-rank-filter><span>SS</span></label>
-          <label class="record-rank-filter"><input type="checkbox" value="FC" data-record-rank-filter><span>FC</span></label>
-          <label class="record-rank-filter"><input type="checkbox" value="EXC" data-record-rank-filter><span>EXC</span></label>
+        <div class="record-rank-filter-group" role="group" aria-label="クリアランク・FCフィルタ">
+          <label class="record-rank-filter-field">
+            <span>クリアランク</span>
+            <select id="recordClearRankFilter" aria-label="クリアランクフィルタ">
+              <option value="">選択</option>
+              <option value="SS_OR_HIGHER">SS以上</option>
+              <option value="S_OR_HIGHER">S以上</option>
+              <option value="BELOW_S">S未満</option>
+            </select>
+          </label>
+          <label class="record-rank-filter-field">
+            <span>FC</span>
+            <select id="recordFcFilter" aria-label="FCフィルタ">
+              <option value="">選択</option>
+              <option value="EXC">EXC</option>
+              <option value="FC">FC</option>
+            </select>
+          </label>
         </div>
       </div>
     </div>
@@ -11396,7 +11433,7 @@ body.light-mode .admin-master-pager .admin-master-status{
     <div class="app-menu-version">
       <label>VERSION</label>
       <select id="versionSelect" class="version-select" aria-label="GITADORAバージョン"></select>
-      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 4.11.0</div>
+      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 4.11.1</div>
     </div>
   </div>
 </div>
@@ -11852,7 +11889,7 @@ body.light-mode .admin-master-pager .admin-master-status{
 <div id="adminModal" class="admin-modal">
   <div class="admin-header">
     <div class="admin-title-row">
-      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 4.11.0</div></div>
+      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 4.11.1</div></div>
       <button id="btnCloseAdmin" class="admin-close">閉じる</button>
     </div>
     <div class="admin-tabs">
@@ -11939,7 +11976,7 @@ body.light-mode .admin-master-pager .admin-master-status{
   </div>
 </div>
 
-<script type="module" src="./js/app.js?v=4_11_0"></script>
+<script type="module" src="./js/app.js?v=4_11_1"></script>
 <script src="./js/version-check.js?v=4_10_0" defer></script>
 </body>
 </html>
