@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>GITADORA Skill Simulator</title>
-<meta name="app-version" content="4.10.0">
+<meta name="app-version" content="4.11.0">
 <link rel="icon" type="image/svg+xml" href="./favicon.svg?v=21_7">
 <link rel="icon" type="image/png" sizes="48x48" href="./favicon-48x48.png?v=21_7">
 <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32x32.png?v=21_7">
@@ -1524,6 +1524,40 @@ button:disabled {
   color: #e5e7eb;
   font-size: 12px;
   font-weight: 800;
+}
+.record-rank-filter-group {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
+  min-width: 0;
+  min-height: 38px;
+}
+.record-rank-filter {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: #e5e7eb;
+  font-size: 12px;
+  font-weight: 900;
+  line-height: 1;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.record-rank-filter input {
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  accent-color: #2563eb;
+  cursor: pointer;
+}
+body.light-mode .record-rank-filter {
+  color: #111827;
+}
+@media (max-width: 420px) {
+  .record-rank-filter-group { gap: 7px; }
+  .record-rank-filter { font-size: 11px; }
+  .record-rank-filter input { width: 17px; height: 17px; }
 }
 
 /* 難易度修正依頼 */
@@ -11145,12 +11179,12 @@ body.light-mode .admin-master-pager .admin-master-status{
           <option value="OTHER">OTHER</option>
           <option value="HOT">HOT</option>
         </select>
-        <select id="recordFcFilter" aria-label="フルコンフィルタ">
-          <option value="">フルコン：すべて</option>
-          <option value="NONE">なし</option>
-          <option value="FC">FC</option>
-          <option value="EXC">EXC</option>
-        </select>
+        <div class="record-rank-filter-group" role="group" aria-label="達成・フルコンフィルタ">
+          <label class="record-rank-filter"><input type="checkbox" value="S" data-record-rank-filter><span>S</span></label>
+          <label class="record-rank-filter"><input type="checkbox" value="SS" data-record-rank-filter><span>SS</span></label>
+          <label class="record-rank-filter"><input type="checkbox" value="FC" data-record-rank-filter><span>FC</span></label>
+          <label class="record-rank-filter"><input type="checkbox" value="EXC" data-record-rank-filter><span>EXC</span></label>
+        </div>
       </div>
     </div>
   </div>
@@ -11362,7 +11396,7 @@ body.light-mode .admin-master-pager .admin-master-status{
     <div class="app-menu-version">
       <label>VERSION</label>
       <select id="versionSelect" class="version-select" aria-label="GITADORAバージョン"></select>
-      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 4.10.0</div>
+      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 4.11.0</div>
     </div>
   </div>
 </div>
@@ -11818,7 +11852,7 @@ body.light-mode .admin-master-pager .admin-master-status{
 <div id="adminModal" class="admin-modal">
   <div class="admin-header">
     <div class="admin-title-row">
-      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 4.10.0</div></div>
+      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 4.11.0</div></div>
       <button id="btnCloseAdmin" class="admin-close">閉じる</button>
     </div>
     <div class="admin-tabs">
@@ -11905,7 +11939,7 @@ body.light-mode .admin-master-pager .admin-master-status{
   </div>
 </div>
 
-<script type="module" src="./js/app.js?v=4_8_0"></script>
+<script type="module" src="./js/app.js?v=4_11_0"></script>
 <script src="./js/version-check.js?v=4_10_0" defer></script>
 </body>
 </html>

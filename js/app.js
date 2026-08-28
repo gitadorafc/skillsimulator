@@ -3226,7 +3226,10 @@ function renderManage() {
   const typeFilter = document.body.classList.contains('skill-target-columns')
     ? ''
     : ($('recordTypeFilter')?.value || '');
-  const fcFilter = $('recordFcFilter')?.value || '';
+  const rankFilters = new Set(
+    Array.from(document.querySelectorAll('[data-record-rank-filter]:checked'))
+      .map(input => input.value)
+  );
 
   const data = scores
     .filter(r => isCurrentInstrumentPart(r.part))
@@ -3237,11 +3240,17 @@ function renderManage() {
       return true;
     })
     .filter(r => {
-      const fc = r.fc || '';
-      if (fcFilter === 'NONE') return fc === '';
-      if (fcFilter === 'FC') return fc === 'FC';
-      if (fcFilter === 'EXC') return fc === 'EXC';
-      return true;
+      if (rankFilters.size === 0) return true;
+
+      const achievementRate = Number(r.achievement_rate);
+      const fc = String(r.fc || '').toUpperCase();
+
+      return (
+        (rankFilters.has('S') && achievementRate >= 80 && achievementRate < 95) ||
+        (rankFilters.has('SS') && achievementRate >= 95 && achievementRate < 100) ||
+        (rankFilters.has('FC') && fc === 'FC') ||
+        (rankFilters.has('EXC') && fc === 'EXC')
+      );
     })
     .sort((a,b) => Number(b.skill) - Number(a.skill));
 
@@ -5008,7 +5017,9 @@ document.querySelectorAll('.p-tab-btn').forEach(btn => {
 
 $('domSearch').addEventListener('input', renderManage);
 $('recordTypeFilter').addEventListener('change', renderManage);
-$('recordFcFilter').addEventListener('change', renderManage);
+document.querySelectorAll('[data-record-rank-filter]').forEach(input => {
+  input.addEventListener('change', renderManage);
+});
 
 $('btnOpenLevelCorrection').addEventListener('click', () => {
   $('correctionLevel').value = selectedSong ? formatLevel(selectedSong.level) : '';
