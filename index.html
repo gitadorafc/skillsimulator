@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>GITADORA Skill Simulator</title>
-<meta name="app-version" content="4.12.3">
+<meta name="app-version" content="4.12.4">
 <link rel="icon" type="image/svg+xml" href="./favicon.svg?v=21_7">
 <link rel="icon" type="image/png" sizes="48x48" href="./favicon-48x48.png?v=21_7">
 <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32x32.png?v=21_7">
@@ -11331,6 +11331,49 @@ body.skill-target-columns #viewAllManage .dc-card-manage .dc-edit .m-action-btn.
   position:relative !important;
   top:2px !important;
 }
+
+/* === APP VERSION 4.12.4: 横並び登録カードの編集余白 / スキル帯外寸統一 === */
+/* 編集行を詰め、ボタンに追加していた下方向補正を解除して中央へ戻す。 */
+body.skill-target-columns #viewAllManage .dc-card-manage .dc-edit{
+  min-height:27px !important;
+  height:27px !important;
+  margin-top:0 !important;
+  padding-top:0 !important;
+  align-items:center !important;
+}
+body.skill-target-columns #viewAllManage .dc-card-manage .dc-edit .m-action-btn.btn-e{
+  top:0 !important;
+}
+
+/* 左右のスキルカラー帯と背面枠を、同じborder-box基準・同じ高さにする。 */
+body.skill-target-columns :is(#viewAllManage,#userDetailRecords) .dc-card-manage .dc-skill[class*="skill-box-"]{
+  height:21px !important;
+  min-height:21px !important;
+  max-height:21px !important;
+  padding-top:0 !important;
+  padding-bottom:0 !important;
+  position:relative !important;
+  border-top:0 !important;
+  border-bottom:0 !important;
+  background-origin:border-box !important;
+  background-clip:border-box !important;
+  overflow:hidden !important;
+}
+body.skill-target-columns :is(#viewAllManage,#userDetailRecords) .dc-card-manage .dc-skill[class*="skill-box-"]::before{
+  content:"";
+  position:absolute;
+  left:5px;
+  right:5px;
+  top:0;
+  bottom:0;
+  border-top:1px solid #334155;
+  border-bottom:1px solid #334155;
+  pointer-events:none;
+}
+body.light-mode.skill-target-columns :is(#viewAllManage,#userDetailRecords) .dc-card-manage .dc-skill[class*="skill-box-"]::before{
+  border-top-color:#cbd5e1;
+  border-bottom-color:#cbd5e1;
+}
 </style>
   <link rel="preconnect" href="https://challenges.cloudflare.com">
   <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" defer></script>
@@ -11664,7 +11707,7 @@ body.skill-target-columns #viewAllManage .dc-card-manage .dc-edit .m-action-btn.
     <div class="app-menu-version">
       <label>VERSION</label>
       <select id="versionSelect" class="version-select" aria-label="GITADORAバージョン"></select>
-      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 4.12.3</div>
+      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 4.12.4</div>
     </div>
   </div>
 </div>
@@ -12120,7 +12163,7 @@ body.skill-target-columns #viewAllManage .dc-card-manage .dc-edit .m-action-btn.
 <div id="adminModal" class="admin-modal">
   <div class="admin-header">
     <div class="admin-title-row">
-      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 4.12.3</div></div>
+      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 4.12.4</div></div>
       <button id="btnCloseAdmin" class="admin-close">閉じる</button>
     </div>
     <div class="admin-tabs">
@@ -12222,7 +12265,7 @@ body.skill-target-columns #viewAllManage .dc-card-manage .dc-edit .m-action-btn.
   </div>
 </div>
 
-<script type="module" src="./js/app.js?v=4_12_3"></script>
+<script type="module" src="./js/app.js?v=4_12_4"></script>
 <script src="./js/version-check.js?v=4_10_0" defer></script>
 </body>
 </html>
