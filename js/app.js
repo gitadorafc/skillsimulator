@@ -357,6 +357,18 @@ function captureSkillSyncHash() {
   }
 }
 
+async function recordMyActivity(eventType = 'OPEN') {
+  try {
+    const { error } = await supabase.rpc('record_my_activity', {
+      p_event: String(eventType || 'OPEN').toUpperCase()
+    });
+    if (error) throw error;
+  } catch (e) {
+    // 集計用の記録失敗で、画面表示・同期・手動登録を止めない。
+    console.warn('activity record failed:', e);
+  }
+}
+
 async function importSkillSyncRecords(payload) {
   if (skillSyncInProgress) return;
   renderSkillSyncBrowserGuide();
@@ -447,6 +459,7 @@ async function importSkillSyncRecords(payload) {
       skipped += Number(result?.skipped_count) || 0;
     }
 
+    await recordMyActivity('SYNC');
     await loadScores();
 
     const countText = payload?.counts
@@ -513,10 +526,23 @@ function collectMasterSongRow(tr) {
     levels[part] = tr.querySelector(`[data-master-level="${part}"]`)?.value ?? '';
   });
 
+  const reading = tr.querySelector('[data-master-reading]')?.value || '';
+  const originalReading = tr.dataset.originalReading || '';
+  const readingChanged = reading.trim() !== originalReading.trim();
+  const readingReviewed = Boolean(
+    tr.querySelector('[data-master-reading-reviewed]')?.checked
+  );
+
   return {
     originalTitle: tr.dataset.originalTitle || '',
     title: tr.querySelector('[data-master-title]')?.value || '',
-    reading: tr.querySelector('[data-master-reading]')?.value || '',
+    reading,
+    readingSource: reading.trim()
+      ? (readingChanged ? 'MANUAL' : (tr.dataset.readingSource || 'MANUAL'))
+      : 'NONE',
+    readingReviewed: reading.trim()
+      ? (readingChanged || readingReviewed)
+      : false,
     isHot: Boolean(tr.querySelector('[data-master-hot]')?.checked),
     levels
   };
@@ -549,7 +575,7 @@ async function deleteMasterSongTitle(title) {
   if (error) throw error;
 }
 
-import * as adminApi from './admin.js?v=4_7_0';
+import * as adminApi from './admin.js?v=4_12_0';
 import { listUserSummaries, getUserSkillTargets, getSongRateComparison, getSongPersonalBestHistory, getSongOptionDistribution, getMyFavorites, addFavorite, removeFavorite } from './users.js?v=3_6_0';
 
 let activeInstrument = localStorage.getItem('gitadora_instrument') === 'DM' ? 'DM' : 'GF';
@@ -1188,6 +1214,7 @@ async function showApp(session) {
   hide('authScreen');
   show('appScreen');
   currentUserId = session?.user?.id || null;
+  void recordMyActivity('OPEN');
 
   let username =
     session?.user?.user_metadata?.username ||
@@ -1211,6 +1238,12 @@ async function showApp(session) {
   await loadGameVersionOptions();
   await Promise.all([loadScores(), checkAdminAccess()]);
 }
+
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible' && currentUserId) {
+    void recordMyActivity('OPEN');
+  }
+});
 
 
 let siteDialogResolver = null;
@@ -3669,6 +3702,7 @@ async function submitScore() {
     comment: $('formPrivateComment').value
   });
 
+  await recordMyActivity('EDIT');
   closeModal();
   await loadScores();
 }
@@ -4450,7 +4484,9 @@ async function loadAdminSongs() {
       keyword,
       adminSongPage,
       ADMIN_SONG_PAGE_SIZE,
-      activeVersionId
+      activeVersionId,
+      $('adminSongTypeFilter')?.value || '',
+      $('adminSongReadingFilter')?.value || ''
     );
 
     const rows = result.rows;
@@ -4474,6 +4510,7 @@ async function loadAdminSongs() {
               <th class="master-hot-cell">HOT</th>
               <th class="master-title-cell">曲名</th>
               <th class="master-reading-cell">ふりがな</th>
+              <th class="master-reading-review-cell">確認</th>
               ${MASTER_PARTS.map(part => `<th class="master-level-cell">${part}</th>`).join('')}
               <th class="master-action-cell">操作</th>
             </tr>
@@ -4489,6 +4526,9 @@ async function loadAdminSongs() {
                 </td>
                 <td class="master-reading-cell">
                   <input type="text" data-master-reading value="" placeholder="漢字曲など">
+                </td>
+                <td class="master-reading-review-cell">
+                  <input type="checkbox" data-master-reading-reviewed aria-label="ふりがな確認済み">
                 </td>
                 ${MASTER_PARTS.map(part => `
                   <td class="master-level-cell">
@@ -4508,7 +4548,10 @@ async function loadAdminSongs() {
                 </td>
               </tr>` : ''}
             ${rows.map((row, index) => `
-              <tr data-master-row="${index}" data-original-title="${esc(row.title)}">
+              <tr data-master-row="${index}"
+                data-original-title="${esc(row.title)}"
+                data-original-reading="${esc(row.reading || '')}"
+                data-reading-source="${esc(row.reading_source || 'NONE')}">
                 <td class="master-hot-cell">
                   <input type="checkbox" data-master-hot ${row.is_hot ? 'checked' : ''}>
                 </td>
@@ -4517,6 +4560,11 @@ async function loadAdminSongs() {
                 </td>
                 <td class="master-reading-cell">
                   <input type="text" data-master-reading value="${esc(row.reading || '')}" placeholder="漢字曲など">
+                </td>
+                <td class="master-reading-review-cell" title="${row.reading_source === 'AUTO' ? '自動付与' : row.reading_source === 'MANUAL' ? '手動入力' : '曲名と同一'}">
+                  <input type="checkbox" data-master-reading-reviewed
+                    aria-label="ふりがな確認済み"
+                    ${row.reading_reviewed ? 'checked' : ''}>
                 </td>
                 ${MASTER_PARTS.map(part => `
                   <td class="master-level-cell">
@@ -4640,11 +4688,27 @@ async function loadAdminUsers() {
   $('adminBody').innerHTML = '<div class="empty-state">読み込み中...</div>';
   try {
     adminUsers = await getAdminUsers($('adminUserSearch').value);
-    const key = adminUserSort.key === 'last_sign_in_at'
-      ? 'last_sign_in_at'
+    const allowedKeys = new Set([
+      'username', 'activity_level', 'last_open_at', 'last_update_at',
+      'last_sign_in_at', 'created_at'
+    ]);
+    const key = allowedKeys.has(adminUserSort.key)
+      ? adminUserSort.key
       : 'created_at';
     const direction = adminUserSort.dir === 'asc' ? 1 : -1;
+    const activityScore = { E:1, D:2, C:3, B:4, A:5, S:6 };
     const sortedUsers = [...adminUsers].sort((a, b) => {
+      if (key === 'username') {
+        return String(a.username || '').localeCompare(
+          String(b.username || ''), 'ja'
+        ) * direction;
+      }
+      if (key === 'activity_level') {
+        const difference = (activityScore[a.activity_level] || 0)
+          - (activityScore[b.activity_level] || 0);
+        if (difference) return difference * direction;
+        return String(a.username || '').localeCompare(String(b.username || ''), 'ja');
+      }
       const aTime = a[key] ? new Date(a[key]).getTime() : null;
       const bTime = b[key] ? new Date(b[key]).getTime() : null;
       if (aTime == null && bTime != null) return 1;
@@ -4654,12 +4718,22 @@ async function loadAdminUsers() {
     });
     const formatAdminDate = value => value
       ? new Date(value).toLocaleString('ja-JP')
-      : '未ログイン';
+      : '記録なし';
 
-    $('adminBody').innerHTML = sortedUsers.map(user => `
+    $('adminBody').innerHTML = `
+      <div class="admin-activity-legend">
+        <b>アクティブ度</b>
+        <span>S：7日連続更新</span><span>A：7日連続アクセス</span>
+        <span>B：更新＋通常利用</span><span>C：更新のみ</span>
+        <span>D：登録後に利用</span><span>E：登録のみ</span>
+      </div>
+      ${sortedUsers.map(user => `
       <div class="admin-card">
         <div class="admin-card-top">
-          <div class="admin-card-title">${esc(user.username)}</div>
+          <div class="admin-card-user-heading">
+            <span class="admin-activity-badge level-${String(user.activity_level || 'E').toLowerCase()}">${esc(user.activity_level || 'E')}</span>
+            <div class="admin-card-title">${esc(user.username)}</div>
+          </div>
           <div class="admin-actions">
             <button class="admin-reset" data-admin-reset-user="${user.id}">PW変更</button>
             <button class="admin-delete" data-admin-delete-user="${user.id}">削除</button>
@@ -4668,8 +4742,11 @@ async function loadAdminUsers() {
         <div class="admin-card-meta">
           <span><b>登録日時</b> ${formatAdminDate(user.created_at)}</span>
           <span><b>最終ログイン日時</b> ${formatAdminDate(user.last_sign_in_at)}</span>
+          <span><b>最終アクセス</b> ${formatAdminDate(user.last_open_at)}</span>
+          <span><b>最終更新</b> ${formatAdminDate(user.last_update_at)}</span>
+          <span><b>直近7日</b> アクセス ${Number(user.open_days_7) || 0}日 / 更新 ${Number(user.update_days_7) || 0}日</span>
         </div>
-      </div>`).join('') || '<div class="empty-state">該当するユーザーがいません</div>';
+      </div>`).join('') || '<div class="empty-state">該当するユーザーがいません</div>'}`;
   } catch (e) {
     $('adminBody').innerHTML = `<div class="empty-state">取得失敗: ${esc(e.message)}</div>`;
   }
@@ -5124,6 +5201,7 @@ $('btnDeleteEditingScore').addEventListener('click', async () => {
   try {
     $('btnDeleteEditingScore').disabled = true;
     await deleteScore(scoreId);
+    await recordMyActivity('EDIT');
     closeModal();
     await loadScores();
   } catch (e) {
@@ -5438,6 +5516,12 @@ $('adminSongSearch').addEventListener('input', () => {
   adminSongPage = 0;
   adminSongSearchTimer = setTimeout(loadAdminSongs,250);
 });
+['adminSongTypeFilter', 'adminSongReadingFilter'].forEach(id => {
+  $(id)?.addEventListener('change', () => {
+    adminSongPage = 0;
+    loadAdminSongs();
+  });
+});
 let adminRequestSearchTimer = null;
 $('adminRequestSearch').addEventListener('input', () => {
   clearTimeout(adminRequestSearchTimer);
@@ -5449,14 +5533,26 @@ $('adminUserSearch').addEventListener('input', () => {
   adminUserSearchTimer = setTimeout(loadAdminUsers,250);
 });
 $('adminUserSortKey')?.addEventListener('change', event => {
-  adminUserSort.key = event.target.value === 'last_sign_in_at'
-    ? 'last_sign_in_at'
+  const allowedKeys = new Set([
+    'username', 'activity_level', 'last_open_at', 'last_update_at',
+    'last_sign_in_at', 'created_at'
+  ]);
+  adminUserSort.key = allowedKeys.has(event.target.value)
+    ? event.target.value
     : 'created_at';
   loadAdminUsers();
 });
 $('adminUserSortDir')?.addEventListener('change', event => {
   adminUserSort.dir = event.target.value === 'asc' ? 'asc' : 'desc';
   loadAdminUsers();
+});
+
+$('adminBody')?.addEventListener('input', event => {
+  const readingInput = event.target.closest('[data-master-reading]');
+  if (!readingInput) return;
+  const reviewed = readingInput.closest('tr')
+    ?.querySelector('[data-master-reading-reviewed]');
+  if (reviewed) reviewed.checked = Boolean(readingInput.value.trim());
 });
 
 $('btnAdminAddSong').addEventListener('click', async () => {
@@ -5750,6 +5846,7 @@ document.addEventListener('click', async e => {
 
     try {
       await deleteScore(del.dataset.delete);
+      await recordMyActivity('EDIT');
       await loadScores();
     } catch (e) {
       await showSiteDialog('削除に失敗しました: ' + e.message, 'エラー');

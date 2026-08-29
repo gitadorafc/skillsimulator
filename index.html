@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>GITADORA Skill Simulator</title>
-<meta name="app-version" content="4.11.5">
+<meta name="app-version" content="4.12.0">
 <link rel="icon" type="image/svg+xml" href="./favicon.svg?v=21_7">
 <link rel="icon" type="image/png" sizes="48x48" href="./favicon-48x48.png?v=21_7">
 <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32x32.png?v=21_7">
@@ -11097,7 +11097,7 @@ body.skill-target-columns .record-type-filter-field {
   color-scheme: dark !important;
 }
 #recordTypeFilter { width: 92px !important; }
-#recordClearRankFilter { width: 108px !important; }
+#recordClearRankFilter { width: 92px !important; }
 #recordFcFilter { width: 82px !important; }
 body.light-mode #recordTypeFilter,
 body.light-mode #recordClearRankFilter,
@@ -11138,6 +11138,121 @@ body.light-mode .admin-master-pager .admin-master-status{
   color:#111827 !important;
   -webkit-text-fill-color:#111827 !important;
   border-color:#94a3b8 !important;
+}
+
+/* === APP VERSION 4.12.0: 曲マスターフィルタ / ユーザーアクティブ度 === */
+#adminMasterTable .master-title-cell{
+  width:240px !important;
+}
+#adminMasterTable .master-reading-cell{
+  width:150px !important;
+}
+#adminMasterTable .master-reading-review-cell{
+  width:58px !important;
+  min-width:58px;
+  text-align:center;
+}
+#adminMasterTable .master-reading-review-cell input{
+  width:18px !important;
+  height:18px;
+  min-width:18px !important;
+  padding:0 !important;
+  accent-color:#2563eb;
+}
+#adminSongToolbar .admin-toolbar-select,
+#adminUserToolbar select{
+  appearance:none !important;
+  -webkit-appearance:none !important;
+  min-height:42px;
+  padding:7px 32px 7px 10px !important;
+  border:1px solid #475569 !important;
+  border-radius:7px !important;
+  background-color:#111827 !important;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Cpath d='M4 6.5 8 10l4-3.5' fill='none' stroke='%23e5e7eb' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") !important;
+  background-position:calc(100% - 10px) 50% !important;
+  background-size:16px 16px !important;
+  background-repeat:no-repeat !important;
+  color:#e5e7eb !important;
+  -webkit-text-fill-color:#e5e7eb !important;
+  color-scheme:dark !important;
+  font-size:11px;
+  font-weight:900;
+  white-space:nowrap;
+}
+#adminSongTypeFilter{ width:112px; }
+#adminSongReadingFilter{ width:170px; }
+body.light-mode #adminSongToolbar .admin-toolbar-select,
+body.light-mode #adminUserToolbar select{
+  border-color:#94a3b8 !important;
+  background-color:#f8fafc !important;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Cpath d='M4 6.5 8 10l4-3.5' fill='none' stroke='%23334155' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") !important;
+  color:#111827 !important;
+  -webkit-text-fill-color:#111827 !important;
+  color-scheme:light !important;
+}
+.admin-card-user-heading{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  flex:1;
+  min-width:0;
+}
+.admin-activity-badge{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:28px;
+  height:28px;
+  flex:0 0 28px;
+  border-radius:7px;
+  color:#fff;
+  font-size:14px;
+  font-weight:900;
+}
+.admin-activity-badge.level-s{ background:#e11d48; }
+.admin-activity-badge.level-a{ background:#ea580c; }
+.admin-activity-badge.level-b{ background:#ca8a04; }
+.admin-activity-badge.level-c{ background:#16a34a; }
+.admin-activity-badge.level-d{ background:#0284c7; }
+.admin-activity-badge.level-e{ background:#64748b; }
+.admin-activity-legend{
+  display:flex;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:5px 10px;
+  margin-bottom:9px;
+  padding:8px 10px;
+  border:1px solid #334155;
+  border-radius:8px;
+  background:#111827;
+  color:#94a3b8;
+  font-size:9px;
+}
+.admin-activity-legend b{ color:#e2e8f0; }
+body.light-mode .admin-activity-legend{
+  border-color:#cbd5e1;
+  background:#fff;
+  color:#64748b;
+}
+body.light-mode .admin-activity-legend b{ color:#111827; }
+@media(max-width:620px){
+  #adminSongToolbar{
+    grid-template-columns:1fr 1fr;
+  }
+  #adminSongToolbar .admin-toolbar-select{
+    width:100%;
+    min-width:0;
+  }
+  #adminUserToolbar{
+    grid-template-columns:minmax(0,1fr) 76px;
+  }
+  #adminUserToolbar input{
+    grid-column:1 / -1;
+  }
+  #adminUserToolbar select{
+    width:100%;
+    min-width:0;
+  }
 }
 </style>
   <link rel="preconnect" href="https://challenges.cloudflare.com">
@@ -11472,7 +11587,7 @@ body.light-mode .admin-master-pager .admin-master-status{
     <div class="app-menu-version">
       <label>VERSION</label>
       <select id="versionSelect" class="version-select" aria-label="GITADORAバージョン"></select>
-      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 4.11.5</div>
+      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 4.12.0</div>
     </div>
   </div>
 </div>
@@ -11928,7 +12043,7 @@ body.light-mode .admin-master-pager .admin-master-status{
 <div id="adminModal" class="admin-modal">
   <div class="admin-header">
     <div class="admin-title-row">
-      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 4.11.5</div></div>
+      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 4.12.0</div></div>
       <button id="btnCloseAdmin" class="admin-close">閉じる</button>
     </div>
     <div class="admin-tabs">
@@ -11940,6 +12055,17 @@ body.light-mode .admin-master-pager .admin-master-status{
     </div>
     <div id="adminSongToolbar" class="admin-toolbar">
       <input id="adminSongSearch" placeholder="曲名・ふりがなを検索...">
+      <select id="adminSongTypeFilter" class="admin-toolbar-select" aria-label="曲種別">
+        <option value="">種別：すべて</option>
+        <option value="HOT">HOT</option>
+        <option value="OTHER">OTHER</option>
+      </select>
+      <select id="adminSongReadingFilter" class="admin-toolbar-select" aria-label="ふりがな状態">
+        <option value="">ふりがな：すべて</option>
+        <option value="MISSING">ふりがな未入力</option>
+        <option value="AUTO_UNREVIEWED">自動付与・未確認</option>
+        <option value="REVIEWED">確認済み</option>
+      </select>
       <button id="btnAdminSaveAllSongs" type="button">まとめて保存</button>
       <button id="btnAdminAddSong">＋新規曲</button>
     </div>
@@ -11949,7 +12075,11 @@ body.light-mode .admin-master-pager .admin-master-status{
     <div id="adminUserToolbar" class="admin-toolbar hidden">
       <input id="adminUserSearch" placeholder="ユーザー名を検索...">
       <select id="adminUserSortKey" aria-label="ユーザーの並び順項目">
-        <option value="created_at">登録日時</option>
+        <option value="username">ユーザー名</option>
+        <option value="activity_level">アクティブ度</option>
+        <option value="last_open_at">最終アクセス</option>
+        <option value="last_update_at">最終更新</option>
+        <option value="created_at" selected>登録日時</option>
         <option value="last_sign_in_at">最終ログイン日時</option>
       </select>
       <select id="adminUserSortDir" aria-label="ユーザーの並び順">
@@ -12015,7 +12145,7 @@ body.light-mode .admin-master-pager .admin-master-status{
   </div>
 </div>
 
-<script type="module" src="./js/app.js?v=4_11_3"></script>
+<script type="module" src="./js/app.js?v=4_12_0"></script>
 <script src="./js/version-check.js?v=4_10_0" defer></script>
 </body>
 </html>

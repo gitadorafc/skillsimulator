@@ -23,7 +23,14 @@ export async function getAdminSongs(keyword = '') {
   return all;
 }
 
-export async function getAdminSongMasterPage(keyword = '', page = 0, pageSize = 100, versionId = null) {
+export async function getAdminSongMasterPage(
+  keyword = '',
+  page = 0,
+  pageSize = 100,
+  versionId = null,
+  typeFilter = '',
+  readingFilter = ''
+) {
   const safePage = Math.max(0, Number(page) || 0);
   const safeSize = Math.min(200, Math.max(25, Number(pageSize) || 100));
 
@@ -31,7 +38,9 @@ export async function getAdminSongMasterPage(keyword = '', page = 0, pageSize = 
     p_search: String(keyword || '').trim(),
     p_limit: safeSize,
     p_offset: safePage * safeSize,
-    p_version_id: versionId
+    p_version_id: versionId,
+    p_type_filter: String(typeFilter || '').trim().toUpperCase(),
+    p_reading_filter: String(readingFilter || '').trim().toUpperCase()
   });
 
   if (error) throw error;
@@ -39,6 +48,8 @@ export async function getAdminSongMasterPage(keyword = '', page = 0, pageSize = 
   const rows = (data ?? []).map(row => ({
     title: row.title,
     reading: row.reading || '',
+    reading_source: row.reading_source || 'NONE',
+    reading_reviewed: Boolean(row.reading_reviewed),
     is_hot: Boolean(row.is_hot),
     levels: row.levels ?? {},
     total_count: Number(row.total_count) || 0
@@ -79,6 +90,8 @@ export async function saveMasterSongRows(rows, versionId) {
     original_title: String(row.originalTitle || '').trim(),
     title: String(row.title || '').trim(),
     reading: String(row.reading || '').trim(),
+    reading_source: String(row.readingSource || '').trim().toUpperCase() || 'NONE',
+    reading_reviewed: Boolean(row.readingReviewed),
     is_hot: Boolean(row.isHot),
     levels: row.levels ?? {}
   }));
@@ -88,6 +101,12 @@ export async function saveMasterSongRows(rows, versionId) {
     p_version_id: versionId
   });
   if (error) throw error;
+
+  const { error: statusError } = await supabase.rpc('admin_update_song_reading_status', {
+    p_rows: payload
+  });
+  if (statusError) throw statusError;
+
   return Number(data) || 0;
 }
 
