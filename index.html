@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>GITADORA Skill Simulator</title>
-<meta name="app-version" content="4.11.4">
+<meta name="app-version" content="4.11.5">
 <link rel="icon" type="image/svg+xml" href="./favicon.svg?v=21_7">
 <link rel="icon" type="image/png" sizes="48x48" href="./favicon-48x48.png?v=21_7">
 <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32x32.png?v=21_7">
@@ -11050,7 +11050,34 @@ body.light-mode .admin-master-pager button.admin-master-page.active{
   .admin-master-jump select{ min-width:92px; }
 }
 
-/* === APP VERSION 4.11.4: 登録曲フィルタの矢印統一 === */
+/* === APP VERSION 4.11.5: 登録曲フィルタを見出し付き横一列に統一 === */
+.record-filter-row {
+  display: flex !important;
+  align-items: flex-end !important;
+  justify-content: flex-start !important;
+  flex-wrap: nowrap !important;
+  gap: 7px !important;
+}
+.record-type-filter-field {
+  display: flex;
+  flex: 0 0 auto;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 3px;
+  color: #e5e7eb;
+  font-size: 10px;
+  font-weight: 900;
+  white-space: nowrap;
+}
+.record-rank-filter-group {
+  flex: 0 0 auto;
+}
+body.light-mode .record-type-filter-field {
+  color: #111827;
+}
+body.skill-target-columns .record-type-filter-field {
+  display: none !important;
+}
 #recordTypeFilter,
 #recordClearRankFilter,
 #recordFcFilter {
@@ -11069,6 +11096,7 @@ body.light-mode .admin-master-pager button.admin-master-page.active{
   border-radius: 7px !important;
   color-scheme: dark !important;
 }
+#recordTypeFilter { width: 92px !important; }
 #recordClearRankFilter { width: 108px !important; }
 #recordFcFilter { width: 82px !important; }
 body.light-mode #recordTypeFilter,
@@ -11205,11 +11233,14 @@ body.light-mode .admin-master-pager .admin-master-status{
         </button>
       </div>
       <div class="record-filter-row">
-        <select id="recordTypeFilter" aria-label="種別フィルタ">
-          <option value="">種別：すべて</option>
-          <option value="OTHER">OTHER</option>
-          <option value="HOT">HOT</option>
-        </select>
+        <label class="record-type-filter-field">
+          <span>種別</span>
+          <select id="recordTypeFilter" aria-label="種別フィルタ">
+            <option value="">選択</option>
+            <option value="HOT">HOT</option>
+            <option value="OTHER">OTHER</option>
+          </select>
+        </label>
         <div class="record-rank-filter-group" role="group" aria-label="クリアランク・FCフィルタ">
           <label class="record-rank-filter-field">
             <span>クリアランク</span>
@@ -11441,7 +11472,7 @@ body.light-mode .admin-master-pager .admin-master-status{
     <div class="app-menu-version">
       <label>VERSION</label>
       <select id="versionSelect" class="version-select" aria-label="GITADORAバージョン"></select>
-      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 4.11.4</div>
+      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 4.11.5</div>
     </div>
   </div>
 </div>
@@ -11897,7 +11928,7 @@ body.light-mode .admin-master-pager .admin-master-status{
 <div id="adminModal" class="admin-modal">
   <div class="admin-header">
     <div class="admin-title-row">
-      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 4.11.4</div></div>
+      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 4.11.5</div></div>
       <button id="btnCloseAdmin" class="admin-close">閉じる</button>
     </div>
     <div class="admin-tabs">
