@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>GITADORA Skill Simulator</title>
-<meta name="app-version" content="4.12.0">
+<meta name="app-version" content="4.12.1">
 <link rel="icon" type="image/svg+xml" href="./favicon.svg?v=21_7">
 <link rel="icon" type="image/png" sizes="48x48" href="./favicon-48x48.png?v=21_7">
 <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32x32.png?v=21_7">
@@ -11254,6 +11254,37 @@ body.light-mode .admin-activity-legend b{ color:#111827; }
     min-width:0;
   }
 }
+
+/* === APP VERSION 4.12.1: タブ直下・曲カード間隔 / スキルヘッダー高さ統一 === */
+/* スキル値の文字サイズは維持し、TOTAL/HOT/OTHERの帯だけ少し低くする。 */
+.score-row{
+  height:54px !important;
+}
+
+/* 各タブの最初の要素を、ユーザー行同士と同じ4px間隔で開始する。 */
+.p-container{
+  padding-top:4px !important;
+}
+#searchArea.search-bar-container{
+  padding-top:4px !important;
+}
+#viewSkill > .sk-section:first-child > h2{
+  margin-top:0 !important;
+}
+#viewUsers .user-list-sticky{
+  top:calc(var(--app-sticky-header-height) + 4px) !important;
+}
+#viewUsers .user-list-sticky::before{
+  top:-4px !important;
+}
+#viewUsers .user-list-sticky .users-toolbar{
+  padding-top:0 !important;
+}
+
+/* 登録曲側に残っていた下マージンを外し、全カードをgap:4pxへ統一する。 */
+:is(#viewAllManage,#userDetailRecords) .m-card{
+  margin-bottom:0 !important;
+}
 </style>
   <link rel="preconnect" href="https://challenges.cloudflare.com">
   <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" defer></script>
@@ -11587,7 +11618,7 @@ body.light-mode .admin-activity-legend b{ color:#111827; }
     <div class="app-menu-version">
       <label>VERSION</label>
       <select id="versionSelect" class="version-select" aria-label="GITADORAバージョン"></select>
-      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 4.12.0</div>
+      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 4.12.1</div>
     </div>
   </div>
 </div>
@@ -12043,7 +12074,7 @@ body.light-mode .admin-activity-legend b{ color:#111827; }
 <div id="adminModal" class="admin-modal">
   <div class="admin-header">
     <div class="admin-title-row">
-      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 4.12.0</div></div>
+      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 4.12.1</div></div>
       <button id="btnCloseAdmin" class="admin-close">閉じる</button>
     </div>
     <div class="admin-tabs">
@@ -12145,7 +12176,7 @@ body.light-mode .admin-activity-legend b{ color:#111827; }
   </div>
 </div>
 
-<script type="module" src="./js/app.js?v=4_12_0"></script>
+<script type="module" src="./js/app.js?v=4_12_1"></script>
 <script src="./js/version-check.js?v=4_10_0" defer></script>
 </body>
 </html>
