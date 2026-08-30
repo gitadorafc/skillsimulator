@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>GITADORA Skill Simulator</title>
-<meta name="app-version" content="4.12.19">
+<meta name="app-version" content="4.12.20">
 <link rel="icon" type="image/svg+xml" href="./favicon.svg?v=21_7">
 <link rel="icon" type="image/png" sizes="48x48" href="./favicon-48x48.png?v=21_7">
 <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32x32.png?v=21_7">
@@ -610,8 +610,8 @@ body { background:#0b1220; }
   50% { filter:brightness(1.7) saturate(1.3); }
 }
 @keyframes skill-sparkle-band-overlay {
-  0%,100% { opacity:.02; }
-  50% { opacity:.62; }
+  0%,100% { filter:brightness(1.05); }
+  50% { filter:brightness(1.85); }
 }
 @keyframes skill-sparkle-band-glow-light {
   0%,100% { --skill-band-light-alpha:.04; }
@@ -11602,12 +11602,12 @@ body.skill-target-columns .dc-card .dc-skill[class*="skill-box-"]{
   position:absolute;
   inset:0;
   background-image:
-    linear-gradient(#fff 0 100%),
-    linear-gradient(#fff 0 100%);
+    var(--skill-side-paint),
+    var(--skill-side-paint);
   background-position:left top,right top;
   background-size:5px 100%,5px 100%;
   background-repeat:no-repeat,no-repeat;
-  opacity:.02;
+  opacity:1;
   pointer-events:none;
   z-index:1;
   animation:skill-sparkle-band-overlay var(--skill-sparkle-cycle) ease-in-out infinite;
@@ -11987,7 +11987,7 @@ body.skill-target-columns :is(
     <div class="app-menu-version">
       <label>VERSION</label>
       <select id="versionSelect" class="version-select" aria-label="GITADORAバージョン"></select>
-      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 4.12.19</div>
+      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 4.12.20</div>
     </div>
   </div>
 </div>
@@ -12443,7 +12443,7 @@ body.skill-target-columns :is(
 <div id="adminModal" class="admin-modal">
   <div class="admin-header">
     <div class="admin-title-row">
-      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 4.12.19</div></div>
+      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 4.12.20</div></div>
       <button id="btnCloseAdmin" class="admin-close">閉じる</button>
     </div>
     <div class="admin-tabs">
@@ -12581,7 +12581,7 @@ body.skill-target-columns :is(
   </div>
 </div>
 
-<script type="module" src="./js/app.js?v=4_12_19"></script>
+<script type="module" src="./js/app.js?v=4_12_20"></script>
 <script src="./js/version-check.js?v=4_10_0" defer></script>
 </body>
 </html>

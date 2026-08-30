@@ -125,6 +125,7 @@ function installSkillColorCss() {
 
     const songBoxRule =
       `.skill-box-${row.rank}{` +
+      `--skill-side-paint:${sidePaint};` +
       `background-image:${sidePaint},${sidePaint}!important;` +
       `background-position:left top,right top!important;` +
       `background-size:5px 100%,5px 100%!important;` +
