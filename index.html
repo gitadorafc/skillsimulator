@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>GITADORA Skill Simulator</title>
-<meta name="app-version" content="4.12.26">
+<meta name="app-version" content="4.12.27">
 <link rel="icon" type="image/svg+xml" href="./favicon.svg?v=21_7">
 <link rel="icon" type="image/png" sizes="48x48" href="./favicon-48x48.png?v=21_7">
 <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32x32.png?v=21_7">
@@ -11794,6 +11794,41 @@ body.light-mode :is(
 body.light-mode #viewUsers .user-list-sticky::before{
   background:var(--app-light-page-bg) !important;
 }
+
+/* === APP VERSION 4.12.27: ユーザー一覧の背景色・非選択タブ文字色を統一 === */
+/* :is() に依存せず、iPhone Safariでも後勝ちが明確な個別セレクタにする。 */
+body.light-mode .p-tabs > .p-tab-btn[data-tab="RECORDS"]:not(.active),
+body.light-mode .p-tabs > .p-tab-btn[data-tab="USERS"]:not(.active){
+  color:#2563eb !important;
+  -webkit-text-fill-color:#2563eb !important;
+}
+
+/* 固定マスク・検索行・並び替え行・一覧下地に残る旧ライト色を同一色へ揃える。 */
+body.light-mode #viewUsers,
+body.light-mode #viewUsers .user-list-sticky,
+body.light-mode #viewUsers .user-list-sticky::before,
+body.light-mode #viewUsers .users-toolbar,
+body.light-mode #viewUsers .user-list-sort-controls,
+body.light-mode #viewUsers .user-list-sticky .user-list-sort-controls,
+body.light-mode #viewUsers .users-toolbar input,
+body.light-mode #viewUsers .user-list-sort-field,
+body.light-mode #viewUsers .user-list-sort-field select,
+body.light-mode #viewUsers #userList,
+body.light-mode #viewUsers #userListPager{
+  background:var(--app-light-page-bg) !important;
+  background-color:var(--app-light-page-bg) !important;
+  background-image:none !important;
+}
+
+/* 一覧行も固定領域と同じ下地色に固定する。 */
+body.light-mode #viewUsers .user-list-row,
+body.light-mode #viewUsers .user-list-row:active,
+body.light-mode #viewUsers .user-list-row.user-list-row-sparkle-rainbow,
+body.light-mode #viewUsers .user-list-row.user-list-row-sparkle-rainbow:active{
+  background:var(--app-light-page-bg) !important;
+  background-color:var(--app-light-page-bg) !important;
+  background-image:none !important;
+}
 </style>
   <link rel="preconnect" href="https://challenges.cloudflare.com">
   <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" defer></script>
@@ -12127,7 +12162,7 @@ body.light-mode #viewUsers .user-list-sticky::before{
     <div class="app-menu-version">
       <label>VERSION</label>
       <select id="versionSelect" class="version-select" aria-label="GITADORAバージョン"></select>
-      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 4.12.26</div>
+      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 4.12.27</div>
     </div>
   </div>
 </div>
@@ -12583,7 +12618,7 @@ body.light-mode #viewUsers .user-list-sticky::before{
 <div id="adminModal" class="admin-modal">
   <div class="admin-header">
     <div class="admin-title-row">
-      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 4.12.26</div></div>
+      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 4.12.27</div></div>
       <button id="btnCloseAdmin" class="admin-close">閉じる</button>
     </div>
     <div class="admin-tabs">
@@ -12721,7 +12756,7 @@ body.light-mode #viewUsers .user-list-sticky::before{
   </div>
 </div>
 
-<script type="module" src="./js/app.js?v=4_12_26"></script>
+<script type="module" src="./js/app.js?v=4_12_27"></script>
 <script src="./js/version-check.js?v=4_10_0" defer></script>
 </body>
 </html>
