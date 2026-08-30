@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>GITADORA Skill Simulator</title>
-<meta name="app-version" content="4.12.29">
+<meta name="app-version" content="4.12.30">
 <link rel="icon" type="image/svg+xml" href="./favicon.svg?v=21_7">
 <link rel="icon" type="image/png" sizes="48x48" href="./favicon-48x48.png?v=21_7">
 <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32x32.png?v=21_7">
@@ -11802,7 +11802,7 @@ body.light-mode #appScreen #viewUsers .users-toolbar > #userSearch{
   -webkit-appearance:none !important;
   appearance:none !important;
   outline:0 !important;
-  background:var(--app-light-page-bg) !important;
+  background:#ffffff !important;
   box-shadow:none !important;
   filter:none !important;
 }
@@ -11810,6 +11810,43 @@ body.light-mode #appScreen #viewUsers .users-toolbar > #userSearch{
 /* スキル対象・登録を含む固定ヘッダー下の影は使用しない。 */
 .p-header{
   box-shadow:none !important;
+}
+
+/* === APP VERSION 4.12.30: ユーザー詳細のタブ・固定領域を共通化 === */
+/* ユーザー詳細もメインタブと同じ面・間隔・枠線にする。 */
+body.light-mode .user-detail-tabs{
+  gap:6px !important;
+  padding:6px !important;
+  background:var(--app-light-page-bg) !important;
+  border-color:#cbd5e1 !important;
+}
+body.light-mode .user-detail-tabs > .user-detail-tab:not(.active){
+  background:var(--app-light-page-bg) !important;
+  border:1px solid #94a3b8 !important;
+  border-radius:7px !important;
+  color:#475569 !important;
+  -webkit-text-fill-color:#475569 !important;
+  box-shadow:none !important;
+}
+body.light-mode .user-detail-tabs > .user-detail-tab.active{
+  background:#4776b5 !important;
+  border:1px solid #3f6ba4 !important;
+  border-radius:7px !important;
+  color:#ffffff !important;
+  -webkit-text-fill-color:#ffffff !important;
+  box-shadow:none !important;
+}
+
+/* スキル対象・登録曲のどちらでも固定領域下に影を出さない。 */
+.user-detail-sticky,
+body.light-mode .user-detail-sticky{
+  box-shadow:none !important;
+}
+
+/* 「登録曲 n件」の見出しに残っていた白背景をページ下地へ合わせる。 */
+body.light-mode #userDetailRecords .sk-section > h2{
+  background:var(--app-light-page-bg) !important;
+  background-image:none !important;
 }
 </style>
   <link rel="preconnect" href="https://challenges.cloudflare.com">
@@ -12144,7 +12181,7 @@ body.light-mode #appScreen #viewUsers .users-toolbar > #userSearch{
     <div class="app-menu-version">
       <label>VERSION</label>
       <select id="versionSelect" class="version-select" aria-label="GITADORAバージョン"></select>
-      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 4.12.29</div>
+      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 4.12.30</div>
     </div>
   </div>
 </div>
@@ -12600,7 +12637,7 @@ body.light-mode #appScreen #viewUsers .users-toolbar > #userSearch{
 <div id="adminModal" class="admin-modal">
   <div class="admin-header">
     <div class="admin-title-row">
-      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 4.12.29</div></div>
+      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 4.12.30</div></div>
       <button id="btnCloseAdmin" class="admin-close">閉じる</button>
     </div>
     <div class="admin-tabs">
@@ -12738,7 +12775,7 @@ body.light-mode #appScreen #viewUsers .users-toolbar > #userSearch{
   </div>
 </div>
 
-<script type="module" src="./js/app.js?v=4_12_29"></script>
+<script type="module" src="./js/app.js?v=4_12_30"></script>
 <script src="./js/version-check.js?v=4_10_0" defer></script>
 </body>
 </html>
