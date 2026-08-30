@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>GITADORA Skill Simulator</title>
-<meta name="app-version" content="4.12.23">
+<meta name="app-version" content="4.12.24">
 <link rel="icon" type="image/svg+xml" href="./favicon.svg?v=21_7">
 <link rel="icon" type="image/png" sizes="48x48" href="./favicon-48x48.png?v=21_7">
 <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32x32.png?v=21_7">
@@ -617,6 +617,10 @@ body { background:#0b1220; }
   0%,100% { opacity:.78; filter:brightness(1.05) drop-shadow(0 0 1px rgba(255,255,255,.5)); }
   50% { opacity:1; filter:brightness(1.85) drop-shadow(0 0 4px rgba(255,255,255,.95)); }
 }
+@keyframes skill-sparkle-band-pulse {
+  0%,100% { opacity:.78; filter:brightness(1.05); }
+  50% { opacity:1; filter:brightness(1.85); }
+}
 @keyframes skill-sparkle-border-pulse-light {
   0%,100% { --skill-border-light-alpha:.04; }
   50% { --skill-border-light-alpha:.62; }
@@ -629,11 +633,11 @@ body { background:#0b1220; }
 /* 190.00以上の登録曲・スキル対象は、枠そのものだけを明滅させる。 */
 :is(.m-card,.sk-row):has(.skill-box-sparkle-rainbow)::before {
   padding:2.3px !important;
-  background-size:190% 190% !important;
-}
-:is(.m-card,.sk-row):has(.skill-box-sparkle-rainbow)::before,
-:is(.dc-card .dc-skill,.rate-compare-dialog .rate-skill).skill-box-sparkle-rainbow::after {
+  background-size:100% 100% !important;
   animation:skill-sparkle-border-pulse var(--skill-sparkle-cycle) ease-in-out infinite !important;
+}
+:is(.dc-card .dc-skill,.rate-compare-dialog .rate-skill).skill-box-sparkle-rainbow::after {
+  animation:skill-sparkle-band-pulse var(--skill-sparkle-cycle) ease-in-out infinite !important;
 }
 
 /* プレイヤーリストは枠内光点を使わず、行の枠とスキル文字だけを発光させる。 */
@@ -669,9 +673,11 @@ body.light-mode :is(.score-val,.user-list-skill-value,.user-detail-skill-value).
   body:not(.light-mode) .skill-box-sparkle-rainbow {
     animation:none !important;
   }
-  body:not(.light-mode) :is(.m-card,.sk-row):has(.skill-box-sparkle-rainbow)::before,
-  body:not(.light-mode) :is(.dc-card .dc-skill,.rate-compare-dialog .rate-skill).skill-box-sparkle-rainbow::after {
+  body:not(.light-mode) :is(.m-card,.sk-row):has(.skill-box-sparkle-rainbow)::before {
     animation:skill-sparkle-border-pulse var(--skill-sparkle-cycle) ease-in-out infinite !important;
+  }
+  body:not(.light-mode) :is(.dc-card .dc-skill,.rate-compare-dialog .rate-skill).skill-box-sparkle-rainbow::after {
+    animation:skill-sparkle-band-pulse var(--skill-sparkle-cycle) ease-in-out infinite !important;
   }
   body:not(.light-mode) .user-list-row-sparkle-rainbow {
     animation:skill-sparkle-row-glow var(--skill-sparkle-cycle) ease-in-out infinite !important;
@@ -9576,7 +9582,7 @@ body.light-mode :is(.m-card,.sk-row):has(.skill-box-sparkle-rainbow)::before {
     linear-gradient(rgba(255,255,255,var(--skill-border-light-alpha)) 0 100%),
     var(--song-skill-border, #475569) !important;
   background-position:0 0,0 0 !important;
-  background-size:100% 100%,190% 190% !important;
+  background-size:100% 100%,100% 100% !important;
   background-repeat:no-repeat,no-repeat !important;
   filter:none !important;
   opacity:1 !important;
@@ -11986,7 +11992,7 @@ body.skill-target-columns :is(
     <div class="app-menu-version">
       <label>VERSION</label>
       <select id="versionSelect" class="version-select" aria-label="GITADORAバージョン"></select>
-      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 4.12.23</div>
+      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 4.12.24</div>
     </div>
   </div>
 </div>
@@ -12442,7 +12448,7 @@ body.skill-target-columns :is(
 <div id="adminModal" class="admin-modal">
   <div class="admin-header">
     <div class="admin-title-row">
-      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 4.12.23</div></div>
+      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 4.12.24</div></div>
       <button id="btnCloseAdmin" class="admin-close">閉じる</button>
     </div>
     <div class="admin-tabs">
@@ -12580,7 +12586,7 @@ body.skill-target-columns :is(
   </div>
 </div>
 
-<script type="module" src="./js/app.js?v=4_12_23"></script>
+<script type="module" src="./js/app.js?v=4_12_24"></script>
 <script src="./js/version-check.js?v=4_10_0" defer></script>
 </body>
 </html>
