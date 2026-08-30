@@ -1024,6 +1024,8 @@ let viewedUserId = null;
 let viewedUserName = '';
 let viewedUserProfile = null;
 let viewedUserRegisteredScores = [];
+const USER_DETAIL_RECORD_BATCH_PER_TYPE = 25;
+let viewedUserRegisteredBatch = 1;
 let adminPasswordUserId = null;
 
 const $ = id => document.getElementById(id);
@@ -4312,6 +4314,32 @@ function setUserDetailTab(tab) {
   $('userDetailRecords').classList.toggle('hidden', tab !== 'records');
 }
 
+function renderViewedUserRegisteredScores() {
+  const data = [...viewedUserRegisteredScores]
+    .sort((a,b) => Number(b.skill) - Number(a.skill));
+  const visiblePerType = viewedUserRegisteredBatch * USER_DETAIL_RECORD_BATCH_PER_TYPE;
+  const hotRows = data.filter(row => Boolean(row.is_hot));
+  const otherRows = data.filter(row => !row.is_hot);
+  const visibleRows = [
+    ...hotRows.slice(0, visiblePerType),
+    ...otherRows.slice(0, visiblePerType)
+  ].sort((a,b) => Number(b.skill) - Number(a.skill));
+  const hasMore = hotRows.length > visiblePerType || otherRows.length > visiblePerType;
+
+  $('userDetailRecords').innerHTML = `
+    <div class="sk-section">
+      <h2>登録曲 ${data.length}件</h2>
+      <div class="list-container">
+        ${renderRegisteredCardList(visibleRows, 'PUBLIC') || '<div class="empty-state">登録曲がありません</div>'}
+      </div>
+      ${hasMore ? `
+        <div class="user-detail-records-more">
+          <span>${visibleRows.length} / ${data.length}件表示</span>
+          <button type="button" data-user-detail-records-more>もっと見る</button>
+        </div>` : ''}
+    </div>`;
+}
+
 async function loadViewedUserRegisteredScores() {
   if (!viewedUserId || !viewedUserProfile?.registration_public) return;
 
@@ -4323,17 +4351,8 @@ async function loadViewedUserRegisteredScores() {
       activeInstrument,
       activeVersionId
     );
-
-    const data = [...viewedUserRegisteredScores]
-      .sort((a,b) => Number(b.skill) - Number(a.skill));
-
-    $('userDetailRecords').innerHTML = `
-      <div class="sk-section">
-        <h2>登録曲 ${data.length}件</h2>
-        <div class="list-container">
-          ${renderRegisteredCardList(data, 'PUBLIC') || '<div class="empty-state">登録曲がありません</div>'}
-        </div>
-      </div>`;
+    viewedUserRegisteredBatch = 1;
+    renderViewedUserRegisteredScores();
   } catch (e) {
     $('userDetailRecords').innerHTML =
       `<div class="empty-state">登録曲の取得に失敗しました: ${esc(e.message)}</div>`;
@@ -4345,6 +4364,7 @@ async function openUserDetail(userId, username) {
   viewedUserName = username;
   viewedUserProfile = null;
   viewedUserRegisteredScores = [];
+  viewedUserRegisteredBatch = 1;
 
   $('userDetailName').textContent = username;
   $('userDetailSkill').innerHTML = '<div class="empty-state">読み込み中...</div>';
@@ -4387,6 +4407,7 @@ function closeUserDetail() {
   $('userDetailPage').style.display = 'none';
   viewedUserScores = [];
   viewedUserRegisteredScores = [];
+  viewedUserRegisteredBatch = 1;
   viewedUserProfile = null;
   viewedUserId = null;
   viewedUserName = '';
@@ -6140,6 +6161,14 @@ $('userDetailTabs').addEventListener('click', async e => {
   if (tab === 'records' && !viewedUserRegisteredScores.length) {
     await loadViewedUserRegisteredScores();
   }
+});
+
+$('userDetailRecords').addEventListener('click', e => {
+  const button = e.target.closest('[data-user-detail-records-more]');
+  if (!button) return;
+
+  viewedUserRegisteredBatch += 1;
+  renderViewedUserRegisteredScores();
 });
 
 $('btnCloseRateCompare').addEventListener('click', closeRateComparison);

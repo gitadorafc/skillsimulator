@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>GITADORA Skill Simulator</title>
-<meta name="app-version" content="4.12.31">
+<meta name="app-version" content="4.13.0">
 <link rel="icon" type="image/svg+xml" href="./favicon.svg?v=21_7">
 <link rel="icon" type="image/png" sizes="48x48" href="./favicon-48x48.png?v=21_7">
 <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32x32.png?v=21_7">
@@ -11908,6 +11908,37 @@ body.light-mode .rate-compare-edit-button:active{
   color:var(--app-accent-pressed) !important;
   -webkit-text-fill-color:var(--app-accent-pressed) !important;
 }
+
+/* === APP VERSION 4.13.0: 公開登録曲をHOT/OTHER各25曲ずつ段階表示 === */
+.user-detail-records-more{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:6px;
+  padding:10px 6px 4px;
+  color:#94a3b8;
+  font-size:10px;
+  font-weight:800;
+}
+.user-detail-records-more button{
+  width:min(100%,240px);
+  min-height:38px;
+  border:1px solid var(--app-accent);
+  border-radius:7px;
+  background:var(--app-accent);
+  color:#ffffff;
+  font-size:12px;
+  font-weight:900;
+  cursor:pointer;
+}
+.user-detail-records-more button:active{
+  border-color:var(--app-accent-pressed);
+  background:var(--app-accent-pressed);
+}
+body.light-mode .user-detail-records-more{
+  background:var(--app-light-page-bg) !important;
+  color:#64748b !important;
+}
 </style>
   <link rel="preconnect" href="https://challenges.cloudflare.com">
   <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" defer></script>
@@ -12241,7 +12272,7 @@ body.light-mode .rate-compare-edit-button:active{
     <div class="app-menu-version">
       <label>VERSION</label>
       <select id="versionSelect" class="version-select" aria-label="GITADORAバージョン"></select>
-      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 4.12.31</div>
+      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 4.13.0</div>
     </div>
   </div>
 </div>
@@ -12697,7 +12728,7 @@ body.light-mode .rate-compare-edit-button:active{
 <div id="adminModal" class="admin-modal">
   <div class="admin-header">
     <div class="admin-title-row">
-      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 4.12.31</div></div>
+      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 4.13.0</div></div>
       <button id="btnCloseAdmin" class="admin-close">閉じる</button>
     </div>
     <div class="admin-tabs">
@@ -12835,7 +12866,7 @@ body.light-mode .rate-compare-edit-button:active{
   </div>
 </div>
 
-<script type="module" src="./js/app.js?v=4_12_31"></script>
+<script type="module" src="./js/app.js?v=4_13_0"></script>
 <script src="./js/version-check.js?v=4_10_0" defer></script>
 </body>
 </html>
