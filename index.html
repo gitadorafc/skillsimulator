@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>GITADORA Skill Simulator</title>
-<meta name="app-version" content="4.12.20">
+<meta name="app-version" content="4.12.21">
 <link rel="icon" type="image/svg+xml" href="./favicon.svg?v=21_7">
 <link rel="icon" type="image/png" sizes="48x48" href="./favicon-48x48.png?v=21_7">
 <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32x32.png?v=21_7">
@@ -11610,7 +11610,16 @@ body.skill-target-columns .dc-card .dc-skill[class*="skill-box-"]{
   opacity:1;
   pointer-events:none;
   z-index:1;
+  will-change:filter;
   animation:skill-sparkle-band-overlay var(--skill-sparkle-cycle) ease-in-out infinite;
+}
+/* iPhoneの「視差効果を減らす」がONでも、9500帯の左右明滅は維持する。 */
+@media (prefers-reduced-motion:reduce){
+  :is(.dc-card .dc-skill,.rate-compare-dialog .rate-skill).skill-box-sparkle-rainbow::after{
+    -webkit-animation:skill-sparkle-band-overlay var(--skill-sparkle-cycle) ease-in-out infinite !important;
+    animation:skill-sparkle-band-overlay var(--skill-sparkle-cycle) ease-in-out infinite !important;
+    animation-play-state:running !important;
+  }
 }
 body.light-mode :is(.dc-card .dc-skill,.rate-compare-dialog .rate-skill)[class*="skill-box-"]::before{
   border-top-color:#cbd5e1;
@@ -11987,7 +11996,7 @@ body.skill-target-columns :is(
     <div class="app-menu-version">
       <label>VERSION</label>
       <select id="versionSelect" class="version-select" aria-label="GITADORAバージョン"></select>
-      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 4.12.20</div>
+      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 4.12.21</div>
     </div>
   </div>
 </div>
@@ -12443,7 +12452,7 @@ body.skill-target-columns :is(
 <div id="adminModal" class="admin-modal">
   <div class="admin-header">
     <div class="admin-title-row">
-      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 4.12.20</div></div>
+      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 4.12.21</div></div>
       <button id="btnCloseAdmin" class="admin-close">閉じる</button>
     </div>
     <div class="admin-tabs">
@@ -12581,7 +12590,7 @@ body.skill-target-columns :is(
   </div>
 </div>
 
-<script type="module" src="./js/app.js?v=4_12_20"></script>
+<script type="module" src="./js/app.js?v=4_12_21"></script>
 <script src="./js/version-check.js?v=4_10_0" defer></script>
 </body>
 </html>
