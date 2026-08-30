@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>GITADORA Skill Simulator</title>
-<meta name="app-version" content="4.12.27">
+<meta name="app-version" content="4.12.28">
 <link rel="icon" type="image/svg+xml" href="./favicon.svg?v=21_7">
 <link rel="icon" type="image/png" sizes="48x48" href="./favicon-48x48.png?v=21_7">
 <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32x32.png?v=21_7">
@@ -11661,156 +11661,58 @@ body.skill-target-columns :is(
   line-height:1 !important;
 }
 
-/* === APP VERSION 4.12.25: ライトモードの背景面を統一 === */
+/* === APP VERSION 4.12.28: ライトモードの面色を単一定義へ整理 === */
 body.light-mode{
   --app-light-page-bg:#e5e7eb;
-}
-
-/* 登録・ユーザー一覧の固定操作領域を、周囲のページ背景へ合わせる。 */
-body.light-mode :is(
-  #searchArea,
-  .record-search-row,
-  .record-filter-row,
-  #viewUsers,
-  #viewUsers .user-list-sticky,
-  #viewUsers .users-toolbar,
-  #viewUsers .user-list-header
-){
-  background-color:var(--app-light-page-bg) !important;
-}
-
-/* 9500ユーザー行も通常行と同じ背景・枠にし、スキル文字のカラーだけを残す。 */
-body.light-mode .user-list-row,
-body.light-mode .user-list-row:active,
-body.light-mode .user-list-row.user-list-row-sparkle-rainbow,
-body.light-mode .user-list-row.user-list-row-sparkle-rainbow:active{
-  background:var(--app-light-page-bg) !important;
-  border:1px solid #8b98aa !important;
-  box-shadow:none !important;
-  animation:none !important;
-  filter:none !important;
-}
-
-/* カード本体・カード下の余白・空表示を同じ面色に統一する。 */
-body.light-mode :is(
-  .p-container,
-  #viewSkill,
-  #viewAllManage,
-  #viewUsers,
-  .user-detail-body,
-  .sk-section,
-  .empty-state,
-  .dc-card,
-  .dc-card.dc-card-skill,
-  .dc-card.dc-card-manage,
-  #viewSkill .dc-card,
-  #viewAllManage .m-card,
-  #userDetailSkill .dc-card,
-  #userDetailRecords .m-card
-){
-  background-color:var(--app-light-page-bg) !important;
-  color:#111827 !important;
-}
-body.light-mode :is(
-  .dc-card .dc-skill,
-  .rate-compare-dialog .rate-skill
-)[class*="skill-box-"]{
-  background-color:var(--app-light-page-bg) !important;
-}
-
-/* 白背景＋黒文字だった非選択ボタンもページ背景色へ合わせる。 */
-body.light-mode :is(
-  .p-tab-btn:not(.active),
-  .user-detail-tab:not(.active),
-  #btnRefreshApp,
-  #btnMenu,
-  .favorite-toggle,
-  .user-detail-back
-){
-  background-color:var(--app-light-page-bg) !important;
-  color:#111827 !important;
-  -webkit-text-fill-color:#111827 !important;
-}
-
-/* === APP VERSION 4.12.26: ライトモードの面階層を再調整 === */
-body.light-mode{
   --app-light-card-bg:#f3f4f6;
 }
 
-/* 曲カード内はページ背景より一段だけ明るくする。 */
-body.light-mode :is(
-  .dc-card,
-  .dc-card.dc-card-skill,
-  .dc-card.dc-card-manage,
-  #viewSkill .dc-card,
-  #viewAllManage .m-card,
-  #userDetailSkill .dc-card,
-  #userDetailRecords .m-card
-){
-  background-color:var(--app-light-card-bg) !important;
-}
-body.light-mode :is(
-  .dc-card .dc-skill,
-  .rate-compare-dialog .rate-skill
-)[class*="skill-box-"]{
-  background-color:var(--app-light-card-bg) !important;
+/* ページ下地。タブ周囲も同じ色にして帯状の色差を残さない。 */
+body.light-mode .p-tabs,
+body.light-mode .p-container,
+body.light-mode #viewSkill,
+body.light-mode #viewAllManage,
+body.light-mode #viewUsers,
+body.light-mode .user-detail-body,
+body.light-mode .sk-section,
+body.light-mode .empty-state{
+  background:var(--app-light-page-bg) !important;
+  background-image:none !important;
+  color:#111827 !important;
 }
 
-/* 非選択時の登録・ユーザーリストは青文字にする。 */
-body.light-mode :is(
-  .p-tab-btn[data-tab="RECORDS"]:not(.active),
-  .p-tab-btn[data-tab="USERS"]:not(.active)
-){
+/* 非選択の3タブすべてを青文字に統一する。 */
+body.light-mode .p-tabs > .p-tab-btn:not(.active){
+  background:var(--app-light-page-bg) !important;
+  background-image:none !important;
   color:#2563eb !important;
   -webkit-text-fill-color:#2563eb !important;
 }
 
-/* フィルタ項目に残っていた白い面を外し、行の背景を透過させる。 */
-body.light-mode :is(
-  .record-filter-row > *,
-  .record-type-filter-field,
-  .record-rank-filter-group,
-  .record-rank-filter-field,
-  .record-filter-row label,
-  .record-filter-row label > span
-){
-  background-color:transparent !important;
+/* 登録画面の固定操作領域。 */
+body.light-mode #searchArea,
+body.light-mode .record-search-row,
+body.light-mode .record-filter-row{
+  background:var(--app-light-page-bg) !important;
+  background-image:none !important;
+}
+body.light-mode .record-filter-row > *,
+body.light-mode .record-type-filter-field,
+body.light-mode .record-rank-filter-group,
+body.light-mode .record-rank-filter-field,
+body.light-mode .record-filter-row label,
+body.light-mode .record-filter-row label > span{
+  background:transparent !important;
   background-image:none !important;
 }
 
-/* ユーザー一覧の固定領域・並び替え領域・一覧下地を同じ色にする。 */
-body.light-mode :is(
-  #viewUsers,
-  #viewUsers .user-list-sticky,
-  #viewUsers .user-list-sticky .users-toolbar,
-  #viewUsers .user-list-sticky .user-list-header,
-  #viewUsers .user-list-sort-controls,
-  #viewUsers .user-list-sticky .user-list-sort-controls,
-  #userList,
-  #userListPager
-){
-  background-color:var(--app-light-page-bg) !important;
-}
-body.light-mode #viewUsers .user-list-sticky::before{
-  background:var(--app-light-page-bg) !important;
-}
-
-/* === APP VERSION 4.12.27: ユーザー一覧の背景色・非選択タブ文字色を統一 === */
-/* :is() に依存せず、iPhone Safariでも後勝ちが明確な個別セレクタにする。 */
-body.light-mode .p-tabs > .p-tab-btn[data-tab="RECORDS"]:not(.active),
-body.light-mode .p-tabs > .p-tab-btn[data-tab="USERS"]:not(.active){
-  color:#2563eb !important;
-  -webkit-text-fill-color:#2563eb !important;
-}
-
-/* 固定マスク・検索行・並び替え行・一覧下地に残る旧ライト色を同一色へ揃える。 */
-body.light-mode #viewUsers,
+/* ユーザー一覧は固定領域・入力欄・一覧まで1色にする。 */
 body.light-mode #viewUsers .user-list-sticky,
 body.light-mode #viewUsers .user-list-sticky::before,
 body.light-mode #viewUsers .users-toolbar,
-body.light-mode #viewUsers .user-list-sort-controls,
-body.light-mode #viewUsers .user-list-sticky .user-list-sort-controls,
 body.light-mode #viewUsers .users-toolbar input,
+body.light-mode #viewUsers .user-list-header,
+body.light-mode #viewUsers .user-list-sort-controls,
 body.light-mode #viewUsers .user-list-sort-field,
 body.light-mode #viewUsers .user-list-sort-field select,
 body.light-mode #viewUsers #userList,
@@ -11819,8 +11721,14 @@ body.light-mode #viewUsers #userListPager{
   background-color:var(--app-light-page-bg) !important;
   background-image:none !important;
 }
-
-/* 一覧行も固定領域と同じ下地色に固定する。 */
+body.light-mode #viewUsers .user-list-sticky,
+body.light-mode #viewUsers .users-toolbar,
+body.light-mode #viewUsers .user-list-sort-controls,
+body.light-mode #viewUsers .users-toolbar input,
+body.light-mode #viewUsers .user-list-sort-field select{
+  box-shadow:none !important;
+  filter:none !important;
+}
 body.light-mode #viewUsers .user-list-row,
 body.light-mode #viewUsers .user-list-row:active,
 body.light-mode #viewUsers .user-list-row.user-list-row-sparkle-rainbow,
@@ -11828,6 +11736,39 @@ body.light-mode #viewUsers .user-list-row.user-list-row-sparkle-rainbow:active{
   background:var(--app-light-page-bg) !important;
   background-color:var(--app-light-page-bg) !important;
   background-image:none !important;
+  border:1px solid #8b98aa !important;
+  box-shadow:none !important;
+  animation:none !important;
+  filter:none !important;
+}
+
+/* 曲カードだけはページより一段明るい色を維持する。 */
+body.light-mode .dc-card,
+body.light-mode .dc-card.dc-card-skill,
+body.light-mode .dc-card.dc-card-manage,
+body.light-mode #viewSkill .dc-card,
+body.light-mode #viewAllManage .m-card,
+body.light-mode #userDetailSkill .dc-card,
+body.light-mode #userDetailRecords .m-card{
+  background:var(--app-light-card-bg) !important;
+  background-color:var(--app-light-card-bg) !important;
+  background-image:none !important;
+  color:#111827 !important;
+}
+body.light-mode .dc-card .dc-skill[class*="skill-box-"],
+body.light-mode .rate-compare-dialog .rate-skill[class*="skill-box-"]{
+  background-color:var(--app-light-card-bg) !important;
+}
+
+/* 白背景だった補助ボタンはページ下地色へ合わせる。 */
+body.light-mode .user-detail-tab:not(.active),
+body.light-mode #btnRefreshApp,
+body.light-mode #btnMenu,
+body.light-mode .favorite-toggle,
+body.light-mode .user-detail-back{
+  background-color:var(--app-light-page-bg) !important;
+  color:#111827 !important;
+  -webkit-text-fill-color:#111827 !important;
 }
 </style>
   <link rel="preconnect" href="https://challenges.cloudflare.com">
@@ -12162,7 +12103,7 @@ body.light-mode #viewUsers .user-list-row.user-list-row-sparkle-rainbow:active{
     <div class="app-menu-version">
       <label>VERSION</label>
       <select id="versionSelect" class="version-select" aria-label="GITADORAバージョン"></select>
-      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 4.12.27</div>
+      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 4.12.28</div>
     </div>
   </div>
 </div>
@@ -12618,7 +12559,7 @@ body.light-mode #viewUsers .user-list-row.user-list-row-sparkle-rainbow:active{
 <div id="adminModal" class="admin-modal">
   <div class="admin-header">
     <div class="admin-title-row">
-      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 4.12.27</div></div>
+      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 4.12.28</div></div>
       <button id="btnCloseAdmin" class="admin-close">閉じる</button>
     </div>
     <div class="admin-tabs">
@@ -12756,7 +12697,7 @@ body.light-mode #viewUsers .user-list-row.user-list-row-sparkle-rainbow:active{
   </div>
 </div>
 
-<script type="module" src="./js/app.js?v=4_12_27"></script>
+<script type="module" src="./js/app.js?v=4_12_28"></script>
 <script src="./js/version-check.js?v=4_10_0" defer></script>
 </body>
 </html>
