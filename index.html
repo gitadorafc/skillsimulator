@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>GITADORA Skill Simulator</title>
-<meta name="app-version" content="4.12.28">
+<meta name="app-version" content="4.12.29">
 <link rel="icon" type="image/svg+xml" href="./favicon.svg?v=21_7">
 <link rel="icon" type="image/png" sizes="48x48" href="./favicon-48x48.png?v=21_7">
 <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32x32.png?v=21_7">
@@ -11770,6 +11770,47 @@ body.light-mode .user-detail-back{
   color:#111827 !important;
   -webkit-text-fill-color:#111827 !important;
 }
+
+/* === APP VERSION 4.12.29: 検索行の残色・タブ配色・固定行の影を調整 === */
+/* 非選択タブはリンク色ではなく、状態差が自然な濃いグレーにする。 */
+body.light-mode .p-tabs > .p-tab-btn:not(.active){
+  color:#475569 !important;
+  -webkit-text-fill-color:#475569 !important;
+}
+body.light-mode .p-tabs > .p-tab-btn.active{
+  background:#4776b5 !important;
+  border-color:#3f6ba4 !important;
+  color:#ffffff !important;
+  -webkit-text-fill-color:#ffffff !important;
+}
+
+/* ユーザー検索行の外周に残る白い面とSafari標準の入力装飾を除去する。 */
+body.light-mode #appScreen .p-container #viewUsers .user-list-sticky > .users-toolbar{
+  padding-left:0 !important;
+  padding-right:0 !important;
+  border:0 !important;
+  outline:0 !important;
+  background:var(--app-light-page-bg) !important;
+  box-shadow:none !important;
+  filter:none !important;
+}
+body.light-mode #appScreen .p-container #viewUsers .user-list-sticky > .users-toolbar::before,
+body.light-mode #appScreen .p-container #viewUsers .user-list-sticky > .users-toolbar::after{
+  display:none !important;
+}
+body.light-mode #appScreen #viewUsers .users-toolbar > #userSearch{
+  -webkit-appearance:none !important;
+  appearance:none !important;
+  outline:0 !important;
+  background:var(--app-light-page-bg) !important;
+  box-shadow:none !important;
+  filter:none !important;
+}
+
+/* スキル対象・登録を含む固定ヘッダー下の影は使用しない。 */
+.p-header{
+  box-shadow:none !important;
+}
 </style>
   <link rel="preconnect" href="https://challenges.cloudflare.com">
   <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" defer></script>
@@ -12103,7 +12144,7 @@ body.light-mode .user-detail-back{
     <div class="app-menu-version">
       <label>VERSION</label>
       <select id="versionSelect" class="version-select" aria-label="GITADORAバージョン"></select>
-      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 4.12.28</div>
+      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 4.12.29</div>
     </div>
   </div>
 </div>
@@ -12559,7 +12600,7 @@ body.light-mode .user-detail-back{
 <div id="adminModal" class="admin-modal">
   <div class="admin-header">
     <div class="admin-title-row">
-      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 4.12.28</div></div>
+      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 4.12.29</div></div>
       <button id="btnCloseAdmin" class="admin-close">閉じる</button>
     </div>
     <div class="admin-tabs">
@@ -12697,7 +12738,7 @@ body.light-mode .user-detail-back{
   </div>
 </div>
 
-<script type="module" src="./js/app.js?v=4_12_28"></script>
+<script type="module" src="./js/app.js?v=4_12_29"></script>
 <script src="./js/version-check.js?v=4_10_0" defer></script>
 </body>
 </html>
