@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>GITADORA Skill Simulator</title>
-<meta name="app-version" content="4.12.4">
+<meta name="app-version" content="4.12.10">
 <link rel="icon" type="image/svg+xml" href="./favicon.svg?v=21_7">
 <link rel="icon" type="image/png" sizes="48x48" href="./favicon-48x48.png?v=21_7">
 <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32x32.png?v=21_7">
@@ -117,11 +117,11 @@
 
     .p-tabs { display: flex; background: #111827; width: 100%; padding: 2px; gap: 2px; }
     .p-tab-btn { flex: 1; padding: 10px 0; text-align: center; font-size: 13px; font-weight: bold; color: #9ca3af; background: #1f2937; cursor: pointer; }
-    .p-tab-btn.active { background: #2563eb; color: #ffffff; }
+    .p-tab-btn.active { background: #3b82f6; color: #ffffff; }
     .search-bar-container { display: flex; gap: 6px; width: 100%; padding: 6px 4px 4px 4px; background: #111827; }
     .search-input { flex: 1; padding: 8px; border: 1px solid #4b5563; background: #1f2937; color: white; font-size: 14px; outline: none; border-radius: 4px; }
-    .btn-add-inline { padding: 0 14px; font-size: 13px; font-weight: bold; background: #2563eb; color: white; border: none; border-radius: 4px; cursor: pointer; display: flex; align-items: center; justify-content: center; white-space: nowrap; }
-    .btn-add-inline:active { background: #1d4ed8; }
+    .btn-add-inline { padding: 0 14px; font-size: 13px; font-weight: bold; background: #3b82f6; color: white; border: none; border-radius: 4px; cursor: pointer; display: flex; align-items: center; justify-content: center; white-space: nowrap; }
+    .btn-add-inline:active { background: #2563eb; }
 
     /* === 4. リスト＆カード共通デザイン === */
     .p-container { padding: 4px; width: 100%; }
@@ -243,7 +243,7 @@
     .f-group label { display: block; font-size: 11px; font-weight: bold; margin-bottom: 2px; color: #4b5563; }
     .f-group input, .f-group select { width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #ccc; font-size: 16px; outline: none; }
     .btn-block { display: flex; gap: 6px; margin-top: 10px; }
-    .btn-submit { flex: 1; padding: 10px; background: #2563eb; color: white; border: none; border-radius: 4px; font-weight: bold; font-size: 13px; }
+    .btn-submit { flex: 1; padding: 10px; background: #3b82f6; color: white; border: none; border-radius: 4px; font-weight: bold; font-size: 13px; }
     .btn-cancel { flex: 1; padding: 10px; background: #e5e7eb; color: #4b5563; border: none; border-radius: 4px; font-weight: bold; font-size: 13px; }
   
 .auth-screen { min-height: 100vh; display:flex; align-items:center; justify-content:center; padding:20px; background:#111827; }
@@ -251,7 +251,7 @@
 .auth-card h1 { font-size:20px; margin-bottom:16px; text-align:center; }
 .auth-card label { display:block; font-size:12px; font-weight:bold; color:#9ca3af; margin:10px 0 4px; }
 .auth-card input { width:100%; padding:10px; border:1px solid #4b5563; border-radius:4px; background:#111827; color:#fff; font-size:16px; }
-.auth-card button { width:100%; margin-top:14px; padding:10px; border:0; border-radius:4px; background:#2563eb; color:#fff; font-weight:bold; }
+.auth-card button { width:100%; margin-top:14px; padding:10px; border:0; border-radius:4px; background:#3b82f6; color:#fff; font-weight:bold; }
 
 .auth-register-notice { margin:12px 0 2px; padding:10px 11px; border:1px solid #f59e0b; border-radius:6px; background:rgba(245,158,11,.08); color:#e5e7eb; font-size:12px; line-height:1.65; }
 .auth-register-notice strong { display:block; margin-bottom:3px; color:#fbbf24; font-size:13px; }
@@ -339,10 +339,10 @@ body { background:#0b1220; }
 .admin-close { border:0; background:#334155; color:#fff; border-radius:7px; padding:8px 11px; font-weight:bold; }
 .admin-tabs { display:flex; gap:6px; margin-top:10px; }
 .admin-tab { flex:1; min-height:40px; border:0; border-radius:7px; background:#1e293b; color:#94a3b8; font-weight:900; }
-.admin-tab.active { background:#2563eb; color:#fff; }
+.admin-tab.active { background:#3b82f6; color:#fff; }
 .admin-toolbar { display:flex; gap:6px; margin-top:8px; }
 .admin-toolbar input { flex:1; min-height:42px; background:#111827; border:1px solid #334155; color:#fff; border-radius:7px; padding:8px; }
-.admin-toolbar button { border:0; border-radius:7px; background:#2563eb; color:#fff; padding:0 12px; font-weight:900; }
+.admin-toolbar button { border:0; border-radius:7px; background:#3b82f6; color:#fff; padding:0 12px; font-weight:900; }
 .admin-body { padding:8px; }
 .admin-card { background:#fff; color:#111827; border-radius:8px; padding:10px; margin-bottom:7px; box-shadow:0 1px 3px rgba(0,0,0,.25); }
 .admin-card-top { display:flex; align-items:center; gap:6px; }
@@ -370,7 +370,7 @@ body { background:#0b1220; }
   border:0;
   border-radius:8px;
   padding:0 15px;
-  background:#2563eb;
+  background:#3b82f6;
   color:#fff;
   font-weight:900;
 }
@@ -716,14 +716,14 @@ body.light-mode :is(.score-val,.user-list-skill-value,.user-detail-skill-value).
   min-height: 46px;
   border: 0;
   border-radius: 9px;
-  background: #2563eb;
+  background: #3b82f6;
   color: #fff;
   font-size: 14px;
   font-weight: 900;
   cursor: pointer;
 }
 .site-dialog-ok:active {
-  background: #1d4ed8;
+  background: #2563eb;
 }
 
 /* === v14.9 スコア登録モーダルを中央表示 === */
@@ -865,7 +865,7 @@ body.light-mode :is(.score-val,.user-list-skill-value,.user-detail-skill-value).
 }
 
 .mdl-sheet .btn-submit {
-  background: #2563eb !important;
+  background: #3b82f6 !important;
   color: #ffffff !important;
 }
 
@@ -1233,7 +1233,7 @@ body.light-mode :is(.score-val,.user-list-skill-value,.user-detail-skill-value).
 
 #mypageModal .btn-name-change,
 #mypageModal .btn-submit {
-  background: #2563eb !important;
+  background: #3b82f6 !important;
   color: #fff !important;
 }
 
@@ -1584,7 +1584,7 @@ body.light-mode .record-rank-filter-field {
   flex-shrink: 0;
   border: 1px solid #3b82f6;
   border-radius: 6px;
-  background: #1d4ed8;
+  background: #3b82f6;
   color: #fff;
   font-weight: 900;
 }
@@ -1761,7 +1761,7 @@ body.light-mode .record-rank-filter-field {
   margin-top:8px;
   border:1px solid #2563eb;
   border-radius:8px;
-  background:#1d4ed8;
+  background:#3b82f6;
   color:#fff;
   font-weight:900;
 }
@@ -1823,7 +1823,7 @@ body.light-mode .record-rank-filter-field {
   width:26px;
   height:26px;
   border-radius:999px;
-  background:#2563eb;
+  background:#3b82f6;
   color:#fff;
   font-size:12px;
   font-weight:900;
@@ -2646,7 +2646,7 @@ html.ios-viewport-repair {
 /* === v21 FIX22: 導入 / MENU / SHARE === */
 .intro-screen{min-height:100dvh;background:radial-gradient(circle at 50% 0,#172554 0,#0b1220 42%,#060b14 100%);color:#f8fafc;padding:42px 20px 24px;box-sizing:border-box}
 .intro-hero{max-width:520px;margin:0 auto;text-align:center}.intro-logo{font-size:12px;letter-spacing:.35em;font-weight:900;color:#93c5fd}.intro-hero h1{font-size:34px;margin:6px 0 10px}.intro-hero p{font-size:13px;line-height:1.7;color:#cbd5e1;margin:0 auto 24px;max-width:360px}
-.intro-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}.intro-actions button{min-height:48px;border-radius:10px;font-size:14px;font-weight:900}.intro-primary{border:0;background:#2563eb;color:#fff}.intro-secondary{border:1px solid #475569;background:#111827;color:#fff}
+.intro-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}.intro-actions button{min-height:48px;border-radius:10px;font-size:14px;font-weight:900}.intro-primary{border:0;background:#3b82f6;color:#fff}.intro-secondary{border:1px solid #475569;background:#111827;color:#fff}
 .intro-features{max-width:520px;margin:28px auto 0;display:grid;gap:9px}.intro-features div{display:grid;grid-template-columns:64px 1fr;align-items:center;padding:13px;border:1px solid #1e293b;border-radius:10px;background:rgba(15,23,42,.78)}.intro-features strong{font-size:11px;color:#60a5fa}.intro-features span{font-size:12px;color:#e2e8f0}.intro-note{text-align:center;font-size:9px;color:#64748b;margin-top:24px}
 .menu-entry{border:1px solid #334155;background:#1e293b;color:#fff;border-radius:7px;min-width:38px;height:34px;font-size:20px;font-weight:900}
 .app-menu-sheet{width:min(88vw,380px);background:#0f172a;color:#fff;border:1px solid #334155;border-radius:14px;padding:14px;position:absolute;top:58px;right:10px;box-shadow:0 20px 50px rgba(0,0,0,.45)}
@@ -4709,7 +4709,7 @@ html.ios-viewport-repair {
   border-color:#60a5fa !important;
 }
 .master-new-row .master-row-save{
-  background:#2563eb !important;
+  background:#3b82f6 !important;
   color:#fff !important;
 }
 .master-new-row .master-row-delete{
@@ -4808,7 +4808,7 @@ html.ios-viewport-repair {
   font-size:12px;
 }
 .user-detail-tab.active{
-  background:#2563eb;
+  background:#3b82f6;
   color:#fff;
 }
 .dc-card-public .dc-edit{ display:none !important; }
@@ -4851,7 +4851,7 @@ body.light-mode .feature-setting-row{
 }
 body.light-mode .p-tab-btn.active,
 body.light-mode .user-detail-tab.active{
-  background:#2563eb !important;
+  background:#3b82f6 !important;
   color:#fff !important;
 }
 body.light-mode .user-detail-tab{
@@ -4945,7 +4945,7 @@ body.light-mode .p-tab-btn{
   color:#111827 !important;
 }
 body.light-mode .p-tab-btn.active{
-  background:#2563eb !important;
+  background:#3b82f6 !important;
   color:#ffffff !important;
 }
 
@@ -5630,7 +5630,7 @@ body.light-mode #viewAllManage .m-edit-btn{
   margin:0 !important;
   border:1px solid #1d4ed8 !important;
   border-radius:6px !important;
-  background:#2563eb !important;
+  background:#3b82f6 !important;
   color:#ffffff !important;
   -webkit-text-fill-color:#ffffff !important;
   font-weight:900 !important;
@@ -5649,7 +5649,7 @@ body.light-mode #viewAllManage .m-btn-edit{
   margin:0 !important;
   border:1px solid #1d4ed8 !important;
   border-radius:6px !important;
-  background:#2563eb !important;
+  background:#3b82f6 !important;
   color:#fff !important;
   -webkit-text-fill-color:#fff !important;
   box-shadow:0 1px 2px rgba(15,23,42,.18) !important;
@@ -5699,7 +5699,7 @@ body.light-mode .p-tab-btn{
   box-shadow:0 1px 1px rgba(15,23,42,.05) !important;
 }
 body.light-mode .p-tab-btn.active{
-  background:#2563eb !important;
+  background:#3b82f6 !important;
   color:#ffffff !important;
   border-color:#2563eb !important;
 }
@@ -5772,14 +5772,14 @@ body.light-mode #viewAllManage .dc-edit .m-action-btn.btn-e{
   justify-content:center !important;
   border:1px solid #1d4ed8 !important;
   border-radius:6px !important;
-  background:#2563eb !important;
+  background:#3b82f6 !important;
   color:#ffffff !important;
   -webkit-text-fill-color:#ffffff !important;
   font-weight:900 !important;
   box-shadow:0 1px 2px rgba(15,23,42,.18) !important;
 }
 body.light-mode #viewAllManage .dc-edit .m-action-btn.btn-e:active{
-  background:#1d4ed8 !important;
+  background:#2563eb !important;
 }
 
 
@@ -5845,7 +5845,7 @@ body.light-mode #domModal .master-request-note{
 /* 難易度報告ボタンは青のまま、周囲だけライト化 */
 body.light-mode #domModal .btn-request-master,
 body.light-mode #domModal [data-request-level-correction]{
-  background:#2563eb !important;
+  background:#3b82f6 !important;
   color:#ffffff !important;
   -webkit-text-fill-color:#ffffff !important;
 }
@@ -5901,7 +5901,7 @@ body.light-mode #domModal .level-correction-note{
 
 body.light-mode #domModal #btnOpenLevelCorrection,
 body.light-mode #domModal #btnSendLevelCorrection{
-  background:#2563eb !important;
+  background:#3b82f6 !important;
   color:#ffffff !important;
   -webkit-text-fill-color:#ffffff !important;
   border:1px solid #1d4ed8 !important;
@@ -6164,7 +6164,7 @@ body.light-mode .site-dialog button{
 }
 body.light-mode .site-dialog .site-dialog-confirm,
 body.light-mode .site-dialog .btn-primary{
-  background:#2563eb !important;
+  background:#3b82f6 !important;
   color:#ffffff !important;
   -webkit-text-fill-color:#ffffff !important;
 }
@@ -6290,7 +6290,7 @@ body.light-mode .rate-compare-dialog [class*="rate-"][class*="head"]:not(.rate-c
 /* 3. 機能設定：主要アクションの文字色は他ボタン同様に白 */
 body.light-mode #btnSaveFeatureSettings,
 body.light-mode .feature-settings-save{
-  background:#2563eb !important;
+  background:#3b82f6 !important;
   color:#ffffff !important;
   -webkit-text-fill-color:#ffffff !important;
   border-color:#2563eb !important;
@@ -6586,7 +6586,7 @@ body.light-mode .rival-manage-dialog .favorite-user-open:active{
   padding:0 12px;
   border:1px solid #1d4ed8;
   border-radius:6px;
-  background:#2563eb;
+  background:#3b82f6;
   color:#fff;
   font-size:10px;
   font-weight:900;
@@ -7272,7 +7272,7 @@ body.light-mode .skill-sync-dialog .skill-sync-encoding-note{
   line-height:1;
 }
 .user-pager-page.active{
-  background:#2563eb;
+  background:#3b82f6;
   border-color:#2563eb;
   color:#fff;
 }
@@ -7301,7 +7301,7 @@ body.light-mode .user-pager-arrow{
   border-color:#94a3b8 !important;
 }
 body.light-mode .user-pager-page.active{
-  background:#2563eb !important;
+  background:#3b82f6 !important;
   color:#fff !important;
   -webkit-text-fill-color:#fff !important;
   border-color:#2563eb !important;
@@ -7719,7 +7719,7 @@ body.light-mode .menu-ofuse-support-text small{
   min-height:46px;
   margin-top:4px;
   border-radius:9px;
-  background:#2563eb;
+  background:#3b82f6;
   color:#fff !important;
   -webkit-text-fill-color:#fff !important;
   text-decoration:none;
@@ -8531,7 +8531,7 @@ body.light-mode .option-share-title{
   height:8px;
   border:2px solid #dbeafe;
   border-radius:50%;
-  background:#2563eb;
+  background:#3b82f6;
 }
 .sync-visual-card{
   display:grid;
@@ -8551,7 +8551,7 @@ body.light-mode .option-share-title{
   width:26px;
   height:26px;
   border-radius:999px;
-  background:#2563eb;
+  background:#3b82f6;
   color:#fff;
   font-size:12px;
   font-weight:900;
@@ -8589,7 +8589,7 @@ body.light-mode .option-share-title{
   padding:6px 8px;
   border:1px solid #3b82f6;
   border-radius:7px;
-  background:#2563eb;
+  background:#3b82f6;
   color:#fff;
   font-size:10px;
   font-weight:900;
@@ -8635,7 +8635,7 @@ body.light-mode .option-share-title{
   height:27px;
   margin-top:3px;
   border-radius:5px;
-  background:#2563eb;
+  background:#3b82f6;
   color:#fff;
   font-style:normal;
 }
@@ -9278,7 +9278,7 @@ body.light-mode #viewUsers .user-list-sort-field select{
   min-height:34px;
   border:1px solid #3b82f6;
   border-radius:7px;
-  background:#2563eb;
+  background:#3b82f6;
   color:#fff;
   font-size:11px;
   font-weight:900;
@@ -9722,13 +9722,13 @@ body.text-size-up.skill-target-columns :is(#viewAllManage,#userDetailRecords) .d
 }
 /* ダークモードの登録曲編集ボタンは、通常・横並びとも青背景＋白文字に統一。 */
 body:not(.light-mode) #viewAllManage .dc-edit .m-action-btn.btn-e {
-  background:#2563eb !important;
+  background:#3b82f6 !important;
   color:#ffffff !important;
   -webkit-text-fill-color:#ffffff !important;
   border:1px solid #1d4ed8 !important;
 }
 body:not(.light-mode) #viewAllManage .dc-edit .m-action-btn.btn-e:active {
-  background:#1d4ed8 !important;
+  background:#2563eb !important;
 }
 
 /* 自分のスキル対象から開いた詳細だけ、4段目に編集ボタンを表示する。 */
@@ -9741,13 +9741,13 @@ body:not(.light-mode) #viewAllManage .dc-edit .m-action-btn.btn-e:active {
   min-height:38px;
   border:0;
   border-radius:8px;
-  background:#2563eb;
+  background:#3b82f6;
   color:#ffffff;
   font-size:12px;
   font-weight:900;
 }
 .rate-compare-edit-button:active {
-  background:#1d4ed8;
+  background:#2563eb;
 }
 body.light-mode .rate-compare-edit-area {
   border-top-color:#cbd5e1;
@@ -9810,7 +9810,7 @@ body.light-mode .admin-tab {
   border:1px solid transparent !important;
 }
 body.light-mode .admin-tab.active {
-  background:#2563eb !important;
+  background:#3b82f6 !important;
   color:#ffffff !important;
   -webkit-text-fill-color:#ffffff !important;
   border-color:#2563eb !important;
@@ -9833,7 +9833,7 @@ body.light-mode .admin-toolbar input:focus {
   border-color:#2563eb !important;
 }
 body.light-mode .admin-toolbar button {
-  background:#2563eb !important;
+  background:#3b82f6 !important;
   color:#ffffff !important;
   -webkit-text-fill-color:#ffffff !important;
 }
@@ -9996,7 +9996,7 @@ body.skill-target-columns #viewAllManage .dc-card-manage .dc-edit .m-action-btn.
 }
 .skill-share-option.active {
   border-color:#60a5fa;
-  background:#2563eb;
+  background:#3b82f6;
   color:#fff;
   box-shadow:0 0 0 1px rgba(96,165,250,.25);
 }
@@ -10005,7 +10005,7 @@ body.skill-target-columns #viewAllManage .dc-card-manage .dc-edit .m-action-btn.
   min-height:44px;
   border:0;
   border-radius:9px;
-  background:#2563eb;
+  background:#3b82f6;
   color:#fff;
   font-size:13px;
   font-weight:900;
@@ -10029,7 +10029,7 @@ body.light-mode .skill-share-option {
 }
 body.light-mode .skill-share-option.active {
   border-color:#2563eb;
-  background:#2563eb;
+  background:#3b82f6;
   color:#fff;
 }
 
@@ -10251,7 +10251,7 @@ body.text-size-up .skill-ranking-empty{
 .app-primary-button,
 body.light-mode button.app-primary-button{
   border-color:#1d4ed8 !important;
-  background:#2563eb !important;
+  background:#3b82f6 !important;
   color:#ffffff !important;
   -webkit-text-fill-color:#ffffff !important;
 }
@@ -10337,7 +10337,7 @@ body.light-mode .feature-setting-select{
   padding:5px 9px;
   border:1px solid #2563eb;
   border-radius:7px;
-  background:#2563eb;
+  background:#3b82f6;
   color:#ffffff;
   font-size:11px;
   font-weight:900;
@@ -10378,7 +10378,7 @@ body.light-mode .feature-setting-select{
   min-height:42px;
   border:0;
   border-radius:8px;
-  background:#2563eb;
+  background:#3b82f6;
   color:#ffffff;
   font-weight:900;
 }
@@ -10483,7 +10483,7 @@ body.text-size-up :is(
   padding:5px 10px;
   border:0;
   border-radius:7px;
-  background:#2563eb;
+  background:#3b82f6;
   color:#ffffff;
   font-size:11px;
   font-weight:900;
@@ -10615,7 +10615,7 @@ body.light-mode .admin-usage-card{
   min-height:46px;
   border:0;
   border-radius:9px;
-  background:#2563eb;
+  background:#3b82f6;
   color:#fff;
   font-size:14px;
   font-weight:900;
@@ -10643,7 +10643,7 @@ body.light-mode .admin-usage-card{
 .skill-history-save-option.active,
 .skill-history-save-submit{
   border-color:#2563eb;
-  background:#2563eb;
+  background:#3b82f6;
   color:#fff;
 }
 .skill-history-status{
@@ -10763,7 +10763,7 @@ body.light-mode .admin-usage-card{
   padding:5px 3px;
   border:1px solid #2563eb;
   border-radius:8px;
-  background:#2563eb;
+  background:#3b82f6;
   color:#fff;
   font-size:11px;
   font-weight:900;
@@ -10836,7 +10836,7 @@ body.light-mode .skill-history-save-option{
 body.light-mode .skill-history-save-option.active,
 body.light-mode .skill-history-save-submit{
   border-color:#2563eb;
-  background:#2563eb;
+  background:#3b82f6;
   color:#fff;
 }
 body.light-mode .skill-history-delete{
@@ -10850,7 +10850,7 @@ body.light-mode .skill-history-compare{
 }
 body.light-mode .skill-history-unified-action{
   border-color:#2563eb;
-  background:#2563eb;
+  background:#3b82f6;
   color:#fff;
 }
 body.light-mode .skill-history-more{
@@ -11008,7 +11008,7 @@ body.light-mode #btnAdminSaveAllSongs{
   font-weight:900;
 }
 .admin-master-pager button.admin-master-page.active{
-  background:#2563eb;
+  background:#3b82f6;
   border-color:#2563eb;
   color:#fff;
 }
@@ -11040,7 +11040,7 @@ body.light-mode .admin-master-jump select{
   border-color:#94a3b8 !important;
 }
 body.light-mode .admin-master-pager button.admin-master-page.active{
-  background:#2563eb !important;
+  background:#3b82f6 !important;
   color:#fff !important;
   -webkit-text-fill-color:#fff !important;
   border-color:#2563eb !important;
@@ -11374,6 +11374,141 @@ body.light-mode.skill-target-columns :is(#viewAllManage,#userDetailRecords) .dc-
   border-top-color:#cbd5e1;
   border-bottom-color:#cbd5e1;
 }
+
+/* === APP VERSION 4.12.5: 管理画面 曲マスターCSV入出力 === */
+#btnAdminCsvDownload{
+  background:#3b82f6;
+  white-space:nowrap;
+}
+#btnAdminCsvUpload{
+  background:#c2410c;
+  white-space:nowrap;
+}
+body.light-mode :is(#btnAdminCsvDownload,#btnAdminCsvUpload){
+  color:#fff !important;
+}
+.admin-csv-sheet{
+  width:min(94vw,560px) !important;
+  max-height:calc(100dvh - 32px) !important;
+  overflow-y:auto !important;
+  border-radius:12px !important;
+  padding:16px !important;
+  background:#0f172a !important;
+  color:#f8fafc !important;
+}
+.admin-csv-sheet h3{
+  margin-bottom:10px;
+  font-size:16px;
+}
+.admin-csv-note{
+  margin-bottom:10px;
+  padding:8px 10px;
+  border:1px solid #334155;
+  border-radius:7px;
+  background:#111827;
+  color:#cbd5e1;
+  font-size:10px;
+  line-height:1.55;
+}
+.admin-csv-sheet label:not(.admin-csv-current){
+  display:block;
+  margin:8px 0 4px;
+  color:#cbd5e1;
+  font-size:11px;
+  font-weight:900;
+}
+.admin-csv-sheet :is(input[type="text"],input[type="file"],select){
+  width:100%;
+  min-height:42px;
+  padding:7px 10px;
+  border:1px solid #475569;
+  border-radius:7px;
+  background:#111827;
+  color:#f8fafc;
+  font-size:12px;
+}
+.admin-csv-new-version{
+  margin-top:10px;
+  padding:10px;
+  border:1px solid #475569;
+  border-radius:8px;
+  background:#111827;
+}
+.admin-csv-current{
+  display:flex;
+  align-items:center;
+  gap:7px;
+  margin-top:10px;
+  color:#e2e8f0;
+  font-size:11px;
+  font-weight:900;
+}
+.admin-csv-current input{
+  width:18px !important;
+  min-height:18px !important;
+  height:18px !important;
+  accent-color:#2563eb;
+}
+.admin-csv-status{
+  min-height:18px;
+  margin-top:8px;
+  color:#93c5fd;
+  font-size:10px;
+  font-weight:900;
+}
+.admin-csv-actions{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:7px;
+  margin-top:8px;
+}
+.admin-csv-actions button{
+  min-height:40px;
+  border:0;
+  border-radius:7px;
+  font-weight:900;
+}
+#btnAdminCsvImport{ background:#3b82f6;color:#fff; }
+#btnAdminCsvCancel{ background:#334155;color:#e2e8f0; }
+body.light-mode .admin-csv-sheet{
+  background:#f8fafc !important;
+  color:#111827 !important;
+}
+body.light-mode .admin-csv-note,
+body.light-mode .admin-csv-new-version{
+  border-color:#cbd5e1;
+  background:#fff;
+  color:#475569;
+}
+body.light-mode .admin-csv-sheet label:not(.admin-csv-current),
+body.light-mode .admin-csv-current{
+  color:#111827;
+}
+body.light-mode .admin-csv-sheet :is(input[type="text"],input[type="file"],select){
+  border-color:#94a3b8;
+  background:#fff;
+  color:#111827;
+}
+@media(max-width:620px){
+  #adminSongToolbar{
+    grid-template-columns:1fr 1fr;
+  }
+  #adminSongToolbar :is(button,select){
+    width:100%;
+    min-width:0;
+  }
+}
+
+/* === APP VERSION 4.12.6: 曲候補の未選択表示を他のプレースホルダーと統一 === */
+#adminSongCandidate:disabled{
+  opacity:1 !important;
+  color:#64748b !important;
+  -webkit-text-fill-color:#64748b !important;
+}
+body.light-mode #adminSongCandidate:disabled{
+  color:#7b8798 !important;
+  -webkit-text-fill-color:#7b8798 !important;
+}
 </style>
   <link rel="preconnect" href="https://challenges.cloudflare.com">
   <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" defer></script>
@@ -11575,7 +11710,7 @@ body.light-mode.skill-target-columns :is(#viewAllManage,#userDetailRecords) .dc-
           <label for="adminSongCandidate">曲名</label>
           <div class="select-arrow-wrap">
             <select id="adminSongCandidate" aria-label="曲名候補" disabled>
-              <option value="">選択してください</option>
+              <option value="">頭文字を選択してください</option>
             </select>
           </div>
         </div>
@@ -11707,7 +11842,7 @@ body.light-mode.skill-target-columns :is(#viewAllManage,#userDetailRecords) .dc-
     <div class="app-menu-version">
       <label>VERSION</label>
       <select id="versionSelect" class="version-select" aria-label="GITADORAバージョン"></select>
-      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 4.12.4</div>
+      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 4.12.10</div>
     </div>
   </div>
 </div>
@@ -12163,7 +12298,7 @@ body.light-mode.skill-target-columns :is(#viewAllManage,#userDetailRecords) .dc-
 <div id="adminModal" class="admin-modal">
   <div class="admin-header">
     <div class="admin-title-row">
-      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 4.12.4</div></div>
+      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 4.12.10</div></div>
       <button id="btnCloseAdmin" class="admin-close">閉じる</button>
     </div>
     <div class="admin-tabs">
@@ -12187,6 +12322,8 @@ body.light-mode.skill-target-columns :is(#viewAllManage,#userDetailRecords) .dc-
         <option value="REVIEWED">確認済み</option>
       </select>
       <button id="btnAdminSaveAllSongs" type="button">まとめて保存</button>
+      <button id="btnAdminCsvDownload" type="button">CSVダウンロード</button>
+      <button id="btnAdminCsvUpload" type="button">CSVアップロード</button>
       <button id="btnAdminAddSong">＋新規曲</button>
     </div>
     <div id="adminRequestToolbar" class="admin-toolbar hidden">
@@ -12209,6 +12346,40 @@ body.light-mode.skill-target-columns :is(#viewAllManage,#userDetailRecords) .dc-
     </div>
   </div>
   <div id="adminBody" class="admin-body"></div>
+</div>
+
+<div id="adminCsvMask" class="admin-form-mask">
+  <div class="admin-form-sheet admin-csv-sheet">
+    <h3>曲マスターCSVアップロード</h3>
+    <div class="admin-csv-note">
+      全件CSVと差分CSVの両方に対応しています。CSVにない曲は変更しません。<br>
+      曲IDあり：空欄の項目は既存値を維持します。難易度を削除する場合は「削除」と入力します。<br>
+      曲IDなし：新規曲として登録します。HOTは「1」でON、「0」でOFFです。
+    </div>
+    <label for="adminCsvVersion">登録先バージョン</label>
+    <select id="adminCsvVersion"></select>
+
+    <div id="adminCsvNewVersionFields" class="admin-csv-new-version hidden">
+      <label for="adminCsvCode">バージョンコード</label>
+      <input id="adminCsvCode" type="text" placeholder="例：GALAXY_WAVE_NEXT">
+      <label for="adminCsvName">表示名</label>
+      <input id="adminCsvName" type="text" placeholder="例：GALAXY WAVE NEXT">
+      <label for="adminCsvSlug">e-amusementスラッグ</label>
+      <input id="adminCsvSlug" type="text" placeholder="例：gitadora_galaxywave_next">
+      <label class="admin-csv-current">
+        <input id="adminCsvMakeCurrent" type="checkbox" checked>
+        このバージョンを最新版に設定する
+      </label>
+    </div>
+
+    <label for="adminCsvFile">CSVファイル</label>
+    <input id="adminCsvFile" type="file" accept=".csv,text/csv">
+    <div id="adminCsvStatus" class="admin-csv-status" aria-live="polite"></div>
+    <div class="admin-csv-actions">
+      <button id="btnAdminCsvImport" type="button">アップロード</button>
+      <button id="btnAdminCsvCancel" type="button">キャンセル</button>
+    </div>
+  </div>
 </div>
 
 <div id="adminSongFormMask" class="admin-form-mask">
@@ -12265,7 +12436,7 @@ body.light-mode.skill-target-columns :is(#viewAllManage,#userDetailRecords) .dc-
   </div>
 </div>
 
-<script type="module" src="./js/app.js?v=4_12_4"></script>
+<script type="module" src="./js/app.js?v=4_12_10"></script>
 <script src="./js/version-check.js?v=4_10_0" defer></script>
 </body>
 </html>

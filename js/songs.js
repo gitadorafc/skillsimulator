@@ -1,7 +1,7 @@
 import { supabase } from './supabase.js';
 
 // 上から選びやすい順
-export const GF_PARTS = ['MAS-G','MAS-B','EXT-G','EXT-B','ADV-G','ADV-B','BSC-G','BSC-B'];
+export const GF_PARTS = ['MAS-G','EXT-G','ADV-G','BSC-G','MAS-B','EXT-B','ADV-B','BSC-B'];
 export const DM_PARTS = ['MAS-D','EXT-D','ADV-D','BSC-D'];
 export const PARTS = [...GF_PARTS, ...DM_PARTS];
 export const partsForInstrument = instrument => instrument === 'DM' ? DM_PARTS : GF_PARTS;

@@ -85,6 +85,72 @@ export async function getAdminSongPickerChoices(versionId, instrument = 'GF') {
   }));
 }
 
+export async function createGameVersion({
+  code,
+  name,
+  eamusementSlug,
+  makeCurrent = true
+}) {
+  const cleanCode = String(code || '').trim().toUpperCase();
+  const cleanName = String(name || '').trim();
+  const cleanSlug = String(eamusementSlug || '').trim().toLowerCase();
+
+  if (!/^[A-Z0-9_]+$/.test(cleanCode)) {
+    throw new Error('バージョンコードは半角英大文字・数字・_で入力してください。');
+  }
+  if (!cleanName) throw new Error('表示名を入力してください。');
+  if (!/^[a-z0-9_-]+$/.test(cleanSlug)) {
+    throw new Error('e-amusementスラッグは半角英小文字・数字・_・-で入力してください。');
+  }
+
+  const { data, error } = await supabase.rpc('admin_create_game_version', {
+    p_code: cleanCode,
+    p_name: cleanName,
+    p_eamusement_slug: cleanSlug,
+    p_make_current: Boolean(makeCurrent)
+  });
+  if (error) throw error;
+  return Array.isArray(data) ? data[0] : data;
+}
+
+export async function getAdminSongIdentities(versionId) {
+  const all = [];
+  const pageSize = 1000;
+
+  for (let from = 0; ; from += pageSize) {
+    const { data, error } = await supabase
+      .from('songs')
+      .select('id,title,part,version_id')
+      .eq('version_id', versionId)
+      .order('title', { ascending: true })
+      .order('part', { ascending: true })
+      .range(from, from + pageSize - 1);
+    if (error) throw error;
+    all.push(...(data ?? []));
+    if (!data || data.length < pageSize) break;
+  }
+
+  return all;
+}
+
+export async function getAdminSongIdentitiesByIds(songIds) {
+  const ids = [...new Set((songIds ?? []).map(value => String(value || '').trim()).filter(Boolean))];
+  const all = [];
+  const chunkSize = 100;
+
+  for (let index = 0; index < ids.length; index += chunkSize) {
+    const chunk = ids.slice(index, index + chunkSize);
+    const { data, error } = await supabase
+      .from('songs')
+      .select('id,title,part,version_id')
+      .in('id', chunk);
+    if (error) throw error;
+    all.push(...(data ?? []));
+  }
+
+  return all;
+}
+
 export async function saveMasterSongRows(rows, versionId) {
   const payload = (rows ?? []).map(row => ({
     original_title: String(row.originalTitle || '').trim(),

@@ -298,7 +298,7 @@ function drawShareTotalSparkles(ctx, row, nameX, nameWidth, totalX, totalWidth, 
 import { supabase } from './supabase.js?v=21_57';
 import { register, login, loginForAccountSwitch, logout, changePassword, getSession, validateUsername } from './auth.js?v=4_1_2';
 import { initAuthCaptcha, prepareAuthCaptcha, getAuthCaptchaToken, resetAuthCaptcha } from './captcha.js?v=21_84';
-import { PARTS, GF_PARTS, DM_PARTS, partsForInstrument, normalizeSongTitleForMatch, searchSongTitles, getSongByTitleAndPart, requestSongMaster, requestSongLevelCorrection } from './songs.js?v=4_2_1';
+import { PARTS, GF_PARTS, DM_PARTS, partsForInstrument, normalizeSongTitleForMatch, searchSongTitles, getSongByTitleAndPart, requestSongMaster, requestSongLevelCorrection } from './songs.js?v=4_12_7';
 import { calcSkill, formatLevel, formatRate, formatSkill, getMyScores, saveScore, deleteScore } from './scores.js?v=3_18_4';
 import { getGameVersions } from './versions.js?v=21_57';
 const {
@@ -314,12 +314,18 @@ const {
   rejectSongRequest,
   accountAdmin,
   getAdminSongPickerChoices,
-  saveMasterSongRows
+  saveMasterSongRows,
+  createGameVersion,
+  getAdminSongIdentities,
+  getAdminSongIdentitiesByIds
 } = adminApi;
 
 // 曲マスター表の列順。admin.jsが古くても画面自体は起動できるようローカルにも保持。
 const MASTER_PARTS = adminApi.MASTER_PARTS ?? [
   'MAS-G','MAS-B','MAS-D','EXT-G','EXT-B','EXT-D','ADV-G','ADV-B','ADV-D','BSC-G','BSC-B','BSC-D'
+];
+const MASTER_CSV_HEADERS = [
+  '曲ID', '曲名', 'ふりがな', 'ふりがな種別', 'ふりがな確認済み', 'HOT', ...MASTER_PARTS
 ];
 
 const EAMUSEMENT_ORIGIN = 'https://p.eagate.573.jp';
@@ -562,6 +568,409 @@ async function saveVisibleMasterSongs() {
   return savedCount;
 }
 
+async function loadAllAdminMasterRows(versionId) {
+  const rows = [];
+  const pageSize = 200;
+
+  for (let page = 0; ; page += 1) {
+    const result = await getAdminSongMasterPage('', page, pageSize, versionId, '', '');
+    rows.push(...result.rows);
+    if (rows.length >= result.total || result.rows.length < pageSize) break;
+  }
+
+  return rows;
+}
+
+function csvEscape(value) {
+  return `"${String(value ?? '').replace(/"/g, '""')}"`;
+}
+
+function parseCsvTable(text) {
+  const source = String(text || '').replace(/^\uFEFF/, '');
+  const table = [];
+  let row = [];
+  let field = '';
+  let quoted = false;
+
+  for (let index = 0; index < source.length; index += 1) {
+    const char = source[index];
+
+    if (quoted) {
+      if (char === '"' && source[index + 1] === '"') {
+        field += '"';
+        index += 1;
+      } else if (char === '"') {
+        quoted = false;
+      } else {
+        field += char;
+      }
+      continue;
+    }
+
+    if (char === '"') {
+      quoted = true;
+    } else if (char === ',') {
+      row.push(field);
+      field = '';
+    } else if (char === '\n' || char === '\r') {
+      if (char === '\r' && source[index + 1] === '\n') index += 1;
+      row.push(field);
+      table.push(row);
+      row = [];
+      field = '';
+    } else {
+      field += char;
+    }
+  }
+
+  if (quoted) throw new Error('CSVの引用符が閉じられていません。');
+  if (field !== '' || row.length) {
+    row.push(field);
+    table.push(row);
+  }
+
+  return table.filter(cells => cells.some(value => String(value || '').trim() !== ''));
+}
+
+function normalizeCsvHeader(value) {
+  return String(value || '').replace(/^\uFEFF/, '').trim().toUpperCase();
+}
+
+function parseCsvBoolean(value, label, rowNumber) {
+  const raw = String(value ?? '').trim();
+  if (!raw) return null;
+  const normalized = raw.toUpperCase();
+  if (['1', 'TRUE', 'YES', 'Y', 'ON', '○', '〇', '済', 'HOT'].includes(normalized)) return true;
+  if (['0', 'FALSE', 'NO', 'N', 'OFF', '×', '未', 'OTHER'].includes(normalized)) return false;
+  throw new Error(`${rowNumber}行目の${label}は 1 または 0 で入力してください。`);
+}
+
+function parseMasterCsv(text) {
+  const table = parseCsvTable(text);
+  if (table.length < 2) throw new Error('CSVに登録データがありません。');
+
+  const headers = table[0].map(normalizeCsvHeader);
+  const findColumn = (...names) => {
+    const normalized = names.map(normalizeCsvHeader);
+    return headers.findIndex(header => normalized.includes(header));
+  };
+
+  const idColumn = findColumn('曲ID', 'SONG_ID', 'ID');
+  const titleColumn = findColumn('曲名', 'TITLE');
+  const readingColumn = findColumn('ふりがな', 'READING');
+  const readingSourceColumn = findColumn('ふりがな種別', 'READING_SOURCE');
+  const readingReviewedColumn = findColumn('ふりがな確認済み', 'READING_REVIEWED');
+  const hotColumn = findColumn('HOT', '種別');
+  const partColumns = new Map(MASTER_PARTS.map(part => [part, findColumn(part)]));
+
+  if (idColumn < 0) throw new Error('「曲ID」列がありません。');
+  if (titleColumn < 0 && !MASTER_PARTS.some(part => partColumns.get(part) >= 0)) {
+    throw new Error('「曲名」または難易度列がありません。');
+  }
+
+  const parsed = [];
+  const usedIds = new Set();
+  const newTitles = new Set();
+
+  table.slice(1).forEach((cells, rowIndex) => {
+    const rowNumber = rowIndex + 2;
+    const valueAt = column => column >= 0 ? String(cells[column] ?? '').trim() : '';
+    const songId = valueAt(idColumn);
+    const titleRaw = valueAt(titleColumn);
+    const readingRaw = valueAt(readingColumn);
+    const readingSourceRaw = valueAt(readingSourceColumn).toUpperCase();
+    const title = titleRaw || null;
+    const reading = readingRaw || null;
+    const readingSource = readingSourceRaw || null;
+    const readingReviewed = readingReviewedColumn >= 0
+      ? parseCsvBoolean(valueAt(readingReviewedColumn), 'ふりがな確認済み', rowNumber)
+      : null;
+    const isHot = hotColumn >= 0
+      ? parseCsvBoolean(valueAt(hotColumn), 'HOT', rowNumber)
+      : null;
+    const levels = {};
+    let hasLevelChange = false;
+
+    MASTER_PARTS.forEach(part => {
+      const column = partColumns.get(part);
+      if (column < 0) {
+        levels[part] = null;
+        return;
+      }
+
+      const raw = valueAt(column);
+      if (!raw) {
+        levels[part] = null;
+        return;
+      }
+      if (['削除', 'DELETE'].includes(raw.toUpperCase())) {
+        levels[part] = '';
+        hasLevelChange = true;
+        return;
+      }
+
+      const numeric = Number(raw);
+      if (!Number.isFinite(numeric) || numeric <= 0 || numeric > 9.99) {
+        throw new Error(`${rowNumber}行目の${part}は0.01～9.99で入力してください。`);
+      }
+      levels[part] = numeric.toFixed(2);
+      hasLevelChange = true;
+    });
+
+    if (!songId && !title) {
+      throw new Error(`${rowNumber}行目は曲IDまたは曲名が必要です。`);
+    }
+    if (!songId && !hasLevelChange) {
+      throw new Error(`${rowNumber}行目の新規曲には最低1つの難易度が必要です。`);
+    }
+    if (songId && usedIds.has(songId)) {
+      throw new Error(`${rowNumber}行目の曲IDが重複しています。`);
+    }
+    if (!songId && newTitles.has(title)) {
+      throw new Error(`${rowNumber}行目の新規曲名が重複しています。`);
+    }
+    if (songId) usedIds.add(songId);
+    else newTitles.add(title);
+
+    parsed.push({
+      rowNumber,
+      songId,
+      title,
+      reading,
+      readingSource,
+      readingReviewed,
+      isHot,
+      levels
+    });
+  });
+
+  if (!parsed.length) throw new Error('CSVに登録データがありません。');
+  return parsed;
+}
+
+async function buildMasterImportRows(parsedRows, targetVersionId, allowSourceVersionIds = false) {
+  const [targetRows, targetIdentities, requestedIdentities] = await Promise.all([
+    loadAllAdminMasterRows(targetVersionId),
+    getAdminSongIdentities(targetVersionId),
+    getAdminSongIdentitiesByIds(parsedRows.map(row => row.songId).filter(Boolean))
+  ]);
+
+  const targetRowsByTitle = new Map(targetRows.map(row => [row.title, row]));
+  const targetIdentityById = new Map(targetIdentities.map(row => [row.id, row]));
+  const requestedIdentityById = new Map(requestedIdentities.map(row => [row.id, row]));
+  const sourceVersionMaps = new Map();
+
+  if (allowSourceVersionIds) {
+    const sourceVersionIds = [...new Set(
+      requestedIdentities
+        .map(row => row.version_id)
+        .filter(versionId => versionId && versionId !== targetVersionId)
+    )];
+    for (const versionId of sourceVersionIds) {
+      const sourceRows = await loadAllAdminMasterRows(versionId);
+      sourceVersionMaps.set(versionId, new Map(sourceRows.map(row => [row.title, row])));
+    }
+  }
+
+  return parsedRows.map(row => {
+    let identity = null;
+    let baseline = null;
+    let targetBaseline = null;
+
+    if (row.songId) {
+      identity = targetIdentityById.get(row.songId) || requestedIdentityById.get(row.songId);
+      if (!identity) throw new Error(`${row.rowNumber}行目の曲IDが見つかりません。`);
+      if (identity.version_id !== targetVersionId && !allowSourceVersionIds) {
+        throw new Error(`${row.rowNumber}行目の曲IDは選択したバージョンのものではありません。`);
+      }
+
+      targetBaseline = targetRowsByTitle.get(identity.title) || null;
+      baseline = targetBaseline;
+      if (!baseline && allowSourceVersionIds) {
+        baseline = sourceVersionMaps.get(identity.version_id)?.get(identity.title) || null;
+      }
+      if (!baseline) throw new Error(`${row.rowNumber}行目の曲IDに対応する曲データがありません。`);
+    } else {
+      if (targetRowsByTitle.has(row.title)) {
+        throw new Error(`${row.rowNumber}行目は曲IDが空欄ですが、同名曲がすでに存在します。`);
+      }
+    }
+
+    const title = row.title ?? baseline?.title ?? '';
+    const reading = row.reading ?? baseline?.reading ?? '';
+    const readingChanged = row.reading != null && row.reading !== (baseline?.reading ?? '');
+    const readingSource = row.readingSource
+      ?? (readingChanged ? 'MANUAL' : (baseline?.reading_source || (reading ? 'MANUAL' : 'NONE')));
+    const readingReviewed = row.readingReviewed
+      ?? (readingChanged ? true : Boolean(baseline?.reading_reviewed));
+    const isHot = row.isHot ?? Boolean(baseline?.is_hot);
+    const levels = {};
+
+    MASTER_PARTS.forEach(part => {
+      const incoming = row.levels[part];
+      levels[part] = incoming == null
+        ? (baseline?.levels?.[part] != null ? formatLevel(baseline.levels[part]) : '')
+        : incoming;
+    });
+
+    if (!title) throw new Error(`${row.rowNumber}行目の曲名がありません。`);
+    if (!MASTER_PARTS.some(part => String(levels[part] ?? '').trim() !== '')) {
+      throw new Error(`${row.rowNumber}行目は全難易度が空になります。`);
+    }
+
+    return {
+      originalTitle: targetBaseline?.title || '',
+      title,
+      reading,
+      readingSource,
+      readingReviewed,
+      isHot,
+      levels
+    };
+  });
+}
+
+async function downloadAdminMasterCsv() {
+  const button = $('btnAdminCsvDownload');
+  const originalText = button.textContent;
+  try {
+    button.disabled = true;
+    button.textContent = '作成中...';
+
+    const [rows, identities] = await Promise.all([
+      loadAllAdminMasterRows(activeVersionId),
+      getAdminSongIdentities(activeVersionId)
+    ]);
+    const representativeIdByTitle = new Map();
+    identities.forEach(row => {
+      if (!representativeIdByTitle.has(row.title)) representativeIdByTitle.set(row.title, row.id);
+    });
+
+    const lines = [MASTER_CSV_HEADERS.map(csvEscape).join(',')];
+    rows.forEach(row => {
+      const values = [
+        representativeIdByTitle.get(row.title) || '',
+        row.title,
+        row.reading || '',
+        row.reading_source || 'NONE',
+        row.reading_reviewed ? '1' : '0',
+        row.is_hot ? '1' : '0',
+        ...MASTER_PARTS.map(part => row.levels?.[part] != null ? formatLevel(row.levels[part]) : '')
+      ];
+      lines.push(values.map(csvEscape).join(','));
+    });
+
+    const blob = new Blob([`\uFEFF${lines.join('\r\n')}`], { type:'text/csv;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement('a');
+    const date = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+    const code = String(activeVersion?.code || 'VERSION').replace(/[^A-Z0-9_-]/gi, '_');
+    anchor.href = url;
+    anchor.download = `gitadora_song_master_${code}_${date}.csv`;
+    document.body.appendChild(anchor);
+    anchor.click();
+    anchor.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    await showSiteDialog(`${rows.length}曲のCSVをダウンロードしました。`, 'CSV作成完了');
+  } catch (error) {
+    await showSiteDialog('CSVの作成に失敗しました: ' + error.message, 'エラー');
+  } finally {
+    button.disabled = false;
+    button.textContent = originalText;
+  }
+}
+
+function renderAdminCsvVersionOptions() {
+  const select = $('adminCsvVersion');
+  select.innerHTML = [
+    ...gameVersions.map(version => `
+      <option value="${version.id}">
+        ${esc(version.name)}${version.is_current ? '（最新版）' : ''}
+      </option>`),
+    '<option value="__NEW__">＋ 新しいバージョンを追加</option>'
+  ].join('');
+  select.value = activeVersionId;
+  toggleAdminCsvNewVersionFields();
+}
+
+function toggleAdminCsvNewVersionFields() {
+  const isNew = $('adminCsvVersion').value === '__NEW__';
+  $('adminCsvNewVersionFields').classList.toggle('hidden', !isNew);
+}
+
+function openAdminCsvUpload() {
+  renderAdminCsvVersionOptions();
+  $('adminCsvFile').value = '';
+  $('adminCsvCode').value = '';
+  $('adminCsvName').value = '';
+  $('adminCsvSlug').value = '';
+  $('adminCsvMakeCurrent').checked = true;
+  $('adminCsvStatus').textContent = '';
+  $('adminCsvMask').style.display = 'flex';
+}
+
+function closeAdminCsvUpload() {
+  $('adminCsvMask').style.display = 'none';
+}
+
+async function importAdminMasterCsv() {
+  const file = $('adminCsvFile').files?.[0];
+  if (!file) throw new Error('アップロードするCSVを選択してください。');
+
+  const parsedRows = parseMasterCsv(await file.text());
+  const creatingVersion = $('adminCsvVersion').value === '__NEW__';
+  const targetLabel = creatingVersion
+    ? ($('adminCsvName').value.trim() || '新しいバージョン')
+    : gameVersions.find(version => version.id === $('adminCsvVersion').value)?.name;
+  const confirmed = await showSiteConfirm(
+    `${targetLabel}へ${parsedRows.length}曲を追加・更新します。\nCSVに含まれない曲と、空欄の項目は変更しません。`,
+    '曲マスターCSV取込',
+    '取込を開始'
+  );
+  if (!confirmed) return;
+
+  let targetVersionId = $('adminCsvVersion').value;
+  if (creatingVersion) {
+    const created = await createGameVersion({
+      code: $('adminCsvCode').value,
+      name: $('adminCsvName').value,
+      eamusementSlug: $('adminCsvSlug').value,
+      makeCurrent: $('adminCsvMakeCurrent').checked
+    });
+    if (!created?.id) throw new Error('新しいバージョンを追加できませんでした。');
+    targetVersionId = created.id;
+  }
+
+  const mergedRows = await buildMasterImportRows(parsedRows, targetVersionId, creatingVersion);
+  const chunkSize = 50;
+  let saved = 0;
+
+  for (let index = 0; index < mergedRows.length; index += chunkSize) {
+    const chunk = mergedRows.slice(index, index + chunkSize);
+    $('adminCsvStatus').textContent = `${saved} / ${mergedRows.length}曲を処理済み`;
+    try {
+      await saveMasterSongRows(chunk, targetVersionId);
+      saved += chunk.length;
+    } catch (error) {
+      throw new Error(`${saved}曲処理後に停止しました。${error.message}`);
+    }
+  }
+
+  if (creatingVersion) await loadGameVersionOptions();
+  if (targetVersionId !== activeVersionId) {
+    await switchGameVersion(targetVersionId);
+    $('versionSelect').value = targetVersionId;
+  } else {
+    adminSongPage = 0;
+    await loadAdminSongs();
+  }
+
+  adminSongPickerKey = '';
+  adminSongPickerChoices = [];
+  closeAdminCsvUpload();
+  await showSiteDialog(`${saved}曲を追加・更新しました。`, 'CSV取込完了');
+}
+
 async function deleteMasterSongTitle(title) {
   const cleanTitle = String(title || '').trim();
   if (!cleanTitle) return;
@@ -575,7 +984,7 @@ async function deleteMasterSongTitle(title) {
   if (error) throw error;
 }
 
-import * as adminApi from './admin.js?v=4_12_0';
+import * as adminApi from './admin.js?v=4_12_5';
 import { listUserSummaries, getUserSkillTargets, getSongRateComparison, getSongPersonalBestHistory, getSongOptionDistribution, getMyFavorites, addFavorite, removeFavorite } from './users.js?v=3_6_0';
 
 let activeInstrument = localStorage.getItem('gitadora_instrument') === 'DM' ? 'DM' : 'GF';
@@ -681,7 +1090,7 @@ function renderAdminSongPickerCandidates() {
   const currentTitle = $('formTitle')?.value || '';
 
   if (!group) {
-    songSelect.innerHTML = '<option value="">選択してください</option>';
+    songSelect.innerHTML = '<option value="">頭文字を選択してください</option>';
     songSelect.disabled = true;
     return;
   }
@@ -1371,6 +1780,19 @@ async function switchGameVersion(versionId) {
 }
 
 function instrumentParts() { return partsForInstrument(activeInstrument); }
+function instrumentPartOptionsHtml() {
+  const optionHtml = part => `<option value="${part}">${part}</option>`;
+  const parts = instrumentParts();
+  if (activeInstrument === 'DM') return parts.map(optionHtml).join('');
+
+  return `
+    <optgroup label="-GUITAR-">
+      ${parts.filter(part => part.endsWith('-G')).map(optionHtml).join('')}
+    </optgroup>
+    <optgroup label="-BASS-">
+      ${parts.filter(part => part.endsWith('-B')).map(optionHtml).join('')}
+    </optgroup>`;
+}
 function isCurrentInstrumentPart(part) { return instrumentParts().includes(String(part || '')); }
 function updateDmBassMirrorFieldVisibility() {
   const enabled = activeInstrument === 'DM';
@@ -1380,7 +1802,7 @@ function updateDmBassMirrorFieldVisibility() {
 }
 function applyInstrumentUI() {
   document.querySelectorAll('[data-instrument]').forEach(b => b.classList.toggle('active', b.dataset.instrument === activeInstrument));
-  $('partSelect').innerHTML = instrumentParts().map(p => `<option value="${p}">${p}</option>`).join('');
+  $('partSelect').innerHTML = instrumentPartOptionsHtml();
   if ($('instrumentLabel')) $('instrumentLabel').textContent = activeInstrument;
   syncUserListSortControls();
 
@@ -3369,7 +3791,7 @@ function openScoreModal(score = null) {
 
   $('domModalTitle').textContent = score ? '登録情報の編集' : 'スコア登録';
   $('formTitle').value = score?.title || '';
-  $('partSelect').innerHTML = instrumentParts().map(p => `<option value="${p}">${p}</option>`).join('');
+  $('partSelect').innerHTML = instrumentPartOptionsHtml();
   $('partSelect').value = score?.part || instrumentParts()[0];
   $('formLevel').value = score ? formatLevel(score.level) : '';
   $('formRate').value = score ? formatRate(score.achievement_rate) : '';
@@ -4434,6 +4856,7 @@ function closeAdmin() {
   $('adminModal').style.display = 'none';
   $('adminSongFormMask').style.display = 'none';
   $('adminPasswordMask').style.display = 'none';
+  $('adminCsvMask').style.display = 'none';
 }
 
 async function switchAdminTab(tab) {
@@ -4735,6 +5158,7 @@ async function loadAdminUsers() {
             <div class="admin-card-title">${esc(user.username)}</div>
           </div>
           <div class="admin-actions">
+            <button class="admin-edit" data-user-open="${user.id}" data-user-name="${esc(user.username)}">詳細</button>
             <button class="admin-reset" data-admin-reset-user="${user.id}">PW変更</button>
             <button class="admin-delete" data-admin-delete-user="${user.id}">削除</button>
           </div>
@@ -5562,6 +5986,42 @@ $('btnAdminAddSong').addEventListener('click', async () => {
   await loadAdminSongs();
   const titleInput = $('adminBody').querySelector('[data-master-new-row] [data-master-title]');
   titleInput?.focus();
+});
+$('btnAdminCsvDownload')?.addEventListener('click', downloadAdminMasterCsv);
+$('btnAdminCsvUpload')?.addEventListener('click', openAdminCsvUpload);
+$('adminCsvVersion')?.addEventListener('change', toggleAdminCsvNewVersionFields);
+$('btnAdminCsvCancel')?.addEventListener('click', closeAdminCsvUpload);
+$('adminCsvMask')?.addEventListener('click', event => {
+  if (event.target === $('adminCsvMask')) closeAdminCsvUpload();
+});
+$('adminCsvFile')?.addEventListener('change', async event => {
+  const file = event.target.files?.[0];
+  if (!file) {
+    $('adminCsvStatus').textContent = '';
+    return;
+  }
+  try {
+    const rows = parseMasterCsv(await file.text());
+    const updates = rows.filter(row => row.songId).length;
+    const additions = rows.length - updates;
+    $('adminCsvStatus').textContent = `${rows.length}曲（更新${updates}・新規${additions}）`;
+  } catch (error) {
+    $('adminCsvStatus').textContent = error.message;
+  }
+});
+$('btnAdminCsvImport')?.addEventListener('click', async () => {
+  const button = $('btnAdminCsvImport');
+  const originalText = button.textContent;
+  try {
+    button.disabled = true;
+    button.textContent = '処理中...';
+    await importAdminMasterCsv();
+  } catch (error) {
+    await showSiteDialog('CSVの取込に失敗しました: ' + error.message, 'エラー');
+  } finally {
+    button.disabled = false;
+    button.textContent = originalText;
+  }
 });
 $('btnAdminSaveAllSongs')?.addEventListener('click', async () => {
   const button = $('btnAdminSaveAllSongs');
