@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>GITADORA Skill Simulator</title>
-<meta name="app-version" content="4.12.10">
+<meta name="app-version" content="4.12.11">
 <link rel="icon" type="image/svg+xml" href="./favicon.svg?v=21_7">
 <link rel="icon" type="image/png" sizes="48x48" href="./favicon-48x48.png?v=21_7">
 <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32x32.png?v=21_7">
@@ -11509,6 +11509,42 @@ body.light-mode #adminSongCandidate:disabled{
   color:#7b8798 !important;
   -webkit-text-fill-color:#7b8798 !important;
 }
+
+/* === APP VERSION 4.12.11: 曲詳細のスキル値をマイページと同じデザインへ統一 === */
+.rate-compare-dialog .rate-skill[class*="skill-box-"]{
+  width:65px !important;
+  min-width:65px !important;
+  max-width:65px !important;
+  height:auto !important;
+  min-height:0 !important;
+  padding:6px 0 !important;
+  border-radius:3px !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  box-sizing:border-box !important;
+  font-family:inherit !important;
+  font-size:13px !important;
+  font-weight:900 !important;
+  line-height:1 !important;
+  letter-spacing:0 !important;
+  text-align:center !important;
+}
+body.text-size-up .rate-compare-dialog .rate-skill[class*="skill-box-"]{
+  font-size:14px !important;
+}
+body.light-mode .rate-compare-dialog .rate-skill[class*="skill-box-"]{
+  background-color:#f3f4f6 !important;
+}
+
+/* 編集ボタンの文字をボタン内の見た目上の中央へ揃える。 */
+#viewAllManage .dc-edit .m-action-btn.btn-e{
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  padding:1px 6px 0 !important;
+  line-height:1 !important;
+}
 </style>
   <link rel="preconnect" href="https://challenges.cloudflare.com">
   <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" defer></script>
@@ -11842,7 +11878,7 @@ body.light-mode #adminSongCandidate:disabled{
     <div class="app-menu-version">
       <label>VERSION</label>
       <select id="versionSelect" class="version-select" aria-label="GITADORAバージョン"></select>
-      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 4.12.10</div>
+      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 4.12.11</div>
     </div>
   </div>
 </div>
@@ -12298,7 +12334,7 @@ body.light-mode #adminSongCandidate:disabled{
 <div id="adminModal" class="admin-modal">
   <div class="admin-header">
     <div class="admin-title-row">
-      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 4.12.10</div></div>
+      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 4.12.11</div></div>
       <button id="btnCloseAdmin" class="admin-close">閉じる</button>
     </div>
     <div class="admin-tabs">
@@ -12436,7 +12472,7 @@ body.light-mode #adminSongCandidate:disabled{
   </div>
 </div>
 
-<script type="module" src="./js/app.js?v=4_12_10"></script>
+<script type="module" src="./js/app.js?v=4_12_11"></script>
 <script src="./js/version-check.js?v=4_10_0" defer></script>
 </body>
 </html>
