@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>GITADORA Skill Simulator</title>
-<meta name="app-version" content="4.12.30">
+<meta name="app-version" content="4.12.31">
 <link rel="icon" type="image/svg+xml" href="./favicon.svg?v=21_7">
 <link rel="icon" type="image/png" sizes="48x48" href="./favicon-48x48.png?v=21_7">
 <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32x32.png?v=21_7">
@@ -11848,6 +11848,66 @@ body.light-mode #userDetailRecords .sk-section > h2{
   background:var(--app-light-page-bg) !important;
   background-image:none !important;
 }
+
+/* === APP VERSION 4.12.31: 操作用アクセントカラーを共通化 === */
+:root{
+  --app-accent:#3b82f6;
+  --app-accent-pressed:#2563eb;
+  --app-accent-soft:#eff6ff;
+}
+
+/* 選択タブ・主要アクションは同じ基準色を使う。 */
+.p-tab-btn.active,
+.user-detail-tab.active,
+.btn-add-inline:not(:disabled),
+.btn-submit:not(:disabled),
+.app-primary-button:not(:disabled),
+body.light-mode .p-tabs > .p-tab-btn.active,
+body.light-mode .user-detail-tabs > .user-detail-tab.active,
+body.light-mode .btn-add-inline:not(:disabled),
+body.light-mode .btn-submit:not(:disabled),
+body.light-mode button.app-primary-button:not(:disabled){
+  background:var(--app-accent) !important;
+  border-color:var(--app-accent) !important;
+  color:#ffffff !important;
+  -webkit-text-fill-color:#ffffff !important;
+}
+.btn-add-inline:not(:disabled):active,
+.btn-submit:not(:disabled):active,
+.app-primary-button:not(:disabled):active,
+body.light-mode .btn-add-inline:not(:disabled):active,
+body.light-mode .btn-submit:not(:disabled):active,
+body.light-mode button.app-primary-button:not(:disabled):active{
+  background:var(--app-accent-pressed) !important;
+  border-color:var(--app-accent-pressed) !important;
+}
+
+/* ライトモードの編集系は同じ青の文字・枠を使うアウトラインボタンにする。 */
+body.light-mode .btn-e,
+body.light-mode #viewAllManage button[data-edit-index],
+body.light-mode #viewAllManage .btn-edit,
+body.light-mode #viewAllManage .m-edit-btn,
+body.light-mode #viewAllManage .m-btn-edit,
+body.light-mode #viewAllManage .dc-edit .m-action-btn.btn-e,
+body.light-mode .rate-compare-edit-button{
+  background:var(--app-light-card-bg) !important;
+  border-color:var(--app-accent) !important;
+  color:var(--app-accent) !important;
+  -webkit-text-fill-color:var(--app-accent) !important;
+  box-shadow:none !important;
+}
+body.light-mode .btn-e:active,
+body.light-mode #viewAllManage button[data-edit-index]:active,
+body.light-mode #viewAllManage .btn-edit:active,
+body.light-mode #viewAllManage .m-edit-btn:active,
+body.light-mode #viewAllManage .m-btn-edit:active,
+body.light-mode #viewAllManage .dc-edit .m-action-btn.btn-e:active,
+body.light-mode .rate-compare-edit-button:active{
+  background:var(--app-accent-soft) !important;
+  border-color:var(--app-accent-pressed) !important;
+  color:var(--app-accent-pressed) !important;
+  -webkit-text-fill-color:var(--app-accent-pressed) !important;
+}
 </style>
   <link rel="preconnect" href="https://challenges.cloudflare.com">
   <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" defer></script>
@@ -12181,7 +12241,7 @@ body.light-mode #userDetailRecords .sk-section > h2{
     <div class="app-menu-version">
       <label>VERSION</label>
       <select id="versionSelect" class="version-select" aria-label="GITADORAバージョン"></select>
-      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 4.12.30</div>
+      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 4.12.31</div>
     </div>
   </div>
 </div>
@@ -12637,7 +12697,7 @@ body.light-mode #userDetailRecords .sk-section > h2{
 <div id="adminModal" class="admin-modal">
   <div class="admin-header">
     <div class="admin-title-row">
-      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 4.12.30</div></div>
+      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 4.12.31</div></div>
       <button id="btnCloseAdmin" class="admin-close">閉じる</button>
     </div>
     <div class="admin-tabs">
@@ -12775,7 +12835,7 @@ body.light-mode #userDetailRecords .sk-section > h2{
   </div>
 </div>
 
-<script type="module" src="./js/app.js?v=4_12_30"></script>
+<script type="module" src="./js/app.js?v=4_12_31"></script>
 <script src="./js/version-check.js?v=4_10_0" defer></script>
 </body>
 </html>
