@@ -125,6 +125,7 @@ function installSkillColorCss() {
 
     const songBoxRule =
       `.skill-box-${row.rank}{` +
+      `--skill-side-paint:${sidePaint};` +
       `background-image:${sidePaint},${sidePaint}!important;` +
       `background-position:left top,right top!important;` +
       `background-size:5px 100%,5px 100%!important;` +
@@ -151,30 +152,29 @@ function installSkillColorCss() {
 
     const sparkleBandRule = row.rank === 'sparkle-rainbow'
       ? `.skill-box-sparkle-rainbow{` +
+        `background-image:${sidePaint},${sidePaint}!important;` +
+        `background-position:left top,right top!important;` +
         `background-size:5px 100%,5px 100%!important;` +
+        `background-repeat:no-repeat,no-repeat!important;` +
         `box-shadow:none!important;` +
-        `animation:skill-sparkle-band-glow var(--skill-sparkle-cycle,1.6s) ease-in-out infinite!important;}` +
+        `filter:none!important;` +
+        `animation:none!important;}` +
         `body.light-mode .skill-box-sparkle-rainbow{` +
-        `background-image:` +
-          `linear-gradient(rgba(255,255,255,var(--skill-band-light-alpha)) 0 100%),` +
-          `linear-gradient(rgba(255,255,255,var(--skill-band-light-alpha)) 0 100%),` +
-          `${sidePaint},${sidePaint}!important;` +
-        `background-position:left top,right top,left top,right top!important;` +
-        `background-size:5px 100%,5px 100%,5px 100%,5px 100%!important;` +
-        `background-repeat:no-repeat,no-repeat,no-repeat,no-repeat!important;` +
+        `background-image:${sidePaint},${sidePaint}!important;` +
+        `background-position:left top,right top!important;` +
+        `background-size:5px 100%,5px 100%!important;` +
+        `background-repeat:no-repeat,no-repeat!important;` +
         `background-color:#f3f4f6!important;` +
         `filter:none!important;opacity:1!important;` +
         `box-shadow:none!important;` +
-        `animation:skill-sparkle-band-glow-light var(--skill-sparkle-cycle,1.6s) ease-in-out infinite!important;}`
+        `animation:none!important;}`
       : '';
 
     // スキル対象・登録曲の「外枠だけ」は170degグラデーションにする。
     // スキル値の左右帯、ヘッダー、共有画像には sidePaint をそのまま使うため影響しない。
-    const borderPaint = row.rank === 'sparkle-rainbow'
-      ? `linear-gradient(170deg,#ffffff 0%,#e60000 4%,#f05a00 15%,#e6b800 27%,#fff7c2 32%,#12a936 43%,#00aeb5 56%,#ffffff 62%,#1559e6 70%,#681fd1 84%,#bf16ad 96%,#ffffff 100%)`
-      : row.type === 'solid'
-        ? row.color
-        : `linear-gradient(170deg, ${row.stops.map(([color,pos]) => `${color} ${pos}%`).join(', ')})`;
+    const borderPaint = row.type === 'solid'
+      ? row.color
+      : `linear-gradient(170deg, ${row.stops.map(([color,pos]) => `${color} ${pos}%`).join(', ')})`;
 
     const cardBorderRule =
       `.m-card:has(.skill-box-${row.rank}),` +
