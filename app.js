@@ -172,11 +172,9 @@ function installSkillColorCss() {
 
     // スキル対象・登録曲の「外枠だけ」は170degグラデーションにする。
     // スキル値の左右帯、ヘッダー、共有画像には sidePaint をそのまま使うため影響しない。
-    const borderPaint = row.rank === 'sparkle-rainbow'
-      ? `linear-gradient(170deg,#ffffff 0%,#e60000 4%,#f05a00 15%,#e6b800 27%,#fff7c2 32%,#12a936 43%,#00aeb5 56%,#ffffff 62%,#1559e6 70%,#681fd1 84%,#bf16ad 96%,#ffffff 100%)`
-      : row.type === 'solid'
-        ? row.color
-        : `linear-gradient(170deg, ${row.stops.map(([color,pos]) => `${color} ${pos}%`).join(', ')})`;
+    const borderPaint = row.type === 'solid'
+      ? row.color
+      : `linear-gradient(170deg, ${row.stops.map(([color,pos]) => `${color} ${pos}%`).join(', ')})`;
 
     const cardBorderRule =
       `.m-card:has(.skill-box-${row.rank}),` +
