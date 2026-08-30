@@ -151,28 +151,22 @@ function installSkillColorCss() {
 
     const sparkleBandRule = row.rank === 'sparkle-rainbow'
       ? `.skill-box-sparkle-rainbow{` +
-        `background-image:` +
-          `linear-gradient(rgba(255,255,255,var(--skill-band-dark-alpha)) 0 100%),` +
-          `linear-gradient(rgba(255,255,255,var(--skill-band-dark-alpha)) 0 100%),` +
-          `${sidePaint},${sidePaint}!important;` +
-        `background-position:left top,right top,left top,right top!important;` +
-        `background-size:5px 100%,5px 100%,5px 100%,5px 100%!important;` +
-        `background-repeat:no-repeat,no-repeat,no-repeat,no-repeat!important;` +
+        `background-image:${sidePaint},${sidePaint}!important;` +
+        `background-position:left top,right top!important;` +
+        `background-size:5px 100%,5px 100%!important;` +
+        `background-repeat:no-repeat,no-repeat!important;` +
         `box-shadow:none!important;` +
         `filter:none!important;` +
-        `animation:skill-sparkle-band-glow-only var(--skill-sparkle-cycle,1.6s) ease-in-out infinite!important;}` +
+        `animation:none!important;}` +
         `body.light-mode .skill-box-sparkle-rainbow{` +
-        `background-image:` +
-          `linear-gradient(rgba(255,255,255,var(--skill-band-light-alpha)) 0 100%),` +
-          `linear-gradient(rgba(255,255,255,var(--skill-band-light-alpha)) 0 100%),` +
-          `${sidePaint},${sidePaint}!important;` +
-        `background-position:left top,right top,left top,right top!important;` +
-        `background-size:5px 100%,5px 100%,5px 100%,5px 100%!important;` +
-        `background-repeat:no-repeat,no-repeat,no-repeat,no-repeat!important;` +
+        `background-image:${sidePaint},${sidePaint}!important;` +
+        `background-position:left top,right top!important;` +
+        `background-size:5px 100%,5px 100%!important;` +
+        `background-repeat:no-repeat,no-repeat!important;` +
         `background-color:#f3f4f6!important;` +
         `filter:none!important;opacity:1!important;` +
         `box-shadow:none!important;` +
-        `animation:skill-sparkle-band-glow-light var(--skill-sparkle-cycle,1.6s) ease-in-out infinite!important;}`
+        `animation:none!important;}`
       : '';
 
     // スキル対象・登録曲の「外枠だけ」は170degグラデーションにする。
