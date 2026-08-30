@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>GITADORA Skill Simulator</title>
-<meta name="app-version" content="4.12.16">
+<meta name="app-version" content="4.12.17">
 <link rel="icon" type="image/svg+xml" href="./favicon.svg?v=21_7">
 <link rel="icon" type="image/png" sizes="48x48" href="./favicon-48x48.png?v=21_7">
 <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32x32.png?v=21_7">
@@ -11549,28 +11549,23 @@ body.skill-target-columns #viewAllManage .dc-card-manage .dc-edit .m-action-btn.
   padding:1px 6px 0 !important;
 }
 
-/* スキル値を「外側のカラー帯」と「内側の枠＋数字」に分離する。 */
-:is(.dc-skill,.rate-skill)[class*="skill-box-"]{
+/* === APP VERSION 4.12.17: 曲詳細のスキル内枠 / 横並びバッジ中央揃え === */
+/* カード側は従来の外枠構造を維持する。数字用spanはレイアウトへ介入させない。 */
+.dc-card .dc-skill > .dc-skill-value{
+  display:contents;
+}
+
+/* 曲詳細だけ、登録カードと同じ「左右のカラー帯＋内側の上下枠」にする。 */
+.rate-compare-dialog .rate-skill[class*="skill-box-"]{
+  height:26px !important;
+  min-height:26px !important;
+  max-height:26px !important;
   padding:0 !important;
   border-top:0 !important;
   border-bottom:0 !important;
   overflow:hidden !important;
 }
-.dc-card .dc-skill,
-.rate-compare-dialog .rate-skill[class*="skill-box-"]{
-  height:26px !important;
-  min-height:26px !important;
-  max-height:26px !important;
-}
-body.skill-target-columns :is(.dc-skill,.rate-skill)[class*="skill-box-"]{
-  height:21px !important;
-  min-height:21px !important;
-  max-height:21px !important;
-}
-body.text-size-up.skill-target-columns .rate-compare-dialog .rate-skill[class*="skill-box-"]{
-  font-size:13px !important;
-}
-:is(.dc-skill,.rate-skill) > .dc-skill-value{
+.rate-compare-dialog .rate-skill > .dc-skill-value{
   flex:1 1 auto;
   align-self:stretch;
   min-width:0;
@@ -11589,14 +11584,28 @@ body.text-size-up.skill-target-columns .rate-compare-dialog .rate-skill[class*="
   -webkit-text-fill-color:inherit;
   line-height:1;
 }
-body.light-mode :is(.dc-skill,.rate-skill) > .dc-skill-value{
+body.light-mode .rate-compare-dialog .rate-skill > .dc-skill-value{
   background:#f3f4f6;
   border-top-color:#cbd5e1;
   border-bottom-color:#cbd5e1;
 }
-body.skill-target-columns :is(.dc-skill,.rate-skill)[class*="skill-box-"]::before{
-  display:none !important;
-  content:none !important;
+body.text-size-up.skill-target-columns .rate-compare-dialog .rate-skill[class*="skill-box-"]{
+  font-size:13px !important;
+}
+
+/* 横並びカードのFC・EXC・オプションも、パートと同じ方式で文字を中央へ置く。 */
+body.skill-target-columns :is(
+  #viewSkill,
+  #userDetailSkill,
+  #viewAllManage,
+  #userDetailRecords
+) .dc-card :is(.fc-unified-badge,.opt-badge){
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  padding-top:0 !important;
+  padding-bottom:0 !important;
+  line-height:1 !important;
 }
 </style>
   <link rel="preconnect" href="https://challenges.cloudflare.com">
@@ -11931,7 +11940,7 @@ body.skill-target-columns :is(.dc-skill,.rate-skill)[class*="skill-box-"]::befor
     <div class="app-menu-version">
       <label>VERSION</label>
       <select id="versionSelect" class="version-select" aria-label="GITADORAバージョン"></select>
-      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 4.12.16</div>
+      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 4.12.17</div>
     </div>
   </div>
 </div>
@@ -12387,7 +12396,7 @@ body.skill-target-columns :is(.dc-skill,.rate-skill)[class*="skill-box-"]::befor
 <div id="adminModal" class="admin-modal">
   <div class="admin-header">
     <div class="admin-title-row">
-      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 4.12.16</div></div>
+      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 4.12.17</div></div>
       <button id="btnCloseAdmin" class="admin-close">閉じる</button>
     </div>
     <div class="admin-tabs">
@@ -12525,7 +12534,7 @@ body.skill-target-columns :is(.dc-skill,.rate-skill)[class*="skill-box-"]::befor
   </div>
 </div>
 
-<script type="module" src="./js/app.js?v=4_12_16"></script>
+<script type="module" src="./js/app.js?v=4_12_17"></script>
 <script src="./js/version-check.js?v=4_10_0" defer></script>
 </body>
 </html>
