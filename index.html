@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>GITADORA Skill Simulator</title>
-<meta name="app-version" content="4.12.12">
+<meta name="app-version" content="4.12.14">
 <link rel="icon" type="image/svg+xml" href="./favicon.svg?v=21_7">
 <link rel="icon" type="image/png" sizes="48x48" href="./favicon-48x48.png?v=21_7">
 <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32x32.png?v=21_7">
@@ -11548,6 +11548,53 @@ body.light-mode .rate-compare-dialog .rate-skill[class*="skill-box-"]{
 body.skill-target-columns #viewAllManage .dc-card-manage .dc-edit .m-action-btn.btn-e{
   padding:1px 6px 0 !important;
 }
+
+/* スキル値を「外側のカラー帯」と「内側の枠＋数字」に分離する。 */
+:is(.dc-skill,.rate-skill)[class*="skill-box-"]{
+  padding:0 !important;
+  border-top:0 !important;
+  border-bottom:0 !important;
+  overflow:hidden !important;
+}
+.dc-card .dc-skill,
+.rate-compare-dialog .rate-skill[class*="skill-box-"]{
+  height:26px !important;
+  min-height:26px !important;
+  max-height:26px !important;
+}
+body.skill-target-columns :is(#viewAllManage,#userDetailRecords) .dc-card-manage .dc-skill[class*="skill-box-"]{
+  height:21px !important;
+  min-height:21px !important;
+  max-height:21px !important;
+}
+:is(.dc-skill,.rate-skill) > .dc-skill-value{
+  flex:1 1 auto;
+  align-self:stretch;
+  min-width:0;
+  margin:0 5px;
+  padding:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  position:static !important;
+  top:auto !important;
+  box-sizing:border-box;
+  background:#101827;
+  border-top:1px solid #334155;
+  border-bottom:1px solid #334155;
+  color:inherit;
+  -webkit-text-fill-color:inherit;
+  line-height:1;
+}
+body.light-mode :is(.dc-skill,.rate-skill) > .dc-skill-value{
+  background:#f3f4f6;
+  border-top-color:#cbd5e1;
+  border-bottom-color:#cbd5e1;
+}
+body.skill-target-columns :is(#viewAllManage,#userDetailRecords) .dc-card-manage .dc-skill[class*="skill-box-"]::before{
+  display:none !important;
+  content:none !important;
+}
 </style>
   <link rel="preconnect" href="https://challenges.cloudflare.com">
   <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" defer></script>
@@ -11881,7 +11928,7 @@ body.skill-target-columns #viewAllManage .dc-card-manage .dc-edit .m-action-btn.
     <div class="app-menu-version">
       <label>VERSION</label>
       <select id="versionSelect" class="version-select" aria-label="GITADORAバージョン"></select>
-      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 4.12.12</div>
+      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 4.12.14</div>
     </div>
   </div>
 </div>
@@ -12337,7 +12384,7 @@ body.skill-target-columns #viewAllManage .dc-card-manage .dc-edit .m-action-btn.
 <div id="adminModal" class="admin-modal">
   <div class="admin-header">
     <div class="admin-title-row">
-      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 4.12.12</div></div>
+      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 4.12.14</div></div>
       <button id="btnCloseAdmin" class="admin-close">閉じる</button>
     </div>
     <div class="admin-tabs">
@@ -12475,7 +12522,7 @@ body.skill-target-columns #viewAllManage .dc-card-manage .dc-edit .m-action-btn.
   </div>
 </div>
 
-<script type="module" src="./js/app.js?v=4_12_12"></script>
+<script type="module" src="./js/app.js?v=4_12_14"></script>
 <script src="./js/version-check.js?v=4_10_0" defer></script>
 </body>
 </html>

@@ -3597,7 +3597,7 @@ function createCard(record, index, mode = 'MANAGE') {
         ${record.song_id ? `data-compare-song="${record.song_id}" data-compare-title="${esc(record.title)}" data-compare-part="${esc(record.part)}" data-compare-edit-score="${record.score_id}"` : ''}>
         <div class="dc-part">${partMarkup}</div>
         <div class="dc-title smart-song-title" data-full-title="${esc(record.title)}">${titleMarkup}</div>
-        <div class="dc-skill dc-skill-span ${boxColor}">${formatSkill(skill)}</div>
+        <div class="dc-skill dc-skill-span ${boxColor}"><span class="dc-skill-value">${formatSkill(skill)}</span></div>
 
         <div class="dc-fc">${fcBadge}</div>
         <div class="dc-lv"><span class="dc-field-label">Lv</span><strong>${formatLevel(record.level)}</strong></div>
@@ -3612,7 +3612,7 @@ function createCard(record, index, mode = 'MANAGE') {
         ${record.song_id ? `data-compare-song="${record.song_id}" data-compare-title="${esc(record.title)}" data-compare-part="${esc(record.part)}"` : ''}>
         <div class="dc-part">${partMarkup}</div>
         <div class="dc-title smart-song-title" data-full-title="${esc(record.title)}">${titleMarkup}</div>
-        <div class="dc-skill ${boxColor}">${formatSkill(skill)}</div>
+        <div class="dc-skill ${boxColor}"><span class="dc-skill-value">${formatSkill(skill)}</span></div>
 
         <div class="dc-fc">${fcBadge}</div>
         <div class="dc-lv">Lv <strong>${formatLevel(record.level)}</strong></div>
@@ -3626,7 +3626,7 @@ function createCard(record, index, mode = 'MANAGE') {
       ${record.song_id ? `data-compare-song="${record.song_id}" data-compare-title="${esc(record.title)}" data-compare-part="${esc(record.part)}"` : ''}>
       <div class="dc-part">${partMarkup}</div>
       <div class="dc-title smart-song-title" data-full-title="${esc(record.title)}">${titleMarkup}</div>
-      <div class="dc-skill ${boxColor}">${formatSkill(skill)}</div>
+      <div class="dc-skill ${boxColor}"><span class="dc-skill-value">${formatSkill(skill)}</span></div>
 
       <div class="dc-fc">${fcBadge}</div>
       <div class="dc-lv">Lv <strong>${formatLevel(record.level)}</strong></div>
@@ -4658,7 +4658,7 @@ async function openRateComparison(songId, title, part, editScoreId = null) {
               </div>
             </div>
             <div class="rate-value">${formatRate(row.achievement_rate)}%</div>
-            <div class="rate-skill ${compareSkillClass}">${formatSkill(row.skill)}</div>
+            <div class="rate-skill ${compareSkillClass}"><span class="dc-skill-value">${formatSkill(row.skill)}</span></div>
           </div>`;
       }).join('')}
     ` : '<div class="empty-state">比較できる記録がありません</div>';
