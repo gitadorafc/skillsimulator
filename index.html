@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>GITADORA Skill Simulator</title>
-<meta name="app-version" content="4.12.24">
+<meta name="app-version" content="4.12.25">
 <link rel="icon" type="image/svg+xml" href="./favicon.svg?v=21_7">
 <link rel="icon" type="image/png" sizes="48x48" href="./favicon-48x48.png?v=21_7">
 <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32x32.png?v=21_7">
@@ -11659,6 +11659,77 @@ body.skill-target-columns :is(
   padding-bottom:0 !important;
   line-height:1 !important;
 }
+
+/* === APP VERSION 4.12.25: ライトモードの背景面を統一 === */
+body.light-mode{
+  --app-light-page-bg:#e5e7eb;
+}
+
+/* 登録・ユーザー一覧の固定操作領域を、周囲のページ背景へ合わせる。 */
+body.light-mode :is(
+  #searchArea,
+  .record-search-row,
+  .record-filter-row,
+  #viewUsers,
+  #viewUsers .user-list-sticky,
+  #viewUsers .users-toolbar,
+  #viewUsers .user-list-header
+){
+  background-color:var(--app-light-page-bg) !important;
+}
+
+/* 9500ユーザー行も通常行と同じ背景・枠にし、スキル文字のカラーだけを残す。 */
+body.light-mode .user-list-row,
+body.light-mode .user-list-row:active,
+body.light-mode .user-list-row.user-list-row-sparkle-rainbow,
+body.light-mode .user-list-row.user-list-row-sparkle-rainbow:active{
+  background:var(--app-light-page-bg) !important;
+  border:1px solid #8b98aa !important;
+  box-shadow:none !important;
+  animation:none !important;
+  filter:none !important;
+}
+
+/* カード本体・カード下の余白・空表示を同じ面色に統一する。 */
+body.light-mode :is(
+  .p-container,
+  #viewSkill,
+  #viewAllManage,
+  #viewUsers,
+  .user-detail-body,
+  .sk-section,
+  .empty-state,
+  .dc-card,
+  .dc-card.dc-card-skill,
+  .dc-card.dc-card-manage,
+  #viewSkill .dc-card,
+  #viewAllManage .m-card,
+  #userDetailSkill .dc-card,
+  #userDetailRecords .m-card
+){
+  background-color:var(--app-light-page-bg) !important;
+  color:#111827 !important;
+}
+body.light-mode :is(
+  .dc-card .dc-skill,
+  .rate-compare-dialog .rate-skill
+)[class*="skill-box-"]{
+  background-color:var(--app-light-page-bg) !important;
+}
+
+/* 白背景＋黒文字だった非選択ボタンもページ背景色へ合わせる。 */
+body.light-mode :is(
+  .p-tab-btn:not(.active),
+  .user-detail-tab:not(.active),
+  #btnRefreshApp,
+  #btnMenu,
+  .favorite-toggle,
+  .user-detail-back
+){
+  background-color:var(--app-light-page-bg) !important;
+  color:#111827 !important;
+  -webkit-text-fill-color:#111827 !important;
+}
 </style>
   <link rel="preconnect" href="https://challenges.cloudflare.com">
   <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" defer></script>
@@ -11992,7 +12063,7 @@ body.skill-target-columns :is(
     <div class="app-menu-version">
       <label>VERSION</label>
       <select id="versionSelect" class="version-select" aria-label="GITADORAバージョン"></select>
-      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 4.12.24</div>
+      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 4.12.25</div>
     </div>
   </div>
 </div>
@@ -12448,7 +12519,7 @@ body.skill-target-columns :is(
 <div id="adminModal" class="admin-modal">
   <div class="admin-header">
     <div class="admin-title-row">
-      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 4.12.24</div></div>
+      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 4.12.25</div></div>
       <button id="btnCloseAdmin" class="admin-close">閉じる</button>
     </div>
     <div class="admin-tabs">
@@ -12586,7 +12657,7 @@ body.skill-target-columns :is(
   </div>
 </div>
 
-<script type="module" src="./js/app.js?v=4_12_24"></script>
+<script type="module" src="./js/app.js?v=4_12_25"></script>
 <script src="./js/version-check.js?v=4_10_0" defer></script>
 </body>
 </html>
