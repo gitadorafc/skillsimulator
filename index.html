@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>GITADORA Skill Simulator</title>
-<meta name="app-version" content="4.13.6">
+<meta name="app-version" content="4.13.7">
 <link rel="icon" type="image/svg+xml" href="./favicon.svg?v=21_7">
 <link rel="icon" type="image/png" sizes="48x48" href="./favicon-48x48.png?v=21_7">
 <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32x32.png?v=21_7">
@@ -12016,22 +12016,42 @@ body.light-mode .own-registered-records-more{
 
 /* === APP VERSION 4.13.5: スキル対象見出しを横並びONのデザインへ統一 === */
 
-/* === APP VERSION 4.13.6: iPhone Safariのカード横帯描画欠けを回避 === */
-/* WebKitのmask合成をカード数分生成せず、通常枠／border-imageで同じ色を描画する。 */
+/* === APP VERSION 4.13.6/7: iPhone Safariのカード横帯描画欠けを回避 === */
+/* 通常カードは疑似要素を生成せず、カード本体の2層背景で枠を描画する。 */
+html.ios-webkit body:not(.light-mode) :is(.m-card,.sk-row){
+  border:2px solid transparent !important;
+  background:
+    linear-gradient(#111827 0 100%) padding-box,
+    var(--song-skill-border,linear-gradient(170deg,#475569 0%,#475569 100%)) border-box !important;
+}
+html.ios-webkit body.light-mode :is(.m-card,.sk-row){
+  border:2px solid transparent !important;
+  background:
+    linear-gradient(var(--app-light-card-bg,#f3f4f6) 0 100%) padding-box,
+    var(--song-skill-border,linear-gradient(170deg,#94a3b8 0%,#94a3b8 100%)) border-box !important;
+}
 html.ios-webkit :is(.m-card,.sk-row)::before{
-  inset:0 !important;
-  padding:0 !important;
-  box-sizing:border-box !important;
-  background:none !important;
-  background-image:none !important;
-  -webkit-mask:none !important;
-  mask:none !important;
-  -webkit-mask-composite:initial !important;
-  mask-composite:initial !important;
-  border:2px solid var(--song-skill-border-solid,#475569) !important;
-  border-image-source:var(--song-skill-border-image,none) !important;
-  border-image-slice:1 !important;
-  pointer-events:none !important;
+  display:none !important;
+}
+/* 9500カードだけは既存の枠明滅を残す。通常カードの大量maskは生成しない。 */
+html.ios-webkit :is(.m-card,.sk-row):has(.skill-box-sparkle-rainbow)::before{
+  display:block !important;
+}
+
+/* === APP VERSION 4.13.7: iPhone Safariの可視領域上端へ固定位置を追従 === */
+:root{
+  --app-visual-viewport-top:0px;
+}
+html.ios-webkit .p-header,
+html.ios-webkit .user-detail-sticky{
+  top:var(--app-visual-viewport-top) !important;
+}
+html.ios-webkit #viewUsers .user-list-sticky{
+  top:calc(
+    var(--app-visual-viewport-top) +
+    var(--app-sticky-header-height) +
+    4px
+  ) !important;
 }
 </style>
   <link rel="preconnect" href="https://challenges.cloudflare.com">
@@ -12366,7 +12386,7 @@ html.ios-webkit :is(.m-card,.sk-row)::before{
     <div class="app-menu-version">
       <label>VERSION</label>
       <select id="versionSelect" class="version-select" aria-label="GITADORAバージョン"></select>
-      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 4.13.6</div>
+      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 4.13.7</div>
     </div>
   </div>
 </div>
@@ -12822,7 +12842,7 @@ html.ios-webkit :is(.m-card,.sk-row)::before{
 <div id="adminModal" class="admin-modal">
   <div class="admin-header">
     <div class="admin-title-row">
-      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 4.13.6</div></div>
+      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 4.13.7</div></div>
       <button id="btnCloseAdmin" class="admin-close">閉じる</button>
     </div>
     <div class="admin-tabs">
@@ -12960,7 +12980,7 @@ html.ios-webkit :is(.m-card,.sk-row)::before{
   </div>
 </div>
 
-<script type="module" src="./js/app.js?v=4_13_6"></script>
+<script type="module" src="./js/app.js?v=4_13_7"></script>
 <script src="./js/version-check.js?v=4_10_0" defer></script>
 </body>
 </html>

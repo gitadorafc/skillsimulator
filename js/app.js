@@ -173,23 +173,15 @@ function installSkillColorCss() {
     // スキル対象・登録曲の「外枠だけ」は170degグラデーションにする。
     // スキル値の左右帯、ヘッダー、共有画像には sidePaint をそのまま使うため影響しない。
     const borderPaint = row.type === 'solid'
-      ? row.color
+      ? `linear-gradient(170deg, ${row.color} 0%, ${row.color} 100%)`
       : `linear-gradient(170deg, ${row.stops.map(([color,pos]) => `${color} ${pos}%`).join(', ')})`;
-    const borderSolid = row.type === 'solid' ? row.color : row.stops[0][0];
-    const borderImage = row.type === 'solid' ? 'none' : borderPaint;
 
     const cardBorderRule =
       `.m-card:has(.skill-box-${row.rank}),` +
-      `.sk-row:has(.skill-box-${row.rank}){` +
-      `--song-skill-border:${borderPaint};` +
-      `--song-skill-border-solid:${borderSolid};` +
-      `--song-skill-border-image:${borderImage};}` +
+      `.sk-row:has(.skill-box-${row.rank}){--song-skill-border:${borderPaint};}` +
       // 9500帯を含め、ライトモードもダークと同じ斜めグラデーション枠を使う。
       `body.light-mode .m-card:has(.skill-box-${row.rank}),` +
-      `body.light-mode .sk-row:has(.skill-box-${row.rank}){` +
-      `--song-skill-border:${borderPaint};` +
-      `--song-skill-border-solid:${borderSolid};` +
-      `--song-skill-border-image:${borderImage};}`;
+      `body.light-mode .sk-row:has(.skill-box-${row.rank}){--song-skill-border:${borderPaint};}`;
 
     return textRule + sparkleTextRule + songBoxRule + sparkleBandRule + cardBorderRule;
   }).join('\n');
@@ -1243,6 +1235,23 @@ function syncAppStickyHeaderHeight() {
   if (!header) return;
   const height = Math.ceil(header.getBoundingClientRect().height);
   document.documentElement.style.setProperty('--app-sticky-header-height', `${height}px`);
+}
+
+let iosVisualViewportSyncFrame = 0;
+function syncIOSVisualViewportTop() {
+  iosVisualViewportSyncFrame = 0;
+  if (!document.documentElement.classList.contains('ios-webkit')) return;
+
+  const offsetTop = Math.max(
+    0,
+    Math.min(160, Math.round(window.visualViewport?.offsetTop || 0))
+  );
+  document.documentElement.style.setProperty('--app-visual-viewport-top', `${offsetTop}px`);
+}
+
+function scheduleIOSVisualViewportSync() {
+  if (iosVisualViewportSyncFrame) return;
+  iosVisualViewportSyncFrame = requestAnimationFrame(syncIOSVisualViewportTop);
 }
 
 function scrollUserListPageToTop() {
@@ -6767,10 +6776,17 @@ requestAnimationFrame(syncGlobalModalScrollLock);
 
 // ヘッダーの実際の高さを使ってユーザーリスト固定位置を決める。
 window.addEventListener('resize', () => {
+  scheduleIOSVisualViewportSync();
   syncAppStickyHeaderHeight();
   syncRegisteredEditButtonWidths();
 });
-window.addEventListener('orientationchange', () => setTimeout(syncAppStickyHeaderHeight, 80));
+window.addEventListener('orientationchange', () => setTimeout(() => {
+  scheduleIOSVisualViewportSync();
+  syncAppStickyHeaderHeight();
+}, 80));
+window.addEventListener('pageshow', scheduleIOSVisualViewportSync);
+window.visualViewport?.addEventListener('resize', scheduleIOSVisualViewportSync);
+window.visualViewport?.addEventListener('scroll', scheduleIOSVisualViewportSync);
 
 const appHeaderResizeObserver = typeof ResizeObserver !== 'undefined'
   ? new ResizeObserver(() => syncAppStickyHeaderHeight())
@@ -6780,6 +6796,7 @@ if (appStickyHeader && appHeaderResizeObserver) {
   appHeaderResizeObserver.observe(appStickyHeader);
 }
 requestAnimationFrame(syncAppStickyHeaderHeight);
+scheduleIOSVisualViewportSync();
 
 applyLightMode();
 
