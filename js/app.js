@@ -1155,6 +1155,7 @@ async function prepareAdminSongPicker() {
 let globalModalScrollY = 0;
 let globalModalScrollLocked = false;
 let globalModalUsedAdminScroller = false;
+let adminAccountScrollEndTimer = null;
 
 const GLOBAL_SCROLL_LOCK_OVERLAYS = [
   '#menuMask',
@@ -1211,6 +1212,15 @@ function scrollMainPageTo(top, behavior = 'auto') {
   window.scrollTo({ top:nextTop, left:0, behavior });
 }
 
+function markAdminAccountScrolling() {
+  if (!document.body.classList.contains('admin-account-layout')) return;
+  document.body.classList.add('admin-account-scrolling');
+  clearTimeout(adminAccountScrollEndTimer);
+  adminAccountScrollEndTimer = setTimeout(() => {
+    document.body.classList.remove('admin-account-scrolling');
+  }, 100);
+}
+
 function applyAdminAccountLayout(enabled) {
   const shouldEnable = Boolean(enabled);
   const wasEnabled = document.body.classList.contains('admin-account-layout');
@@ -1219,6 +1229,10 @@ function applyAdminAccountLayout(enabled) {
   const previousTop = getMainPageScrollTop();
   document.documentElement.classList.toggle('admin-account-layout', shouldEnable);
   document.body.classList.toggle('admin-account-layout', shouldEnable);
+  if (!shouldEnable) {
+    clearTimeout(adminAccountScrollEndTimer);
+    document.body.classList.remove('admin-account-scrolling');
+  }
 
   if (shouldEnable) {
     window.scrollTo({ top:0, left:0, behavior:'auto' });
@@ -4464,6 +4478,7 @@ async function openUserDetail(userId, username) {
   $('userDetailSkill').innerHTML = '<div class="empty-state">読み込み中...</div>';
   $('userDetailRecords').innerHTML = '';
   $('userDetailTabs').classList.add('hidden');
+  document.querySelector('.user-detail-sticky')?.classList.add('user-detail-no-tabs');
   $('userDetailXLink').classList.add('hidden');
   $('userDetailXLink').removeAttribute('href');
   setUserDetailTab('skill');
@@ -4481,9 +4496,11 @@ async function openUserDetail(userId, username) {
     viewedUserProfile = profile;
     renderViewedUserSkill();
 
-    $('userDetailTabs').classList.toggle(
-      'hidden',
-      !Boolean(profile?.registration_public)
+    const recordsPublic = Boolean(profile?.registration_public);
+    $('userDetailTabs').classList.toggle('hidden', !recordsPublic);
+    document.querySelector('.user-detail-sticky')?.classList.toggle(
+      'user-detail-no-tabs',
+      !recordsPublic
     );
 
     const xId = String(profile?.x_id || '').trim();
@@ -6878,6 +6895,15 @@ const appStickyHeader = document.querySelector('.p-header');
 if (appStickyHeader && appHeaderResizeObserver) {
   appHeaderResizeObserver.observe(appStickyHeader);
 }
+
+[
+  document.querySelector('#appScreen > .p-container'),
+  $('userDetailSkill'),
+  $('userDetailRecords'),
+  $('adminBody')
+].filter(Boolean).forEach(scroller => {
+  scroller.addEventListener('scroll', markAdminAccountScrolling, { passive:true });
+});
 requestAnimationFrame(syncAppStickyHeaderHeight);
 
 applyLightMode();

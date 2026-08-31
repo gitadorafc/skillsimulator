@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>GITADORA Skill Simulator</title>
-<meta name="app-version" content="4.13.15">
+<meta name="app-version" content="4.13.16">
 <link rel="icon" type="image/svg+xml" href="./favicon.svg?v=21_7">
 <link rel="icon" type="image/png" sizes="48x48" href="./favicon-48x48.png?v=21_7">
 <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32x32.png?v=21_7">
@@ -12100,6 +12100,8 @@ body.admin-account-layout #appScreen > .p-container{
   overflow-y:auto;
   overscroll-behavior:contain;
   -webkit-overflow-scrolling:touch;
+  contain:paint;
+  isolation:isolate;
 }
 body.admin-account-layout:is(.score-modal-open,.global-modal-scroll-lock) #appScreen > .p-container{
   overflow-y:hidden !important;
@@ -12108,6 +12110,13 @@ body.admin-account-layout:is(.score-modal-open,.global-modal-scroll-lock) #appSc
 /* メインヘッダーがスクロール領域外になった分だけ、一覧内の固定位置を補正する。 */
 body.admin-account-layout #viewUsers .user-list-sticky{
   top:4px !important;
+}
+body.admin-account-layout #viewUsers .user-list-sticky::before{
+  z-index:0 !important;
+}
+body.admin-account-layout #viewUsers .user-list-sticky > *{
+  position:relative !important;
+  z-index:1 !important;
 }
 
 /* ユーザー詳細も固定領域と本文スクロールを分離する。 */
@@ -12128,6 +12137,45 @@ body.admin-account-layout .user-detail-page > .user-detail-body:not(.hidden){
   overflow-y:auto;
   overscroll-behavior:contain;
   -webkit-overflow-scrolling:touch;
+  contain:paint;
+  isolation:isolate;
+}
+
+/* 登録曲非公開でタブが存在しない場合も、固定領域の下端に同じ面を残す。 */
+.user-detail-sticky.user-detail-no-tabs{
+  padding-bottom:6px;
+}
+
+/* 内部スクロール中は高負荷な明滅だけを止め、スクロール停止後に再開する。 */
+body.admin-account-layout.admin-account-scrolling :is(
+  #appScreen > .p-container,
+  .user-detail-body,
+  .admin-body
+) :is(
+  .score-rank-sparkle-rainbow,
+  .user-list-row-sparkle-rainbow,
+  .skill-box-sparkle-rainbow
+){
+  animation-play-state:paused !important;
+}
+body.admin-account-layout.admin-account-scrolling :is(
+  #appScreen > .p-container,
+  .user-detail-body,
+  .admin-body
+) .skill-box-sparkle-rainbow::before,
+body.admin-account-layout.admin-account-scrolling :is(
+  #appScreen > .p-container,
+  .user-detail-body,
+  .admin-body
+) .skill-box-sparkle-rainbow::after{
+  animation-play-state:paused !important;
+}
+body.admin-account-layout.admin-account-scrolling :is(
+  #appScreen > .p-container,
+  .user-detail-body,
+  .admin-body
+) :is(.m-card,.sk-row):has(.skill-box-sparkle-rainbow)::before{
+  animation-play-state:paused !important;
 }
 </style>
   <link rel="preconnect" href="https://challenges.cloudflare.com">
@@ -12462,7 +12510,7 @@ body.admin-account-layout .user-detail-page > .user-detail-body:not(.hidden){
     <div class="app-menu-version">
       <label>VERSION</label>
       <select id="versionSelect" class="version-select" aria-label="GITADORAバージョン"></select>
-      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 4.13.15</div>
+      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 4.13.16</div>
     </div>
   </div>
 </div>
@@ -12918,7 +12966,7 @@ body.admin-account-layout .user-detail-page > .user-detail-body:not(.hidden){
 <div id="adminModal" class="admin-modal">
   <div class="admin-header">
     <div class="admin-title-row">
-      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 4.13.15</div></div>
+      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 4.13.16</div></div>
       <button id="btnCloseAdmin" class="admin-close">閉じる</button>
     </div>
     <div class="admin-tabs">
@@ -13056,7 +13104,7 @@ body.admin-account-layout .user-detail-page > .user-detail-body:not(.hidden){
   </div>
 </div>
 
-<script type="module" src="./js/app.js?v=4_13_15"></script>
+<script type="module" src="./js/app.js?v=4_13_16"></script>
 <script src="./js/version-check.js?v=4_10_0" defer></script>
 </body>
 </html>
