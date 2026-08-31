@@ -1227,6 +1227,12 @@ function syncUserListHeaderVisibility() {
   slot.classList.toggle('hidden', !visible);
 }
 
+function applyAdminCleanLayout(enabled) {
+  const shouldEnable = Boolean(enabled);
+  document.documentElement.classList.toggle('admin-clean-layout', shouldEnable);
+  document.body.classList.toggle('admin-clean-layout', shouldEnable);
+}
+
 function applyAppScrollLayout(enabled) {
   const shouldEnable = Boolean(enabled);
   const wasEnabled = document.body.classList.contains('app-scroll-layout');
@@ -1254,7 +1260,6 @@ function applyAppScrollLayout(enabled) {
     } else if (!$('appScreen').classList.contains('hidden')) {
       window.scrollTo({ top:previousTop, left:0, behavior:'auto' });
     }
-    syncAppStickyHeaderHeight();
   });
 }
 
@@ -1309,13 +1314,6 @@ function syncGlobalModalScrollLock() {
   } else {
     unlockMainPageScroll();
   }
-}
-
-function syncAppStickyHeaderHeight() {
-  const header = document.querySelector('.p-header');
-  if (!header) return;
-  const height = Math.ceil(header.getBoundingClientRect().height);
-  document.documentElement.style.setProperty('--app-sticky-header-height', `${height}px`);
 }
 
 function scrollUserListPageToTop() {
@@ -1953,6 +1951,7 @@ async function init() {
     if (event === 'SIGNED_OUT' || !session) {
       adminEnabled = false;
       adminAccessChecked = false;
+      applyAdminCleanLayout(false);
       applyAppScrollLayout(false);
       updateDmBassMirrorFieldVisibility();
       applyDisplayCustomization(false, false);
@@ -4896,6 +4895,7 @@ async function checkAdminAccess() {
   }
 
   adminAccessChecked = true;
+  applyAdminCleanLayout(adminEnabled);
   $('btnAdmin').classList.toggle('hidden', !adminEnabled);
   $('mypageUserSwitchBlock')?.classList.remove('hidden');
   $('btnMenuSkillRanking')?.classList.remove('hidden');
@@ -6890,20 +6890,9 @@ GLOBAL_SCROLL_LOCK_OVERLAYS.forEach(selector => {
 });
 requestAnimationFrame(syncGlobalModalScrollLock);
 
-// ヘッダーの実際の高さを使ってユーザーリスト固定位置を決める。
 window.addEventListener('resize', () => {
-  syncAppStickyHeaderHeight();
   syncRegisteredEditButtonWidths();
 });
-window.addEventListener('orientationchange', () => setTimeout(syncAppStickyHeaderHeight, 80));
-
-const appHeaderResizeObserver = typeof ResizeObserver !== 'undefined'
-  ? new ResizeObserver(() => syncAppStickyHeaderHeight())
-  : null;
-const appStickyHeader = document.querySelector('.p-header');
-if (appStickyHeader && appHeaderResizeObserver) {
-  appHeaderResizeObserver.observe(appStickyHeader);
-}
 
 [
   document.querySelector('#appScreen > .p-container'),
@@ -6913,8 +6902,6 @@ if (appStickyHeader && appHeaderResizeObserver) {
 ].filter(Boolean).forEach(scroller => {
   scroller.addEventListener('scroll', markAppScrolling, { passive:true });
 });
-requestAnimationFrame(syncAppStickyHeaderHeight);
-
 applyLightMode();
 
 init().catch(err => {
