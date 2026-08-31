@@ -175,13 +175,21 @@ function installSkillColorCss() {
     const borderPaint = row.type === 'solid'
       ? row.color
       : `linear-gradient(170deg, ${row.stops.map(([color,pos]) => `${color} ${pos}%`).join(', ')})`;
+    const borderSolid = row.type === 'solid' ? row.color : row.stops[0][0];
+    const borderImage = row.type === 'solid' ? 'none' : borderPaint;
 
     const cardBorderRule =
       `.m-card:has(.skill-box-${row.rank}),` +
-      `.sk-row:has(.skill-box-${row.rank}){--song-skill-border:${borderPaint};}` +
+      `.sk-row:has(.skill-box-${row.rank}){` +
+      `--song-skill-border:${borderPaint};` +
+      `--song-skill-border-solid:${borderSolid};` +
+      `--song-skill-border-image:${borderImage};}` +
       // 9500帯を含め、ライトモードもダークと同じ斜めグラデーション枠を使う。
       `body.light-mode .m-card:has(.skill-box-${row.rank}),` +
-      `body.light-mode .sk-row:has(.skill-box-${row.rank}){--song-skill-border:${borderPaint};}`;
+      `body.light-mode .sk-row:has(.skill-box-${row.rank}){` +
+      `--song-skill-border:${borderPaint};` +
+      `--song-skill-border-solid:${borderSolid};` +
+      `--song-skill-border-image:${borderImage};}`;
 
     return textRule + sparkleTextRule + songBoxRule + sparkleBandRule + cardBorderRule;
   }).join('\n');

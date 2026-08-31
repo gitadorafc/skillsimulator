@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>GITADORA Skill Simulator</title>
-<meta name="app-version" content="4.13.5">
+<meta name="app-version" content="4.13.6">
 <link rel="icon" type="image/svg+xml" href="./favicon.svg?v=21_7">
 <link rel="icon" type="image/png" sizes="48x48" href="./favicon-48x48.png?v=21_7">
 <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32x32.png?v=21_7">
@@ -28,6 +28,13 @@
       document.documentElement.classList.add('light-mode');
       document.querySelector('meta[name="theme-color"]')?.setAttribute('content', '#f8fafc');
     } catch (_) {}
+  })();
+
+  // iPhone / iPadのWebKitでは、多数のmask合成がスクロール中の横帯欠けを起こすため識別する。
+  (() => {
+    const ua = navigator.userAgent || '';
+    const isIOSWebKit = /iP(?:hone|ad|od)/.test(ua) && /AppleWebKit/.test(ua);
+    document.documentElement.classList.toggle('ios-webkit', isIOSWebKit);
   })();
 </script>
 
@@ -12008,6 +12015,24 @@ body.light-mode .own-registered-records-more{
 /* === APP VERSION 4.13.4: 登録曲の段階表示件数を表示方式別に切替 === */
 
 /* === APP VERSION 4.13.5: スキル対象見出しを横並びONのデザインへ統一 === */
+
+/* === APP VERSION 4.13.6: iPhone Safariのカード横帯描画欠けを回避 === */
+/* WebKitのmask合成をカード数分生成せず、通常枠／border-imageで同じ色を描画する。 */
+html.ios-webkit :is(.m-card,.sk-row)::before{
+  inset:0 !important;
+  padding:0 !important;
+  box-sizing:border-box !important;
+  background:none !important;
+  background-image:none !important;
+  -webkit-mask:none !important;
+  mask:none !important;
+  -webkit-mask-composite:initial !important;
+  mask-composite:initial !important;
+  border:2px solid var(--song-skill-border-solid,#475569) !important;
+  border-image-source:var(--song-skill-border-image,none) !important;
+  border-image-slice:1 !important;
+  pointer-events:none !important;
+}
 </style>
   <link rel="preconnect" href="https://challenges.cloudflare.com">
   <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" defer></script>
@@ -12341,7 +12366,7 @@ body.light-mode .own-registered-records-more{
     <div class="app-menu-version">
       <label>VERSION</label>
       <select id="versionSelect" class="version-select" aria-label="GITADORAバージョン"></select>
-      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 4.13.5</div>
+      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 4.13.6</div>
     </div>
   </div>
 </div>
@@ -12797,7 +12822,7 @@ body.light-mode .own-registered-records-more{
 <div id="adminModal" class="admin-modal">
   <div class="admin-header">
     <div class="admin-title-row">
-      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 4.13.5</div></div>
+      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 4.13.6</div></div>
       <button id="btnCloseAdmin" class="admin-close">閉じる</button>
     </div>
     <div class="admin-tabs">
@@ -12935,7 +12960,7 @@ body.light-mode .own-registered-records-more{
   </div>
 </div>
 
-<script type="module" src="./js/app.js?v=4_13_5"></script>
+<script type="module" src="./js/app.js?v=4_13_6"></script>
 <script src="./js/version-check.js?v=4_10_0" defer></script>
 </body>
 </html>
