@@ -206,15 +206,13 @@ function skillColorCanvasPaint(ctx, row, left, top, width, height) {
 function skillColorCanvasVerticalPaint(ctx, row, left, top, width, height) {
   if (!row) return '#ffffff';
 
-  const g = ctx.createLinearGradient(left, top, left, top + height);
-
-  // 単色ランクも画面と同条件:
-  // 上 = ランク色 / 下 = 白
+  // 単色ランクは画面表示と同じ完全な単色にする。
+  // 白へのグラデーションは次の500刻みのグラデーション帯だけに適用する。
   if (row.type === 'solid') {
-    g.addColorStop(0, row.color);
-    g.addColorStop(1, '#ffffff');
-    return g;
+    return row.color;
   }
+
+  const g = ctx.createLinearGradient(left, top, left, top + height);
 
   // 9500帯は9000帯の配色を維持しながら、帯と枠の内部に白い輝きを挟む。
   if (row.rank === 'sparkle-rainbow') {
