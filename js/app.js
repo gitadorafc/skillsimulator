@@ -1227,12 +1227,6 @@ function syncUserListHeaderVisibility() {
   slot.classList.toggle('hidden', !visible);
 }
 
-function applyAdminCleanLayout(enabled) {
-  const shouldEnable = Boolean(enabled);
-  document.documentElement.classList.toggle('admin-clean-layout', shouldEnable);
-  document.body.classList.toggle('admin-clean-layout', shouldEnable);
-}
-
 function applyAppScrollLayout(enabled) {
   const shouldEnable = Boolean(enabled);
   const wasEnabled = document.body.classList.contains('app-scroll-layout');
@@ -1951,7 +1945,6 @@ async function init() {
     if (event === 'SIGNED_OUT' || !session) {
       adminEnabled = false;
       adminAccessChecked = false;
-      applyAdminCleanLayout(false);
       applyAppScrollLayout(false);
       updateDmBassMirrorFieldVisibility();
       applyDisplayCustomization(false, false);
@@ -3701,10 +3694,10 @@ function createCard(record, index, mode = 'MANAGE') {
         ${record.song_id ? `data-compare-song="${record.song_id}" data-compare-title="${esc(record.title)}" data-compare-part="${esc(record.part)}"` : ''}>
         <div class="dc-part">${partMarkup}</div>
         <div class="dc-title smart-song-title" data-full-title="${esc(record.title)}">${titleMarkup}</div>
-        <div class="dc-skill ${boxColor}"><span class="dc-skill-value">${formatSkill(skill)}</span></div>
+        <div class="dc-skill dc-skill-span ${boxColor}"><span class="dc-skill-value">${formatSkill(skill)}</span></div>
 
         <div class="dc-fc">${fcBadge}</div>
-        <div class="dc-lv">Lv <strong>${formatLevel(record.level)}</strong></div>
+        <div class="dc-lv"><span class="dc-field-label">Lv</span><strong>${formatLevel(record.level)}</strong></div>
         <div class="dc-rate"><span class="dc-field-label">達成率 </span><strong>${formatRate(record.achievement_rate)}%</strong></div>
         <div class="dc-option">${optionBadge}</div>
       </div>`;
@@ -4494,7 +4487,7 @@ async function openUserDetail(userId, username) {
   $('userDetailXLink').removeAttribute('href');
   setUserDetailTab('skill');
   const detailPage = $('userDetailPage');
-  detailPage.classList.add('admin-clean-detail-open');
+  detailPage.classList.add('user-detail-open');
   detailPage.style.display = 'flex';
 
   try {
@@ -4529,7 +4522,7 @@ async function openUserDetail(userId, username) {
 
 function closeUserDetail() {
   const detailPage = $('userDetailPage');
-  detailPage.classList.remove('admin-clean-detail-open');
+  detailPage.classList.remove('user-detail-open');
   detailPage.style.display = 'none';
   viewedUserScores = [];
   viewedUserRegisteredScores = [];
@@ -4899,7 +4892,6 @@ async function checkAdminAccess() {
   }
 
   adminAccessChecked = true;
-  applyAdminCleanLayout(adminEnabled);
   $('btnAdmin').classList.toggle('hidden', !adminEnabled);
   $('mypageUserSwitchBlock')?.classList.remove('hidden');
   $('btnMenuSkillRanking')?.classList.remove('hidden');
