@@ -1237,23 +1237,6 @@ function syncAppStickyHeaderHeight() {
   document.documentElement.style.setProperty('--app-sticky-header-height', `${height}px`);
 }
 
-let iosVisualViewportSyncFrame = 0;
-function syncIOSVisualViewportTop() {
-  iosVisualViewportSyncFrame = 0;
-  if (!document.documentElement.classList.contains('ios-webkit')) return;
-
-  const offsetTop = Math.max(
-    0,
-    Math.min(160, Math.round(window.visualViewport?.offsetTop || 0))
-  );
-  document.documentElement.style.setProperty('--app-visual-viewport-top', `${offsetTop}px`);
-}
-
-function scheduleIOSVisualViewportSync() {
-  if (iosVisualViewportSyncFrame) return;
-  iosVisualViewportSyncFrame = requestAnimationFrame(syncIOSVisualViewportTop);
-}
-
 function scrollUserListPageToTop() {
   const sticky = document.querySelector('#viewUsers .user-list-sticky');
   const header = document.querySelector('.p-header');
@@ -6776,17 +6759,10 @@ requestAnimationFrame(syncGlobalModalScrollLock);
 
 // ヘッダーの実際の高さを使ってユーザーリスト固定位置を決める。
 window.addEventListener('resize', () => {
-  scheduleIOSVisualViewportSync();
   syncAppStickyHeaderHeight();
   syncRegisteredEditButtonWidths();
 });
-window.addEventListener('orientationchange', () => setTimeout(() => {
-  scheduleIOSVisualViewportSync();
-  syncAppStickyHeaderHeight();
-}, 80));
-window.addEventListener('pageshow', scheduleIOSVisualViewportSync);
-window.visualViewport?.addEventListener('resize', scheduleIOSVisualViewportSync);
-window.visualViewport?.addEventListener('scroll', scheduleIOSVisualViewportSync);
+window.addEventListener('orientationchange', () => setTimeout(syncAppStickyHeaderHeight, 80));
 
 const appHeaderResizeObserver = typeof ResizeObserver !== 'undefined'
   ? new ResizeObserver(() => syncAppStickyHeaderHeight())
@@ -6796,7 +6772,6 @@ if (appStickyHeader && appHeaderResizeObserver) {
   appHeaderResizeObserver.observe(appStickyHeader);
 }
 requestAnimationFrame(syncAppStickyHeaderHeight);
-scheduleIOSVisualViewportSync();
 
 applyLightMode();
 

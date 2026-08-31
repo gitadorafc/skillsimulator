@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>GITADORA Skill Simulator</title>
-<meta name="app-version" content="4.13.9">
+<meta name="app-version" content="4.13.10">
 <link rel="icon" type="image/svg+xml" href="./favicon.svg?v=21_7">
 <link rel="icon" type="image/png" sizes="48x48" href="./favicon-48x48.png?v=21_7">
 <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32x32.png?v=21_7">
@@ -30,7 +30,7 @@
     } catch (_) {}
   })();
 
-  // iPhone / iPadのWebKitでVisual Viewportへ固定位置を追従させるため識別する。
+  // iPhone / iPadのWebKitで最下部のオーバースクロールを抑止するため識別する。
   (() => {
     const ua = navigator.userAgent || '';
     const isIOSWebKit = /iP(?:hone|ad|od)/.test(ua) && /AppleWebKit/.test(ua);
@@ -12016,27 +12016,17 @@ body.light-mode .own-registered-records-more{
 
 /* === APP VERSION 4.13.5: スキル対象見出しを横並びONのデザインへ統一 === */
 
-/* === APP VERSION 4.13.7: iPhone Safariの可視領域上端へ固定位置を追従 === */
-:root{
-  --app-visual-viewport-top:0px;
-}
-html.ios-webkit .p-header,
-html.ios-webkit .user-detail-sticky{
-  top:var(--app-visual-viewport-top) !important;
-}
-html.ios-webkit #viewUsers .user-list-sticky{
-  top:calc(
-    var(--app-visual-viewport-top) +
-    var(--app-sticky-header-height) +
-    4px
-  ) !important;
-}
-
 /* === APP VERSION 4.13.8: カード枠を4.13.5以前の描画へ復元 === */
 
 /* === APP VERSION 4.13.9: 横並び時のHOT／OTHER見出し上端を揃える === */
 body.skill-target-columns #viewSkill > .sk-section > h2{
   margin-top:0 !important;
+}
+
+/* === APP VERSION 4.13.10: iPhone Safari最下部バウンド時の固定ずれを防止 === */
+html.ios-webkit,
+html.ios-webkit body{
+  overscroll-behavior-y:none;
 }
 </style>
   <link rel="preconnect" href="https://challenges.cloudflare.com">
@@ -12371,7 +12361,7 @@ body.skill-target-columns #viewSkill > .sk-section > h2{
     <div class="app-menu-version">
       <label>VERSION</label>
       <select id="versionSelect" class="version-select" aria-label="GITADORAバージョン"></select>
-      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 4.13.9</div>
+      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 4.13.10</div>
     </div>
   </div>
 </div>
@@ -12827,7 +12817,7 @@ body.skill-target-columns #viewSkill > .sk-section > h2{
 <div id="adminModal" class="admin-modal">
   <div class="admin-header">
     <div class="admin-title-row">
-      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 4.13.9</div></div>
+      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 4.13.10</div></div>
       <button id="btnCloseAdmin" class="admin-close">閉じる</button>
     </div>
     <div class="admin-tabs">
@@ -12965,7 +12955,7 @@ body.skill-target-columns #viewSkill > .sk-section > h2{
   </div>
 </div>
 
-<script type="module" src="./js/app.js?v=4_13_9"></script>
+<script type="module" src="./js/app.js?v=4_13_10"></script>
 <script src="./js/version-check.js?v=4_10_0" defer></script>
 </body>
 </html>
