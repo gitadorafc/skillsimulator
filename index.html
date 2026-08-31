@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>GITADORA Skill Simulator</title>
-<meta name="app-version" content="4.13.12">
+<meta name="app-version" content="4.13.13">
 <link rel="icon" type="image/svg+xml" href="./favicon.svg?v=21_7">
 <link rel="icon" type="image/png" sizes="48x48" href="./favicon-48x48.png?v=21_7">
 <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32x32.png?v=21_7">
@@ -12062,6 +12062,14 @@ html.ios-webkit body{
 .user-detail-body{
   padding-bottom:var(--app-page-bottom-space) !important;
 }
+
+/* === APP VERSION 4.13.13: ダークモード登録タブの背景色を統一 === */
+body:not(.light-mode) #viewAllManage,
+body:not(.light-mode) #viewAllManage .own-registered-records-more{
+  background:#0b1220 !important;
+  background-color:#0b1220 !important;
+  background-image:none !important;
+}
 </style>
   <link rel="preconnect" href="https://challenges.cloudflare.com">
   <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" defer></script>
@@ -12395,7 +12403,7 @@ html.ios-webkit body{
     <div class="app-menu-version">
       <label>VERSION</label>
       <select id="versionSelect" class="version-select" aria-label="GITADORAバージョン"></select>
-      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 4.13.12</div>
+      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 4.13.13</div>
     </div>
   </div>
 </div>
@@ -12851,7 +12859,7 @@ html.ios-webkit body{
 <div id="adminModal" class="admin-modal">
   <div class="admin-header">
     <div class="admin-title-row">
-      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 4.13.12</div></div>
+      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 4.13.13</div></div>
       <button id="btnCloseAdmin" class="admin-close">閉じる</button>
     </div>
     <div class="admin-tabs">
@@ -12989,7 +12997,7 @@ html.ios-webkit body{
   </div>
 </div>
 
-<script type="module" src="./js/app.js?v=4_13_12"></script>
+<script type="module" src="./js/app.js?v=4_13_13"></script>
 <script src="./js/version-check.js?v=4_10_0" defer></script>
 </body>
 </html>
