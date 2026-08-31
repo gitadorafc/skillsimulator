@@ -4901,7 +4901,7 @@ async function adminBulkDeleteCurrentScores() {
 
 async function openAdmin() {
   if (!adminEnabled) return;
-  $('adminModal').style.display = 'block';
+  $('adminModal').style.display = 'flex';
   await switchAdminTab('songs');
 }
 
@@ -5082,7 +5082,7 @@ async function loadAdminSongs() {
       if (!Number.isInteger(nextPage) || nextPage < 0 || nextPage >= totalPages) return;
       adminSongPage = nextPage;
       await loadAdminSongs();
-      $('adminModal').scrollTo({ top:0, left:0, behavior:'auto' });
+      $('adminBody').scrollTo({ top:0, left:0, behavior:'auto' });
     });
 
     pager?.addEventListener('change', async event => {
@@ -5092,7 +5092,7 @@ async function loadAdminSongs() {
       if (!Number.isInteger(nextPage) || nextPage < 0 || nextPage >= totalPages) return;
       adminSongPage = nextPage;
       await loadAdminSongs();
-      $('adminModal').scrollTo({ top:0, left:0, behavior:'auto' });
+      $('adminBody').scrollTo({ top:0, left:0, behavior:'auto' });
     });
   } catch (e) {
     $('adminBody').innerHTML = `<div class="empty-state">取得失敗: ${esc(e.message)}</div>`;

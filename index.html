@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>GITADORA Skill Simulator</title>
-<meta name="app-version" content="4.13.13">
+<meta name="app-version" content="4.13.14">
 <link rel="icon" type="image/svg+xml" href="./favicon.svg?v=21_7">
 <link rel="icon" type="image/png" sizes="48x48" href="./favicon-48x48.png?v=21_7">
 <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32x32.png?v=21_7">
@@ -339,8 +339,8 @@ body { background:#0b1220; }
 .danger-zone { margin-top:22px; padding-top:14px; border-top:1px solid #e5e7eb; }
 .btn-danger-wide { width:100%; min-height:44px; border:1px solid #fecaca; background:#fef2f2; color:#b91c1c; border-radius:8px; font-weight:900; }
 
-.admin-modal { position:fixed; inset:0; z-index:1200; display:none; background:#0b1220; color:#f8fafc; overflow:auto; }
-.admin-header { position:sticky; top:0; z-index:5; background:#0f172a; padding:10px; border-bottom:1px solid #1e293b; }
+.admin-modal { position:fixed; inset:0; z-index:1200; display:none; flex-direction:column; min-height:0; height:100dvh; background:#0b1220; color:#f8fafc; overflow:hidden; }
+.admin-header { position:relative; z-index:5; flex:0 0 auto; background:#0f172a; padding:10px; border-bottom:1px solid #1e293b; }
 .admin-title-row { display:flex; gap:8px; align-items:center; }
 .admin-title { flex:1; font-size:17px; font-weight:900; }
 .admin-close { border:0; background:#334155; color:#fff; border-radius:7px; padding:8px 11px; font-weight:bold; }
@@ -350,7 +350,7 @@ body { background:#0b1220; }
 .admin-toolbar { display:flex; gap:6px; margin-top:8px; }
 .admin-toolbar input { flex:1; min-height:42px; background:#111827; border:1px solid #334155; color:#fff; border-radius:7px; padding:8px; }
 .admin-toolbar button { border:0; border-radius:7px; background:#3b82f6; color:#fff; padding:0 12px; font-weight:900; }
-.admin-body { padding:8px; }
+.admin-body { flex:1 1 auto; min-height:0; padding:8px; overflow-y:auto; overscroll-behavior:contain; -webkit-overflow-scrolling:touch; }
 .admin-card { background:#fff; color:#111827; border-radius:8px; padding:10px; margin-bottom:7px; box-shadow:0 1px 3px rgba(0,0,0,.25); }
 .admin-card-top { display:flex; align-items:center; gap:6px; }
 .admin-card-title { flex:1; min-width:0; font-weight:900; font-size:13px; word-break:break-all; }
@@ -12403,7 +12403,7 @@ body:not(.light-mode) #viewAllManage .own-registered-records-more{
     <div class="app-menu-version">
       <label>VERSION</label>
       <select id="versionSelect" class="version-select" aria-label="GITADORAバージョン"></select>
-      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 4.13.13</div>
+      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 4.13.14</div>
     </div>
   </div>
 </div>
@@ -12859,7 +12859,7 @@ body:not(.light-mode) #viewAllManage .own-registered-records-more{
 <div id="adminModal" class="admin-modal">
   <div class="admin-header">
     <div class="admin-title-row">
-      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 4.13.13</div></div>
+      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 4.13.14</div></div>
       <button id="btnCloseAdmin" class="admin-close">閉じる</button>
     </div>
     <div class="admin-tabs">
@@ -12997,7 +12997,7 @@ body:not(.light-mode) #viewAllManage .own-registered-records-more{
   </div>
 </div>
 
-<script type="module" src="./js/app.js?v=4_13_13"></script>
+<script type="module" src="./js/app.js?v=4_13_14"></script>
 <script src="./js/version-check.js?v=4_10_0" defer></script>
 </body>
 </html>
