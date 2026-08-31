@@ -984,7 +984,7 @@ async function deleteMasterSongTitle(title) {
   if (error) throw error;
 }
 
-import * as adminApi from './admin.js?v=4_12_5';
+import * as adminApi from './admin.js?v=4_13_12';
 import { listUserSummaries, getUserSkillTargets, getSongRateComparison, getSongPersonalBestHistory, getSongOptionDistribution, getMyFavorites, addFavorite, removeFavorite } from './users.js?v=3_6_0';
 
 let activeInstrument = localStorage.getItem('gitadora_instrument') === 'DM' ? 'DM' : 'GF';
@@ -5131,22 +5131,29 @@ async function loadAdminRequests() {
           <span class="pending-badge">${req.request_type === 'level_correction' ? '難易度修正' : '新規曲'}</span>
         </div>
         <div class="admin-card-meta">
-          <span>${esc(req.part)}</span>
+          <span>依頼パート: ${esc(req.part)}</span>
           ${req.request_type === 'level_correction' ? `<span>現在: ${formatLevel(req.current_level)}</span>` : ''}
           <span>依頼者: ${esc(req.profiles?.username || '-')}</span>
           <span>${new Date(req.created_at).toLocaleString('ja-JP')}</span>
         </div>
-        <div style="margin-top:8px;">
-          <label style="display:block;font-size:10px;font-weight:900;color:#64748b;margin-bottom:3px;">
-            承認する難易度（修正可）
-          </label>
-          <input
-            id="requestLevel_${req.id}"
-            class="request-level-edit"
-            type="text"
-            inputmode="decimal"
-            autocomplete="off"
-            value="${formatLevel(req.proposed_level)}">
+        <div class="request-edit-fields">
+          ${req.request_type === 'new_song' ? `
+            <div class="request-edit-field">
+              <label for="requestPart_${req.id}">承認するパート（修正可）</label>
+              <select id="requestPart_${req.id}" class="request-part-edit">
+                ${PARTS.map(part => `<option value="${part}"${part === req.part ? ' selected' : ''}>${part}</option>`).join('')}
+              </select>
+            </div>` : ''}
+          <div class="request-edit-field">
+            <label for="requestLevel_${req.id}">承認する難易度（修正可）</label>
+            <input
+              id="requestLevel_${req.id}"
+              class="request-level-edit"
+              type="text"
+              inputmode="decimal"
+              autocomplete="off"
+              value="${formatLevel(req.proposed_level)}">
+          </div>
         </div>
         <div class="request-actions">
           <button class="request-approve" data-admin-approve-request="${req.id}">修正して承認</button>
@@ -5156,6 +5163,41 @@ async function loadAdminRequests() {
       </div>`).join('') || '<div class="empty-state">未処理の登録依頼はありません</div>';
   } catch (e) {
     $('adminBody').innerHTML = `<div class="empty-state">取得失敗: ${esc(e.message)}</div>`;
+  }
+}
+
+async function approveEditedNewSongRequest(requestId, req, title, part, level, isHot) {
+  const partChanged = part !== req.part;
+
+  if (partChanged) {
+    const { data, error } = await supabase
+      .from('song_requests')
+      .update({ part })
+      .eq('id', requestId)
+      .eq('status', 'pending')
+      .select('id')
+      .maybeSingle();
+    if (error) throw error;
+    if (!data) throw new Error('対象の登録依頼が見つかりません。');
+  }
+
+  try {
+    const { error } = await supabase.rpc('approve_song_request_with_title', {
+      p_request_id: requestId,
+      p_title: title,
+      p_level: level,
+      p_is_hot: isHot
+    });
+    if (error) throw error;
+  } catch (error) {
+    if (partChanged) {
+      await supabase
+        .from('song_requests')
+        .update({ part: req.part })
+        .eq('id', requestId)
+        .eq('status', 'pending');
+    }
+    throw error;
   }
 }
 
@@ -6474,29 +6516,29 @@ document.addEventListener('click', async e => {
       const title = req?.request_type === 'level_correction'
         ? req.title
         : ($(`requestTitle_${requestId}`)?.value || '').trim();
+      const part = req?.request_type === 'level_correction'
+        ? req.part
+        : ($(`requestPart_${requestId}`)?.value || '');
 
       const numericLevel = Number(level);
       if (!title) throw new Error('承認する曲名を入力してください。');
+      if (!PARTS.includes(part)) throw new Error('承認するパートを選択してください。');
       if (!Number.isFinite(numericLevel) || numericLevel <= 0 || numericLevel > 9.99) {
         throw new Error('難易度は0.01～9.99の範囲で入力してください。');
       }
 
-      const changed = Boolean(req && title !== req.title);
-      const confirmText = changed
-        ? `曲名を「${req.title}」から「${title}」へ修正して、OTHERとして承認しますか？`
+      const changes = [];
+      if (req && title !== req.title) changes.push(`曲名を「${req.title}」から「${title}」へ`);
+      if (req && part !== req.part) changes.push(`パートを「${req.part}」から「${part}」へ`);
+      const confirmText = changes.length
+        ? `${changes.join('、')}修正して、OTHERとして承認しますか？`
         : 'この登録依頼をOTHERとして承認しますか？';
       if (!await showSiteConfirm(confirmText, '登録依頼の承認', '承認する')) return;
 
       if (req?.request_type === 'level_correction') {
         await approveSongRequest(requestId, level, false);
       } else {
-        const { error } = await supabase.rpc('approve_song_request_with_title', {
-          p_request_id: requestId,
-          p_title: title,
-          p_level: numericLevel,
-          p_is_hot: false
-        });
-        if (error) throw error;
+        await approveEditedNewSongRequest(requestId, req, title, part, numericLevel, false);
       }
       await loadAdminRequests();
     } catch (e) {
@@ -6512,29 +6554,29 @@ document.addEventListener('click', async e => {
       const title = req?.request_type === 'level_correction'
         ? req.title
         : ($(`requestTitle_${requestId}`)?.value || '').trim();
+      const part = req?.request_type === 'level_correction'
+        ? req.part
+        : ($(`requestPart_${requestId}`)?.value || '');
 
       const numericLevel = Number(level);
       if (!title) throw new Error('承認する曲名を入力してください。');
+      if (!PARTS.includes(part)) throw new Error('承認するパートを選択してください。');
       if (!Number.isFinite(numericLevel) || numericLevel <= 0 || numericLevel > 9.99) {
         throw new Error('難易度は0.01～9.99の範囲で入力してください。');
       }
 
-      const changed = Boolean(req && title !== req.title);
-      const confirmText = changed
-        ? `曲名を「${req.title}」から「${title}」へ修正して、HOT曲として承認しますか？`
+      const changes = [];
+      if (req && title !== req.title) changes.push(`曲名を「${req.title}」から「${title}」へ`);
+      if (req && part !== req.part) changes.push(`パートを「${req.part}」から「${part}」へ`);
+      const confirmText = changes.length
+        ? `${changes.join('、')}修正して、HOT曲として承認しますか？`
         : 'この登録依頼をHOT曲として承認しますか？';
       if (!await showSiteConfirm(confirmText, 'HOT承認', '承認する')) return;
 
       if (req?.request_type === 'level_correction') {
         await approveSongRequest(requestId, level, true);
       } else {
-        const { error } = await supabase.rpc('approve_song_request_with_title', {
-          p_request_id: requestId,
-          p_title: title,
-          p_level: numericLevel,
-          p_is_hot: true
-        });
-        if (error) throw error;
+        await approveEditedNewSongRequest(requestId, req, title, part, numericLevel, true);
       }
       await loadAdminRequests();
     } catch (e) {

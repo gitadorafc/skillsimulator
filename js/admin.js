@@ -240,6 +240,8 @@ export async function getPendingSongRequests(keyword = '', versionId = null) {
       proposed_level,
       status,
       created_at,
+      request_type,
+      current_song_id,
       profiles!song_requests_requester_id_fkey(username)
     `)
     .eq('status', 'pending')

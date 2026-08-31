@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>GITADORA Skill Simulator</title>
-<meta name="app-version" content="4.13.11">
+<meta name="app-version" content="4.13.12">
 <link rel="icon" type="image/svg+xml" href="./favicon.svg?v=21_7">
 <link rel="icon" type="image/png" sizes="48x48" href="./favicon-48x48.png?v=21_7">
 <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32x32.png?v=21_7">
@@ -490,6 +490,30 @@ body { background:#0b1220; }
   border-radius:6px;
   padding:6px 8px;
   font-size:14px;
+  font-weight:800;
+}
+.request-edit-fields {
+  display:flex;
+  align-items:flex-end;
+  gap:8px;
+  margin-top:8px;
+}
+.request-edit-field label {
+  display:block;
+  margin-bottom:3px;
+  color:#64748b;
+  font-size:10px;
+  font-weight:900;
+}
+.request-part-edit {
+  min-width:100px;
+  min-height:38px;
+  border:1px solid #cbd5e1;
+  border-radius:6px;
+  padding:6px 28px 6px 8px;
+  background:#fff;
+  color:#111827;
+  font-size:13px;
   font-weight:800;
 }
 .pending-badge {
@@ -9879,6 +9903,7 @@ body.light-mode .master-sheet input[type="text"],
 body.light-mode .master-sheet input[type="number"],
 body.light-mode .request-title-edit,
 body.light-mode .request-level-edit,
+body.light-mode .request-part-edit,
 body.light-mode .admin-form-sheet input,
 body.light-mode .admin-form-sheet select,
 body.light-mode .admin-form-sheet textarea {
@@ -12370,7 +12395,7 @@ html.ios-webkit body{
     <div class="app-menu-version">
       <label>VERSION</label>
       <select id="versionSelect" class="version-select" aria-label="GITADORAバージョン"></select>
-      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 4.13.11</div>
+      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 4.13.12</div>
     </div>
   </div>
 </div>
@@ -12826,7 +12851,7 @@ html.ios-webkit body{
 <div id="adminModal" class="admin-modal">
   <div class="admin-header">
     <div class="admin-title-row">
-      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 4.13.11</div></div>
+      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 4.13.12</div></div>
       <button id="btnCloseAdmin" class="admin-close">閉じる</button>
     </div>
     <div class="admin-tabs">
@@ -12964,7 +12989,7 @@ html.ios-webkit body{
   </div>
 </div>
 
-<script type="module" src="./js/app.js?v=4_13_11"></script>
+<script type="module" src="./js/app.js?v=4_13_12"></script>
 <script src="./js/version-check.js?v=4_10_0" defer></script>
 </body>
 </html>
