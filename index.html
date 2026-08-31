@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>GITADORA Skill Simulator</title>
-<meta name="app-version" content="4.13.16">
+<meta name="app-version" content="4.13.17">
 <link rel="icon" type="image/svg+xml" href="./favicon.svg?v=21_7">
 <link rel="icon" type="image/png" sizes="48x48" href="./favicon-48x48.png?v=21_7">
 <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32x32.png?v=21_7">
@@ -12177,6 +12177,154 @@ body.admin-account-layout.admin-account-scrolling :is(
 ) :is(.m-card,.sk-row):has(.skill-box-sparkle-rainbow)::before{
   animation-play-state:paused !important;
 }
+
+/* === APP VERSION 4.13.17: 管理者のユーザーフィルタを固定ヘッダーへ統合 === */
+.admin-user-list-header-slot{
+  display:none;
+}
+body.admin-account-layout .admin-user-list-header-slot:not(.hidden){
+  display:block;
+  flex:0 0 auto;
+  padding:4px 4px 0;
+  background:#0b1220;
+}
+body.admin-account-layout .admin-user-list-header-slot .user-list-sticky{
+  position:relative !important;
+  top:auto !important;
+  z-index:auto !important;
+  margin:0 !important;
+  padding:0 0 5px !important;
+  overflow:visible !important;
+  isolation:isolate !important;
+  background:#0b1220 !important;
+}
+body.admin-account-layout .admin-user-list-header-slot .user-list-sticky::before{
+  display:none !important;
+}
+body.admin-account-layout .admin-user-list-header-slot :is(
+  .users-toolbar,
+  .user-list-sort-controls,
+  .user-list-sort-field
+){
+  background:#0b1220 !important;
+  background-color:#0b1220 !important;
+  background-image:none !important;
+  box-shadow:none !important;
+  filter:none !important;
+}
+body.admin-account-layout .admin-user-list-header-slot .users-toolbar{
+  display:block !important;
+  position:relative !important;
+  top:auto !important;
+  z-index:auto !important;
+  padding:0 0 5px !important;
+  margin:0 !important;
+}
+body.admin-account-layout .admin-user-list-header-slot .user-list-sort-controls{
+  position:relative !important;
+  top:auto !important;
+  z-index:auto !important;
+  display:grid;
+  grid-template-columns:max-content max-content !important;
+  justify-content:start !important;
+  align-items:center !important;
+  gap:6px;
+  width:100%;
+  margin:0;
+  padding:5px 6px;
+  border:1px solid #273449;
+  border-radius:7px;
+  box-sizing:border-box;
+}
+body.admin-account-layout .admin-user-list-header-slot .user-list-sort-field{
+  display:grid;
+  grid-template-columns:auto max-content !important;
+  align-items:center;
+  gap:5px;
+  width:max-content !important;
+  min-width:0;
+  color:#94a3b8;
+  font-size:9px;
+  font-weight:900;
+  white-space:nowrap;
+}
+body.admin-account-layout .admin-user-list-header-slot .user-list-sort-field select{
+  min-width:0;
+  height:34px;
+  min-height:34px;
+  padding-top:0;
+  padding-bottom:0;
+  padding-left:8px;
+  border:1px solid #475569;
+  border-radius:7px;
+  color:#f8fafc;
+  font-size:11px;
+  font-weight:900;
+}
+body.admin-account-layout .admin-user-list-header-slot #userListSortKey{
+  width:calc(8.5em + 42px) !important;
+  padding-right:34px !important;
+}
+body.admin-account-layout .admin-user-list-header-slot #userListSortDirection{
+  width:calc(4em + 42px) !important;
+  padding-right:34px !important;
+}
+body.text-size-up.admin-account-layout .admin-user-list-header-slot .user-list-sort-field{
+  font-size:10px !important;
+}
+body.text-size-up.admin-account-layout .admin-user-list-header-slot .user-list-sort-field select{
+  font-size:15px !important;
+}
+body.admin-account-layout .admin-user-list-header-slot :is(
+  .users-toolbar input,
+  .user-list-sort-field select
+){
+  background-color:#111827 !important;
+}
+body.light-mode.admin-account-layout .admin-user-list-header-slot,
+body.light-mode.admin-account-layout .admin-user-list-header-slot .user-list-sticky,
+body.light-mode.admin-account-layout .admin-user-list-header-slot :is(
+  .users-toolbar,
+  .user-list-sort-controls,
+  .user-list-sort-field
+){
+  background:var(--app-light-page-bg) !important;
+  background-color:var(--app-light-page-bg) !important;
+}
+body.light-mode.admin-account-layout .admin-user-list-header-slot .users-toolbar input{
+  -webkit-appearance:none !important;
+  appearance:none !important;
+  background:#ffffff !important;
+}
+body.light-mode.admin-account-layout .admin-user-list-header-slot .user-list-sort-field select{
+  background:#ffffff !important;
+  background-color:#ffffff !important;
+  border-color:#94a3b8 !important;
+  color:#111827 !important;
+  -webkit-text-fill-color:#111827 !important;
+}
+body.light-mode.admin-account-layout .admin-user-list-header-slot .user-list-sort-controls{
+  border-color:#94a3b8 !important;
+}
+body.light-mode.admin-account-layout .admin-user-list-header-slot .user-list-sort-field{
+  color:#64748b !important;
+}
+@media(max-width:430px){
+  body.admin-account-layout .admin-user-list-header-slot .user-list-sort-controls{
+    gap:5px;
+    padding:4px 5px;
+  }
+  body.admin-account-layout .admin-user-list-header-slot .user-list-sort-field{
+    gap:4px;
+    font-size:8px;
+  }
+  body.admin-account-layout .admin-user-list-header-slot .user-list-sort-field select{
+    height:32px;
+    min-height:32px;
+    padding-left:6px;
+    font-size:10px;
+  }
+}
 </style>
   <link rel="preconnect" href="https://challenges.cloudflare.com">
   <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" defer></script>
@@ -12301,6 +12449,7 @@ body.admin-account-layout.admin-account-scrolling :is(
         </div>
       </div>
     </div>
+    <div id="adminUserListHeaderSlot" class="admin-user-list-header-slot hidden"></div>
   </div>
 
   <div class="p-container">
@@ -12510,7 +12659,7 @@ body.admin-account-layout.admin-account-scrolling :is(
     <div class="app-menu-version">
       <label>VERSION</label>
       <select id="versionSelect" class="version-select" aria-label="GITADORAバージョン"></select>
-      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 4.13.16</div>
+      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 4.13.17</div>
     </div>
   </div>
 </div>
@@ -12966,7 +13115,7 @@ body.admin-account-layout.admin-account-scrolling :is(
 <div id="adminModal" class="admin-modal">
   <div class="admin-header">
     <div class="admin-title-row">
-      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 4.13.16</div></div>
+      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 4.13.17</div></div>
       <button id="btnCloseAdmin" class="admin-close">閉じる</button>
     </div>
     <div class="admin-tabs">
@@ -13104,7 +13253,7 @@ body.admin-account-layout.admin-account-scrolling :is(
   </div>
 </div>
 
-<script type="module" src="./js/app.js?v=4_13_16"></script>
+<script type="module" src="./js/app.js?v=4_13_17"></script>
 <script src="./js/version-check.js?v=4_10_0" defer></script>
 </body>
 </html>

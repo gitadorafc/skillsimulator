@@ -1221,6 +1221,29 @@ function markAdminAccountScrolling() {
   }, 100);
 }
 
+function syncAdminUserListHeaderVisibility() {
+  const slot = $('adminUserListHeaderSlot');
+  if (!slot) return;
+  const visible = document.body.classList.contains('admin-account-layout') &&
+    activeTabName === 'USERS';
+  slot.classList.toggle('hidden', !visible);
+}
+
+function syncAdminUserListHeaderPlacement(enabled) {
+  const slot = $('adminUserListHeaderSlot');
+  const view = $('viewUsers');
+  const list = $('userList');
+  const sticky = document.querySelector('.user-list-sticky');
+  if (!slot || !view || !list || !sticky) return;
+
+  if (enabled) {
+    if (sticky.parentElement !== slot) slot.appendChild(sticky);
+  } else if (sticky.parentElement !== view) {
+    view.insertBefore(sticky, list);
+  }
+  syncAdminUserListHeaderVisibility();
+}
+
 function applyAdminAccountLayout(enabled) {
   const shouldEnable = Boolean(enabled);
   const wasEnabled = document.body.classList.contains('admin-account-layout');
@@ -1229,6 +1252,7 @@ function applyAdminAccountLayout(enabled) {
   const previousTop = getMainPageScrollTop();
   document.documentElement.classList.toggle('admin-account-layout', shouldEnable);
   document.body.classList.toggle('admin-account-layout', shouldEnable);
+  syncAdminUserListHeaderPlacement(shouldEnable);
   if (!shouldEnable) {
     clearTimeout(adminAccountScrollEndTimer);
     document.body.classList.remove('admin-account-scrolling');
@@ -1309,25 +1333,26 @@ function syncAppStickyHeaderHeight() {
 }
 
 function scrollUserListPageToTop() {
-  const sticky = document.querySelector('#viewUsers .user-list-sticky');
+  const sticky = document.querySelector('.user-list-sticky');
   const header = document.querySelector('.p-header');
   const firstRow = document.querySelector('#userList .user-list-row');
   if (!sticky || !header || !firstRow) return;
 
+  const adminScroller = getAdminAccountScroller();
+  if (adminScroller) {
+    scrollMainPageTo(0);
+    return;
+  }
+
   const stickyHeight = Math.ceil(sticky.getBoundingClientRect().height);
   const stickyTopGap = 6;
-  const adminScroller = getAdminAccountScroller();
-  const headerHeight = adminScroller
-    ? Math.ceil(adminScroller.getBoundingClientRect().top)
-    : Math.ceil(header.getBoundingClientRect().height);
+  const headerHeight = Math.ceil(header.getBoundingClientRect().height);
 
   // 現在どこまでスクロールしていても、
   // 新しいページの1人目が「検索窓＋並び替え欄」の直下に来るよう絶対位置で補正する。
   const desiredFirstRowTop = headerHeight + stickyTopGap + stickyHeight;
   const currentFirstRowTop = firstRow.getBoundingClientRect().top;
-  const currentScrollTop = adminScroller
-    ? adminScroller.scrollTop
-    : (window.scrollY || window.pageYOffset || 0);
+  const currentScrollTop = window.scrollY || window.pageYOffset || 0;
   const targetY = Math.max(
     0,
     currentScrollTop + currentFirstRowTop - desiredFirstRowTop
@@ -3882,6 +3907,7 @@ function switchTab(tab) {
     ownRegisteredViewKey = '';
   }
   activeTabName = tab;
+  syncAdminUserListHeaderVisibility();
   document.querySelectorAll('.p-tab-btn').forEach(
     b => b.classList.toggle('active', b.dataset.tab === tab)
   );
