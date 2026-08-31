@@ -1024,7 +1024,10 @@ let viewedUserId = null;
 let viewedUserName = '';
 let viewedUserProfile = null;
 let viewedUserRegisteredScores = [];
-const USER_DETAIL_RECORD_BATCH_PER_TYPE = 25;
+const REGISTERED_RECORD_BATCH_SIZE = 50;
+const REGISTERED_RECORD_COLUMN_BATCH_SIZE = 25;
+let ownRegisteredBatch = 1;
+let ownRegisteredViewKey = '';
 let viewedUserRegisteredBatch = 1;
 let adminPasswordUserId = null;
 
@@ -3678,6 +3681,23 @@ function renderRegisteredCardList(data, mode = 'MANAGE') {
   return cards.join('');
 }
 
+function getVisibleRegisteredRows(data, batch) {
+  if (!document.body.classList.contains('skill-target-columns')) {
+    return data.slice(0, batch * REGISTERED_RECORD_BATCH_SIZE);
+  }
+
+  const visiblePerType = batch * REGISTERED_RECORD_COLUMN_BATCH_SIZE;
+  const hotRows = data
+    .filter(record => Boolean(record.is_hot))
+    .slice(0, visiblePerType);
+  const otherRows = data
+    .filter(record => !record.is_hot)
+    .slice(0, visiblePerType);
+
+  return [...hotRows, ...otherRows]
+    .sort((a,b) => Number(b.skill) - Number(a.skill));
+}
+
 function renderManage() {
   const keyword = $('domSearch').value.trim().toLowerCase();
   const typeFilter = document.body.classList.contains('skill-target-columns')
@@ -3685,6 +3705,12 @@ function renderManage() {
     : ($('recordTypeFilter')?.value || '');
   const clearRankFilter = $('recordClearRankFilter')?.value || '';
   const fcFilter = $('recordFcFilter')?.value || '';
+  const columnMode = document.body.classList.contains('skill-target-columns') ? 'COLUMNS' : 'LIST';
+  const viewKey = [activeInstrument, columnMode, keyword, typeFilter, clearRankFilter, fcFilter].join('\u0000');
+  if (viewKey !== ownRegisteredViewKey) {
+    ownRegisteredViewKey = viewKey;
+    ownRegisteredBatch = 1;
+  }
 
   const data = scores
     .filter(r => isCurrentInstrumentPart(r.part))
@@ -3718,9 +3744,17 @@ function renderManage() {
     })
     .sort((a,b) => Number(b.skill) - Number(a.skill));
 
+  const visibleRows = getVisibleRegisteredRows(data, ownRegisteredBatch);
+  const hasMore = visibleRows.length < data.length;
+
   $('viewAllManage').innerHTML =
-    renderRegisteredCardList(data) ||
-    '<div class="empty-state">条件に一致する登録データがありません</div>';
+    (renderRegisteredCardList(visibleRows) ||
+      '<div class="empty-state">条件に一致する登録データがありません</div>') +
+    (hasMore ? `
+      <div class="user-detail-records-more own-registered-records-more">
+        <span>${visibleRows.length} / ${data.length}件表示</span>
+        <button type="button" data-own-records-more>もっと見る</button>
+      </div>` : '');
 
   requestAnimationFrame(syncRegisteredEditButtonWidths);
 }
@@ -3769,6 +3803,10 @@ function render() {
 }
 
 function switchTab(tab) {
+  if (tab === 'RECORDS' && activeTabName !== 'RECORDS') {
+    ownRegisteredBatch = 1;
+    ownRegisteredViewKey = '';
+  }
   activeTabName = tab;
   document.querySelectorAll('.p-tab-btn').forEach(
     b => b.classList.toggle('active', b.dataset.tab === tab)
@@ -4317,13 +4355,7 @@ function setUserDetailTab(tab) {
 function renderViewedUserRegisteredScores() {
   const data = [...viewedUserRegisteredScores]
     .sort((a,b) => Number(b.skill) - Number(a.skill));
-  const visiblePerType = viewedUserRegisteredBatch * USER_DETAIL_RECORD_BATCH_PER_TYPE;
-  const hotRows = data.filter(row => Boolean(row.is_hot));
-  const otherRows = data.filter(row => !row.is_hot);
-  const visibleRows = [
-    ...hotRows.slice(0, visiblePerType),
-    ...otherRows.slice(0, visiblePerType)
-  ].sort((a,b) => Number(b.skill) - Number(a.skill));
+  const visibleRows = getVisibleRegisteredRows(data, viewedUserRegisteredBatch);
   const hasMore = visibleRows.length < data.length;
 
   $('userDetailRecords').innerHTML = `
@@ -5548,6 +5580,14 @@ $('domSearch').addEventListener('input', renderManage);
 $('recordTypeFilter').addEventListener('change', renderManage);
 $('recordClearRankFilter').addEventListener('change', renderManage);
 $('recordFcFilter').addEventListener('change', renderManage);
+
+$('viewAllManage').addEventListener('click', e => {
+  const button = e.target.closest('[data-own-records-more]');
+  if (!button) return;
+
+  ownRegisteredBatch += 1;
+  renderManage();
+});
 
 $('btnOpenLevelCorrection').addEventListener('click', () => {
   $('correctionLevel').value = selectedSong ? formatLevel(selectedSong.level) : '';

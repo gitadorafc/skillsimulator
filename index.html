@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>GITADORA Skill Simulator</title>
-<meta name="app-version" content="4.13.2">
+<meta name="app-version" content="4.13.5">
 <link rel="icon" type="image/svg+xml" href="./favicon.svg?v=21_7">
 <link rel="icon" type="image/png" sizes="48x48" href="./favicon-48x48.png?v=21_7">
 <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32x32.png?v=21_7">
@@ -8898,7 +8898,7 @@ body.skill-target-columns :is(#viewSkill,#userDetailSkill) > .sk-section{
   min-width:0;
   margin-bottom:0;
 }
-body.skill-target-columns :is(#viewSkill,#userDetailSkill) .sk-section h2{
+:is(#viewSkill,#userDetailSkill) .sk-section h2{
   min-height:30px;
   display:flex;
   align-items:center;
@@ -8909,10 +8909,10 @@ body.skill-target-columns :is(#viewSkill,#userDetailSkill) .sk-section h2{
   color:#0b1020 !important;
   font-size:12px !important;
 }
-body.skill-target-columns :is(#viewSkill,#userDetailSkill) .skill-hot-section h2{
+:is(#viewSkill,#userDetailSkill) .skill-hot-section h2{
   background:#e94b88 !important;
 }
-body.skill-target-columns :is(#viewSkill,#userDetailSkill) .skill-other-section h2{
+:is(#viewSkill,#userDetailSkill) .skill-other-section h2{
   background:#83c63d !important;
 }
 
@@ -11995,12 +11995,19 @@ body:not(.light-mode) #viewUsers .user-list-row.user-list-row-sparkle-rainbow:ac
   box-sizing:border-box !important;
 }
 
-/* 横並びOFF時のHOT／OTHER見出しを、ライトモードのページ下地へ合わせる。 */
-body.light-mode:not(.skill-target-columns) #userDetailSkill .skill-hot-section > h2,
-body.light-mode:not(.skill-target-columns) #userDetailSkill .skill-other-section > h2{
-  background:var(--app-light-page-bg) !important;
-  background-image:none !important;
+/* === APP VERSION 4.13.3: 自ページ／ユーザー詳細の登録曲を50件ずつ段階表示 === */
+.own-registered-records-more{
+  grid-column:1 / -1;
+  width:100%;
+  box-sizing:border-box;
 }
+body.light-mode .own-registered-records-more{
+  background:var(--app-light-page-bg) !important;
+}
+
+/* === APP VERSION 4.13.4: 登録曲の段階表示件数を表示方式別に切替 === */
+
+/* === APP VERSION 4.13.5: スキル対象見出しを横並びONのデザインへ統一 === */
 </style>
   <link rel="preconnect" href="https://challenges.cloudflare.com">
   <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" defer></script>
@@ -12334,7 +12341,7 @@ body.light-mode:not(.skill-target-columns) #userDetailSkill .skill-other-section
     <div class="app-menu-version">
       <label>VERSION</label>
       <select id="versionSelect" class="version-select" aria-label="GITADORAバージョン"></select>
-      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 4.13.2</div>
+      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 4.13.5</div>
     </div>
   </div>
 </div>
@@ -12790,7 +12797,7 @@ body.light-mode:not(.skill-target-columns) #userDetailSkill .skill-other-section
 <div id="adminModal" class="admin-modal">
   <div class="admin-header">
     <div class="admin-title-row">
-      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 4.13.2</div></div>
+      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 4.13.5</div></div>
       <button id="btnCloseAdmin" class="admin-close">閉じる</button>
     </div>
     <div class="admin-tabs">
@@ -12928,7 +12935,7 @@ body.light-mode:not(.skill-target-columns) #userDetailSkill .skill-other-section
   </div>
 </div>
 
-<script type="module" src="./js/app.js?v=4_13_2"></script>
+<script type="module" src="./js/app.js?v=4_13_5"></script>
 <script src="./js/version-check.js?v=4_10_0" defer></script>
 </body>
 </html>
