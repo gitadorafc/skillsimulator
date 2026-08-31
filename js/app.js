@@ -4324,11 +4324,11 @@ function renderViewedUserRegisteredScores() {
     ...hotRows.slice(0, visiblePerType),
     ...otherRows.slice(0, visiblePerType)
   ].sort((a,b) => Number(b.skill) - Number(a.skill));
-  const hasMore = hotRows.length > visiblePerType || otherRows.length > visiblePerType;
+  const hasMore = visibleRows.length < data.length;
 
   $('userDetailRecords').innerHTML = `
     <div class="sk-section">
-      <h2>登録曲 ${data.length}件</h2>
+      <h2>登録曲 ${data.length}件（${visibleRows.length}件表示）</h2>
       <div class="list-container">
         ${renderRegisteredCardList(visibleRows, 'PUBLIC') || '<div class="empty-state">登録曲がありません</div>'}
       </div>
