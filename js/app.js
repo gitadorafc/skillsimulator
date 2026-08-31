@@ -1154,8 +1154,8 @@ async function prepareAdminSongPicker() {
 
 let globalModalScrollY = 0;
 let globalModalScrollLocked = false;
-let globalModalUsedAdminScroller = false;
-let adminAccountScrollEndTimer = null;
+let globalModalUsedAppScroller = false;
+let appScrollEndTimer = null;
 
 const GLOBAL_SCROLL_LOCK_OVERLAYS = [
   '#menuMask',
@@ -1190,13 +1190,13 @@ function hasVisibleGlobalOverlay() {
   );
 }
 
-function getAdminAccountScroller() {
-  if (!document.body.classList.contains('admin-account-layout')) return null;
+function getAppScroller() {
+  if (!document.body.classList.contains('app-scroll-layout')) return null;
   return document.querySelector('#appScreen > .p-container');
 }
 
 function getMainPageScrollTop() {
-  const scroller = getAdminAccountScroller();
+  const scroller = getAppScroller();
   return scroller
     ? scroller.scrollTop
     : (window.scrollY || window.pageYOffset || 0);
@@ -1204,7 +1204,7 @@ function getMainPageScrollTop() {
 
 function scrollMainPageTo(top, behavior = 'auto') {
   const nextTop = Math.max(0, Number(top) || 0);
-  const scroller = getAdminAccountScroller();
+  const scroller = getAppScroller();
   if (scroller) {
     scroller.scrollTo({ top:nextTop, left:0, behavior });
     return;
@@ -1212,50 +1212,38 @@ function scrollMainPageTo(top, behavior = 'auto') {
   window.scrollTo({ top:nextTop, left:0, behavior });
 }
 
-function markAdminAccountScrolling() {
-  if (!document.body.classList.contains('admin-account-layout')) return;
-  document.body.classList.add('admin-account-scrolling');
-  clearTimeout(adminAccountScrollEndTimer);
-  adminAccountScrollEndTimer = setTimeout(() => {
-    document.body.classList.remove('admin-account-scrolling');
+function markAppScrolling() {
+  if (!document.body.classList.contains('app-scroll-layout')) return;
+  document.body.classList.add('app-scrolling');
+  clearTimeout(appScrollEndTimer);
+  appScrollEndTimer = setTimeout(() => {
+    document.body.classList.remove('app-scrolling');
   }, 100);
 }
 
-function syncAdminUserListHeaderVisibility() {
-  const slot = $('adminUserListHeaderSlot');
+function syncUserListHeaderVisibility() {
+  const slot = $('userListHeaderSlot');
   if (!slot) return;
-  const visible = document.body.classList.contains('admin-account-layout') &&
+  const visible = document.body.classList.contains('app-scroll-layout') &&
     activeTabName === 'USERS';
   slot.classList.toggle('hidden', !visible);
 }
 
-function syncAdminUserListHeaderPlacement(enabled) {
-  const slot = $('adminUserListHeaderSlot');
-  const view = $('viewUsers');
-  const list = $('userList');
-  const sticky = document.querySelector('.user-list-sticky');
-  if (!slot || !view || !list || !sticky) return;
-
-  if (enabled) {
-    if (sticky.parentElement !== slot) slot.appendChild(sticky);
-  } else if (sticky.parentElement !== view) {
-    view.insertBefore(sticky, list);
-  }
-  syncAdminUserListHeaderVisibility();
-}
-
-function applyAdminAccountLayout(enabled) {
+function applyAppScrollLayout(enabled) {
   const shouldEnable = Boolean(enabled);
-  const wasEnabled = document.body.classList.contains('admin-account-layout');
-  if (shouldEnable === wasEnabled) return;
+  const wasEnabled = document.body.classList.contains('app-scroll-layout');
+  if (shouldEnable === wasEnabled) {
+    syncUserListHeaderVisibility();
+    return;
+  }
 
   const previousTop = getMainPageScrollTop();
-  document.documentElement.classList.toggle('admin-account-layout', shouldEnable);
-  document.body.classList.toggle('admin-account-layout', shouldEnable);
-  syncAdminUserListHeaderPlacement(shouldEnable);
+  document.documentElement.classList.toggle('app-scroll-layout', shouldEnable);
+  document.body.classList.toggle('app-scroll-layout', shouldEnable);
+  syncUserListHeaderVisibility();
   if (!shouldEnable) {
-    clearTimeout(adminAccountScrollEndTimer);
-    document.body.classList.remove('admin-account-scrolling');
+    clearTimeout(appScrollEndTimer);
+    document.body.classList.remove('app-scrolling');
   }
 
   if (shouldEnable) {
@@ -1264,7 +1252,7 @@ function applyAdminAccountLayout(enabled) {
 
   requestAnimationFrame(() => {
     if (shouldEnable) {
-      getAdminAccountScroller()?.scrollTo({ top:previousTop, left:0, behavior:'auto' });
+      getAppScroller()?.scrollTo({ top:previousTop, left:0, behavior:'auto' });
     } else if (!$('appScreen').classList.contains('hidden')) {
       window.scrollTo({ top:previousTop, left:0, behavior:'auto' });
     }
@@ -1277,13 +1265,13 @@ function lockMainPageScroll() {
   if (document.body.classList.contains('score-modal-open')) return;
   if (globalModalScrollLocked) return;
 
-  const adminScroller = getAdminAccountScroller();
+  const appScroller = getAppScroller();
   globalModalScrollY = getMainPageScrollTop();
-  globalModalUsedAdminScroller = Boolean(adminScroller);
+  globalModalUsedAppScroller = Boolean(appScroller);
   globalModalScrollLocked = true;
 
   document.body.classList.add('global-modal-scroll-lock');
-  if (globalModalUsedAdminScroller) return;
+  if (globalModalUsedAppScroller) return;
 
   document.body.style.position = 'fixed';
   document.body.style.top = `-${globalModalScrollY}px`;
@@ -1298,8 +1286,8 @@ function unlockMainPageScroll() {
   globalModalScrollLocked = false;
   document.body.classList.remove('global-modal-scroll-lock');
 
-  const usedAdminScroller = globalModalUsedAdminScroller;
-  globalModalUsedAdminScroller = false;
+  const usedAppScroller = globalModalUsedAppScroller;
+  globalModalUsedAppScroller = false;
 
   // スコア登録モーダルが開いている場合は、そちらの固定を壊さない。
   if (document.body.classList.contains('score-modal-open')) return;
@@ -1310,8 +1298,8 @@ function unlockMainPageScroll() {
   document.body.style.right = '';
   document.body.style.width = '';
 
-  if (usedAdminScroller && getAdminAccountScroller()) {
-    getAdminAccountScroller().scrollTo({ top:globalModalScrollY, left:0, behavior:'auto' });
+  if (usedAppScroller && getAppScroller()) {
+    getAppScroller().scrollTo({ top:globalModalScrollY, left:0, behavior:'auto' });
   } else {
     window.scrollTo({ top:globalModalScrollY, left:0, behavior:'auto' });
   }
@@ -1333,16 +1321,15 @@ function syncAppStickyHeaderHeight() {
 }
 
 function scrollUserListPageToTop() {
+  if (getAppScroller()) {
+    scrollMainPageTo(0);
+    return;
+  }
+
   const sticky = document.querySelector('.user-list-sticky');
   const header = document.querySelector('.p-header');
   const firstRow = document.querySelector('#userList .user-list-row');
   if (!sticky || !header || !firstRow) return;
-
-  const adminScroller = getAdminAccountScroller();
-  if (adminScroller) {
-    scrollMainPageTo(0);
-    return;
-  }
 
   const stickyHeight = Math.ceil(sticky.getBoundingClientRect().height);
   const stickyTopGap = 6;
@@ -1725,6 +1712,7 @@ async function showApp(session) {
   hide('introScreen');
   hide('authScreen');
   show('appScreen');
+  applyAppScrollLayout(true);
   currentUserId = session?.user?.id || null;
   void recordMyActivity('OPEN');
 
@@ -1967,7 +1955,7 @@ async function init() {
     if (event === 'SIGNED_OUT' || !session) {
       adminEnabled = false;
       adminAccessChecked = false;
-      applyAdminAccountLayout(false);
+      applyAppScrollLayout(false);
       updateDmBassMirrorFieldVisibility();
       applyDisplayCustomization(false, false);
       applyLightMode(false);
@@ -3907,7 +3895,7 @@ function switchTab(tab) {
     ownRegisteredViewKey = '';
   }
   activeTabName = tab;
-  syncAdminUserListHeaderVisibility();
+  syncUserListHeaderVisibility();
   document.querySelectorAll('.p-tab-btn').forEach(
     b => b.classList.toggle('active', b.dataset.tab === tab)
   );
@@ -3967,7 +3955,7 @@ function openScoreModal(score = null) {
   // 開く前の位置を保存してbodyを固定し、背景を一切動かさない。
   scoreModalScrollY = getMainPageScrollTop();
   document.body.classList.add('score-modal-open');
-  if (!getAdminAccountScroller()) {
+  if (!getAppScroller()) {
     document.body.style.position = 'fixed';
     document.body.style.top = `-${scoreModalScrollY}px`;
     document.body.style.left = '0';
@@ -4508,9 +4496,7 @@ async function openUserDetail(userId, username) {
   $('userDetailXLink').classList.add('hidden');
   $('userDetailXLink').removeAttribute('href');
   setUserDetailTab('skill');
-  $('userDetailPage').style.display = document.body.classList.contains('admin-account-layout')
-    ? 'flex'
-    : 'block';
+  $('userDetailPage').style.display = 'flex';
 
   try {
     const [skillRows, profile] = await Promise.all([
@@ -4912,7 +4898,6 @@ async function checkAdminAccess() {
   }
 
   adminAccessChecked = true;
-  applyAdminAccountLayout(adminEnabled);
   $('btnAdmin').classList.toggle('hidden', !adminEnabled);
   $('mypageUserSwitchBlock')?.classList.remove('hidden');
   $('btnMenuSkillRanking')?.classList.remove('hidden');
@@ -6928,7 +6913,7 @@ if (appStickyHeader && appHeaderResizeObserver) {
   $('userDetailRecords'),
   $('adminBody')
 ].filter(Boolean).forEach(scroller => {
-  scroller.addEventListener('scroll', markAdminAccountScrolling, { passive:true });
+  scroller.addEventListener('scroll', markAppScrolling, { passive:true });
 });
 requestAnimationFrame(syncAppStickyHeaderHeight);
 

@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>GITADORA Skill Simulator</title>
-<meta name="app-version" content="4.13.17">
+<meta name="app-version" content="4.14.0">
 <link rel="icon" type="image/svg+xml" href="./favicon.svg?v=21_7">
 <link rel="icon" type="image/png" sizes="48x48" href="./favicon-48x48.png?v=21_7">
 <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32x32.png?v=21_7">
@@ -12071,16 +12071,16 @@ body:not(.light-mode) #viewAllManage .own-registered-records-more{
   background-image:none !important;
 }
 
-/* === APP VERSION 4.13.15: 管理者アカウントで新しいスクロール構造を先行検証 === */
+/* === APP VERSION 4.14.0: 全ユーザーでスクロール構造を統一 === */
 /* Safariのlayout viewportにstickyヘッダーを依存させず、本文だけをスクロールする。 */
-html.admin-account-layout,
-body.admin-account-layout{
+html.app-scroll-layout,
+body.app-scroll-layout{
   width:100%;
   height:100%;
   min-height:0;
   overflow:hidden !important;
 }
-body.admin-account-layout #appScreen:not(.hidden){
+body.app-scroll-layout #appScreen:not(.hidden){
   display:flex !important;
   flex-direction:column;
   width:100%;
@@ -12088,12 +12088,12 @@ body.admin-account-layout #appScreen:not(.hidden){
   min-height:0;
   overflow:hidden;
 }
-body.admin-account-layout #appScreen > .p-header{
+body.app-scroll-layout #appScreen > .p-header{
   position:relative !important;
   top:auto !important;
   flex:0 0 auto;
 }
-body.admin-account-layout #appScreen > .p-container{
+body.app-scroll-layout #appScreen > .p-container{
   flex:1 1 auto;
   min-height:0;
   overflow-x:hidden;
@@ -12103,34 +12103,22 @@ body.admin-account-layout #appScreen > .p-container{
   contain:paint;
   isolation:isolate;
 }
-body.admin-account-layout:is(.score-modal-open,.global-modal-scroll-lock) #appScreen > .p-container{
+body.app-scroll-layout:is(.score-modal-open,.global-modal-scroll-lock) #appScreen > .p-container{
   overflow-y:hidden !important;
 }
 
-/* メインヘッダーがスクロール領域外になった分だけ、一覧内の固定位置を補正する。 */
-body.admin-account-layout #viewUsers .user-list-sticky{
-  top:4px !important;
-}
-body.admin-account-layout #viewUsers .user-list-sticky::before{
-  z-index:0 !important;
-}
-body.admin-account-layout #viewUsers .user-list-sticky > *{
-  position:relative !important;
-  z-index:1 !important;
-}
-
 /* ユーザー詳細も固定領域と本文スクロールを分離する。 */
-body.admin-account-layout .user-detail-page{
+body.app-scroll-layout .user-detail-page{
   flex-direction:column;
   min-height:0;
   overflow:hidden !important;
 }
-body.admin-account-layout .user-detail-page > .user-detail-sticky{
+body.app-scroll-layout .user-detail-page > .user-detail-sticky{
   position:relative !important;
   top:auto !important;
   flex:0 0 auto;
 }
-body.admin-account-layout .user-detail-page > .user-detail-body:not(.hidden){
+body.app-scroll-layout .user-detail-page > .user-detail-body:not(.hidden){
   flex:1 1 auto;
   min-height:0;
   overflow-x:hidden;
@@ -12147,7 +12135,7 @@ body.admin-account-layout .user-detail-page > .user-detail-body:not(.hidden){
 }
 
 /* 内部スクロール中は高負荷な明滅だけを止め、スクロール停止後に再開する。 */
-body.admin-account-layout.admin-account-scrolling :is(
+body.app-scroll-layout.app-scrolling :is(
   #appScreen > .p-container,
   .user-detail-body,
   .admin-body
@@ -12158,19 +12146,19 @@ body.admin-account-layout.admin-account-scrolling :is(
 ){
   animation-play-state:paused !important;
 }
-body.admin-account-layout.admin-account-scrolling :is(
+body.app-scroll-layout.app-scrolling :is(
   #appScreen > .p-container,
   .user-detail-body,
   .admin-body
 ) .skill-box-sparkle-rainbow::before,
-body.admin-account-layout.admin-account-scrolling :is(
+body.app-scroll-layout.app-scrolling :is(
   #appScreen > .p-container,
   .user-detail-body,
   .admin-body
 ) .skill-box-sparkle-rainbow::after{
   animation-play-state:paused !important;
 }
-body.admin-account-layout.admin-account-scrolling :is(
+body.app-scroll-layout.app-scrolling :is(
   #appScreen > .p-container,
   .user-detail-body,
   .admin-body
@@ -12178,17 +12166,17 @@ body.admin-account-layout.admin-account-scrolling :is(
   animation-play-state:paused !important;
 }
 
-/* === APP VERSION 4.13.17: 管理者のユーザーフィルタを固定ヘッダーへ統合 === */
-.admin-user-list-header-slot{
+/* ユーザーリストの検索・並び替えを固定ヘッダーへ統合する。 */
+.user-list-header-slot{
   display:none;
 }
-body.admin-account-layout .admin-user-list-header-slot:not(.hidden){
+body.app-scroll-layout .user-list-header-slot:not(.hidden){
   display:block;
   flex:0 0 auto;
   padding:4px 4px 0;
   background:#0b1220;
 }
-body.admin-account-layout .admin-user-list-header-slot .user-list-sticky{
+body.app-scroll-layout .user-list-header-slot .user-list-sticky{
   position:relative !important;
   top:auto !important;
   z-index:auto !important;
@@ -12198,10 +12186,10 @@ body.admin-account-layout .admin-user-list-header-slot .user-list-sticky{
   isolation:isolate !important;
   background:#0b1220 !important;
 }
-body.admin-account-layout .admin-user-list-header-slot .user-list-sticky::before{
+body.app-scroll-layout .user-list-header-slot .user-list-sticky::before{
   display:none !important;
 }
-body.admin-account-layout .admin-user-list-header-slot :is(
+body.app-scroll-layout .user-list-header-slot :is(
   .users-toolbar,
   .user-list-sort-controls,
   .user-list-sort-field
@@ -12212,7 +12200,7 @@ body.admin-account-layout .admin-user-list-header-slot :is(
   box-shadow:none !important;
   filter:none !important;
 }
-body.admin-account-layout .admin-user-list-header-slot .users-toolbar{
+body.app-scroll-layout .user-list-header-slot .users-toolbar{
   display:block !important;
   position:relative !important;
   top:auto !important;
@@ -12220,7 +12208,7 @@ body.admin-account-layout .admin-user-list-header-slot .users-toolbar{
   padding:0 0 5px !important;
   margin:0 !important;
 }
-body.admin-account-layout .admin-user-list-header-slot .user-list-sort-controls{
+body.app-scroll-layout .user-list-header-slot .user-list-sort-controls{
   position:relative !important;
   top:auto !important;
   z-index:auto !important;
@@ -12236,7 +12224,7 @@ body.admin-account-layout .admin-user-list-header-slot .user-list-sort-controls{
   border-radius:7px;
   box-sizing:border-box;
 }
-body.admin-account-layout .admin-user-list-header-slot .user-list-sort-field{
+body.app-scroll-layout .user-list-header-slot .user-list-sort-field{
   display:grid;
   grid-template-columns:auto max-content !important;
   align-items:center;
@@ -12248,7 +12236,7 @@ body.admin-account-layout .admin-user-list-header-slot .user-list-sort-field{
   font-weight:900;
   white-space:nowrap;
 }
-body.admin-account-layout .admin-user-list-header-slot .user-list-sort-field select{
+body.app-scroll-layout .user-list-header-slot .user-list-sort-field select{
   min-width:0;
   height:34px;
   min-height:34px;
@@ -12261,29 +12249,29 @@ body.admin-account-layout .admin-user-list-header-slot .user-list-sort-field sel
   font-size:11px;
   font-weight:900;
 }
-body.admin-account-layout .admin-user-list-header-slot #userListSortKey{
+body.app-scroll-layout .user-list-header-slot #userListSortKey{
   width:calc(8.5em + 42px) !important;
   padding-right:34px !important;
 }
-body.admin-account-layout .admin-user-list-header-slot #userListSortDirection{
+body.app-scroll-layout .user-list-header-slot #userListSortDirection{
   width:calc(4em + 42px) !important;
   padding-right:34px !important;
 }
-body.text-size-up.admin-account-layout .admin-user-list-header-slot .user-list-sort-field{
+body.text-size-up.app-scroll-layout .user-list-header-slot .user-list-sort-field{
   font-size:10px !important;
 }
-body.text-size-up.admin-account-layout .admin-user-list-header-slot .user-list-sort-field select{
+body.text-size-up.app-scroll-layout .user-list-header-slot .user-list-sort-field select{
   font-size:15px !important;
 }
-body.admin-account-layout .admin-user-list-header-slot :is(
+body.app-scroll-layout .user-list-header-slot :is(
   .users-toolbar input,
   .user-list-sort-field select
 ){
   background-color:#111827 !important;
 }
-body.light-mode.admin-account-layout .admin-user-list-header-slot,
-body.light-mode.admin-account-layout .admin-user-list-header-slot .user-list-sticky,
-body.light-mode.admin-account-layout .admin-user-list-header-slot :is(
+body.light-mode.app-scroll-layout .user-list-header-slot,
+body.light-mode.app-scroll-layout .user-list-header-slot .user-list-sticky,
+body.light-mode.app-scroll-layout .user-list-header-slot :is(
   .users-toolbar,
   .user-list-sort-controls,
   .user-list-sort-field
@@ -12291,34 +12279,34 @@ body.light-mode.admin-account-layout .admin-user-list-header-slot :is(
   background:var(--app-light-page-bg) !important;
   background-color:var(--app-light-page-bg) !important;
 }
-body.light-mode.admin-account-layout .admin-user-list-header-slot .users-toolbar input{
+body.light-mode.app-scroll-layout .user-list-header-slot .users-toolbar input{
   -webkit-appearance:none !important;
   appearance:none !important;
   background:#ffffff !important;
 }
-body.light-mode.admin-account-layout .admin-user-list-header-slot .user-list-sort-field select{
+body.light-mode.app-scroll-layout .user-list-header-slot .user-list-sort-field select{
   background:#ffffff !important;
   background-color:#ffffff !important;
   border-color:#94a3b8 !important;
   color:#111827 !important;
   -webkit-text-fill-color:#111827 !important;
 }
-body.light-mode.admin-account-layout .admin-user-list-header-slot .user-list-sort-controls{
+body.light-mode.app-scroll-layout .user-list-header-slot .user-list-sort-controls{
   border-color:#94a3b8 !important;
 }
-body.light-mode.admin-account-layout .admin-user-list-header-slot .user-list-sort-field{
+body.light-mode.app-scroll-layout .user-list-header-slot .user-list-sort-field{
   color:#64748b !important;
 }
 @media(max-width:430px){
-  body.admin-account-layout .admin-user-list-header-slot .user-list-sort-controls{
+  body.app-scroll-layout .user-list-header-slot .user-list-sort-controls{
     gap:5px;
     padding:4px 5px;
   }
-  body.admin-account-layout .admin-user-list-header-slot .user-list-sort-field{
+  body.app-scroll-layout .user-list-header-slot .user-list-sort-field{
     gap:4px;
     font-size:8px;
   }
-  body.admin-account-layout .admin-user-list-header-slot .user-list-sort-field select{
+  body.app-scroll-layout .user-list-header-slot .user-list-sort-field select{
     height:32px;
     min-height:32px;
     padding-left:6px;
@@ -12449,13 +12437,7 @@ body.light-mode.admin-account-layout .admin-user-list-header-slot .user-list-sor
         </div>
       </div>
     </div>
-    <div id="adminUserListHeaderSlot" class="admin-user-list-header-slot hidden"></div>
-  </div>
-
-  <div class="p-container">
-    <div id="viewSkill"></div>
-    <div id="viewAllManage" class="list-container hidden"></div>
-    <div id="viewUsers" class="hidden">
+    <div id="userListHeaderSlot" class="user-list-header-slot hidden">
       <div class="user-list-sticky">
         <div class="users-toolbar">
           <input id="userSearch" placeholder="ユーザー名を検索...">
@@ -12479,6 +12461,13 @@ body.light-mode.admin-account-layout .admin-user-list-header-slot .user-list-sor
           </label>
         </div>
       </div>
+    </div>
+  </div>
+
+  <div class="p-container">
+    <div id="viewSkill"></div>
+    <div id="viewAllManage" class="list-container hidden"></div>
+    <div id="viewUsers" class="hidden">
       <div id="userList"></div>
       <div id="userListPager" class="user-list-pager"></div>
     </div>
@@ -12659,7 +12648,7 @@ body.light-mode.admin-account-layout .admin-user-list-header-slot .user-list-sor
     <div class="app-menu-version">
       <label>VERSION</label>
       <select id="versionSelect" class="version-select" aria-label="GITADORAバージョン"></select>
-      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 4.13.17</div>
+      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 4.14.0</div>
     </div>
   </div>
 </div>
@@ -13115,7 +13104,7 @@ body.light-mode.admin-account-layout .admin-user-list-header-slot .user-list-sor
 <div id="adminModal" class="admin-modal">
   <div class="admin-header">
     <div class="admin-title-row">
-      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 4.13.17</div></div>
+      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 4.14.0</div></div>
       <button id="btnCloseAdmin" class="admin-close">閉じる</button>
     </div>
     <div class="admin-tabs">
@@ -13253,7 +13242,7 @@ body.light-mode.admin-account-layout .admin-user-list-header-slot .user-list-sor
   </div>
 </div>
 
-<script type="module" src="./js/app.js?v=4_13_17"></script>
+<script type="module" src="./js/app.js?v=4_14_0"></script>
 <script src="./js/version-check.js?v=4_10_0" defer></script>
 </body>
 </html>
