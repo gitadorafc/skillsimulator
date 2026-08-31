@@ -4493,7 +4493,9 @@ async function openUserDetail(userId, username) {
   $('userDetailXLink').classList.add('hidden');
   $('userDetailXLink').removeAttribute('href');
   setUserDetailTab('skill');
-  $('userDetailPage').style.display = 'flex';
+  const detailPage = $('userDetailPage');
+  detailPage.classList.add('admin-clean-detail-open');
+  detailPage.style.display = 'flex';
 
   try {
     const [skillRows, profile] = await Promise.all([
@@ -4526,7 +4528,9 @@ async function openUserDetail(userId, username) {
 }
 
 function closeUserDetail() {
-  $('userDetailPage').style.display = 'none';
+  const detailPage = $('userDetailPage');
+  detailPage.classList.remove('admin-clean-detail-open');
+  detailPage.style.display = 'none';
   viewedUserScores = [];
   viewedUserRegisteredScores = [];
   viewedUserRegisteredBatch = 1;

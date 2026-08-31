@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>GITADORA Skill Simulator</title>
-<meta name="app-version" content="4.14.2">
+<meta name="app-version" content="4.14.3">
 <link rel="icon" type="image/svg+xml" href="./favicon.svg?v=21_7">
 <link rel="icon" type="image/png" sizes="48x48" href="./favicon-48x48.png?v=21_7">
 <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32x32.png?v=21_7">
@@ -12036,17 +12036,17 @@ body.admin-clean-layout #appScreen > .p-container{
   min-width:0;
   min-height:0;
 }
-body.admin-clean-layout .user-detail-page{
+body.admin-clean-layout .user-detail-page.admin-clean-detail-open{
   display:grid !important;
   grid-template-columns:minmax(0,1fr);
   grid-template-rows:max-content minmax(0,1fr);
 }
-body.admin-clean-layout .user-detail-page > .user-detail-sticky{
+body.admin-clean-layout .user-detail-page.admin-clean-detail-open > .user-detail-sticky{
   grid-column:1;
   grid-row:1;
   min-width:0;
 }
-body.admin-clean-layout .user-detail-page > .user-detail-body:not(.hidden){
+body.admin-clean-layout .user-detail-page.admin-clean-detail-open > .user-detail-body:not(.hidden){
   grid-column:1;
   grid-row:2;
   min-width:0;
@@ -12407,7 +12407,7 @@ body.admin-clean-layout :is(
     <div class="app-menu-version">
       <label>VERSION</label>
       <select id="versionSelect" class="version-select" aria-label="GITADORAバージョン"></select>
-      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 4.14.2</div>
+      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 4.14.3</div>
     </div>
   </div>
 </div>
@@ -12863,7 +12863,7 @@ body.admin-clean-layout :is(
 <div id="adminModal" class="admin-modal">
   <div class="admin-header">
     <div class="admin-title-row">
-      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 4.14.2</div></div>
+      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 4.14.3</div></div>
       <button id="btnCloseAdmin" class="admin-close">閉じる</button>
     </div>
     <div class="admin-tabs">
@@ -13001,7 +13001,7 @@ body.admin-clean-layout :is(
   </div>
 </div>
 
-<script type="module" src="./js/app.js?v=4_14_2"></script>
+<script type="module" src="./js/app.js?v=4_14_3"></script>
 <script src="./js/version-check.js?v=4_10_0" defer></script>
 </body>
 </html>
