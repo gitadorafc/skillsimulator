@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>GITADORA Skill Simulator</title>
-<meta name="app-version" content="4.13.0">
+<meta name="app-version" content="4.13.2">
 <link rel="icon" type="image/svg+xml" href="./favicon.svg?v=21_7">
 <link rel="icon" type="image/png" sizes="48x48" href="./favicon-48x48.png?v=21_7">
 <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32x32.png?v=21_7">
@@ -11939,6 +11939,68 @@ body.light-mode .user-detail-records-more{
   background:var(--app-light-page-bg) !important;
   color:#64748b !important;
 }
+
+/* === APP VERSION 4.13.1: ダークユーザー一覧の面色・9500行を統一 === */
+body:not(.light-mode){
+  --app-dark-user-list-bg:#0b1220;
+  --app-dark-control-bg:#111827;
+}
+body:not(.light-mode):has(#viewUsers:not(.hidden)) .p-container{
+  background:var(--app-dark-user-list-bg) !important;
+}
+
+/* 固定領域・一覧下地・ユーザー行を同じ面色にする。 */
+body:not(.light-mode) #viewUsers,
+body:not(.light-mode) #viewUsers .user-list-sticky,
+body:not(.light-mode) #viewUsers .user-list-sticky::before,
+body:not(.light-mode) #viewUsers .users-toolbar,
+body:not(.light-mode) #viewUsers .user-list-header,
+body:not(.light-mode) #viewUsers .user-list-sort-controls,
+body:not(.light-mode) #viewUsers .user-list-sort-field,
+body:not(.light-mode) #viewUsers #userList,
+body:not(.light-mode) #viewUsers #userListPager,
+body:not(.light-mode) #viewUsers .user-list-row,
+body:not(.light-mode) #viewUsers .user-list-row:active{
+  background:var(--app-dark-user-list-bg) !important;
+  background-color:var(--app-dark-user-list-bg) !important;
+  background-image:none !important;
+  box-shadow:none !important;
+  filter:none !important;
+}
+
+/* 検索欄とプルダウンは入力面として一段だけ明るくする。 */
+body:not(.light-mode) #viewUsers .users-toolbar input,
+body:not(.light-mode) #viewUsers .user-list-sort-field select{
+  background-color:var(--app-dark-control-bg) !important;
+  box-shadow:none !important;
+}
+
+/* 9500ユーザー行の赤・ピンク系の枠と背景だけを外し、文字演出は維持する。 */
+body:not(.light-mode) #viewUsers .user-list-row.user-list-row-sparkle-rainbow,
+body:not(.light-mode) #viewUsers .user-list-row.user-list-row-sparkle-rainbow:active{
+  border:1px solid #475569 !important;
+  background:var(--app-dark-user-list-bg) !important;
+  background-color:var(--app-dark-user-list-bg) !important;
+  background-image:none !important;
+  box-shadow:none !important;
+  animation:none !important;
+  filter:none !important;
+}
+
+/* === APP VERSION 4.13.2: ユーザー詳細の固定領域・見出し背景を統一 === */
+/* ダーク／ライトともタブの上下余白を同じにし、固定領域の縦幅を揃える。 */
+.user-detail-tabs{
+  gap:6px !important;
+  padding:6px !important;
+  box-sizing:border-box !important;
+}
+
+/* 横並びOFF時のHOT／OTHER見出しを、ライトモードのページ下地へ合わせる。 */
+body.light-mode:not(.skill-target-columns) #userDetailSkill .skill-hot-section > h2,
+body.light-mode:not(.skill-target-columns) #userDetailSkill .skill-other-section > h2{
+  background:var(--app-light-page-bg) !important;
+  background-image:none !important;
+}
 </style>
   <link rel="preconnect" href="https://challenges.cloudflare.com">
   <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" defer></script>
@@ -12272,7 +12334,7 @@ body.light-mode .user-detail-records-more{
     <div class="app-menu-version">
       <label>VERSION</label>
       <select id="versionSelect" class="version-select" aria-label="GITADORAバージョン"></select>
-      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 4.13.0</div>
+      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 4.13.2</div>
     </div>
   </div>
 </div>
@@ -12728,7 +12790,7 @@ body.light-mode .user-detail-records-more{
 <div id="adminModal" class="admin-modal">
   <div class="admin-header">
     <div class="admin-title-row">
-      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 4.13.0</div></div>
+      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 4.13.2</div></div>
       <button id="btnCloseAdmin" class="admin-close">閉じる</button>
     </div>
     <div class="admin-tabs">
@@ -12866,7 +12928,7 @@ body.light-mode .user-detail-records-more{
   </div>
 </div>
 
-<script type="module" src="./js/app.js?v=4_13_0"></script>
+<script type="module" src="./js/app.js?v=4_13_2"></script>
 <script src="./js/version-check.js?v=4_10_0" defer></script>
 </body>
 </html>
