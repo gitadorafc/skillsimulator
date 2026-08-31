@@ -173,7 +173,7 @@ function installSkillColorCss() {
     // スキル対象・登録曲の「外枠だけ」は170degグラデーションにする。
     // スキル値の左右帯、ヘッダー、共有画像には sidePaint をそのまま使うため影響しない。
     const borderPaint = row.type === 'solid'
-      ? `linear-gradient(170deg, ${row.color} 0%, ${row.color} 100%)`
+      ? row.color
       : `linear-gradient(170deg, ${row.stops.map(([color,pos]) => `${color} ${pos}%`).join(', ')})`;
 
     const cardBorderRule =
