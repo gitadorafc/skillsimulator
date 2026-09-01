@@ -4349,13 +4349,8 @@ body.light-mode [class*="score-rank-"]{
   filter:none !important;
 }
 
-/* ヘッダーとユーザーリストは、全カラー共通の弱いドロップシャドウで背景から分離する。 */
+/* ヘッダーとユーザーリストへ、色を潰さない最小限の共通輪郭を加える。 */
 body.light-mode :is(.score-val,.user-list-skill-value)[class*="score-rank-"]{
-  filter:drop-shadow(0 1px 1px rgba(15,23,42,.55)) !important;
-}
-
-/* ユーザーリストの数値だけ、色を潰さない最小限の輪郭を加える。 */
-body.light-mode .user-list-skill-value[class*="score-rank-"]{
   -webkit-text-stroke:.2px rgba(15,23,42,.75) !important;
 }
 
