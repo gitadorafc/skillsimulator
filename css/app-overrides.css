@@ -358,9 +358,6 @@ body.light-mode select{
   -webkit-appearance:none !important;
   appearance:none !important;
   padding-right:38px !important;
-  background-image:
-    linear-gradient(45deg, transparent 50%, #334155 50%),
-    linear-gradient(135deg, #334155 50%, transparent 50%) !important;
   background-position:
     calc(100% - 17px) 50%,
     calc(100% - 11px) 50% !important;
@@ -372,7 +369,6 @@ body.light-mode select:disabled{
   color:#64748b !important;
   -webkit-text-fill-color:#64748b !important;
   background-color:#e2e8f0 !important;
-  opacity:1 !important;
 }
 
 /* ページ選択も他のプルダウンと同じ▼表示 */
@@ -1654,7 +1650,6 @@ body.text-size-up :is(button,input,select,textarea){
   font-size:15px !important;
 }
 body.text-size-up .score-lbl{ font-size:11px !important; }
-body.text-size-up .score-val{ font-size:17px !important; }
 body.text-size-up .p-tab-btn{ font-size:15px !important; }
 body.text-size-up .sk-section h2{ font-size:15px !important; }
 body.text-size-up .dc-card .dc-song-title{ font-size:15px !important; }
@@ -2302,7 +2297,6 @@ body.skill-target-columns #viewAllManage .dc-card-manage .dc-edit .m-action-btn.
   min-height:24px !important;
   height:24px !important;
   margin-left:auto !important;
-  padding:2px 6px !important;
 }
 .rate-compare-edit-area {
   display:flex;
@@ -2894,9 +2888,6 @@ body.light-mode .admin-usage-card{
   background:#ffffff;
 }
 @media(max-width:620px){
-  #adminUserToolbar{
-    grid-template-columns:minmax(0,1fr) minmax(106px,auto) 70px;
-  }
   #adminUserToolbar input,
   #adminUserToolbar select{
     min-width:0;
@@ -3643,7 +3634,6 @@ body.skill-target-columns #viewAllManage .dc-card-manage .dc-edit .m-action-btn.
   display:flex !important;
   align-items:center !important;
   justify-content:center !important;
-  padding:0 6px 1px !important;
   line-height:1 !important;
   position:relative !important;
   top:0 !important;
@@ -3971,12 +3961,10 @@ body.light-mode .empty-state{
   color:#111827 !important;
 }
 
-/* 非選択の3タブすべてを青文字に統一する。 */
+/* 非選択の3タブすべてで背景を統一する。 */
 body.light-mode .p-tabs > .p-tab-btn:not(.active){
   background:var(--app-light-page-bg) !important;
   background-image:none !important;
-  color:#2563eb !important;
-  -webkit-text-fill-color:#2563eb !important;
 }
 
 /* 登録画面の固定操作領域。 */
