@@ -1529,13 +1529,29 @@ async function getUserPublicProfile(userId) {
 }
 
 async function getPublicUserRegisteredScores(userId, instrument = activeInstrument, versionId = activeVersionId) {
-  const { data, error } = await supabase.rpc('get_public_user_registered_scores', {
-    p_user_id: userId,
-    p_instrument: instrument,
-    p_version_id: versionId
-  });
-  if (error) throw error;
-  return data ?? [];
+  const pageSize = 1000;
+  const rows = [];
+  let from = 0;
+
+  // PostgRESTの1応答上限を超える公開登録曲も、範囲指定で全件取得する。
+  while (true) {
+    const { data, error } = await supabase
+      .rpc('get_public_user_registered_scores', {
+        p_user_id: userId,
+        p_instrument: instrument,
+        p_version_id: versionId
+      })
+      .range(from, from + pageSize - 1);
+
+    if (error) throw error;
+
+    const page = data ?? [];
+    rows.push(...page);
+    if (page.length < pageSize) break;
+    from += pageSize;
+  }
+
+  return rows;
 }
 
 function normalizeXIdInput(value) {

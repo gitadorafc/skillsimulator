@@ -543,8 +543,10 @@ body.light-mode .user-list-row-sparkle-rainbow:active {
 :is(.score-val,.user-list-skill-value,.user-detail-skill-value).score-rank-sparkle-rainbow {
   animation:skill-sparkle-text-sweep var(--skill-sparkle-cycle) linear infinite,skill-sparkle-text-glow var(--skill-sparkle-cycle) ease-in-out infinite !important;
 }
-body.light-mode :is(.score-val,.user-list-skill-value,.user-detail-skill-value).score-rank-sparkle-rainbow {
-  animation:skill-sparkle-text-sweep var(--skill-sparkle-cycle) linear infinite,skill-sparkle-text-glow var(--skill-sparkle-cycle) ease-in-out infinite !important;
+body.light-mode :is(.score-val,.user-detail-skill-value).score-rank-sparkle-rainbow {
+  -webkit-text-stroke:0 !important;
+  text-shadow:none !important;
+  filter:none !important;
 }
 @media (prefers-reduced-motion: reduce) {
   /* iPhoneの「視差効果を減らす」がONでも、9500帯の演出だけは維持する。 */
@@ -3124,6 +3126,7 @@ html.ios-viewport-repair {
   min-width: 0;
   display: flex !important;
   align-items: center !important;
+  gap: 4px !important;
   white-space: normal !important;
   overflow: hidden !important;
   line-height: 1.18 !important;
@@ -4573,13 +4576,9 @@ body.light-mode .user-detail-summary strong.user-detail-skill-value:not(.score-r
 
 
 
-/* === FIX132: ライトモード スキル値視認性 / 影のみ ===
-   スキルカラーはダーク/ライトで完全共通。
-   背景帯・黒フチ・色置換は使わず、弱い影だけで分離する。 */
-
-body.light-mode .score-val:not(.score-rank-sparkle-rainbow),
-body.light-mode .user-list-skill-value:not(.score-rank-sparkle-rainbow),
-body.light-mode .user-detail-summary strong.user-detail-skill-value:not(.score-rank-sparkle-rainbow){
+/* ユーザーリストの小さい数値だけ弱い影で背景から分離する。
+   ヘッダー値はFIX125の無加工表示を維持し、元のスキルカラーを変えない。 */
+body.light-mode .user-list-skill-value:not(.score-rank-sparkle-rainbow){
   -webkit-text-stroke:0 !important;
   filter:none !important;
   text-shadow:
@@ -4590,6 +4589,16 @@ body.light-mode .user-detail-summary strong.user-detail-skill-value:not(.score-r
 /* ユーザーリストは数値が小さいので少しだけサイズを確保 */
 body.light-mode .user-list-skill-value{
   font-size:12px !important;
+}
+
+.user-detail-instrument-switch{
+  flex:0 0 auto;
+}
+.user-detail-instrument-switch .instrument-btn{
+  width:36px;
+  min-width:36px;
+  height:30px;
+  padding:0;
 }
 
 /* 背景はFIX130の少し濃いグレーを維持 */
