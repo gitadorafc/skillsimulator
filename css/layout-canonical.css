@@ -1,70 +1,6 @@
 /* === APP VERSION 4.14.0: 全ユーザーでスクロール構造を統一 === */
-/* Safariのlayout viewportにstickyヘッダーを依存させず、本文だけをスクロールする。 */
-html.app-scroll-layout,
-body.app-scroll-layout{
-  width:100%;
-  height:100%;
-  min-height:0;
-  overflow:hidden !important;
-}
-body.app-scroll-layout #appScreen:not(.hidden){
-  display:grid !important;
-  grid-template-columns:minmax(0,1fr);
-  grid-template-rows:max-content minmax(0,1fr);
-  width:100%;
-  height:100dvh;
-  min-height:0;
-  overflow:hidden;
-}
-body.app-scroll-layout #appScreen > .p-header{
-  position:relative !important;
-  top:auto !important;
-  grid-column:1;
-  grid-row:1;
-  min-width:0;
-}
-body.app-scroll-layout #appScreen > .p-container{
-  grid-column:1;
-  grid-row:2;
-  min-width:0;
-  min-height:0;
-  overflow-x:hidden;
-  overflow-y:auto;
-  overscroll-behavior:contain;
-  -webkit-overflow-scrolling:touch;
-  contain:paint;
-  isolation:isolate;
-}
 body.app-scroll-layout:is(.score-modal-open,.global-modal-scroll-lock) #appScreen > .p-container{
   overflow-y:hidden !important;
-}
-
-/* ユーザー詳細も、開いている間だけ固定領域と本文を2行Gridで分離する。 */
-body.app-scroll-layout .user-detail-page.user-detail-open{
-  display:grid !important;
-  grid-template-columns:minmax(0,1fr);
-  grid-template-rows:max-content minmax(0,1fr);
-  min-height:0;
-  overflow:hidden !important;
-}
-body.app-scroll-layout .user-detail-page.user-detail-open > .user-detail-sticky{
-  position:relative !important;
-  top:auto !important;
-  grid-column:1;
-  grid-row:1;
-  min-width:0;
-}
-body.app-scroll-layout .user-detail-page.user-detail-open > .user-detail-body:not(.hidden){
-  grid-column:1;
-  grid-row:2;
-  min-width:0;
-  min-height:0;
-  overflow-x:hidden;
-  overflow-y:auto;
-  overscroll-behavior:contain;
-  -webkit-overflow-scrolling:touch;
-  contain:paint;
-  isolation:isolate;
 }
 
 /* 登録曲非公開でタブが存在しない場合も、固定領域の下端に同じ面を残す。 */
@@ -271,6 +207,7 @@ html.app-scroll-layout,
 body.app-scroll-layout {
   width: 100%;
   height: 100%;
+  min-height: 0;
   overflow: hidden !important;
 }
 
@@ -299,8 +236,11 @@ body.app-scroll-layout #appScreen > .p-container {
   min-height: 0;
   overflow-x: hidden;
   overflow-y: auto;
+  overscroll-behavior: contain;
   overscroll-behavior-y: contain;
   -webkit-overflow-scrolling: touch;
+  contain: paint;
+  isolation: isolate;
 }
 
 body.app-scroll-layout .user-detail-page.user-detail-open {
@@ -326,8 +266,11 @@ body.app-scroll-layout .user-detail-page.user-detail-open > .user-detail-body:no
   min-height: 0;
   overflow-x: hidden;
   overflow-y: auto;
+  overscroll-behavior: contain;
   overscroll-behavior-y: contain;
   -webkit-overflow-scrolling: touch;
+  contain: paint;
+  isolation: isolate;
 }
 
 /* 固定領域に旧背景画像・影・filterを持ち込まない。 */

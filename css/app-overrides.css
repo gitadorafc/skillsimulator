@@ -1664,17 +1664,6 @@ body.light-mode .sync-mini-toolbar{
 
 /* === APP VERSION 3.13.0: 表示カスタマイズ === */
 
-/* 自分・他ユーザーのスキル対象をHOT / OTHERの左右2列で表示 */
-body.skill-target-columns :is(#viewSkill,#userDetailSkill):not(.hidden){
-  display:grid !important;
-  grid-template-columns:minmax(0,1fr) minmax(0,1fr);
-  align-items:start;
-  gap:6px;
-}
-body.skill-target-columns :is(#viewSkill,#userDetailSkill) > .sk-section{
-  min-width:0;
-  margin-bottom:0;
-}
 :is(#viewSkill,#userDetailSkill) .sk-section h2{
   min-height:30px;
   display:flex;
@@ -2136,14 +2125,6 @@ body.light-mode :is(.m-card,.sk-row):has(.skill-box-sparkle-rainbow)::before {
   animation:skill-sparkle-border-pulse-light var(--skill-sparkle-cycle) ease-in-out infinite !important;
 }
 
-/* 横並び設定を登録曲一覧にも適用する。 */
-body.skill-target-columns #viewAllManage:not(.hidden),
-body.skill-target-columns #userDetailRecords .list-container {
-  display:grid !important;
-  grid-template-columns:minmax(0,1fr) minmax(0,1fr) !important;
-  align-items:start !important;
-  gap:4px !important;
-}
 body.skill-target-columns #recordTypeFilter {
   display:none !important;
 }
