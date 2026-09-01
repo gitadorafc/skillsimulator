@@ -3661,8 +3661,7 @@ body.light-mode .admin-activity-legend b{ color:#111827; }
   margin-bottom:0 !important;
 }
 
-/* === APP VERSION 4.12.2: 横並び登録カードの数値行・編集行を上下中央揃え === */
-/* 数字のベースラインによる下寄り感だけを補正し、カード高は変えない。 */
+/* 横並び登録カードの数値行・編集行を最終配置へ統合する。 */
 body.skill-target-columns :is(#viewAllManage,#userDetailRecords) .dc-card-manage :is(
   .dc-lv,
   .dc-rate,
@@ -3670,15 +3669,12 @@ body.skill-target-columns :is(#viewAllManage,#userDetailRecords) .dc-card-manage
 ){
   align-self:center !important;
   position:relative !important;
-  top:-1px !important;
+  top:0 !important;
 }
 
-/* 従来の上側だけに付いた余白を、同じ総高さの中央揃え行へ置き換える。 */
 body.skill-target-columns #viewAllManage .dc-card-manage .dc-edit{
-  min-height:31px !important;
-  height:31px !important;
-  margin-top:0 !important;
-  padding-top:0 !important;
+  min-height:27px !important;
+  height:27px !important;
   align-self:stretch !important;
   align-items:center !important;
   box-sizing:border-box !important;
@@ -3689,34 +3685,7 @@ body.skill-target-columns #viewAllManage .dc-card-manage .dc-edit .m-action-btn.
   justify-content:center !important;
   padding:0 6px 1px !important;
   line-height:1 !important;
-}
-
-/* === APP VERSION 4.12.3: 横並び登録カードの数値行・編集ボタン位置を再調整 === */
-/* Lv・達成率・スキル値の行全体を、上方向補正前の中央位置へ戻す。 */
-body.skill-target-columns :is(#viewAllManage,#userDetailRecords) .dc-card-manage :is(
-  .dc-lv,
-  .dc-rate,
-  .dc-skill
-){
-  top:0 !important;
-}
-
-/* 編集行の下余白が広く見えるため、ボタン全体を2px下へ補正する。 */
-body.skill-target-columns #viewAllManage .dc-card-manage .dc-edit .m-action-btn.btn-e{
   position:relative !important;
-  top:2px !important;
-}
-
-/* === APP VERSION 4.12.4: 横並び登録カードの編集余白 / スキル帯外寸統一 === */
-/* 編集行を詰め、ボタンに追加していた下方向補正を解除して中央へ戻す。 */
-body.skill-target-columns #viewAllManage .dc-card-manage .dc-edit{
-  min-height:27px !important;
-  height:27px !important;
-  margin-top:0 !important;
-  padding-top:0 !important;
-  align-items:center !important;
-}
-body.skill-target-columns #viewAllManage .dc-card-manage .dc-edit .m-action-btn.btn-e{
   top:0 !important;
 }
 
