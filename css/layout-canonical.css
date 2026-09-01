@@ -198,7 +198,6 @@ body {
   --cleanup-page-dark: #0b1220;
   --cleanup-control-dark: #111827;
   --cleanup-card-dark: #1f2937;
-  --cleanup-page-light: #e5e7eb;
   --cleanup-card-light: #f3f4f6;
 }
 
@@ -317,7 +316,7 @@ body.light-mode :is(
   .sk-section,
   .empty-state
 ) {
-  background: var(--cleanup-page-light) !important;
+  background: var(--app-light-page-bg, #cbd5e1) !important;
   background-image: none !important;
   color: #111827 !important;
 }

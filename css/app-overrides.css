@@ -3874,7 +3874,7 @@ body.skill-target-columns :is(
 
 /* === APP VERSION 4.12.28: ライトモードの面色を単一定義へ整理 === */
 body.light-mode{
-  --app-light-page-bg:#e5e7eb;
+  --app-light-page-bg:#cbd5e1;
   --app-light-card-bg:#f3f4f6;
 }
 

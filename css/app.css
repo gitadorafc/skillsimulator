@@ -543,11 +543,6 @@ body.light-mode .user-list-row-sparkle-rainbow:active {
 :is(.score-val,.user-list-skill-value,.user-detail-skill-value).score-rank-sparkle-rainbow {
   animation:skill-sparkle-text-sweep var(--skill-sparkle-cycle) linear infinite,skill-sparkle-text-glow var(--skill-sparkle-cycle) ease-in-out infinite !important;
 }
-body.light-mode :is(.score-val,.user-list-skill-value,.user-detail-skill-value).score-rank-sparkle-rainbow {
-  -webkit-text-stroke:0 !important;
-  text-shadow:none !important;
-  filter:none !important;
-}
 @media (prefers-reduced-motion: reduce) {
   /* iPhoneの「視差効果を減らす」がONでも、9500帯の演出だけは維持する。 */
   body:not(.light-mode) .score-rank-sparkle-rainbow {
@@ -3912,7 +3907,7 @@ body.light-mode .user-detail-header,
 body.light-mode .user-detail-summary,
 body.light-mode .user-detail-tabs,
 body.light-mode .user-detail-sticky{
-  background:var(--app-light-page-bg, #e5e7eb) !important;
+  background:var(--app-light-page-bg, #cbd5e1) !important;
   color:#111827 !important;
   border-color:#cbd5e1 !important;
 }
@@ -4188,7 +4183,7 @@ body.light-mode select{
 /* Apple/iOS系の考え方に寄せて、背景/カード/コントロールを階層化。
    黒縁は常用せず、通常文字は濃色でコントラストを確保する。 */
 body.light-mode{
-  background:#e5e7eb !important;
+  background:var(--app-light-page-bg, #cbd5e1) !important;
   color:#111827 !important;
   -webkit-text-stroke:0 !important;
 }
@@ -4196,7 +4191,7 @@ html:has(body.light-mode),
 body.light-mode #appScreen,
 body.light-mode .p-container,
 body.light-mode #viewAllManage{
-  background:#e5e7eb !important;
+  background:var(--app-light-page-bg, #cbd5e1) !important;
 }
 
 /* 上部と検索領域 */
@@ -4208,7 +4203,7 @@ body.light-mode .record-filter-row{
   background:#eef0f3 !important;
 }
 body.light-mode .score-cell{
-  background:var(--app-light-page-bg, #e5e7eb) !important;
+  background:var(--app-light-page-bg, #cbd5e1) !important;
 }
 body.light-mode .score-lbl{
   color:#64748b !important;
@@ -4363,9 +4358,8 @@ body.light-mode .dc-card .opt-sra-plus{
 
 /* === FIX125: ライトモード 登録画面追加調整 === */
 
-/* TOTAL / HOT / OTHER:
-   スキルカラーそのものを優先し、黒縁でグラデーションを潰さない */
-body.light-mode .score-val:not(.score-rank-sparkle-rainbow){
+/* ライトモードのスキルカラー文字は、全ランク共通で無加工にする。 */
+body.light-mode [class*="score-rank-"]{
   -webkit-text-stroke:0 !important;
   text-shadow:none !important;
   filter:none !important;
@@ -4559,39 +4553,9 @@ body.light-mode .user-list-row:active{
   box-shadow:0 1px 1px rgba(15,23,42,.06) !important;
 }
 
-/* 数値色はSKILL_COLOR_TABLEの出力をそのまま使う */
-body.light-mode .user-list-skill-value:not(.score-rank-sparkle-rainbow){
-  font-size:12px !important;
-  -webkit-text-stroke:0 !important;
-  text-shadow:none !important;
-  filter:none !important;
-}
-
-/* ユーザー詳細ヘッダーもライト専用の色加工をしない */
-body.light-mode .user-detail-summary strong.user-detail-skill-value:not(.score-rank-sparkle-rainbow){
-  -webkit-text-stroke:0 !important;
-  text-shadow:none !important;
-  filter:none !important;
-}
-
-
-
 /* ユーザーリストは数値が小さいので少しだけサイズを確保 */
 body.light-mode .user-list-skill-value{
   font-size:12px !important;
-}
-
-/* 白になる0～999.99だけ、ライト背景で消えないよう濃い影を使う。 */
-body.light-mode :is(
-  .score-val,
-  .user-list-skill-value,
-  .user-detail-skill-value
-).score-rank-white{
-  -webkit-text-stroke:0 !important;
-  filter:none !important;
-  text-shadow:
-    0 1px 2px rgba(15,23,42,.95),
-    0 0 2px rgba(15,23,42,.85) !important;
 }
 
 .user-detail-instrument-switch{
@@ -5002,13 +4966,6 @@ body.light-mode .rival-manage-dialog .favorite-user-arrow{
   -webkit-text-fill-color:#64748b !important;
 }
 
-/* スキルカラー自体はダーク/ライト共通 */
-body.light-mode .rival-manage-dialog .favorite-user-skill{
-  -webkit-text-stroke:0 !important;
-  text-shadow:none !important;
-  filter:none !important;
-}
-
 /* 削除ボタン */
 body.light-mode .rival-manage-dialog .favorite-user-row > .remove{
   background:#fee2e2 !important;
@@ -5025,16 +4982,6 @@ body.light-mode .rival-manage-dialog .favorite-user-row > .remove:active{
 /* セクション境界 */
 body.light-mode .rival-manage-dialog .rival-manage-block + .rival-manage-block{
   border-top-color:#94a3b8 !important;
-}
-
-
-/* === FIX136: ライバル管理スキル値にもユーザーリストと同じ弱い影 === */
-body.light-mode .rival-manage-dialog .favorite-user-skill{
-  -webkit-text-stroke:0 !important;
-  filter:none !important;
-  text-shadow:
-    0 1px 1px rgba(15,23,42,.24),
-    0 0 1px rgba(15,23,42,.14) !important;
 }
 
 
