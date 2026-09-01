@@ -467,8 +467,6 @@ body.light-mode select:disabled{
 
 /* === APP VERSION 3.6.0: MENUスクロール / VERSION幅 / OFUSEモーダル === */
 .app-menu-sheet{
-  max-height:calc(100dvh - 24px) !important;
-  overflow-y:auto !important;
   overscroll-behavior:contain !important;
   -webkit-overflow-scrolling:touch !important;
 }
@@ -483,38 +481,19 @@ body.light-mode select:disabled{
   box-sizing:border-box !important;
 }
 .support-dialog{
-  width:min(92vw,520px);
-  max-height:calc(100dvh - 28px);
-  overflow-y:auto;
   border:1px solid #475569;
   border-radius:12px;
   background:#111827;
   color:#f8fafc;
 }
-.support-dialog-body{
-  display:flex;
-  flex-direction:column;
-  gap:12px;
-  padding:16px 18px 18px;
-  font-size:13px;
-  line-height:1.7;
-}
 .support-ofuse-button{
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  min-height:46px;
-  margin-top:4px;
   border-radius:9px;
   background:#3b82f6;
   color:#fff !important;
   -webkit-text-fill-color:#fff !important;
-  text-decoration:none;
   font-weight:900;
 }
 body.light-mode .support-dialog{
-  background:#f3f4f6 !important;
-  color:#111827 !important;
   border-color:#94a3b8 !important;
 }
 body.light-mode .support-dialog-body{
@@ -576,12 +555,6 @@ body.light-mode .support-dialog-body p{
 body.light-mode .support-ofuse-button{
   color:#fff !important;
   -webkit-text-fill-color:#fff !important;
-}
-
-
-/* === APP VERSION 3.6.0: MENU最下部の余白 === */
-.app-menu-version{
-  padding-bottom:18px !important;
 }
 
 
