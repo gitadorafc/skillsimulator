@@ -1227,12 +1227,6 @@ function syncUserListHeaderVisibility() {
   slot.classList.toggle('hidden', !visible);
 }
 
-function applyAdminCleanupPilot(enabled) {
-  const shouldEnable = Boolean(enabled);
-  document.documentElement.classList.toggle('admin-cleanup-pilot', shouldEnable);
-  document.body.classList.toggle('admin-cleanup-pilot', shouldEnable);
-}
-
 function applyAppScrollLayout(enabled) {
   const shouldEnable = Boolean(enabled);
   const wasEnabled = document.body.classList.contains('app-scroll-layout');
@@ -1951,7 +1945,6 @@ async function init() {
     if (event === 'SIGNED_OUT' || !session) {
       adminEnabled = false;
       adminAccessChecked = false;
-      applyAdminCleanupPilot(false);
       applyAppScrollLayout(false);
       updateDmBassMirrorFieldVisibility();
       applyDisplayCustomization(false, false);
@@ -4862,8 +4855,6 @@ async function deleteOwnAccount() {
 
 /* ---------- 管理者 ---------- */
 async function checkAdminAccess() {
-  // アカウント切替時に前の管理者状態を引き継がない。
-  applyAdminCleanupPilot(false);
   try {
     adminEnabled = await isAdmin();
   } catch (e) {
@@ -4872,7 +4863,6 @@ async function checkAdminAccess() {
   }
 
   adminAccessChecked = true;
-  applyAdminCleanupPilot(adminEnabled);
   $('btnAdmin').classList.toggle('hidden', !adminEnabled);
   $('mypageUserSwitchBlock')?.classList.remove('hidden');
   $('btnMenuSkillRanking')?.classList.remove('hidden');
