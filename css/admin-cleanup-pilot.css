@@ -166,3 +166,224 @@ body.admin-cleanup-pilot.light-mode .skill-row-sparkle-rainbow {
   background-color: var(--cleanup-card-light) !important;
   background-image: none !important;
 }
+
+/* === 4.14.6: ユーザーリストの有効値を単一定義へ集約 === */
+body.admin-cleanup-pilot #viewUsers .user-list-row {
+  display: grid !important;
+  grid-template-columns: minmax(112px, 1fr) 70px 70px 70px 34px !important;
+  grid-template-areas: none !important;
+  column-gap: 5px !important;
+  align-items: center !important;
+  width: 100% !important;
+  min-height: 44px !important;
+  height: 44px !important;
+  margin: 0 0 4px !important;
+  padding: 3px 8px !important;
+  box-sizing: border-box !important;
+  border: 1px solid #475569 !important;
+  border-radius: 8px !important;
+  box-shadow: none !important;
+  cursor: pointer;
+}
+
+body.admin-cleanup-pilot #viewUsers .user-list-name {
+  min-width: 0 !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+  text-align: left !important;
+  font-size: 13px !important;
+  font-weight: 900 !important;
+}
+
+body.admin-cleanup-pilot #viewUsers .user-list-skill {
+  min-width: 0 !important;
+  min-height: 20px !important;
+  height: 24px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-align: center !important;
+}
+
+body.admin-cleanup-pilot #viewUsers .user-list-skill-value {
+  display: inline-block !important;
+  width: 64px !important;
+  min-width: 64px !important;
+  max-width: 64px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  text-align: center !important;
+  line-height: 1 !important;
+  white-space: nowrap !important;
+  font-size: 12px !important;
+  font-weight: 900 !important;
+  font-variant-numeric: tabular-nums lining-nums !important;
+  font-feature-settings: "tnum" 1, "lnum" 1 !important;
+  font-family: "SFMono-Regular", "Roboto Mono", "Noto Sans Mono", Consolas, monospace !important;
+  letter-spacing: 0 !important;
+}
+
+body.admin-cleanup-pilot #viewUsers .favorite-toggle {
+  grid-area: auto !important;
+  justify-self: center !important;
+  width: 30px !important;
+  min-width: 30px !important;
+  height: 30px !important;
+  min-height: 30px !important;
+  padding: 0 !important;
+  border-radius: 7px !important;
+}
+
+body.admin-cleanup-pilot.light-mode #viewUsers .user-list-row {
+  border-color: #8b98aa !important;
+}
+
+@media (max-width: 430px) {
+  body.admin-cleanup-pilot #viewUsers .user-list-row {
+    grid-template-columns: minmax(98px, 1fr) 64px 64px 64px 30px !important;
+    column-gap: 3px !important;
+    min-height: 42px !important;
+    height: 42px !important;
+    margin-bottom: 3px !important;
+    padding: 2px 5px !important;
+  }
+
+  body.admin-cleanup-pilot #viewUsers .user-list-name {
+    font-size: 10px !important;
+  }
+
+  body.admin-cleanup-pilot #viewUsers .user-list-skill-value {
+    width: 60px !important;
+    min-width: 60px !important;
+    max-width: 60px !important;
+    font-size: 10px !important;
+  }
+}
+
+/* === 4.14.6: 横並びOFFカードの有効レイアウトを単一定義へ集約 === */
+body.admin-cleanup-pilot:not(.skill-target-columns) :is(
+  #viewSkill,
+  #viewAllManage,
+  #userDetailSkill,
+  #userDetailRecords
+) .dc-card {
+  --dc-part-w: 62px;
+  --dc-lv-w: 58px;
+  --dc-rate-w: 108px;
+  --dc-opt-w: 72px;
+  --dc-side-w: 76px;
+  --dc-gap-x: 6px;
+  --dc-gap-y: 4px;
+  width: 100% !important;
+  height: auto !important;
+  min-height: 68px !important;
+  padding: 8px 10px !important;
+  box-sizing: border-box !important;
+  display: grid !important;
+  grid-template-columns:
+    var(--dc-part-w)
+    var(--dc-lv-w)
+    minmax(0, 1fr)
+    var(--dc-opt-w)
+    var(--dc-side-w) !important;
+  column-gap: var(--dc-gap-x) !important;
+  row-gap: var(--dc-gap-y) !important;
+  align-items: center !important;
+  overflow: hidden !important;
+}
+
+body.admin-cleanup-pilot:not(.skill-target-columns) .dc-card > .dc-part {
+  grid-column: 1;
+  grid-row: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+body.admin-cleanup-pilot:not(.skill-target-columns) .dc-card > .dc-title {
+  grid-column: 2 / 5;
+  grid-row: 1;
+  min-width: 0;
+  display: flex !important;
+  align-items: center !important;
+  gap: 5px !important;
+  overflow: hidden !important;
+  white-space: normal !important;
+  line-height: 1.18 !important;
+}
+
+body.admin-cleanup-pilot:not(.skill-target-columns) .dc-card > .dc-skill {
+  grid-column: 5;
+  grid-row: 1;
+  align-self: center !important;
+  justify-self: end !important;
+}
+
+body.admin-cleanup-pilot:not(.skill-target-columns) .dc-card > .dc-fc {
+  grid-column: 1;
+  grid-row: 2;
+}
+
+body.admin-cleanup-pilot:not(.skill-target-columns) .dc-card > .dc-lv {
+  grid-column: 2;
+  grid-row: 2;
+}
+
+body.admin-cleanup-pilot:not(.skill-target-columns) .dc-card > .dc-rate {
+  grid-column: 3;
+  grid-row: 2;
+}
+
+body.admin-cleanup-pilot:not(.skill-target-columns) .dc-card > .dc-option {
+  grid-column: 4;
+  grid-row: 2;
+}
+
+body.admin-cleanup-pilot:not(.skill-target-columns) .dc-card > .dc-edit {
+  grid-column: 5;
+  grid-row: 2;
+}
+
+body.admin-cleanup-pilot:not(.skill-target-columns) .dc-card > .dc-skill-span {
+  grid-row: 1 / 3;
+}
+
+@media (max-width: 430px) {
+  body.admin-cleanup-pilot:not(.skill-target-columns) :is(
+    #viewSkill,
+    #viewAllManage,
+    #userDetailSkill,
+    #userDetailRecords
+  ) .dc-card {
+    --dc-part-w: 60px;
+    --dc-lv-w: 54px;
+    --dc-rate-w: 96px;
+    --dc-opt-w: 66px;
+    --dc-side-w: 72px;
+    --dc-gap-x: 5px;
+    padding: 7px 8px !important;
+  }
+
+  body.admin-cleanup-pilot:not(.skill-target-columns) .dc-card > .dc-title {
+    gap: 4px !important;
+  }
+}
+
+@media (max-width: 370px) {
+  body.admin-cleanup-pilot:not(.skill-target-columns) :is(
+    #viewSkill,
+    #viewAllManage,
+    #userDetailSkill,
+    #userDetailRecords
+  ) .dc-card {
+    --dc-part-w: 58px;
+    --dc-lv-w: 48px;
+    --dc-opt-w: 60px;
+    --dc-side-w: 68px;
+    --dc-gap-x: 4px;
+    padding-left: 6px !important;
+    padding-right: 6px !important;
+  }
+}
