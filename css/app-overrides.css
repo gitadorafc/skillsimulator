@@ -905,7 +905,6 @@ body.light-mode :is(
 
 /* === APP VERSION 3.10.0: DMオプション・歴代自己ベスト表示 === */
 .opt-bass-mirror,
-:is(#viewAllManage, #userDetailRecords) .m-card .opt-bass-mirror,
 .rate-badges .opt-bass-mirror{
   width:auto !important;
   min-width:54px !important;
@@ -2070,7 +2069,7 @@ body.light-mode .user-list-row.user-list-row-sparkle-rainbow:active {
   animation:none !important;
   filter:none !important;
 }
-body.light-mode :is(.m-card,.sk-row):has(.skill-box-sparkle-rainbow)::before {
+body.light-mode .dc-card:has(.skill-box-sparkle-rainbow)::before {
   padding:2.3px !important;
   background-image:
     linear-gradient(rgba(255,255,255,var(--skill-border-light-alpha)) 0 100%),
@@ -2290,13 +2289,6 @@ body.light-mode #viewAllManage .dc-edit .m-action-btn.btn-e {
   margin:0 !important;
   font-size:10px !important;
   line-height:1 !important;
-}
-body.skill-target-columns #viewAllManage .dc-card-manage .dc-edit .m-action-btn.btn-e {
-  width:100% !important;
-  max-width:82px !important;
-  min-height:24px !important;
-  height:24px !important;
-  margin-left:auto !important;
 }
 .rate-compare-edit-area {
   display:flex;
@@ -3608,65 +3600,8 @@ body.light-mode .admin-activity-legend b{ color:#111827; }
 }
 
 /* 登録曲側に残っていた下マージンを外し、全カードをgap:4pxへ統一する。 */
-:is(#viewAllManage,#userDetailRecords) .m-card{
+:is(#viewAllManage,#userDetailRecords) .dc-card{
   margin-bottom:0 !important;
-}
-
-/* 横並び登録カードの数値行・編集行を最終配置へ統合する。 */
-body.skill-target-columns :is(#viewAllManage,#userDetailRecords) .dc-card-manage :is(
-  .dc-lv,
-  .dc-rate,
-  .dc-skill
-){
-  align-self:center !important;
-  position:relative !important;
-  top:0 !important;
-}
-
-body.skill-target-columns #viewAllManage .dc-card-manage .dc-edit{
-  min-height:27px !important;
-  height:27px !important;
-  align-self:stretch !important;
-  align-items:center !important;
-  box-sizing:border-box !important;
-}
-body.skill-target-columns #viewAllManage .dc-card-manage .dc-edit .m-action-btn.btn-e{
-  display:flex !important;
-  align-items:center !important;
-  justify-content:center !important;
-  line-height:1 !important;
-  position:relative !important;
-  top:0 !important;
-}
-
-/* 左右のスキルカラー帯と背面枠を、同じborder-box基準・同じ高さにする。 */
-body.skill-target-columns :is(#viewAllManage,#userDetailRecords) .dc-card-manage .dc-skill[class*="skill-box-"]{
-  height:21px !important;
-  min-height:21px !important;
-  max-height:21px !important;
-  padding-top:0 !important;
-  padding-bottom:0 !important;
-  position:relative !important;
-  border-top:0 !important;
-  border-bottom:0 !important;
-  background-origin:border-box !important;
-  background-clip:border-box !important;
-  overflow:hidden !important;
-}
-body.skill-target-columns :is(#viewAllManage,#userDetailRecords) .dc-card-manage .dc-skill[class*="skill-box-"]::before{
-  content:"";
-  position:absolute;
-  left:5px;
-  right:5px;
-  top:0;
-  bottom:0;
-  border-top:1px solid #334155;
-  border-bottom:1px solid #334155;
-  pointer-events:none;
-}
-body.light-mode.skill-target-columns :is(#viewAllManage,#userDetailRecords) .dc-card-manage .dc-skill[class*="skill-box-"]::before{
-  border-top-color:#cbd5e1;
-  border-bottom-color:#cbd5e1;
 }
 
 /* === APP VERSION 4.12.5: 管理画面 曲マスターCSV入出力 === */
@@ -3836,10 +3771,6 @@ body.light-mode .rate-compare-dialog .rate-skill[class*="skill-box-"]{
   padding:1px 6px 0 !important;
   line-height:1 !important;
 }
-body.skill-target-columns #viewAllManage .dc-card-manage .dc-edit .m-action-btn.btn-e{
-  padding:1px 6px 0 !important;
-}
-
 /* === APP VERSION 4.12.18: 全画面のスキル帯・内枠を共通化 === */
 /* 横並び登録カードを正とし、左右5pxの帯を避けた位置に上下枠を描画する。 */
 :is(.dc-card .dc-skill,.rate-compare-dialog .rate-skill)[class*="skill-box-"]{
@@ -4004,19 +3935,7 @@ body.light-mode #viewUsers .user-list-row.user-list-row-sparkle-rainbow:active{
   filter:none !important;
 }
 
-/* 曲カードだけはページより一段明るい色を維持する。 */
-body.light-mode .dc-card,
-body.light-mode .dc-card.dc-card-skill,
-body.light-mode .dc-card.dc-card-manage,
-body.light-mode #viewSkill .dc-card,
-body.light-mode #viewAllManage .m-card,
-body.light-mode #userDetailSkill .dc-card,
-body.light-mode #userDetailRecords .m-card{
-  background:var(--app-light-card-bg) !important;
-  background-color:var(--app-light-card-bg) !important;
-  background-image:none !important;
-  color:#111827 !important;
-}
+/* 曲カード内のスキル帯も、カードと同じ明るさを維持する。 */
 body.light-mode .dc-card .dc-skill[class*="skill-box-"],
 body.light-mode .rate-compare-dialog .rate-skill[class*="skill-box-"]{
   background-color:var(--app-light-card-bg) !important;

@@ -65,12 +65,6 @@
     .opt-sra-plus { color: #fecdd3; border: 1px solid #be123c; } 
     .opt-bass-mirror { color: #c4b5fd; border: 1px solid #7c3aed; width:54px; }
 
-    /* HOT/OTHER/ALL管理タブ（白背景）用の見え方調整 */
-    .m-card .opt-ran      { color: #15803d; background: #f0fdf4; border-color: #bbf7d0; }
-    .m-card .opt-sra      { color: #c2410c; background: #fff7ed; border-color: #fed7aa; }
-    .m-card .opt-ran-plus { color: #0369a1; background: #f0f9ff; border-color: #bae6fd; }
-    .m-card .opt-sra-plus { color: #be123c; background: #fff1f2; border-color: #fecdd3; }
-
     /* === 3. ヘッダー＆スクロール固定エリア === */
     .p-header { background: #1f2937; position: sticky; top: 0; z-index: 100; width: 100%; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
     .score-row { display: flex; width: 100%; height: 48px; align-items: center; border-bottom: 1px solid #374151; }
@@ -96,21 +90,7 @@
     .sk-section h2 { font-size: 13px; font-weight: 900; color: #38bdf8; margin: 6px 0 4px 0; padding-left: 4px; border-left: 3px solid #2563eb; }
     .list-container { display: flex; flex-direction: column; gap: 4px; }
     
-    /* --- SKILLタブ用のカード外枠 --- */
-    .sk-row { 
-      background: #1f2937; 
-      border: 1px solid #374151; 
-      padding: 0 6px; 
-      border-radius: 4px; 
-      display: flex; 
-      align-items: center; 
-      gap: 6px; 
-      height: 62px; 
-      box-sizing: border-box; 
-    }
-
-    /* --- HOT/OTHER/ALL管理タブ用のカード外枠 --- */
-    .m-card { background: #ffffff; color: #111827; border-radius: 4px; padding: 4px 6px; display: flex; align-items: center; gap: 6px; height: 72px; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
+    /* 曲カードの外枠・配置はlayout-canonical.cssの.dc-cardで一元管理する。 */
     .m-action-btn { font-size: 11px; font-weight: bold; border: none; cursor: pointer; padding: 3px 8px; border-radius: 4px; transition: background 0.1s; }
     .btn-e { color: #2563eb; background: #f3f4f6; }
     .btn-e:active { background: #e5e7eb; }
@@ -161,10 +141,10 @@
   background:#fef2f2;
   border:1px solid #fecaca;
 }
-.sk-row .hot-tag {
-  color:#fecaca;
-  background:#450a0a;
-  border-color:#991b1b;
+.dc-card .hot-tag {
+  color:#fecaca !important;
+  background:#450a0a !important;
+  border-color:#991b1b !important;
 }
 
 
@@ -463,28 +443,25 @@ body { background:#0b1220; }
 
 
 /* 行側もSkill帯に合わせて薄く配色 */
-.skill-row-white { border-color:#374151 !important; }
-.skill-row-orange { border-color:#ff7a22 !important; background:linear-gradient(90deg,rgba(255,122,34,.14),#111827 42%) !important; }
-.skill-row-orange-grad { border-color:#ff9b43 !important; background:linear-gradient(90deg,rgba(255,155,67,.15),#111827 42%) !important; }
-.skill-row-yellow { border-color:#e9d400 !important; background:linear-gradient(90deg,rgba(255,230,0,.12),#111827 42%) !important; }
-.skill-row-yellow-grad { border-color:#f5c400 !important; background:linear-gradient(90deg,rgba(255,233,77,.14),#111827 42%) !important; }
-.skill-row-green { border-color:#22d13b !important; background:linear-gradient(90deg,rgba(34,209,59,.13),#111827 42%) !important; }
-.skill-row-green-grad { border-color:#44e45b !important; background:linear-gradient(90deg,rgba(68,228,91,.15),#111827 42%) !important; }
-.skill-row-blue { border-color:#2f91ff !important; background:linear-gradient(90deg,rgba(47,145,255,.14),#111827 42%) !important; }
-.skill-row-blue-grad { border-color:#53adff !important; background:linear-gradient(90deg,rgba(83,173,255,.16),#111827 42%) !important; }
-.skill-row-purple { border-color:#e02cff !important; background:linear-gradient(90deg,rgba(224,44,255,.13),#111827 42%) !important; }
-.skill-row-purple-grad { border-color:#ea5cff !important; background:linear-gradient(90deg,rgba(234,92,255,.15),#111827 42%) !important; }
-.skill-row-red { border-color:#ff1638 !important; background:linear-gradient(90deg,rgba(255,22,56,.13),#111827 42%) !important; }
-.skill-row-red-grad { border-color:#ff4d68 !important; background:linear-gradient(90deg,rgba(255,77,104,.15),#111827 42%) !important; }
-.skill-row-bronze { border-color:#c77b45 !important; background:linear-gradient(90deg,rgba(199,123,69,.15),#111827 42%) !important; }
-.skill-row-silver { border-color:#cbd5e1 !important; background:linear-gradient(90deg,rgba(203,213,225,.13),#111827 42%) !important; }
-.skill-row-gold { border-color:#ffd83d !important; background:linear-gradient(90deg,rgba(255,216,61,.15),#111827 42%) !important; }
+.skill-row-orange { background:linear-gradient(90deg,rgba(255,122,34,.14),#111827 42%) !important; }
+.skill-row-orange-grad { background:linear-gradient(90deg,rgba(255,155,67,.15),#111827 42%) !important; }
+.skill-row-yellow { background:linear-gradient(90deg,rgba(255,230,0,.12),#111827 42%) !important; }
+.skill-row-yellow-grad { background:linear-gradient(90deg,rgba(255,233,77,.14),#111827 42%) !important; }
+.skill-row-green { background:linear-gradient(90deg,rgba(34,209,59,.13),#111827 42%) !important; }
+.skill-row-green-grad { background:linear-gradient(90deg,rgba(68,228,91,.15),#111827 42%) !important; }
+.skill-row-blue { background:linear-gradient(90deg,rgba(47,145,255,.14),#111827 42%) !important; }
+.skill-row-blue-grad { background:linear-gradient(90deg,rgba(83,173,255,.16),#111827 42%) !important; }
+.skill-row-purple { background:linear-gradient(90deg,rgba(224,44,255,.13),#111827 42%) !important; }
+.skill-row-purple-grad { background:linear-gradient(90deg,rgba(234,92,255,.15),#111827 42%) !important; }
+.skill-row-red { background:linear-gradient(90deg,rgba(255,22,56,.13),#111827 42%) !important; }
+.skill-row-red-grad { background:linear-gradient(90deg,rgba(255,77,104,.15),#111827 42%) !important; }
+.skill-row-bronze { background:linear-gradient(90deg,rgba(199,123,69,.15),#111827 42%) !important; }
+.skill-row-silver { background:linear-gradient(90deg,rgba(203,213,225,.13),#111827 42%) !important; }
+.skill-row-gold { background:linear-gradient(90deg,rgba(255,216,61,.15),#111827 42%) !important; }
 .skill-row-rainbow {
-  border-color:#d946ef !important;
   background:linear-gradient(90deg,rgba(59,130,246,.16),rgba(168,85,247,.12),#111827 48%) !important;
 }
 .skill-row-deep-rainbow {
-  border-color:#ff2d8d !important;
   background:linear-gradient(90deg,rgba(0,119,255,.20),rgba(214,44,255,.16),rgba(255,45,141,.12),#111827 55%) !important;
 }
 
@@ -536,7 +513,7 @@ body { background:#0b1220; }
 }
 
 /* 190.00以上の登録曲・スキル対象は、枠そのものだけを明滅させる。 */
-:is(.m-card,.sk-row):has(.skill-box-sparkle-rainbow)::before {
+.dc-card:has(.skill-box-sparkle-rainbow)::before {
   padding:2.3px !important;
   background-size:100% 100% !important;
   animation:skill-sparkle-border-pulse var(--skill-sparkle-cycle) ease-in-out infinite !important;
@@ -578,7 +555,7 @@ body.light-mode :is(.score-val,.user-list-skill-value,.user-detail-skill-value).
   body:not(.light-mode) .skill-box-sparkle-rainbow {
     animation:none !important;
   }
-  body:not(.light-mode) :is(.m-card,.sk-row):has(.skill-box-sparkle-rainbow)::before {
+  body:not(.light-mode) .dc-card:has(.skill-box-sparkle-rainbow)::before {
     animation:skill-sparkle-border-pulse var(--skill-sparkle-cycle) ease-in-out infinite !important;
   }
   body:not(.light-mode) :is(.dc-card .dc-skill,.rate-compare-dialog .rate-skill).skill-box-sparkle-rainbow::after {
@@ -1060,7 +1037,7 @@ body.light-mode :is(.score-val,.user-list-skill-value,.user-detail-skill-value).
 }
 .favorite-user-row .remove { color: #fca5a5; }
 
-.m-card[data-compare-song] { cursor: pointer; }
+.dc-card[data-compare-song] { cursor: pointer; }
 
 /* === v15.1 UI統一 === */
 
@@ -1197,27 +1174,6 @@ body.light-mode :is(.score-val,.user-list-skill-value,.user-detail-skill-value).
   background: #030712 !important;
 }
 
-:is(#viewAllManage, #userDetailRecords) .m-card {
-  border-color: #334155 !important;
-  background: #111827 !important;
-  color: #f8fafc !important;
-}
-
-#viewAllManage .m-title-text {
-  color: #f8fafc !important;
-}
-
-#viewAllManage .m-txt-lv,
-#viewAllManage .m-txt-rate,
-#viewAllManage .m-flow-container {
-  color: #cbd5e1 !important;
-}
-
-#viewAllManage .m-txt-lv strong,
-#viewAllManage .m-txt-rate strong {
-  color: #f8fafc !important;
-}
-
 #viewAllManage .m-actions button {
   background: #1e293b !important;
   color: #e2e8f0 !important;
@@ -1251,18 +1207,6 @@ body.light-mode :is(.score-val,.user-list-skill-value,.user-detail-skill-value).
   overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: thin;
-}
-
-/* ③ 登録一覧のカード枠線を明確化 */
-:is(#viewAllManage, #userDetailRecords) .m-card {
-  border: 1px solid #475569 !important;
-  border-radius: 8px !important;
-  background: #111827 !important;
-  box-shadow: inset 0 0 0 1px rgba(255,255,255,.015);
-}
-
-:is(#viewAllManage, #userDetailRecords) .m-card:hover {
-  border-color: #64748b !important;
 }
 
 /* ユーザーリストも同じトーンの枠線 */
@@ -2474,18 +2418,6 @@ html.ios-viewport-repair {
   min-height: 0 !important;
 }
 
-/* === v21 FIX14: 曲名の不要な「...」を防止 === */
-.sk-title,
-.m-title-text {
-  display: block !important;
-  -webkit-line-clamp: unset !important;
-  -webkit-box-orient: unset !important;
-  text-overflow: clip !important;
-  overflow: hidden !important;
-  max-height: 2.4em !important;
-  line-height: 1.2 !important;
-}
-
 .smart-song-title .song-title-text {
   display: inline;
 }
@@ -2712,17 +2644,6 @@ html.ios-viewport-repair {
   font-family: "SFMono-Regular", "Roboto Mono", "Noto Sans Mono", Consolas, monospace !important;
   letter-spacing: 0 !important;
   white-space: nowrap !important;
-}
-
-/* === v21 FIX35: 曲別Skill表示方針統一 === */
-.sk-val-box[class*="skill-box-"],
-.m-card-val-box[class*="skill-box-"] {
-  min-width: 72px;
-  padding-left: 10px !important;
-  padding-right: 10px !important;
-  text-align: center !important;
-  color: #fff !important;
-  -webkit-text-fill-color: #fff !important;
 }
 
 /* === v21 FIX38: ユーザーリスト列幅・縦位置統一 === */
@@ -2987,50 +2908,6 @@ html.ios-viewport-repair {
   color:#64748b;
 }
 
-/* === v21 FIX43: 登録一覧をスキル対象カードと同系統に統一 === */
-:is(#viewAllManage, #userDetailRecords) .m-card {
-  border: 1px solid #475569 !important;
-  border-radius: 8px !important;
-  background: #111827 !important;
-  box-shadow: none !important;
-  overflow: hidden;
-}
-#viewAllManage .m-main-area {
-  padding: 0 !important;
-}
-#viewAllManage .m-upper-row {
-  min-height: 34px !important;
-  height: auto !important;
-  padding: 5px 6px 3px !important;
-  gap: 6px !important;
-}
-#viewAllManage .m-lower-row {
-  min-height: 28px !important;
-  height: auto !important;
-  padding: 2px 6px 5px !important;
-  border-top: 0 !important;
-  gap: 6px !important;
-}
-#viewAllManage .m-title-text {
-  color: #f8fafc !important;
-}
-:is(#viewAllManage, #userDetailRecords) .m-card-val-box {
-  flex-shrink: 0;
-}
-#viewAllManage .m-flow-container {
-  color: #94a3b8 !important;
-}
-#viewAllManage .m-txt-lv strong,
-#viewAllManage .m-txt-rate strong {
-  color: #f8fafc !important;
-}
-#viewAllManage .m-btn-group {
-  margin-left: auto;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-}
-
 /* === v21 FIX45: compact user list / register cards / rival comparison === */
 
 /* ユーザーリスト: 可能な限り1行を詰める */
@@ -3060,24 +2937,6 @@ html.ios-viewport-repair {
     padding-bottom: 2px !important;
     margin-bottom: 3px !important;
   }
-}
-
-/* 登録曲: HOT / option をスキル対象と同じ見え方へ */
-#viewAllManage .hot-badge,
-#viewAllManage .opt-badge {
-  margin: 0 !important;
-  vertical-align: middle !important;
-}
-:is(#viewAllManage, #userDetailRecords) .m-card {
-  margin-bottom: 5px !important;
-}
-#viewAllManage .m-upper-row {
-  padding-top: 4px !important;
-  padding-bottom: 2px !important;
-}
-#viewAllManage .m-lower-row {
-  padding-top: 1px !important;
-  padding-bottom: 4px !important;
 }
 
 /* ライバル比較: 項目行 + コンパクト */
@@ -3139,61 +2998,6 @@ html.ios-viewport-repair {
   box-sizing:border-box !important;
 }
 
-/* === v21 FIX46: 登録曲カード完全統一 === */
-
-/* border-colorではグラデーション不可なので疑似要素で描画 */
-:is(#viewAllManage, #userDetailRecords) .m-card {
-  position: relative !important;
-  border: 0 !important;
-  border-radius: 8px !important;
-  background: #111827 !important;
-  overflow: hidden;
-}
-:is(#viewAllManage, #userDetailRecords) .m-card::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  padding: 2.3px;
-  border-radius: inherit;
-  background: var(--song-skill-border, #475569);
-  pointer-events: none;
-  z-index: 2;
-  -webkit-mask:
-    linear-gradient(#000 0 0) content-box,
-    linear-gradient(#000 0 0);
-  -webkit-mask-composite: xor;
-  mask-composite: exclude;
-}
-
-/* HOTはスキル対象と同一 */
-:is(#viewAllManage, #userDetailRecords) .m-card .hot-tag {
-  color: #fecaca !important;
-  background: #450a0a !important;
-  border: 1px solid #991b1b !important;
-}
-
-/* オプションもスキル対象と同一 */
-:is(#viewAllManage, #userDetailRecords) .m-card .opt-ran {
-  color: #86efac !important;
-  background: transparent !important;
-  border: 1px solid #15803d !important;
-}
-:is(#viewAllManage, #userDetailRecords) .m-card .opt-sra {
-  color: #ffedd5 !important;
-  background: transparent !important;
-  border: 1px solid #c2410c !important;
-}
-:is(#viewAllManage, #userDetailRecords) .m-card .opt-ran-plus {
-  color: #67e8f9 !important;
-  background: transparent !important;
-  border: 1px solid #0369a1 !important;
-}
-:is(#viewAllManage, #userDetailRecords) .m-card .opt-sra-plus {
-  color: #fecdd3 !important;
-  background: transparent !important;
-  border: 1px solid #be123c !important;
-}
-
 .edit-delete-area {
   margin-top: 8px;
   padding-top: 8px;
@@ -3213,40 +3017,14 @@ html.ios-viewport-repair {
   opacity: .5;
 }
 
-/* === v21 FIX47: スキル対象もグラデーション枠 / option色統一 === */
-
-/* スキル対象の外枠も登録曲と同じgradient border */
-.sk-row {
-  position: relative !important;
-  border: 0 !important;
-  overflow: hidden;
-}
-.sk-row::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  padding: 2.3px;
-  border-radius: inherit;
-  background: var(--song-skill-border, #475569);
-  pointer-events: none;
-  z-index: 2;
-  -webkit-mask:
-    linear-gradient(#000 0 0) content-box,
-    linear-gradient(#000 0 0);
-  -webkit-mask-composite: xor;
-  mask-composite: exclude;
-}
-
 /* RAN系：緑。同系色で + を濃く */
 .opt-ran,
-:is(#viewAllManage, #userDetailRecords) .m-card .opt-ran,
 .rate-badges .opt-ran {
   color: #86efac !important;
   background: transparent !important;
   border: 1px solid #15803d !important;
 }
 .opt-ran-plus,
-:is(#viewAllManage, #userDetailRecords) .m-card .opt-ran-plus,
 .rate-badges .opt-ran-plus {
   color: #4ade80 !important;
   background: rgba(20,83,45,.34) !important;
@@ -3255,14 +3033,12 @@ html.ios-viewport-repair {
 
 /* SRA系：オレンジ。同系色で + を濃く */
 .opt-sra,
-:is(#viewAllManage, #userDetailRecords) .m-card .opt-sra,
 .rate-badges .opt-sra {
   color: #fdba74 !important;
   background: transparent !important;
   border: 1px solid #c2410c !important;
 }
 .opt-sra-plus,
-:is(#viewAllManage, #userDetailRecords) .m-card .opt-sra-plus,
 .rate-badges .opt-sra-plus {
   color: #fb923c !important;
   background: rgba(124,45,18,.38) !important;
@@ -3337,705 +3113,22 @@ html.ios-viewport-repair {
   margin-top: 2px !important;
 }
 
-
-/* FIX65: パート / HOT / 曲名の上下位置を中央揃え */
-.m-card .m-title,
-.sk-row .sk-title {
-  display: flex;
-  align-items: center;
-}
-
-.m-card .m-title > *,
-.sk-row .sk-title > * {
-  align-self: center;
-}
-
-.m-card .m-title .tag,
-.m-card .m-title .badge,
-.m-card .m-title .part,
-.sk-row .sk-title .tag,
-.sk-row .sk-title .badge,
-.sk-row .sk-title .part {
-  vertical-align: middle;
-}
-
-/* 曲名側もバッジと同じ行ボックス基準にする */
-.m-card .m-title,
-.sk-row .sk-title {
-  line-height: 1.2;
-}
-
-
-/* FIX67: 曲名 / HOT、および Lv / 達成率の縦位置を微調整 */
-
-/* 曲名がHOTよりわずかに上に見える分だけ1px下げる */
-.sk-row .sk-title,
-:is(#viewAllManage, #userDetailRecords) .m-card .m-title-text {
-  position: relative;
-  top: 1px;
-}
-
-/* Lv / 達成率はラベルと数値を同じ中央基準で揃える */
-.sk-row .sk-meta {
-  display: flex !important;
-  align-items: center !important;
-  line-height: 1 !important;
-}
-
-.sk-row .sk-meta-lv,
-.sk-row .sk-meta-rate {
-  display: inline-flex !important;
-  align-items: center !important;
-  line-height: 1 !important;
-}
-
-.sk-row .sk-meta-lv strong,
-.sk-row .sk-meta-rate strong {
-  display: inline-block !important;
-  line-height: 1 !important;
-  vertical-align: middle !important;
-}
-
-/* 登録曲側も同じ基準 */
-#viewAllManage .m-txt-lv,
-#viewAllManage .m-txt-rate {
-  display: inline-flex !important;
-  align-items: center !important;
-  line-height: 1 !important;
-}
-
-#viewAllManage .m-txt-lv strong,
-#viewAllManage .m-txt-rate strong {
-  display: inline-block !important;
-  line-height: 1 !important;
-  vertical-align: middle !important;
-}
-
-
-/* FIX70: HOTバッジを見切れさせず、曲名と上下中央を揃える */
-.sk-row .hot-tag,
-:is(#viewAllManage, #userDetailRecords) .m-card .hot-tag {
-  position: relative !important;
-  top: 0 !important;
-  transform: translateY(-1px);
-}
-
-
-/* FIX72: HOTバッジをMAS-Gと同じ縦中央位置へ揃える */
-.sk-row .hot-tag,
-:is(#viewAllManage, #userDetailRecords) .m-card .hot-tag {
-  position: static !important;
-  top: auto !important;
-  transform: none !important;
-
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-
-  height: 18px !important;
-  min-height: 18px !important;
-  padding: 0 5px !important;
-  box-sizing: border-box !important;
-
-  line-height: 18px !important;
-  vertical-align: middle !important;
-  overflow: visible !important;
-  align-self: center !important;
-}
-
-/* 文字だけが上/下に寄らないよう余白補正は入れない */
-.sk-row .hot-tag,
-:is(#viewAllManage, #userDetailRecords) .m-card .hot-tag {
-  padding-top: 0 !important;
-  padding-bottom: 0 !important;
-}
-
-/* タイトル行はバッジ・曲名とも同一の中央基準 */
-.sk-row .sk-title,
-:is(#viewAllManage, #userDetailRecords) .m-card .m-title-text {
-  align-items: center !important;
-  overflow: visible !important;
-}
-
-
-/* FIX78: HOTは負のmarginを使わず、17px高で中央に揃える */
-.sk-row .hot-tag,
-:is(#viewAllManage, #userDetailRecords) .m-card .hot-tag {
-  margin-top: 0 !important;
-  margin-bottom: 0 !important;
-  height: 17px !important;
-  min-height: 17px !important;
-  line-height: 17px !important;
-  align-self: center !important;
-}
-
-
-/* FIX76: 登録曲の曲名もスキル対象と同じく最大2行表示 */
-:is(#viewAllManage, #userDetailRecords) .m-card .m-title-text {
-  display: -webkit-box !important;
-  -webkit-box-orient: vertical !important;
-  -webkit-line-clamp: 2 !important;
-  line-clamp: 2 !important;
-  white-space: normal !important;
-  overflow: hidden !important;
-  text-overflow: ellipsis !important;
-  line-height: 1.2 !important;
-  max-height: 2.4em !important;
-  word-break: break-word !important;
-}
-
-
-/* FIX79: iPhone Safari(WebKit)でHOT位置と文字位置を個別補正 */
-@supports (-webkit-touch-callout: none) {
-  /* バッジ全体はMAS-Gに合わせて1px上へ */
-  .sk-row .hot-tag,
-  :is(#viewAllManage, #userDetailRecords) .m-card .hot-tag {
-    position: relative !important;
-    top: -1px !important;
-    transform: none !important;
-
-    /* HOT文字は枠内で1px下へ寄せる */
-    padding-top: 1px !important;
-    padding-bottom: 0 !important;
-    line-height: 16px !important;
-  }
-
-  /* 上へ1px動かしても枠が切れないよう、周辺のクリップを解除 */
-  .sk-row .sk-title,
-  .sk-row .sk-text-column,
-  :is(#viewAllManage, #userDetailRecords) .m-card .m-title-text,
-  :is(#viewAllManage, #userDetailRecords) .m-card .m-upper-row {
-    overflow: visible !important;
-  }
-}
-
-
-/* FIX80: HOTの箱をPARTバッジと同じ高さに統一。ブラウザ別の位置移動は無効化 */
-.sk-row .p-badge,
-.sk-row .hot-tag,
-:is(#viewAllManage, #userDetailRecords) .m-card .p-badge,
-:is(#viewAllManage, #userDetailRecords) .m-card .hot-tag {
-  height: 20px !important;
-  min-height: 20px !important;
-  box-sizing: border-box !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  align-self: center !important;
-  position: static !important;
-  top: auto !important;
-  transform: none !important;
-  margin-top: 0 !important;
-  margin-bottom: 0 !important;
-  line-height: 1 !important;
-}
-
-.sk-row .p-badge,
-:is(#viewAllManage, #userDetailRecords) .m-card .p-badge {
-  padding-top: 0 !important;
-  padding-bottom: 0 !important;
-}
-
-.sk-row .hot-tag,
-:is(#viewAllManage, #userDetailRecords) .m-card .hot-tag {
-  padding: 0 5px !important;
-}
-
-/* Safariは文字の見え方だけ1px下げる。HOTの箱自体は動かさない */
-@supports (-webkit-touch-callout: none) {
-  .sk-row .hot-tag,
-  :is(#viewAllManage, #userDetailRecords) .m-card .hot-tag {
-    padding-top: 1px !important;
-    padding-bottom: 0 !important;
-  }
-}
-
-/* 登録曲は1行固定にせず、必要な曲だけカード上段を広げて最大2行表示 */
-:is(#viewAllManage, #userDetailRecords) .m-card {
-  height: auto !important;
-  min-height: 72px !important;
-}
-
-#viewAllManage .m-main-area {
-  height: auto !important;
-  min-height: 64px !important;
-}
-
-#viewAllManage .m-upper-row {
-  height: auto !important;
-  min-height: 34px !important;
-  align-items: center !important;
-}
-
-#viewAllManage .m-title-text {
-  display: -webkit-box !important;
-  -webkit-box-orient: vertical !important;
-  -webkit-line-clamp: 2 !important;
-  line-clamp: 2 !important;
-  white-space: normal !important;
-  overflow: hidden !important;
-  text-overflow: clip !important;
-  line-height: 1.2 !important;
-  max-height: 2.4em !important;
-  word-break: break-word !important;
-  position: static !important;
-  top: auto !important;
-}
-
-
-/* FIX82: スキル対象側のHOTをMAS-Gと同じ見た目の縦幅へ統一 */
-#viewSkill .sk-row .hot-tag {
-  height: 20px !important;
-  min-height: 20px !important;
-  max-height: 20px !important;
-  box-sizing: border-box !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  padding: 0 5px !important;
-  margin: 0 !important;
-  border-width: 1px !important;
-  line-height: 1 !important;
-  position: static !important;
-  top: auto !important;
-  transform: none !important;
-  flex-shrink: 0 !important;
-}
-
-/* Safariは文字だけを1px下げ、箱の高さは20pxのまま */
-@supports (-webkit-touch-callout: none) {
-  #viewSkill .sk-row .hot-tag {
-    padding-top: 1px !important;
-    padding-bottom: 0 !important;
-  }
-}
-
-
-/* FIX85: 曲カードの共通バッジデザイン
-   スキル対象 / 登録曲 / ユーザー詳細スキル対象で同じ寸法に統一 */
-.sk-row .p-badge,
-.sk-row .hot-tag,
-:is(#viewAllManage, #userDetailRecords) .m-card .p-badge,
-:is(#viewAllManage, #userDetailRecords) .m-card .hot-tag {
-  height: 20px !important;
-  min-height: 20px !important;
-  max-height: 20px !important;
-  box-sizing: border-box !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  vertical-align: middle !important;
-  align-self: center !important;
-  margin-top: 0 !important;
-  margin-bottom: 0 !important;
-  position: static !important;
-  top: auto !important;
-  transform: none !important;
-  line-height: 1 !important;
-  flex-shrink: 0 !important;
-}
-
-/* HOTはPARTと同じ20pxの外寸を維持 */
-.sk-row .hot-tag,
-:is(#viewAllManage, #userDetailRecords) .m-card .hot-tag {
-  padding: 0 5px !important;
-}
-
-/* PARTも上下paddingで高さが膨らまないよう固定 */
-.sk-row .p-badge,
-:is(#viewAllManage, #userDetailRecords) .m-card .p-badge {
-  padding-top: 0 !important;
-  padding-bottom: 0 !important;
-}
-
-/* Safariも箱そのものは動かさない。文字だけ微調整 */
-@supports (-webkit-touch-callout: none) {
-  .sk-row .hot-tag,
-  :is(#viewAllManage, #userDetailRecords) .m-card .hot-tag {
-    padding-top: 1px !important;
-    padding-bottom: 0 !important;
-  }
-}
-
-
-/* FIX86: 登録曲のHOT寸法を正として、スキル対象/ユーザー詳細にも完全統一 */
-
-/* 登録曲側のHOTを基準化 */
-:is(#viewAllManage, #userDetailRecords) .m-card .hot-tag {
-  height: 20px !important;
-  min-height: 20px !important;
-  max-height: 20px !important;
-  padding: 0 7px !important;
-  border-width: 1px !important;
-  border-radius: 4px !important;
-  box-sizing: border-box !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  line-height: 1 !important;
-  vertical-align: middle !important;
-  align-self: center !important;
-  flex-shrink: 0 !important;
-  margin: 0 !important;
-  position: static !important;
-  top: auto !important;
-  transform: none !important;
-}
-
-/* スキル対象 */
-#viewSkill .sk-row .hot-tag {
-  height: 20px !important;
-  min-height: 20px !important;
-  max-height: 20px !important;
-  padding: 0 7px !important;
-  border-width: 1px !important;
-  border-radius: 4px !important;
-  box-sizing: border-box !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  line-height: 1 !important;
-  vertical-align: middle !important;
-  align-self: center !important;
-  flex-shrink: 0 !important;
-  margin: 0 !important;
-  position: static !important;
-  top: auto !important;
-  transform: none !important;
-}
-
-/* ユーザーリストから開いたスキル対象 */
-#userDetailSkill .sk-row .hot-tag {
-  height: 20px !important;
-  min-height: 20px !important;
-  max-height: 20px !important;
-  padding: 0 7px !important;
-  border-width: 1px !important;
-  border-radius: 4px !important;
-  box-sizing: border-box !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  line-height: 1 !important;
-  vertical-align: middle !important;
-  align-self: center !important;
-  flex-shrink: 0 !important;
-  margin: 0 !important;
-  position: static !important;
-  top: auto !important;
-  transform: none !important;
-}
-
-/* Safariは箱は動かさず文字だけ微調整 */
-@supports (-webkit-touch-callout: none) {
-  :is(#viewAllManage, #userDetailRecords) .m-card .hot-tag,
-  #viewSkill .sk-row .hot-tag,
-  #userDetailSkill .sk-row .hot-tag {
-    padding-top: 1px !important;
-    padding-bottom: 0 !important;
-  }
-}
-
-
-/* FIX87: スキル対象 / 登録曲 / ユーザー詳細の上段バッジ寸法を完全共通化
-   HOTをPARTに合わせるのではなく、PART/HOT双方を同じ外寸へ固定する */
-#viewSkill .sk-row .p-badge,
-#viewSkill .sk-row .hot-tag,
-#userDetailSkill .sk-row .p-badge,
-#userDetailSkill .sk-row .hot-tag,
-:is(#viewAllManage, #userDetailRecords) .m-card .p-badge,
-:is(#viewAllManage, #userDetailRecords) .m-card .hot-tag {
-  height: 22px !important;
-  min-height: 22px !important;
-  max-height: 22px !important;
-  box-sizing: border-box !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  align-self: center !important;
-  vertical-align: middle !important;
-  line-height: 1 !important;
-  margin: 0 !important;
-  position: static !important;
-  top: auto !important;
-  transform: none !important;
-  flex-shrink: 0 !important;
-}
-
-#viewSkill .sk-row .p-badge,
-#userDetailSkill .sk-row .p-badge,
-:is(#viewAllManage, #userDetailRecords) .m-card .p-badge {
-  padding: 0 !important;
-}
-
-#viewSkill .sk-row .hot-tag,
-#userDetailSkill .sk-row .hot-tag,
-:is(#viewAllManage, #userDetailRecords) .m-card .hot-tag {
-  padding: 0 7px !important;
-  border-width: 1px !important;
-  border-radius: 4px !important;
-}
-
-/* Safariはバッジ自体を動かさず、HOT文字だけを視覚補正 */
-@supports (-webkit-touch-callout: none) {
-  #viewSkill .sk-row .hot-tag,
-  #userDetailSkill .sk-row .hot-tag,
-  :is(#viewAllManage, #userDetailRecords) .m-card .hot-tag {
-    padding-top: 1px !important;
-    padding-bottom: 0 !important;
-  }
-}
-
-/* スキル対象とユーザー詳細:
-   2行曲名とLv/達成率が接触しないよう、カード内部に明確な行間を確保 */
-#viewSkill .sk-row,
-#userDetailSkill .sk-row {
-  height: 66px !important;
-}
-
-#viewSkill .sk-row .sk-badge-column,
-#userDetailSkill .sk-row .sk-badge-column,
-#viewSkill .sk-row .sk-text-column,
-#userDetailSkill .sk-row .sk-text-column {
-  height: 50px !important;
-}
-
-#viewSkill .sk-row .sk-text-column,
-#userDetailSkill .sk-row .sk-text-column {
-  justify-content: flex-start !important;
-}
-
-#viewSkill .sk-row .sk-title,
-#userDetailSkill .sk-row .sk-title {
-  margin-top: 0 !important;
-  margin-bottom: 3px !important;
-  line-height: 1.2 !important;
-  max-height: 2.4em !important;
-  -webkit-line-clamp: 2 !important;
-}
-
-#viewSkill .sk-row .sk-meta,
-#userDetailSkill .sk-row .sk-meta {
-  margin-top: auto !important;
-  margin-bottom: 0 !important;
-  height: 14px !important;
-  min-height: 14px !important;
-  line-height: 1 !important;
-}
-
-
-/* FIX89:
-   FIX88のgrid化は使わず、元のカード構造を維持したまま
-   「1行/2行の曲名 + Lv/達成率」をひとまとまりとして上下中央に揃える */
-
-/* ---------- スキル対象 / ユーザー詳細 ---------- */
-#viewSkill .sk-row,
-#userDetailSkill .sk-row {
-  height: auto !important;
-  min-height: 64px !important;
-}
-
-#viewSkill .sk-row .sk-text-column,
-#userDetailSkill .sk-row .sk-text-column {
-  height: auto !important;
-  min-height: 48px !important;
-
-  display: flex !important;
-  flex-direction: column !important;
-  justify-content: center !important;
-  align-items: stretch !important;
-
-  gap: 4px !important;
-  overflow: visible !important;
-}
-
-#viewSkill .sk-row .sk-title,
-#userDetailSkill .sk-row .sk-title {
-  display: -webkit-box !important;
-  -webkit-box-orient: vertical !important;
-  -webkit-line-clamp: 2 !important;
-  line-clamp: 2 !important;
-
-  white-space: normal !important;
-  overflow: hidden !important;
-  text-overflow: ellipsis !important;
-  word-break: break-word !important;
-
-  line-height: 1.18 !important;
-  max-height: 2.36em !important;
-
-  margin: 0 !important;
-  padding: 0 !important;
-  position: static !important;
-  top: auto !important;
-  transform: none !important;
-}
-
-#viewSkill .sk-row .sk-meta,
-#userDetailSkill .sk-row .sk-meta {
-  margin: 0 !important;
-  padding: 0 !important;
-  height: auto !important;
-  min-height: 14px !important;
-
-  display: flex !important;
-  align-items: center !important;
-  line-height: 1 !important;
-}
-
-/* ---------- 登録曲 ---------- */
-:is(#viewAllManage, #userDetailRecords) .m-card {
-  height: auto !important;
-  min-height: 72px !important;
-}
-
-:is(#viewAllManage, #userDetailRecords) .m-card .m-main-area {
-  height: auto !important;
-  min-height: 64px !important;
-
-  display: flex !important;
-  flex-direction: column !important;
-  justify-content: center !important;
-}
-
-:is(#viewAllManage, #userDetailRecords) .m-card .m-upper-row {
-  height: auto !important;
-  min-height: 22px !important;
-  align-items: center !important;
-}
-
-:is(#viewAllManage, #userDetailRecords) .m-card .m-title-text {
-  display: -webkit-box !important;
-  -webkit-box-orient: vertical !important;
-  -webkit-line-clamp: 2 !important;
-  line-clamp: 2 !important;
-
-  white-space: normal !important;
-  overflow: hidden !important;
-  text-overflow: ellipsis !important;
-  word-break: break-word !important;
-
-  line-height: 1.18 !important;
-  max-height: 2.36em !important;
-
-  margin: 0 !important;
-  padding: 0 !important;
-  position: static !important;
-  top: auto !important;
-  transform: none !important;
-}
-
-:is(#viewAllManage, #userDetailRecords) .m-card .m-lower-row {
-  height: auto !important;
-  min-height: 24px !important;
-  margin-top: 4px !important;
-  align-items: center !important;
-}
-
-/* ---------- PART / HOT 共通 ---------- */
-/* 3画面すべてでPARTとHOTを同じ外寸に固定 */
-#viewSkill .sk-row .p-badge,
-#viewSkill .sk-row .hot-tag,
-#userDetailSkill .sk-row .p-badge,
-#userDetailSkill .sk-row .hot-tag,
-:is(#viewAllManage, #userDetailRecords) .m-card .p-badge,
-:is(#viewAllManage, #userDetailRecords) .m-card .hot-tag {
-  height: 22px !important;
-  min-height: 22px !important;
-  max-height: 22px !important;
-  box-sizing: border-box !important;
-
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-
-  line-height: 1 !important;
-  vertical-align: middle !important;
-  align-self: center !important;
-
-  margin-top: 0 !important;
-  margin-bottom: 0 !important;
-  position: static !important;
-  top: auto !important;
-  transform: none !important;
-  flex-shrink: 0 !important;
-}
-
-#viewSkill .sk-row .hot-tag,
-#userDetailSkill .sk-row .hot-tag,
-:is(#viewAllManage, #userDetailRecords) .m-card .hot-tag {
-  padding: 0 7px !important;
-}
-
-/* Safariは箱を動かさずHOT文字だけ微調整 */
-@supports (-webkit-touch-callout: none) {
-  #viewSkill .sk-row .hot-tag,
-  #userDetailSkill .sk-row .hot-tag,
-  :is(#viewAllManage, #userDetailRecords) .m-card .hot-tag {
-    padding-top: 1px !important;
-    padding-bottom: 0 !important;
-  }
-}
-
-
-/* =========================================================
-   FIX90 DATA CARD RESET
-   スキル対象 / 登録曲 / ユーザー詳細を同一構造で作り直す
-   ========================================================= */
-
-.dc-card {
-  --dc-part-w: 72px;
-  --dc-lv-w: 58px;
-  --dc-rate-w: 108px;
-  --dc-opt-w: 72px;
-  --dc-side-w: 76px;
-  --dc-gap-x: 6px;
-  --dc-gap-y: 4px;
-
-  width: 100% !important;
-  box-sizing: border-box !important;
-  display: grid !important;
-  grid-template-columns:
-    var(--dc-part-w)
-    var(--dc-lv-w)
-    minmax(0, 1fr)
-    var(--dc-opt-w)
-    var(--dc-side-w) !important;
-  column-gap: var(--dc-gap-x) !important;
-  row-gap: var(--dc-gap-y) !important;
-  align-items: center !important;
-
-  height: auto !important;
-  min-height: 68px !important;
-  padding: 8px 10px !important;
-  overflow: hidden !important;
-}
-
-/* 上段 */
-.dc-part {
-  grid-column: 1;
-  grid-row: 1;
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  min-width: 0;
+/* === 現行曲カード共通要素 ===
+   外枠とON/OFF別レイアウトはlayout-canonical.cssの.dc-cardで一元管理する。 */
+.dc-card,
+.dc-card button {
+  font-family: inherit !important;
 }
 
 .dc-title {
-  grid-column: 2 / 5;
-  grid-row: 1;
   min-width: 0;
-
   display: flex !important;
   align-items: center !important;
-  gap: 5px !important;
-
   white-space: normal !important;
   overflow: hidden !important;
   line-height: 1.18 !important;
 }
 
-/* HOT/申請中は縮めず、曲名だけ最大2行 */
 .dc-title .hot-tag,
 .dc-title .pending-badge {
   flex: 0 0 auto !important;
@@ -4051,63 +3144,30 @@ html.ios-viewport-repair {
   overflow: hidden;
   text-overflow: ellipsis;
   word-break: break-word;
-  line-height: 1.18;
   max-height: 2.36em;
+  font-family: inherit !important;
+  font-size: 13px !important;
+  font-weight: 800 !important;
+  letter-spacing: 0 !important;
+  line-height: 1.18 !important;
 }
 
-/* 右端 */
-.dc-skill {
-  grid-column: 5;
-  grid-row: 1;
-  align-self: center;
-  justify-self: stretch;
-
-  min-width: 0 !important;
-  width: 100% !important;
-  box-sizing: border-box !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-}
-
-.dc-card-skill .dc-skill-span {
-  grid-row: 1 / 3;
-}
-
-/* 下段 */
-.dc-fc {
-  grid-column: 1;
-  grid-row: 2;
+.dc-part,
+.dc-fc,
+.dc-option,
+.dc-edit {
   min-width: 0;
   display: flex;
   align-items: center;
-  justify-content: flex-start;
 }
 
-.dc-lv {
-  grid-column: 2;
-  grid-row: 2;
-}
-
-.dc-rate {
-  grid-column: 3;
-  grid-row: 2;
-}
-
+.dc-part,
+.dc-fc,
 .dc-option {
-  grid-column: 4;
-  grid-row: 2;
-  display: flex;
-  align-items: center;
   justify-content: flex-start;
-  min-width: 0;
 }
 
 .dc-edit {
-  grid-column: 5;
-  grid-row: 2;
-  display: flex;
-  align-items: center;
   justify-content: flex-end;
 }
 
@@ -4117,32 +3177,39 @@ html.ios-viewport-repair {
   white-space: nowrap;
   display: flex;
   align-items: center;
+  font-family: inherit !important;
+  font-size: 12px !important;
+  font-weight: 400 !important;
+  letter-spacing: 0 !important;
   line-height: 1;
 }
 
-/* 1行曲名・2行曲名とも上段そのものの中央に配置。
-   2行時は上段が自然に高くなり、タイトル上下の余白が均等になる。 */
-.dc-card > .dc-part,
-.dc-card > .dc-title,
-.dc-card > .dc-skill {
-  align-self: center !important;
+.dc-lv strong,
+.dc-rate strong {
+  font-size: inherit !important;
+  font-weight: 800 !important;
 }
 
-/* 旧カード内部レイアウト指定を完全に無効化 */
-.dc-card .sk-badge-column,
-.dc-card .sk-text-column,
-.dc-card .sk-title,
-.dc-card .sk-meta,
-.dc-card .m-main-area,
-.dc-card .m-upper-row,
-.dc-card .m-lower-row,
-.dc-card .m-title-text,
-.dc-card .m-flow-container,
-.dc-card .m-btn-group {
-  all: unset;
+.dc-skill {
+  width: 65px !important;
+  min-width: 65px !important;
+  max-width: 65px !important;
+  box-sizing: border-box !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 6px 0 !important;
+  border-radius: 3px !important;
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+  font-family: inherit !important;
+  font-size: 13px !important;
+  font-weight: 900 !important;
+  line-height: 1 !important;
+  letter-spacing: 0 !important;
+  text-align: center !important;
 }
 
-/* PART / HOTは3画面で同寸法 */
 .dc-card .p-badge,
 .dc-card .hot-tag {
   height: 22px !important;
@@ -4160,202 +3227,36 @@ html.ios-viewport-repair {
   flex-shrink: 0 !important;
 }
 
-.dc-card .hot-tag {
-  padding: 0 7px !important;
-}
-
-/* FC / EXC / optionも既存デザインを維持しつつセル中央へ */
-.dc-card .fc-unified-badge,
-.dc-card .opt-badge {
-  margin: 0 !important;
-}
-
-/* Safariは枠を動かさず文字だけ補正 */
-@supports (-webkit-touch-callout: none) {
-  .dc-card .hot-tag {
-    padding-top: 1px !important;
-    padding-bottom: 0 !important;
-  }
-}
-
-/* 画面幅が狭い端末向け */
-@media (max-width: 430px) {
-  .dc-card {
-    --dc-part-w: 68px;
-    --dc-lv-w: 54px;
-    --dc-rate-w: 96px;
-    --dc-opt-w: 66px;
-    --dc-side-w: 72px;
-    --dc-gap-x: 5px;
-    padding: 7px 8px !important;
-  }
-
-  .dc-title {
-    gap: 4px !important;
-  }
-}
-
-@media (max-width: 370px) {
-  .dc-card {
-    --dc-part-w: 64px;
-    --dc-lv-w: 48px;
-    --dc-opt-w: 60px;
-    --dc-side-w: 68px;
-    --dc-gap-x: 4px;
-    padding-left: 6px !important;
-    padding-right: 6px !important;
-  }
-
-  .dc-rate {
-    font-size: 0.92em;
-  }
-}
-
-
-/* FIX91: FIX90の新カード構造は維持し、文字組みだけ従来表示へ戻す */
-
-/* カード全体は従来と同じフォントを継承 */
-.dc-card,
-.dc-card button {
-  font-family: inherit !important;
-}
-
-/* パート / HOT */
 .dc-card .p-badge {
   font-size: 12px !important;
   font-weight: 800 !important;
   letter-spacing: 0 !important;
 }
+
 .dc-card .hot-tag {
+  padding: 0 7px !important;
   font-size: 11px !important;
   font-weight: 800 !important;
   letter-spacing: 0 !important;
 }
 
-/* 曲名 */
-.dc-card .dc-song-title {
-  font-family: inherit !important;
-  font-size: 13px !important;
-  font-weight: 800 !important;
-  letter-spacing: 0 !important;
-  line-height: 1.18 !important;
+.dc-card .fc-unified-badge,
+.dc-card .opt-badge {
+  margin: 0 !important;
 }
 
-/* Lv / 達成率 */
-.dc-card .dc-lv,
-.dc-card .dc-rate {
-  font-family: inherit !important;
-  font-size: 12px !important;
-  font-weight: 400 !important;
-  letter-spacing: 0 !important;
-}
-.dc-card .dc-lv strong,
-.dc-card .dc-rate strong {
-  font-size: inherit !important;
-  font-weight: 800 !important;
-}
-
-/* スキル値 */
-.dc-card .dc-skill {
-  font-family: inherit !important;
-  font-size: 16px !important;
-  font-weight: 800 !important;
-  letter-spacing: 0 !important;
-  line-height: 1 !important;
-}
-
-/* FC / EXC / オプション / 編集は既存バッジ側の文字設定をそのまま使用 */
 .dc-card .fc-unified-badge,
 .dc-card .opt-badge,
 .dc-card .m-action-btn {
   font-family: inherit !important;
 }
 
-/* iPhone幅でも文字サイズを縮めない */
-@media (max-width: 430px) {
-  .dc-card .dc-song-title {
-    font-size: 13px !important;
-  }
-  .dc-card .dc-lv,
-  .dc-card .dc-rate {
-    font-size: 12px !important;
-  }
-  .dc-card .dc-skill {
-    font-size: 16px !important;
+@supports (-webkit-touch-callout: none) {
+  .dc-card .hot-tag {
+    padding-top: 1px !important;
+    padding-bottom: 0 !important;
   }
 }
-
-
-/* FIX92: スキル値表示をFIX90以前のサイズ・見た目へ戻す */
-.dc-card .dc-skill {
-  width: 65px !important;
-  min-width: 65px !important;
-  max-width: 65px !important;
-  justify-self: end !important;
-
-  font-family: inherit !important;
-  font-size: 14px !important;
-  font-weight: 900 !important;
-  line-height: 1 !important;
-  letter-spacing: 0 !important;
-
-  padding: 4px 0 !important;
-  border-radius: 3px !important;
-  text-align: center !important;
-
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-
-  color: #fff !important;
-  -webkit-text-fill-color: #fff !important;
-  box-sizing: border-box !important;
-}
-
-/* 旧スキル値ボックスと同じサイズ感をスマホでも維持 */
-@media (max-width: 430px) {
-  .dc-card .dc-skill {
-    width: 65px !important;
-    min-width: 65px !important;
-    max-width: 65px !important;
-    font-size: 14px !important;
-  }
-}
-
-
-/* FIX93: PART列を少し狭め、その分曲名領域を広げる */
-.dc-card {
-  --dc-part-w: 62px !important;
-}
-@media (max-width: 430px) {
-  .dc-card {
-    --dc-part-w: 60px !important;
-  }
-}
-@media (max-width: 370px) {
-  .dc-card {
-    --dc-part-w: 58px !important;
-  }
-}
-
-
-/* FIX94: スキル値ボックス内の数字を少し小さくして左右余白を確保 */
-.dc-card .dc-skill {
-  font-size: 13px !important;
-}
-@media (max-width: 430px) {
-  .dc-card .dc-skill {
-    font-size: 13px !important;
-  }
-}
-
-
-/* FIX95: スキル値ボックスだけ縦方向に余裕を追加 */
-.dc-card .dc-skill {
-  padding-top: 6px !important;
-  padding-bottom: 6px !important;
-}
-
 
 /* === FIX99: 要望・不具合報告 === */
 .feedback-dialog{
@@ -4754,18 +3655,6 @@ body.light-mode .feature-settings-dialog textarea{
   color:#111827 !important;
   border-color:#cbd5e1 !important;
 }
-body.light-mode .dc-card{
-  background-color:#ffffff !important;
-  color:#111827 !important;
-}
-body.light-mode .dc-title,
-body.light-mode .dc-song-title,
-body.light-mode .dc-lv strong,
-body.light-mode .dc-rate strong{
-  color:#111827 !important;
-}
-body.light-mode .dc-lv,
-body.light-mode .dc-rate,
 body.light-mode .section-note,
 body.light-mode .feature-setting-row small{
   color:#64748b !important;
@@ -4865,31 +3754,6 @@ body.light-mode .filter-select{
   background:#ffffff !important;
   color:#111827 !important;
   border-color:#94a3b8 !important;
-}
-
-/* データカード：グラデーション背景を含めて白へ。
-   枠線のスキルカラーとスキル値の帯はそのまま残す。 */
-body.light-mode .dc-card,
-body.light-mode .dc-card.dc-card-skill,
-body.light-mode .dc-card.dc-card-manage,
-body.light-mode #viewSkill .dc-card,
-body.light-mode #viewAllManage .dc-card,
-body.light-mode .user-detail-body .dc-card{
-  background:#ffffff !important;
-  background-image:none !important;
-  color:#111827 !important;
-  box-shadow:none !important;
-}
-body.light-mode .dc-title,
-body.light-mode .dc-song-title,
-body.light-mode .dc-lv,
-body.light-mode .dc-rate,
-body.light-mode .dc-lv strong,
-body.light-mode .dc-rate strong{
-  color:#111827 !important;
-}
-body.light-mode .dc-edit{
-  background:#ffffff !important;
 }
 
 /* MENU */
@@ -4997,32 +3861,6 @@ body.light-mode .admin-form-mask{
   z-index:auto !important;
 }
 
-/* 自分の「登録」タブで使っているカード配色を他ユーザー登録曲にも適用 */
-#userDetailRecords .m-card .hot-tag{
-  color:#fecaca !important;
-  background:#450a0a !important;
-  border:1px solid #991b1b !important;
-}
-#userDetailRecords .m-card .opt-ran{
-  color:#86efac !important;
-  background:transparent !important;
-  border:1px solid #15803d !important;
-}
-#userDetailRecords .m-card .opt-sra{
-  color:#ffedd5 !important;
-  background:transparent !important;
-  border:1px solid #c2410c !important;
-}
-#userDetailRecords .m-card .opt-ran-plus{
-  color:#67e8f9 !important;
-  background:transparent !important;
-  border:1px solid #0369a1 !important;
-}
-#userDetailRecords .m-card .opt-sra-plus{
-  color:#fecdd3 !important;
-  background:transparent !important;
-  border:1px solid #be123c !important;
-}
 #userDetailRecords .dc-card{
   color:#f8fafc !important;
 }
@@ -5039,27 +3877,6 @@ body.light-mode .admin-form-mask{
 body.light-mode .user-detail-sticky{
   background:#ffffff !important;
 }
-body.light-mode #userDetailRecords .dc-card{
-  background:#ffffff !important;
-  background-image:none !important;
-  color:#111827 !important;
-}
-body.light-mode #userDetailRecords .dc-title,
-body.light-mode #userDetailRecords .dc-song-title,
-body.light-mode #userDetailRecords .dc-lv,
-body.light-mode #userDetailRecords .dc-rate,
-body.light-mode #userDetailRecords .dc-lv strong,
-body.light-mode #userDetailRecords .dc-rate strong{
-  color:#111827 !important;
-}
-/* HOT/OPTIONはライトモードでも自分の登録曲と同じ意味色を維持 */
-body.light-mode #userDetailRecords .m-card .hot-tag{
-  color:#fecaca !important;
-  background:#450a0a !important;
-  border-color:#991b1b !important;
-}
-
-
 /* === FIX120: ライトモード配色再調整 ===
    真っ白ではなく薄いグレー基調へ統一。
    意味を持つ色（PART / FC / EXC / OPTION / スキル帯）は維持。 */
@@ -5121,19 +3938,6 @@ body.light-mode #btnMenu::after{
   color:#111827 !important;
 }
 
-/* スキルカード本体 */
-body.light-mode .dc-card,
-body.light-mode .dc-card.dc-card-skill,
-body.light-mode .dc-card.dc-card-manage,
-body.light-mode #viewSkill .dc-card,
-body.light-mode #viewAllManage .dc-card,
-body.light-mode .user-detail-body .dc-card{
-  background:#f3f4f6 !important;
-  background-image:none !important;
-  color:#111827 !important;
-  box-shadow:none !important;
-}
-
 /* スキル値の黒背景を廃止 */
 body.light-mode .dc-skill,
 body.light-mode .skill-box,
@@ -5145,11 +3949,7 @@ body.light-mode [class*="skill-box-"]{
 }
 
 /* HOT：枠と文字色は維持し、内側だけ背景色と同化 */
-body.light-mode .hot-tag,
-body.light-mode .sk-row .hot-tag,
-body.light-mode #viewAllManage .m-card .hot-tag,
-body.light-mode #userDetailRecords .m-card .hot-tag,
-body.light-mode :is(#viewAllManage, #userDetailRecords) .m-card .hot-tag{
+body.light-mode .dc-card .hot-tag{
   background:#f3f4f6 !important;
   color:#991b1b !important;
   border-color:#991b1b !important;
@@ -5163,13 +3963,6 @@ body.light-mode .dc-rate,
 body.light-mode .dc-lv strong,
 body.light-mode .dc-rate strong{
   color:#111827 !important;
-}
-
-/* 自分の登録曲・他ユーザー登録曲も同じ薄グレー */
-body.light-mode #viewAllManage .dc-card,
-body.light-mode #userDetailRecords .dc-card{
-  background:#f3f4f6 !important;
-  background-image:none !important;
 }
 
 /* マイページ */
@@ -5321,34 +4114,9 @@ body.light-mode #recordFcFilter option{
   color:#111827 !important;
 }
 
-/* 登録曲カード */
-body.light-mode #viewAllManage .m-card{
-  background:#f3f4f6 !important;
-  background-image:none !important;
-  color:#111827 !important;
-}
-body.light-mode #viewAllManage .m-title-text,
-body.light-mode #viewAllManage .dc-song-title,
-body.light-mode #viewAllManage .m-txt-lv,
-body.light-mode #viewAllManage .m-txt-rate,
-body.light-mode #viewAllManage .m-txt-lv strong,
-body.light-mode #viewAllManage .m-txt-rate strong{
-  color:#111827 !important;
-  -webkit-text-fill-color:#111827 !important;
-}
-
-/* HOTは内側を背景色に合わせ、枠・文字だけ赤を維持 */
-body.light-mode #viewAllManage .hot-tag{
-  background:#f3f4f6 !important;
-  color:#991b1b !important;
-  -webkit-text-fill-color:#991b1b !important;
-  border-color:#991b1b !important;
-}
-
 /* 曲別スキル値はJS側で左右のスキル帯を復元。
    白文字は黒縁付きにしてライト背景上でも読めるようにする。 */
-body.light-mode #viewAllManage .dc-skill[class*="skill-box-"],
-body.light-mode #viewAllManage .m-card-val-box[class*="skill-box-"]{
+body.light-mode #viewAllManage .dc-skill[class*="skill-box-"]{
   color:#ffffff !important;
   -webkit-text-fill-color:#ffffff !important;
   -webkit-text-stroke:.45px #111827 !important;
@@ -5462,27 +4230,8 @@ body.light-mode #recordFcFilter{
   -webkit-text-stroke:0 !important;
 }
 
-/* 登録カードはページ背景より一段明るく */
-body.light-mode #viewAllManage .m-card{
-  background:#f3f4f6 !important;
-  color:#111827 !important;
-  box-shadow:0 1px 2px rgba(15,23,42,.08) !important;
-}
-body.light-mode #viewAllManage .m-title-text,
-body.light-mode #viewAllManage .dc-song-title,
-body.light-mode #viewAllManage .m-txt-lv,
-body.light-mode #viewAllManage .m-txt-rate,
-body.light-mode #viewAllManage .m-txt-lv strong,
-body.light-mode #viewAllManage .m-txt-rate strong{
-  color:#111827 !important;
-  -webkit-text-fill-color:#111827 !important;
-  text-shadow:none !important;
-  -webkit-text-stroke:0 !important;
-}
-
 /* スキル値: ライトモードでは黒文字。左右のスキル帯は維持 */
 body.light-mode #viewAllManage .dc-skill[class*="skill-box-"],
-body.light-mode #viewAllManage .m-card-val-box[class*="skill-box-"],
 body.light-mode .dc-skill[class*="skill-box-"]{
   background-color:#f3f4f6 !important;
   color:#111827 !important;
@@ -5493,18 +4242,7 @@ body.light-mode .dc-skill[class*="skill-box-"]{
   border-bottom-color:#cbd5e1 !important;
 }
 
-/* 編集ボタン: 独立した青ボタンとして明示。謎の白い左余白を消す */
-body.light-mode #viewAllManage .m-btn-group{
-  background:transparent !important;
-  padding:0 !important;
-  margin-left:auto !important;
-  gap:0 !important;
-}
-body.light-mode #viewAllManage .m-btn-group::before,
-body.light-mode #viewAllManage .m-btn-group::after{
-  display:none !important;
-  content:none !important;
-}
+/* 編集ボタン: 独立した青ボタンとして明示。 */
 body.light-mode #viewAllManage button[data-edit-index],
 body.light-mode #viewAllManage .btn-edit,
 body.light-mode #viewAllManage .m-edit-btn{
@@ -5540,15 +4278,6 @@ body.light-mode #viewAllManage .m-btn-edit{
   color:#fff !important;
   -webkit-text-fill-color:#fff !important;
   box-shadow:0 1px 2px rgba(15,23,42,.18) !important;
-}
-
-/* HOTはカードと同系背景 + 赤枠 */
-body.light-mode #viewAllManage .hot-tag{
-  background:#f3f4f6 !important;
-  color:#991b1b !important;
-  -webkit-text-fill-color:#991b1b !important;
-  border-color:#991b1b !important;
-  -webkit-text-stroke:0 !important;
 }
 
 /* モーダルはページより明るくして前景として分離 */
@@ -5628,47 +4357,6 @@ body.light-mode .dc-card .opt-sra-plus{
   background:#fff1f2 !important;
   font-weight:900 !important;
 }
-
-/* 編集欄の謎の白い横長領域を消し、青い独立ボタンにする */
-body.light-mode #viewAllManage .dc-edit{
-  background:transparent !important;
-  padding:0 !important;
-  margin:0 !important;
-  display:flex !important;
-  align-items:center !important;
-  justify-content:flex-end !important;
-  min-width:0 !important;
-  width:auto !important;
-  border:0 !important;
-  box-shadow:none !important;
-}
-body.light-mode #viewAllManage .dc-edit::before,
-body.light-mode #viewAllManage .dc-edit::after{
-  display:none !important;
-  content:none !important;
-}
-body.light-mode #viewAllManage .dc-edit .m-action-btn.btn-e{
-  min-width:48px !important;
-  width:auto !important;
-  min-height:30px !important;
-  height:30px !important;
-  padding:0 10px !important;
-  margin:0 !important;
-  display:inline-flex !important;
-  align-items:center !important;
-  justify-content:center !important;
-  border:1px solid #1d4ed8 !important;
-  border-radius:6px !important;
-  background:#3b82f6 !important;
-  color:#ffffff !important;
-  -webkit-text-fill-color:#ffffff !important;
-  font-weight:900 !important;
-  box-shadow:0 1px 2px rgba(15,23,42,.18) !important;
-}
-body.light-mode #viewAllManage .dc-edit .m-action-btn.btn-e:active{
-  background:#2563eb !important;
-}
-
 
 /* === FIX125: ライトモード 登録画面追加調整 === */
 
@@ -6858,5 +5546,3 @@ body.light-mode .user-list-pager button:disabled {
 body.light-mode .user-list-page-summary {
   color:#64748b !important;
 }
-
-

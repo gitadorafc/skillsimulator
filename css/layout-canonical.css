@@ -36,7 +36,7 @@ body.app-scroll-layout.app-scrolling :is(
   #appScreen > .p-container,
   .user-detail-body,
   .admin-body
-) :is(.m-card,.sk-row):has(.skill-box-sparkle-rainbow)::before{
+) .dc-card:has(.skill-box-sparkle-rainbow)::before{
   animation-play-state:paused !important;
 }
 
@@ -322,30 +322,41 @@ body.light-mode :is(
   color: #111827 !important;
 }
 
-body.light-mode :is(
-  .dc-card,
-  #viewSkill .dc-card,
-  #viewAllManage .m-card,
-  #userDetailSkill .dc-card,
-  #userDetailRecords .m-card
-) {
+body.light-mode .dc-card {
   background: var(--cleanup-card-light) !important;
   background-color: var(--cleanup-card-light) !important;
   background-image: none !important;
   color: #111827 !important;
 }
 
-/* 横並びOFFの公開登録曲はスキル対象カードと同じ外寸・配置。 */
-body:not(.skill-target-columns) #userDetailRecords .dc-card-public {
+/* 全曲カードの外枠は、表示モード・画面を問わず同じレイヤーで描画する。 */
+.dc-card {
+  position: relative !important;
+  width: 100% !important;
   height: auto !important;
-  min-height: 68px !important;
-  padding: 8px 10px !important;
+  box-sizing: border-box !important;
+  display: grid !important;
+  border: 0 !important;
   border-radius: 4px !important;
+  background-color: var(--cleanup-card-dark);
   box-shadow: none !important;
+  overflow: hidden !important;
 }
 
-body:not(.light-mode):not(.skill-target-columns) #userDetailRecords .dc-card-public {
-  background-color: var(--cleanup-card-dark) !important;
+.dc-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  padding: 2.3px;
+  border-radius: inherit;
+  background: var(--song-skill-border, #475569);
+  pointer-events: none;
+  z-index: 2;
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
 }
 
 body:not(.skill-target-columns) #userDetailRecords .dc-card-public .dc-skill-span {
@@ -354,7 +365,6 @@ body:not(.skill-target-columns) #userDetailRecords .dc-card-public .dc-skill-spa
 
 /* 9500帯の枠内背景は9000帯と同じ。枠・帯の演出は既存定義を維持する。 */
 body .skill-row-sparkle-rainbow {
-  border-color: #ff2d8d !important;
   background: linear-gradient(90deg, rgba(0,119,255,.20), rgba(214,44,255,.16), rgba(255,45,141,.12), #111827 55%) !important;
 }
 
@@ -585,7 +595,7 @@ body:not(.skill-target-columns) .dc-card > .dc-skill-span {
   }
 }
 
-/* === 4.14.7: 横並びONのスキル対象・登録曲を単一定義へ集約 === */
+/* === 4.14.18: 横並びONの全曲カードを画像3基準の単一定義へ集約 === */
 body.skill-target-columns :is(#viewSkill, #userDetailSkill):not(.hidden) {
   display: grid !important;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
@@ -598,21 +608,25 @@ body.skill-target-columns :is(#viewSkill, #userDetailSkill) > .sk-section {
   margin-bottom: 0;
 }
 
-body.skill-target-columns :is(#viewSkill, #userDetailSkill) .dc-card-skill,
-body.skill-target-columns :is(#viewAllManage, #userDetailRecords) .dc-card-manage {
+body.skill-target-columns :is(
+  #viewSkill,
+  #userDetailSkill,
+  #viewAllManage,
+  #userDetailRecords
+) .dc-card {
+  --dc-horizontal-title-h: calc(11px * 1.12 * 2 + 6px);
   grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  grid-template-rows: 15px var(--dc-horizontal-title-h) 21px !important;
   column-gap: 4px !important;
   row-gap: 2px !important;
+  align-content: start !important;
   min-height: 0 !important;
   padding: 4px !important;
 }
 
-body.skill-target-columns :is(#viewSkill, #userDetailSkill) .dc-card-skill {
-  grid-template-rows: auto auto auto !important;
-}
-
-body.skill-target-columns :is(#viewAllManage, #userDetailRecords) .dc-card-manage {
-  grid-template-rows: auto auto auto auto !important;
+/* 自ページの登録曲だけ、編集ボタン用の4段目を持つ。 */
+body.skill-target-columns #viewAllManage .dc-card-manage {
+  grid-template-rows: 15px var(--dc-horizontal-title-h) 21px 27px !important;
 }
 
 body.skill-target-columns :is(
@@ -703,9 +717,9 @@ body.skill-target-columns :is(
 ) .dc-card .dc-title {
   grid-column: 1 / 4 !important;
   grid-row: 2 !important;
-  height: calc(11px * 1.12 * 2 + 6px) !important;
-  min-height: calc(11px * 1.12 * 2 + 6px) !important;
-  max-height: calc(11px * 1.12 * 2 + 6px) !important;
+  height: var(--dc-horizontal-title-h) !important;
+  min-height: var(--dc-horizontal-title-h) !important;
+  max-height: var(--dc-horizontal-title-h) !important;
   padding: 2px 0 !important;
   border-top: 1px solid rgba(148,163,184,.24) !important;
   border-bottom: 1px solid rgba(148,163,184,.24) !important;
@@ -751,6 +765,9 @@ body.skill-target-columns :is(
   justify-content: flex-start !important;
   text-align: left !important;
   font-size: 11px !important;
+  height: 21px !important;
+  align-self: center !important;
+  align-items: center !important;
 }
 
 body.skill-target-columns :is(#viewSkill, #userDetailSkill) .dc-card-skill .dc-lv .dc-field-label {
@@ -768,6 +785,9 @@ body.skill-target-columns :is(
   justify-content: flex-start !important;
   text-align: left !important;
   font-size: 11px !important;
+  height: 21px !important;
+  align-self: center !important;
+  align-items: center !important;
 }
 
 body.skill-target-columns :is(
@@ -793,21 +813,32 @@ body.skill-target-columns :is(
   max-width: 82px !important;
   padding: 3px 0 !important;
   font-size: 12px !important;
+  align-self: center !important;
 }
 
 body.skill-target-columns #viewAllManage .dc-card-manage .dc-edit {
   grid-column: 1 / 4 !important;
   grid-row: 4 !important;
   width: 100% !important;
-  margin-top: 2px !important;
-  padding-top: 4px !important;
+  height: 27px !important;
+  min-height: 27px !important;
+  margin: 0 !important;
+  padding: 2px 0 0 !important;
   border-top: 1px solid rgba(148,163,184,.24) !important;
+  box-sizing: border-box !important;
+  align-self: stretch !important;
+  align-items: center !important;
 }
 
 body.skill-target-columns #viewAllManage .dc-card-manage .dc-edit .m-action-btn {
   width: 100% !important;
-  min-height: 25px !important;
-  padding: 3px 8px !important;
+  height: 24px !important;
+  min-height: 24px !important;
+  padding: 1px 6px 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  line-height: 1 !important;
 }
 
 body.skill-target-columns #viewAllManage:not(.hidden),
@@ -823,10 +854,8 @@ body.text-size-up.skill-target-columns :is(
   #userDetailSkill,
   #viewAllManage,
   #userDetailRecords
-) .dc-card .dc-title {
-  height: calc(12px * 1.12 * 2 + 6px) !important;
-  min-height: calc(12px * 1.12 * 2 + 6px) !important;
-  max-height: calc(12px * 1.12 * 2 + 6px) !important;
+) .dc-card {
+  --dc-horizontal-title-h: calc(12px * 1.12 * 2 + 6px);
 }
 
 body.text-size-up.skill-target-columns :is(

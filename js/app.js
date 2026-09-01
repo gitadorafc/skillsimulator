@@ -177,11 +177,9 @@ function installSkillColorCss() {
       : `linear-gradient(170deg, ${row.stops.map(([color,pos]) => `${color} ${pos}%`).join(', ')})`;
 
     const cardBorderRule =
-      `.m-card:has(.skill-box-${row.rank}),` +
-      `.sk-row:has(.skill-box-${row.rank}){--song-skill-border:${borderPaint};}` +
+      `.dc-card:has(.skill-box-${row.rank}){--song-skill-border:${borderPaint};}` +
       // 9500帯を含め、ライトモードもダークと同じ斜めグラデーション枠を使う。
-      `body.light-mode .m-card:has(.skill-box-${row.rank}),` +
-      `body.light-mode .sk-row:has(.skill-box-${row.rank}){--song-skill-border:${borderPaint};}`;
+      `body.light-mode .dc-card:has(.skill-box-${row.rank}){--song-skill-border:${borderPaint};}`;
 
     return textRule + sparkleTextRule + songBoxRule + sparkleBandRule + cardBorderRule;
   }).join('\n');
@@ -3672,7 +3670,7 @@ function createCard(record, index, mode = 'MANAGE') {
 
   if (mode === 'SKILL') {
     return `
-      <div class="sk-row dc-card dc-card-skill ${rowColor}"
+      <div class="dc-card dc-card-skill ${rowColor}"
         ${record.song_id ? `data-compare-song="${record.song_id}" data-compare-title="${esc(record.title)}" data-compare-part="${esc(record.part)}" data-compare-edit-score="${record.score_id}"` : ''}>
         <div class="dc-part">${partMarkup}</div>
         <div class="dc-title smart-song-title" data-full-title="${esc(record.title)}">${titleMarkup}</div>
@@ -3687,7 +3685,7 @@ function createCard(record, index, mode = 'MANAGE') {
 
   if (mode === 'PUBLIC') {
     return `
-      <div class="m-card dc-card dc-card-manage dc-card-public ${rowColor}"
+      <div class="dc-card dc-card-manage dc-card-public ${rowColor}"
         ${record.song_id ? `data-compare-song="${record.song_id}" data-compare-title="${esc(record.title)}" data-compare-part="${esc(record.part)}"` : ''}>
         <div class="dc-part">${partMarkup}</div>
         <div class="dc-title smart-song-title" data-full-title="${esc(record.title)}">${titleMarkup}</div>
@@ -3701,7 +3699,7 @@ function createCard(record, index, mode = 'MANAGE') {
   }
 
   return `
-    <div class="m-card dc-card dc-card-manage ${rowColor}"
+    <div class="dc-card dc-card-manage ${rowColor}"
       ${record.song_id ? `data-compare-song="${record.song_id}" data-compare-title="${esc(record.title)}" data-compare-part="${esc(record.part)}"` : ''}>
       <div class="dc-part">${partMarkup}</div>
       <div class="dc-title smart-song-title" data-full-title="${esc(record.title)}">${titleMarkup}</div>
