@@ -1,0 +1,168 @@
+/*
+ * APP VERSION 4.14.5
+ * 管理者アカウント専用の整理パイロット。
+ * 現行デザインの最終値だけをここへ集約し、一般ユーザーには適用しない。
+ */
+
+body.admin-cleanup-pilot {
+  --cleanup-page-dark: #0b1220;
+  --cleanup-control-dark: #111827;
+  --cleanup-card-dark: #1f2937;
+  --cleanup-page-light: #e5e7eb;
+  --cleanup-card-light: #f3f4f6;
+}
+
+/* 固定領域と本文は、親子関係を変えず2行Gridで管理する。 */
+html.admin-cleanup-pilot.app-scroll-layout,
+body.admin-cleanup-pilot.app-scroll-layout {
+  width: 100%;
+  height: 100%;
+  overflow: hidden !important;
+}
+
+body.admin-cleanup-pilot.app-scroll-layout #appScreen:not(.hidden) {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: max-content minmax(0, 1fr);
+  width: 100%;
+  height: 100dvh;
+  min-height: 0;
+  overflow: hidden !important;
+}
+
+body.admin-cleanup-pilot.app-scroll-layout #appScreen > .p-header {
+  position: relative !important;
+  top: auto !important;
+  grid-column: 1;
+  grid-row: 1;
+  min-width: 0;
+}
+
+body.admin-cleanup-pilot.app-scroll-layout #appScreen > .p-container {
+  grid-column: 1;
+  grid-row: 2;
+  min-width: 0;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+body.admin-cleanup-pilot.app-scroll-layout .user-detail-page.user-detail-open {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: max-content minmax(0, 1fr);
+  min-height: 0;
+  overflow: hidden !important;
+}
+
+body.admin-cleanup-pilot.app-scroll-layout .user-detail-page.user-detail-open > .user-detail-sticky {
+  position: relative !important;
+  top: auto !important;
+  grid-column: 1;
+  grid-row: 1;
+  min-width: 0;
+}
+
+body.admin-cleanup-pilot.app-scroll-layout .user-detail-page.user-detail-open > .user-detail-body:not(.hidden) {
+  grid-column: 1;
+  grid-row: 2;
+  min-width: 0;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* 固定領域に旧背景画像・影・filterを持ち込まない。 */
+body.admin-cleanup-pilot :is(
+  #appScreen > .p-header,
+  #appScreen > .p-container,
+  .p-tabs,
+  .search-bar-container,
+  .user-list-header-slot,
+  .user-list-sticky,
+  .user-detail-sticky,
+  .user-detail-tabs,
+  .user-detail-body,
+  .admin-header,
+  .admin-body
+) {
+  background-image: none;
+  box-shadow: none !important;
+  filter: none !important;
+}
+
+/* ユーザー一覧はテーマごとに1種類の面色だけを使う。 */
+body.admin-cleanup-pilot:not(.light-mode) :is(
+  #viewUsers,
+  #viewUsers #userList,
+  #viewUsers #userListPager,
+  #viewUsers .user-list-row,
+  #viewUsers .user-list-row:active
+) {
+  background: var(--cleanup-page-dark) !important;
+  background-color: var(--cleanup-page-dark) !important;
+  background-image: none !important;
+  box-shadow: none !important;
+  filter: none !important;
+}
+
+body.admin-cleanup-pilot.light-mode :is(
+  .p-tabs,
+  .p-container,
+  #viewSkill,
+  #viewAllManage,
+  #viewUsers,
+  .user-detail-body,
+  .sk-section,
+  .empty-state
+) {
+  background: var(--cleanup-page-light) !important;
+  background-image: none !important;
+  color: #111827 !important;
+}
+
+body.admin-cleanup-pilot.light-mode :is(
+  .dc-card,
+  #viewSkill .dc-card,
+  #viewAllManage .m-card,
+  #userDetailSkill .dc-card,
+  #userDetailRecords .m-card
+) {
+  background: var(--cleanup-card-light) !important;
+  background-color: var(--cleanup-card-light) !important;
+  background-image: none !important;
+  color: #111827 !important;
+}
+
+/* 横並びOFFの公開登録曲はスキル対象カードと同じ外寸・配置。 */
+body.admin-cleanup-pilot:not(.skill-target-columns) #userDetailRecords .dc-card-public {
+  height: auto !important;
+  min-height: 68px !important;
+  padding: 8px 10px !important;
+  border-radius: 4px !important;
+  box-shadow: none !important;
+}
+
+body.admin-cleanup-pilot:not(.light-mode):not(.skill-target-columns) #userDetailRecords .dc-card-public {
+  background-color: var(--cleanup-card-dark) !important;
+}
+
+body.admin-cleanup-pilot:not(.skill-target-columns) #userDetailRecords .dc-card-public .dc-skill-span {
+  grid-row: 1 / 3;
+}
+
+/* 9500帯の枠内背景は9000帯と同じ。枠・帯の演出は既存定義を維持する。 */
+body.admin-cleanup-pilot .skill-row-sparkle-rainbow {
+  border-color: #ff2d8d !important;
+  background: linear-gradient(90deg, rgba(0,119,255,.20), rgba(214,44,255,.16), rgba(255,45,141,.12), #111827 55%) !important;
+}
+
+body.admin-cleanup-pilot.light-mode .skill-row-sparkle-rainbow {
+  background: var(--cleanup-card-light) !important;
+  background-color: var(--cleanup-card-light) !important;
+  background-image: none !important;
+}

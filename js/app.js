@@ -296,7 +296,7 @@ function drawShareTotalSparkles(ctx, row, nameX, nameWidth, totalX, totalWidth, 
 import { supabase } from './supabase.js?v=21_57';
 import { register, login, loginForAccountSwitch, logout, changePassword, getSession, validateUsername } from './auth.js?v=4_1_2';
 import { initAuthCaptcha, prepareAuthCaptcha, getAuthCaptchaToken, resetAuthCaptcha } from './captcha.js?v=21_84';
-import { PARTS, GF_PARTS, DM_PARTS, partsForInstrument, normalizeSongTitleForMatch, searchSongTitles, getSongByTitleAndPart, requestSongMaster, requestSongLevelCorrection } from './songs.js?v=4_12_7';
+import { PARTS, partsForInstrument, normalizeSongTitleForMatch, searchSongTitles, getSongByTitleAndPart, requestSongMaster, requestSongLevelCorrection } from './songs.js?v=4_12_7';
 import { calcSkill, formatLevel, formatRate, formatSkill, getMyScores, saveScore, deleteScore } from './scores.js?v=3_18_4';
 import { getGameVersions } from './versions.js?v=21_57';
 const {
@@ -983,7 +983,7 @@ async function deleteMasterSongTitle(title) {
 }
 
 import * as adminApi from './admin.js?v=4_13_12';
-import { listUserSummaries, getUserSkillTargets, getSongRateComparison, getSongPersonalBestHistory, getSongOptionDistribution, getMyFavorites, addFavorite, removeFavorite } from './users.js?v=3_6_0';
+import { listUserSummaries, getUserSkillTargets, getSongRateComparison, getSongPersonalBestHistory, getSongOptionDistribution, getMyFavorites, removeFavorite } from './users.js?v=3_6_0';
 
 let activeInstrument = localStorage.getItem('gitadora_instrument') === 'DM' ? 'DM' : 'GF';
 let userListSort = { key: activeInstrument === 'DM' ? 'dm' : 'gf', dir: 'desc' };
@@ -1225,6 +1225,12 @@ function syncUserListHeaderVisibility() {
   const visible = document.body.classList.contains('app-scroll-layout') &&
     activeTabName === 'USERS';
   slot.classList.toggle('hidden', !visible);
+}
+
+function applyAdminCleanupPilot(enabled) {
+  const shouldEnable = Boolean(enabled);
+  document.documentElement.classList.toggle('admin-cleanup-pilot', shouldEnable);
+  document.body.classList.toggle('admin-cleanup-pilot', shouldEnable);
 }
 
 function applyAppScrollLayout(enabled) {
@@ -1945,6 +1951,7 @@ async function init() {
     if (event === 'SIGNED_OUT' || !session) {
       adminEnabled = false;
       adminAccessChecked = false;
+      applyAdminCleanupPilot(false);
       applyAppScrollLayout(false);
       updateDmBassMirrorFieldVisibility();
       applyDisplayCustomization(false, false);
@@ -2917,9 +2924,6 @@ async function createSkillShareFile(instrument, snapshot = null, comparisonBasel
 
   const totalPaint = (value, left, top, width, height) =>
     skillColorCanvasShareTextPaint(x, getSkillColorRowByTotalValue(value), left, top, width, height);
-  const songPaint = (value, left, top, width, height) =>
-    skillColorCanvasPaint(x, getSkillColorRowByTotalValue((Number(value) || 0) * 50), left, top, width, height);
-
   // 共有画像の外枠も画面上の登録曲一覧と同じスキルカラーを使う。
   // CanvasのstrokeStyleにはCanvasGradientを直接渡せるため、
   // RAINBOW等を代表色1色へ潰さず、そのままグラデーション枠として描画する。
@@ -4251,17 +4255,6 @@ async function submitScore() {
 
 /* ---------- マイページ ---------- */
 
-function formatDateOnly(value) {
-  if (!value) return '-';
-  const d = new Date(value);
-  if (Number.isNaN(d.getTime())) return '-';
-  return d.toLocaleDateString('ja-JP', {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit'
-  });
-}
-
 let userListLoadSeq = 0;
 
 async function loadUsers({ resetPage = false } = {}) {
@@ -4667,21 +4660,6 @@ function renderFavorites() {
   renderFavoriteList('DM');
 }
 
-async function moveFavorite(userId, direction, instrument) {
-  const rows = favoriteUsers[instrument] || [];
-  const index = rows.findIndex(f => f.favorite_user_id === userId);
-  if (index < 0) return;
-
-  const next = index + direction;
-  if (next < 0 || next >= rows.length) return;
-
-  const ids = rows.map(f => f.favorite_user_id);
-  [ids[index], ids[next]] = [ids[next], ids[index]];
-
-  await reorderFavorites(ids, instrument);
-  await loadFavorites();
-}
-
 
 function getOptionDisplayName(option, part = '') {
   switch (option) {
@@ -4884,6 +4862,8 @@ async function deleteOwnAccount() {
 
 /* ---------- 管理者 ---------- */
 async function checkAdminAccess() {
+  // アカウント切替時に前の管理者状態を引き継がない。
+  applyAdminCleanupPilot(false);
   try {
     adminEnabled = await isAdmin();
   } catch (e) {
@@ -4892,6 +4872,7 @@ async function checkAdminAccess() {
   }
 
   adminAccessChecked = true;
+  applyAdminCleanupPilot(adminEnabled);
   $('btnAdmin').classList.toggle('hidden', !adminEnabled);
   $('mypageUserSwitchBlock')?.classList.remove('hidden');
   $('btnMenuSkillRanking')?.classList.remove('hidden');

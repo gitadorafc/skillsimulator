@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>GITADORA Skill Simulator</title>
-<meta name="app-version" content="4.14.4">
+<meta name="app-version" content="4.14.5">
 <link rel="icon" type="image/svg+xml" href="./favicon.svg?v=21_7">
 <link rel="icon" type="image/png" sizes="48x48" href="./favicon-48x48.png?v=21_7">
 <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32x32.png?v=21_7">
@@ -136,9 +136,7 @@
     .sk-section h2 { font-size: 13px; font-weight: 900; color: #38bdf8; margin: 6px 0 4px 0; padding-left: 4px; border-left: 3px solid #2563eb; }
     .list-container { display: flex; flex-direction: column; gap: 4px; }
     
-    .sk-rank { font-size: 11px; font-weight: bold; color: #6b7280; min-width: 22px; text-align: center; }
-
-    /* --- SKILLタブ用のデザイン (決定版中央揃えCSS) --- */
+    /* --- SKILLタブ用のカード外枠 --- */
     .sk-row { 
       background: #1f2937; 
       border: 1px solid #374151; 
@@ -150,93 +148,9 @@
       height: 62px; 
       box-sizing: border-box; 
     }
-    /* 左側：バッジ専用カラム (高さ46px固定) */
-    .sk-badge-column { 
-      display: flex; 
-      flex-direction: column; 
-      align-items: center; 
-      height: 46px; 
-      flex-shrink: 0; 
-      width: 52px;
-    }
-    .sk-badge-column .part-zone { 
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      margin-top: auto;
-      margin-bottom: auto;
-      width: 100%;
-    }
-    .sk-badge-column .fc-zone { 
-      height: 14px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      width: 100%;
-      margin-top: auto;
-    }
-    /* 右側：テキスト専用カラム (高さ46px固定) */
-    .sk-text-column { 
-      flex: 1; 
-      display: flex; 
-      flex-direction: column; 
-      min-width: 0; 
-      height: 46px; 
-      padding-left: 2px; 
-    }
-    .sk-title { 
-      font-size: 12px; 
-      font-weight: bold; 
-      color: #f8fafc; 
-      line-height: 1.2; 
-      display: -webkit-box; 
-      -webkit-line-clamp: 2; 
-      -webkit-box-orient: vertical; 
-      overflow: hidden; 
-      word-break: break-all; 
-      margin-top: auto;
-      margin-bottom: auto;
-    }
-    .sk-meta { 
-      font-size: 10px; 
-      color: #9ca3af; 
-      white-space: nowrap; 
-      height: 14px; 
-      display: flex; 
-      align-items: center; 
-      width: 100%; 
-      margin-top: auto;
-    }
-    .sk-meta strong { color: #f3f4f6; }
-    .sk-meta-lv { display: inline-block; width: 52px; }
-    .sk-meta-rate { display: inline-block; width: 74px; margin-right: 12px !important; }
 
-    .sk-val-box { font-size: 14px; font-weight: 900; color: #000000 !important; background: #ffffff; padding: 4px 0; border-radius: 3px; width: 65px; min-width: 65px; text-align: center; flex-shrink: 0; }
-    
-    .row-gold { background: linear-gradient(90deg, #2a1f00 0%, #111827 100%) !important; border: 1px solid #fbbf24 !important; }
-    
-    .row-rainbow { background: linear-gradient(90deg, #1e112c 0%, #111827 100%) !important; border: 1px solid #c084fc !important; }
-    
-    .row-deep-rainbow { background: linear-gradient(90deg, #2e1035 0%, #111827 100%) !important; border: 1px solid #ec4899 !important; }
-    
-
-    /* --- HOT/OTHER/ALL管理タブ用のデザイン --- */
+    /* --- HOT/OTHER/ALL管理タブ用のカード外枠 --- */
     .m-card { background: #ffffff; color: #111827; border-radius: 4px; padding: 4px 6px; display: flex; align-items: center; gap: 6px; height: 72px; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
-    .m-main-area { flex: 1; display: flex; flex-direction: column; justify-content: space-between; min-width: 0; height: 100%; padding: 2px 0; }
-    .m-upper-row { display: flex; align-items: center; gap: 6px; width: 100%; height: 32px; }
-    .m-lower-row { display: flex; align-items: center; gap: 6px; width: 100%; border-top: 1px solid #e5e7eb; padding-top: 3px; height: 28px; }
-    
-    .m-title-text { font-size: 12px; font-weight: bold; color: #111827; line-height: 1.2; flex: 1; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; word-break: break-all; }
-    .m-card-val-box { font-size: 14px; font-weight: 900; color: #000000 !important; background: #e5e7eb; padding: 4px 0; border-radius: 3px; width: 65px; min-width: 65px; text-align: center; flex-shrink: 0; }
-    .m-box-gold { background: linear-gradient(10deg, #ffe066 0%, #f59e0b 100%) !important; }
-    .m-box-rainbow { background: linear-gradient(10deg, #a7f3d0 0%, #7dd3fc 33%, #fbcfe8 66%, #fef08a 100%) !important; }
-    .m-box-deep-rainbow { background: linear-gradient(10deg, #34d399 0%, #3b82f6 33%, #a855f7 66%, #ec4899 100%) !important; color: #ffffff !important; }
-    
-    .m-flow-container { display: flex; align-items: center; font-size: 11px; color: #4b5563; flex: 1; min-width: 0; white-space: nowrap; }
-    .m-flow-container strong { color: #111827; }
-    .m-txt-lv { display: inline-block; width: 52px; }
-    .m-txt-rate { display: inline-block; width: 74px; margin-right: 12px !important; }
-    .m-btn-group { display: flex; gap: 8px; margin-left: auto; flex-shrink: 0; }
     .m-action-btn { font-size: 11px; font-weight: bold; border: none; cursor: pointer; padding: 3px 8px; border-radius: 4px; transition: background 0.1s; }
     .btn-e { color: #2563eb; background: #f3f4f6; }
     .btn-e:active { background: #e5e7eb; }
@@ -1187,34 +1101,6 @@ body.light-mode :is(.score-val,.user-list-skill-value,.user-detail-skill-value).
 .favorite-user-row .remove { color: #fca5a5; }
 
 .m-card[data-compare-song] { cursor: pointer; }
-
-/* スキル対象の右側数値も曲別Skillカラーを適用 */
-.sk-val-box.skill-box-white,
-.sk-val-box.skill-box-orange,
-.sk-val-box.skill-box-orange-grad,
-.sk-val-box.skill-box-yellow,
-.sk-val-box.skill-box-yellow-grad,
-.sk-val-box.skill-box-green,
-.sk-val-box.skill-box-green-grad,
-.sk-val-box.skill-box-blue,
-.sk-val-box.skill-box-blue-grad,
-.sk-val-box.skill-box-purple,
-.sk-val-box.skill-box-purple-grad,
-.sk-val-box.skill-box-red,
-.sk-val-box.skill-box-red-grad,
-.sk-val-box.skill-box-bronze,
-.sk-val-box.skill-box-silver,
-.sk-val-box.skill-box-gold,
-.sk-val-box.skill-box-rainbow,
-.sk-val-box
-
-@media (max-width: 520px) {
-  .user-list-row {
-    grid-template-columns: minmax(0, 1fr) 78px 76px 34px;
-    gap: 5px;
-  }
-  .user-list-date { font-size: 9px; }
-}
 
 /* === v15.1 UI統一 === */
 
@@ -7481,66 +7367,6 @@ body.light-mode select:disabled{
 }
 
 
-/* === APP VERSION 3.4.0: 管理者MENUにOFUSE支援導線 === */
-.menu-ofuse-support{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:10px;
-  width:100%;
-  margin-top:9px;
-  padding:9px 11px;
-  border:1px solid #475569;
-  border-radius:8px;
-  background:#172033;
-  color:#f8fafc;
-  text-decoration:none;
-  box-sizing:border-box;
-}
-.menu-ofuse-support.hidden{
-  display:none !important;
-}
-.menu-ofuse-support-text{
-  display:flex;
-  flex-direction:column;
-  gap:2px;
-  min-width:0;
-}
-.menu-ofuse-support-text strong{
-  font-size:11px;
-  font-weight:900;
-  color:inherit;
-}
-.menu-ofuse-support-text small{
-  font-size:8.5px;
-  font-weight:700;
-  color:#94a3b8;
-}
-.menu-ofuse-support-arrow{
-  flex:0 0 auto;
-  font-size:15px;
-  font-weight:900;
-  color:#60a5fa;
-}
-.menu-ofuse-support:active{
-  background:#1e293b;
-}
-body.light-mode .menu-ofuse-support{
-  background:#f8fafc !important;
-  color:#111827 !important;
-  -webkit-text-fill-color:#111827 !important;
-  border-color:#94a3b8 !important;
-}
-body.light-mode .menu-ofuse-support-text small{
-  color:#64748b !important;
-  -webkit-text-fill-color:#64748b !important;
-}
-body.light-mode .menu-ofuse-support-arrow{
-  color:#2563eb !important;
-  -webkit-text-fill-color:#2563eb !important;
-}
-
-
 /* === APP VERSION 3.6.0: MENUスクロール / VERSION幅 / OFUSEモーダル === */
 .app-menu-sheet{
   max-height:calc(100dvh - 24px) !important;
@@ -7558,56 +7384,6 @@ body.light-mode .menu-ofuse-support-arrow{
   max-width:none !important;
   box-sizing:border-box !important;
 }
-.menu-version-support-separator{
-  width:100%;
-  height:1px;
-  margin:10px 0 9px;
-  background:#475569;
-}
-body.light-mode .menu-version-support-separator{
-  background:#94a3b8 !important;
-}
-.menu-ofuse-support{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  width:100%;
-  padding:8px 0 !important;
-  border:0 !important;
-  border-radius:0 !important;
-  background:transparent !important;
-  box-shadow:none !important;
-  text-align:left;
-  color:#f8fafc;
-}
-.menu-ofuse-support.hidden{ display:none !important; }
-.menu-ofuse-support-text{
-  display:flex;
-  flex-direction:column;
-  gap:2px;
-}
-.menu-ofuse-support-text strong{
-  font-size:13px !important;
-  font-weight:900;
-}
-.menu-ofuse-support-text small{
-  font-size:9px !important;
-  color:#94a3b8;
-}
-.menu-ofuse-support-arrow{
-  font-size:18px !important;
-  color:#60a5fa;
-}
-body.light-mode .menu-ofuse-support{
-  color:#111827 !important;
-  -webkit-text-fill-color:#111827 !important;
-  background:transparent !important;
-}
-body.light-mode .menu-ofuse-support-text small{
-  color:#64748b !important;
-  -webkit-text-fill-color:#64748b !important;
-}
-
 .support-dialog{
   width:min(92vw,520px);
   max-height:calc(100dvh - 28px);
@@ -12077,6 +11853,7 @@ body.light-mode .skill-row-sparkle-rainbow{
   background-image:none !important;
 }
 </style>
+  <link rel="stylesheet" href="./css/admin-cleanup-pilot.css?v=4_14_5">
   <link rel="preconnect" href="https://challenges.cloudflare.com">
   <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" defer></script>
 </head>
@@ -12411,7 +12188,7 @@ body.light-mode .skill-row-sparkle-rainbow{
     <div class="app-menu-version">
       <label>VERSION</label>
       <select id="versionSelect" class="version-select" aria-label="GITADORAバージョン"></select>
-      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 4.14.4</div>
+      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 4.14.5</div>
     </div>
   </div>
 </div>
@@ -12867,7 +12644,7 @@ body.light-mode .skill-row-sparkle-rainbow{
 <div id="adminModal" class="admin-modal">
   <div class="admin-header">
     <div class="admin-title-row">
-      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 4.14.4</div></div>
+      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 4.14.5</div></div>
       <button id="btnCloseAdmin" class="admin-close">閉じる</button>
     </div>
     <div class="admin-tabs">
@@ -13005,7 +12782,7 @@ body.light-mode .skill-row-sparkle-rainbow{
   </div>
 </div>
 
-<script type="module" src="./js/app.js?v=4_14_4"></script>
+<script type="module" src="./js/app.js?v=4_14_5"></script>
 <script src="./js/version-check.js?v=4_10_0" defer></script>
 </body>
 </html>
