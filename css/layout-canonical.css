@@ -1,3 +1,257 @@
+/* === APP VERSION 4.14.0: 全ユーザーでスクロール構造を統一 === */
+/* Safariのlayout viewportにstickyヘッダーを依存させず、本文だけをスクロールする。 */
+html.app-scroll-layout,
+body.app-scroll-layout{
+  width:100%;
+  height:100%;
+  min-height:0;
+  overflow:hidden !important;
+}
+body.app-scroll-layout #appScreen:not(.hidden){
+  display:grid !important;
+  grid-template-columns:minmax(0,1fr);
+  grid-template-rows:max-content minmax(0,1fr);
+  width:100%;
+  height:100dvh;
+  min-height:0;
+  overflow:hidden;
+}
+body.app-scroll-layout #appScreen > .p-header{
+  position:relative !important;
+  top:auto !important;
+  grid-column:1;
+  grid-row:1;
+  min-width:0;
+}
+body.app-scroll-layout #appScreen > .p-container{
+  grid-column:1;
+  grid-row:2;
+  min-width:0;
+  min-height:0;
+  overflow-x:hidden;
+  overflow-y:auto;
+  overscroll-behavior:contain;
+  -webkit-overflow-scrolling:touch;
+  contain:paint;
+  isolation:isolate;
+}
+body.app-scroll-layout:is(.score-modal-open,.global-modal-scroll-lock) #appScreen > .p-container{
+  overflow-y:hidden !important;
+}
+
+/* ユーザー詳細も、開いている間だけ固定領域と本文を2行Gridで分離する。 */
+body.app-scroll-layout .user-detail-page.user-detail-open{
+  display:grid !important;
+  grid-template-columns:minmax(0,1fr);
+  grid-template-rows:max-content minmax(0,1fr);
+  min-height:0;
+  overflow:hidden !important;
+}
+body.app-scroll-layout .user-detail-page.user-detail-open > .user-detail-sticky{
+  position:relative !important;
+  top:auto !important;
+  grid-column:1;
+  grid-row:1;
+  min-width:0;
+}
+body.app-scroll-layout .user-detail-page.user-detail-open > .user-detail-body:not(.hidden){
+  grid-column:1;
+  grid-row:2;
+  min-width:0;
+  min-height:0;
+  overflow-x:hidden;
+  overflow-y:auto;
+  overscroll-behavior:contain;
+  -webkit-overflow-scrolling:touch;
+  contain:paint;
+  isolation:isolate;
+}
+
+/* 登録曲非公開でタブが存在しない場合も、固定領域の下端に同じ面を残す。 */
+.user-detail-sticky.user-detail-no-tabs{
+  padding-bottom:6px;
+}
+
+/* 内部スクロール中は高負荷な明滅だけを止め、スクロール停止後に再開する。 */
+body.app-scroll-layout.app-scrolling :is(
+  #appScreen > .p-container,
+  .user-detail-body,
+  .admin-body
+) :is(
+  .score-rank-sparkle-rainbow,
+  .user-list-row-sparkle-rainbow,
+  .skill-box-sparkle-rainbow
+){
+  animation-play-state:paused !important;
+}
+body.app-scroll-layout.app-scrolling :is(
+  #appScreen > .p-container,
+  .user-detail-body,
+  .admin-body
+) .skill-box-sparkle-rainbow::before,
+body.app-scroll-layout.app-scrolling :is(
+  #appScreen > .p-container,
+  .user-detail-body,
+  .admin-body
+) .skill-box-sparkle-rainbow::after{
+  animation-play-state:paused !important;
+}
+body.app-scroll-layout.app-scrolling :is(
+  #appScreen > .p-container,
+  .user-detail-body,
+  .admin-body
+) :is(.m-card,.sk-row):has(.skill-box-sparkle-rainbow)::before{
+  animation-play-state:paused !important;
+}
+
+/* ユーザーリストの検索・並び替えを固定ヘッダーへ統合する。 */
+.user-list-header-slot{
+  display:none;
+}
+body.app-scroll-layout .user-list-header-slot:not(.hidden){
+  display:block;
+  flex:0 0 auto;
+  padding:4px 4px 0;
+  background:#0b1220;
+}
+body.app-scroll-layout .user-list-header-slot .user-list-sticky{
+  position:relative !important;
+  top:auto !important;
+  z-index:auto !important;
+  margin:0 !important;
+  padding:0 0 5px !important;
+  overflow:visible !important;
+  isolation:isolate !important;
+  background:#0b1220 !important;
+}
+body.app-scroll-layout .user-list-header-slot .user-list-sticky::before{
+  display:none !important;
+}
+body.app-scroll-layout .user-list-header-slot :is(
+  .users-toolbar,
+  .user-list-sort-controls,
+  .user-list-sort-field
+){
+  background:#0b1220 !important;
+  background-color:#0b1220 !important;
+  background-image:none !important;
+  box-shadow:none !important;
+  filter:none !important;
+}
+body.app-scroll-layout .user-list-header-slot .users-toolbar{
+  display:block !important;
+  position:relative !important;
+  top:auto !important;
+  z-index:auto !important;
+  padding:0 0 5px !important;
+  margin:0 !important;
+}
+body.app-scroll-layout .user-list-header-slot .user-list-sort-controls{
+  position:relative !important;
+  top:auto !important;
+  z-index:auto !important;
+  display:grid;
+  grid-template-columns:max-content max-content !important;
+  justify-content:start !important;
+  align-items:center !important;
+  gap:6px;
+  width:100%;
+  margin:0;
+  padding:5px 6px;
+  border:1px solid #273449;
+  border-radius:7px;
+  box-sizing:border-box;
+}
+body.app-scroll-layout .user-list-header-slot .user-list-sort-field{
+  display:grid;
+  grid-template-columns:auto max-content !important;
+  align-items:center;
+  gap:5px;
+  width:max-content !important;
+  min-width:0;
+  color:#94a3b8;
+  font-size:9px;
+  font-weight:900;
+  white-space:nowrap;
+}
+body.app-scroll-layout .user-list-header-slot .user-list-sort-field select{
+  min-width:0;
+  height:34px;
+  min-height:34px;
+  padding-top:0;
+  padding-bottom:0;
+  padding-left:8px;
+  border:1px solid #475569;
+  border-radius:7px;
+  color:#f8fafc;
+  font-size:11px;
+  font-weight:900;
+}
+body.app-scroll-layout .user-list-header-slot #userListSortKey{
+  width:calc(8.5em + 42px) !important;
+  padding-right:34px !important;
+}
+body.app-scroll-layout .user-list-header-slot #userListSortDirection{
+  width:calc(4em + 42px) !important;
+  padding-right:34px !important;
+}
+body.text-size-up.app-scroll-layout .user-list-header-slot .user-list-sort-field{
+  font-size:10px !important;
+}
+body.text-size-up.app-scroll-layout .user-list-header-slot .user-list-sort-field select{
+  font-size:15px !important;
+}
+body.app-scroll-layout .user-list-header-slot :is(
+  .users-toolbar input,
+  .user-list-sort-field select
+){
+  background-color:#111827 !important;
+}
+body.light-mode.app-scroll-layout .user-list-header-slot,
+body.light-mode.app-scroll-layout .user-list-header-slot .user-list-sticky,
+body.light-mode.app-scroll-layout .user-list-header-slot :is(
+  .users-toolbar,
+  .user-list-sort-controls,
+  .user-list-sort-field
+){
+  background:var(--app-light-page-bg) !important;
+  background-color:var(--app-light-page-bg) !important;
+}
+body.light-mode.app-scroll-layout .user-list-header-slot .users-toolbar input{
+  -webkit-appearance:none !important;
+  appearance:none !important;
+  background:#ffffff !important;
+}
+body.light-mode.app-scroll-layout .user-list-header-slot .user-list-sort-field select{
+  background:#ffffff !important;
+  background-color:#ffffff !important;
+  border-color:#94a3b8 !important;
+  color:#111827 !important;
+  -webkit-text-fill-color:#111827 !important;
+}
+body.light-mode.app-scroll-layout .user-list-header-slot .user-list-sort-controls{
+  border-color:#94a3b8 !important;
+}
+body.light-mode.app-scroll-layout .user-list-header-slot .user-list-sort-field{
+  color:#64748b !important;
+}
+@media(max-width:430px){
+  body.app-scroll-layout .user-list-header-slot .user-list-sort-controls{
+    gap:5px;
+    padding:4px 5px;
+  }
+  body.app-scroll-layout .user-list-header-slot .user-list-sort-field{
+    gap:4px;
+    font-size:8px;
+  }
+  body.app-scroll-layout .user-list-header-slot .user-list-sort-field select{
+    height:32px;
+    min-height:32px;
+    padding-left:6px;
+    font-size:10px;
+  }
+}
+
 /*
  * APP VERSION 4.14.8
  * 全アカウント共通の確定レイアウト。
