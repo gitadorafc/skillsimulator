@@ -2114,17 +2114,13 @@ body:not(.light-mode) #viewAllManage .dc-edit .m-action-btn.btn-e:active {
 
 /* 自分のスキル対象から開いた詳細だけ、4段目に編集ボタンを表示する。 */
 .rate-compare-edit-area {
-  padding:8px 14px 14px;
   border-top:1px solid #334155;
 }
 .rate-compare-edit-button {
-  width:100%;
-  min-height:38px;
   border:0;
   border-radius:8px;
   background:#3b82f6;
   color:#ffffff;
-  font-size:12px;
   font-weight:900;
 }
 .rate-compare-edit-button:active {
@@ -3823,8 +3819,6 @@ body.light-mode #adminSongCandidate:disabled{
   width:65px !important;
   min-width:65px !important;
   max-width:65px !important;
-  height:auto !important;
-  min-height:0 !important;
   padding:6px 0 !important;
   border-radius:3px !important;
   display:flex !important;
@@ -3832,7 +3826,6 @@ body.light-mode #adminSongCandidate:disabled{
   justify-content:center !important;
   box-sizing:border-box !important;
   font-family:inherit !important;
-  font-size:13px !important;
   font-weight:900 !important;
   line-height:1 !important;
   letter-spacing:0 !important;
