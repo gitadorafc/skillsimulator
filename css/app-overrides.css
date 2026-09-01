@@ -804,13 +804,8 @@ body.light-mode .rate-private-comment::before{
 #domModal .select-arrow-wrap::after{
   content:"";
   position:absolute;
-  top:50%;
-  right:15px;
-  width:8px;
-  height:8px;
   border-right:2px solid #e5e7eb;
   border-bottom:2px solid #e5e7eb;
-  transform:translateY(-70%) rotate(45deg);
   transform-origin:center;
   pointer-events:none;
   z-index:2;
@@ -818,7 +813,6 @@ body.light-mode .rate-private-comment::before{
 #domModal .select-arrow-wrap > select{
   width:100%;
   padding-right:40px !important;
-  background-image:none !important;
 }
 body.light-mode #domModal .select-arrow-wrap::after{
   border-right-color:#334155;
@@ -1061,7 +1055,6 @@ body.light-mode .history-option-badge{
   height:34px !important;
 }
 #domModal #btnSendLevelCorrection{
-  min-height:34px !important;
   min-width:108px !important;
   padding:0 7px !important;
   font-size:9px !important;
@@ -1069,9 +1062,7 @@ body.light-mode .history-option-badge{
 #domModal #formPrivateComment{
   min-height:48px !important;
   height:48px !important;
-  padding:6px 8px !important;
   font-size:12px !important;
-  line-height:1.35 !important;
 }
 #domModal .score-private-comment-note{
   margin-top:2px !important;
