@@ -3907,9 +3907,9 @@ body.light-mode .user-detail-header,
 body.light-mode .user-detail-summary,
 body.light-mode .user-detail-tabs,
 body.light-mode .user-detail-sticky{
-  background:var(--app-light-page-bg, #cbd5e1) !important;
+  background:var(--app-light-page-bg, #e5e7eb) !important;
   color:#111827 !important;
-  border-color:#cbd5e1 !important;
+  border-color:#94a3b8 !important;
 }
 
 body.light-mode .score-box{
@@ -4183,7 +4183,7 @@ body.light-mode select{
 /* Apple/iOS系の考え方に寄せて、背景/カード/コントロールを階層化。
    黒縁は常用せず、通常文字は濃色でコントラストを確保する。 */
 body.light-mode{
-  background:var(--app-light-page-bg, #cbd5e1) !important;
+  background:var(--app-light-page-bg, #e5e7eb) !important;
   color:#111827 !important;
   -webkit-text-stroke:0 !important;
 }
@@ -4191,7 +4191,7 @@ html:has(body.light-mode),
 body.light-mode #appScreen,
 body.light-mode .p-container,
 body.light-mode #viewAllManage{
-  background:var(--app-light-page-bg, #cbd5e1) !important;
+  background:var(--app-light-page-bg, #e5e7eb) !important;
 }
 
 /* 上部と検索領域 */
@@ -4203,19 +4203,13 @@ body.light-mode .record-filter-row{
   background:#eef0f3 !important;
 }
 body.light-mode .score-cell{
-  background:var(--app-light-page-bg, #cbd5e1) !important;
+  background:var(--app-light-page-bg, #e5e7eb) !important;
 }
 body.light-mode .score-lbl{
   color:#64748b !important;
   -webkit-text-fill-color:#64748b !important;
   text-shadow:none !important;
 }
-/* TOTAL/HOT/OTHER値は元のスキルカラーを保ちつつ濃い影で輪郭を出す */
-body.light-mode .score-val:not(.score-rank-sparkle-rainbow){
-  -webkit-text-stroke:.35px rgba(15,23,42,.72) !important;
-  text-shadow:0 1px 1px rgba(255,255,255,.8),0 0 1px rgba(15,23,42,.45) !important;
-}
-
 /* 検索・フィルタは「操作できる面」と認識できる白系 */
 body.light-mode #domSearch,
 body.light-mode #recordTypeFilter,
@@ -4289,16 +4283,6 @@ body.light-mode .site-dialog{
 
 /* === FIX124: ライトモード 登録画面の視認性調整 === */
 
-/* ヘッダーのTOTAL/HOT/OTHER値を読みやすくする */
-body.light-mode .score-val:not(.score-rank-sparkle-rainbow){
-  -webkit-text-stroke:.65px #334155 !important;
-  text-shadow:
-    0 1px 0 rgba(255,255,255,.9),
-    1px 0 0 rgba(51,65,85,.22),
-    -1px 0 0 rgba(51,65,85,.22),
-    0 1px 1px rgba(15,23,42,.2) !important;
-}
-
 /* タブを「ボタン」と認識しやすくする */
 body.light-mode .p-tabs{
   background:#eef0f3 !important;
@@ -4363,6 +4347,11 @@ body.light-mode [class*="score-rank-"]{
   -webkit-text-stroke:0 !important;
   text-shadow:none !important;
   filter:none !important;
+}
+
+/* ユーザーリストだけは全カラー共通の弱いドロップシャドウで背景から分離する。 */
+body.light-mode .user-list-skill-value[class*="score-rank-"]{
+  filter:drop-shadow(0 1px 1px rgba(15,23,42,.55)) !important;
 }
 
 /* 登録フィルタ: Safari/Chrome共通で濃い矢印を明示 */

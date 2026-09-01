@@ -316,7 +316,7 @@ body.light-mode :is(
   .sk-section,
   .empty-state
 ) {
-  background: var(--app-light-page-bg, #cbd5e1) !important;
+  background: var(--app-light-page-bg, #e5e7eb) !important;
   background-image: none !important;
   color: #111827 !important;
 }
