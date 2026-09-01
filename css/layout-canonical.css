@@ -414,6 +414,7 @@ body #viewUsers .user-list-skill {
 
 body #viewUsers .user-list-skill-value {
   display: inline-block !important;
+  font-size: 13px !important;
   width: 64px !important;
   min-width: 64px !important;
   max-width: 64px !important;
@@ -463,7 +464,7 @@ body.light-mode #viewUsers .user-list-row {
     width: 60px !important;
     min-width: 60px !important;
     max-width: 60px !important;
-    font-size: 10px !important;
+    font-size: 11px !important;
   }
 }
 

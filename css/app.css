@@ -4349,8 +4349,8 @@ body.light-mode [class*="score-rank-"]{
   filter:none !important;
 }
 
-/* ユーザーリストだけは全カラー共通の弱いドロップシャドウで背景から分離する。 */
-body.light-mode .user-list-skill-value[class*="score-rank-"]{
+/* ヘッダーとユーザーリストは、全カラー共通の弱いドロップシャドウで背景から分離する。 */
+body.light-mode :is(.score-val,.user-list-skill-value)[class*="score-rank-"]{
   filter:drop-shadow(0 1px 1px rgba(15,23,42,.55)) !important;
 }
 
@@ -4540,11 +4540,6 @@ body.light-mode .user-list-row:active{
   color:#111827 !important;
   border-color:#8b98aa !important;
   box-shadow:0 1px 1px rgba(15,23,42,.06) !important;
-}
-
-/* ユーザーリストは数値が小さいので少しだけサイズを確保 */
-body.light-mode .user-list-skill-value{
-  font-size:12px !important;
 }
 
 .user-detail-instrument-switch{
