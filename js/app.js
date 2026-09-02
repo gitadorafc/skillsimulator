@@ -940,15 +940,39 @@ async function importAdminMasterCsv() {
   }
 
   const mergedRows = await buildMasterImportRows(parsedRows, targetVersionId, creatingVersion);
-  const chunkSize = 50;
+  const chunkSize = 20;
   let saved = 0;
+
+  const isStatementTimeout = error =>
+    String(error?.code || '') === '57014' ||
+    /statement timeout|canceling statement due to statement timeout/i.test(
+      String(error?.message || error || '')
+    );
+
+  // 通常は20曲ずつ処理し、DBがタイムアウトした範囲だけ半分へ分割する。
+  // 20 → 10 → 5 → 2/3 → 1曲と縮小するため、一部の重いデータで
+  // CSV全体が停止せず、完了済みチャンクも再処理しない。
+  const saveChunkWithFallback = async rows => {
+    try {
+      await saveMasterSongRows(rows, targetVersionId);
+      saved += rows.length;
+      $('adminCsvStatus').textContent = `${saved} / ${mergedRows.length}曲を処理済み`;
+    } catch (error) {
+      if (!isStatementTimeout(error) || rows.length <= 1) throw error;
+
+      const middle = Math.ceil(rows.length / 2);
+      $('adminCsvStatus').textContent =
+        `${saved} / ${mergedRows.length}曲を処理済み（処理単位を縮小して再試行中）`;
+      await saveChunkWithFallback(rows.slice(0, middle));
+      await saveChunkWithFallback(rows.slice(middle));
+    }
+  };
 
   for (let index = 0; index < mergedRows.length; index += chunkSize) {
     const chunk = mergedRows.slice(index, index + chunkSize);
     $('adminCsvStatus').textContent = `${saved} / ${mergedRows.length}曲を処理済み`;
     try {
-      await saveMasterSongRows(chunk, targetVersionId);
-      saved += chunk.length;
+      await saveChunkWithFallback(chunk);
     } catch (error) {
       throw new Error(`${saved}曲処理後に停止しました。${error.message}`);
     }
