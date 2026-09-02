@@ -62,3 +62,53 @@ export function renderAdminVersionList(versions) {
         </div>`).join('')}
     </div>`;
 }
+
+export function renderAdminRequestList({ requests, parts, formatLevel }) {
+  return requests.map(request => `
+    <div class="admin-card">
+      <div class="admin-card-top">
+        ${request.request_type === 'level_correction'
+          ? `<div class="admin-card-title">${escapeHtml(request.title)}</div>`
+          : `<div class="admin-request-title-wrap">
+              <label for="requestTitle_${request.id}">承認する曲名（修正可）</label>
+              <input id="requestTitle_${request.id}"
+                class="request-title-edit"
+                type="text"
+                autocomplete="off"
+                maxlength="255"
+                value="${escapeHtml(request.title)}">
+             </div>`}
+        <span class="pending-badge">${request.request_type === 'level_correction' ? '難易度修正' : '新規曲'}</span>
+      </div>
+      <div class="admin-card-meta">
+        <span>依頼パート: ${escapeHtml(request.part)}</span>
+        ${request.request_type === 'level_correction' ? `<span>現在: ${formatLevel(request.current_level)}</span>` : ''}
+        <span>依頼者: ${escapeHtml(request.profiles?.username || '-')}</span>
+        <span>${new Date(request.created_at).toLocaleString('ja-JP')}</span>
+      </div>
+      <div class="request-edit-fields">
+        ${request.request_type === 'new_song' ? `
+          <div class="request-edit-field">
+            <label for="requestPart_${request.id}">承認するパート（修正可）</label>
+            <select id="requestPart_${request.id}" class="request-part-edit">
+              ${parts.map(part => `<option value="${part}"${part === request.part ? ' selected' : ''}>${part}</option>`).join('')}
+            </select>
+          </div>` : ''}
+        <div class="request-edit-field">
+          <label for="requestLevel_${request.id}">承認する難易度（修正可）</label>
+          <input
+            id="requestLevel_${request.id}"
+            class="request-level-edit"
+            type="text"
+            inputmode="decimal"
+            autocomplete="off"
+            value="${formatLevel(request.proposed_level)}">
+        </div>
+      </div>
+      <div class="request-actions">
+        <button class="request-approve" data-admin-approve-request="${request.id}">修正して承認</button>
+        <button class="request-hot" data-admin-hot-request="${request.id}">HOTで承認</button>
+        <button class="request-reject" data-admin-reject-request="${request.id}">却下</button>
+      </div>
+    </div>`).join('') || '<div class="empty-state">未処理の登録依頼はありません</div>';
+}

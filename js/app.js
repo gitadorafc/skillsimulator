@@ -21,6 +21,7 @@ import {
 } from './user-renderer.js?v=4_14_35';
 import {
   renderAdminMasterPager,
+  renderAdminRequestList,
   renderAdminVersionList as renderAdminVersionListMarkup,
   renderAdminVersionManagerLoading
 } from './admin-renderer.js?v=4_14_36';
@@ -4840,53 +4841,11 @@ async function loadAdminRequests() {
         req.current_level = currentSong?.level ?? null;
       }
     }
-    $('adminBody').innerHTML = adminRequests.map(req => `
-      <div class="admin-card">
-        <div class="admin-card-top">
-          ${req.request_type === 'level_correction'
-            ? `<div class="admin-card-title">${esc(req.title)}</div>`
-            : `<div class="admin-request-title-wrap">
-                <label for="requestTitle_${req.id}">承認する曲名（修正可）</label>
-                <input id="requestTitle_${req.id}"
-                  class="request-title-edit"
-                  type="text"
-                  autocomplete="off"
-                  maxlength="255"
-                  value="${esc(req.title)}">
-               </div>`}
-          <span class="pending-badge">${req.request_type === 'level_correction' ? '難易度修正' : '新規曲'}</span>
-        </div>
-        <div class="admin-card-meta">
-          <span>依頼パート: ${esc(req.part)}</span>
-          ${req.request_type === 'level_correction' ? `<span>現在: ${formatLevel(req.current_level)}</span>` : ''}
-          <span>依頼者: ${esc(req.profiles?.username || '-')}</span>
-          <span>${new Date(req.created_at).toLocaleString('ja-JP')}</span>
-        </div>
-        <div class="request-edit-fields">
-          ${req.request_type === 'new_song' ? `
-            <div class="request-edit-field">
-              <label for="requestPart_${req.id}">承認するパート（修正可）</label>
-              <select id="requestPart_${req.id}" class="request-part-edit">
-                ${PARTS.map(part => `<option value="${part}"${part === req.part ? ' selected' : ''}>${part}</option>`).join('')}
-              </select>
-            </div>` : ''}
-          <div class="request-edit-field">
-            <label for="requestLevel_${req.id}">承認する難易度（修正可）</label>
-            <input
-              id="requestLevel_${req.id}"
-              class="request-level-edit"
-              type="text"
-              inputmode="decimal"
-              autocomplete="off"
-              value="${formatLevel(req.proposed_level)}">
-          </div>
-        </div>
-        <div class="request-actions">
-          <button class="request-approve" data-admin-approve-request="${req.id}">修正して承認</button>
-          <button class="request-hot" data-admin-hot-request="${req.id}">HOTで承認</button>
-          <button class="request-reject" data-admin-reject-request="${req.id}">却下</button>
-        </div>
-      </div>`).join('') || '<div class="empty-state">未処理の登録依頼はありません</div>';
+    $('adminBody').innerHTML = renderAdminRequestList({
+      requests: adminRequests,
+      parts: PARTS,
+      formatLevel
+    });
   } catch (e) {
     $('adminBody').innerHTML = `<div class="empty-state">取得失敗: ${esc(e.message)}</div>`;
   }
