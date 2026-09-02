@@ -113,8 +113,6 @@ export async function createGameVersion({
   return Array.isArray(data) ? data[0] : data;
 }
 
-// admin.js の createGameVersion 関数の直後に、以下の2関数を追加する。
-
 export async function reorderGameVersions(orderedVersionIds) {
   const ids = (orderedVersionIds ?? []).map(id => String(id || '').trim()).filter(Boolean);
   if (!ids.length) throw new Error('並び替える対象がありません。');

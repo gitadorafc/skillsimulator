@@ -3859,18 +3859,6 @@ body.light-mode .admin-form-mask{
   z-index:auto !important;
 }
 
-#userDetailRecords .dc-card{
-  color:#f8fafc !important;
-}
-#userDetailRecords .dc-title,
-#userDetailRecords .dc-song-title,
-#userDetailRecords .dc-lv,
-#userDetailRecords .dc-rate,
-#userDetailRecords .dc-lv strong,
-#userDetailRecords .dc-rate strong{
-  color:#f8fafc !important;
-}
-
 /* ライトモード時だけ、自分の登録曲と同じく白地＋黒文字 */
 body.light-mode .user-detail-sticky{
   background:#ffffff !important;

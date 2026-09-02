@@ -5000,6 +5000,7 @@ async function switchAdminTab(tab) {
   else if (tab === 'users') await loadAdminUsers();
   else if (tab === 'feedback') await loadAdminFeedback();
   else if (tab === 'settings') await loadAdminSettingUsage();
+  else if (tab === 'versions') await loadAdminVersionManager();
 }
 
 function buildAdminMasterPager(totalPages) {
@@ -5388,7 +5389,6 @@ async function loadAdminSettingUsage() {
       </div>`;
 
     $('btnRefreshAdminSettingUsage')?.addEventListener('click', loadAdminSettingUsage);
-    await renderAdminVersionManager();
   } catch (e) {
     $('adminBody').innerHTML = `<div class="empty-state">取得失敗: ${esc(e.message)}</div>`;
   }
@@ -5396,19 +5396,28 @@ async function loadAdminSettingUsage() {
 
 
 
-async function renderAdminVersionManager() {
-  const container = document.createElement('div');
-  container.id = 'adminVersionManager';
-  container.innerHTML = '<div class="admin-usage-section-title">バージョン管理</div><div class="empty-state">読み込み中...</div>';
-  $('adminBody').appendChild(container);
+async function loadAdminVersionManager() {
+  $('adminBody').classList.remove('admin-body-table');
+  $('adminBody').innerHTML = `
+    <section id="adminVersionManager" class="admin-version-manager" aria-labelledby="adminVersionHeading">
+      <div class="admin-version-heading">
+        <div>
+          <h2 id="adminVersionHeading">バージョン管理</h2>
+          <p>表示順の変更と、使用されていない過去バージョンの削除ができます。</p>
+        </div>
+        <button id="btnRefreshAdminVersions" type="button">再読み込み</button>
+      </div>
+      <div class="empty-state">読み込み中...</div>
+    </section>`;
+
+  $('btnRefreshAdminVersions')?.addEventListener('click', loadAdminVersionManager);
 
   try {
     gameVersions = await getGameVersions();
     renderAdminVersionList(gameVersions);
   } catch (e) {
-    container.innerHTML = `
-      <div class="admin-usage-section-title">バージョン管理</div>
-      <div class="empty-state">取得失敗: ${esc(e.message)}</div>`;
+    const container = $('adminVersionManager');
+    if (container) container.innerHTML = `<div class="empty-state">取得失敗: ${esc(e.message)}</div>`;
   }
 }
 
@@ -5417,13 +5426,21 @@ function renderAdminVersionList(versions) {
   if (!container) return;
 
   container.innerHTML = `
-    <div class="admin-usage-section-title">バージョン管理</div>
+    <div class="admin-version-heading">
+      <div>
+        <h2 id="adminVersionHeading">バージョン管理</h2>
+        <p>表示順の変更と、使用されていない過去バージョンの削除ができます。</p>
+      </div>
+      <button id="btnRefreshAdminVersions" type="button">再読み込み</button>
+    </div>
     <div class="admin-version-list">
       ${versions.map((version, index) => `
         <div class="admin-version-row" data-version-id="${esc(version.id)}">
-          <span class="admin-version-name">
-            ${esc(version.name)}${version.is_current ? '（現在）' : ''}
-          </span>
+          <div class="admin-version-info">
+            <span class="admin-version-name">${esc(version.name)}</span>
+            ${version.is_current ? '<span class="admin-version-current">現在</span>' : ''}
+            ${version.eamusement_slug ? `<small>${esc(version.eamusement_slug)}</small>` : ''}
+          </div>
           <div class="admin-version-actions">
             <button type="button" class="btn-version-up" ${index === 0 ? 'disabled' : ''}>▲</button>
             <button type="button" class="btn-version-down" ${index === versions.length - 1 ? 'disabled' : ''}>▼</button>
@@ -5431,6 +5448,8 @@ function renderAdminVersionList(versions) {
           </div>
         </div>`).join('')}
     </div>`;
+
+  $('btnRefreshAdminVersions')?.addEventListener('click', loadAdminVersionManager);
 
   container.querySelectorAll('.admin-version-row').forEach((row, index) => {
     const versionId = row.dataset.versionId;
