@@ -2857,6 +2857,30 @@ body.text-size-up :is(
 .admin-usage-card small{
   color:#64748b;
   font-size:9px;
+}.admin-version-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 8px;
+}
+.admin-version-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  border: 1px solid var(--border-color, #444);
+  border-radius: 8px;
+}
+.admin-version-actions {
+  display: flex;
+  gap: 6px;
+}
+.admin-version-actions button {
+  padding: 4px 10px;
+}
+.admin-version-actions button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
 }
 body.light-mode #adminUserToolbar select{
   border-color:#94a3b8 !important;
