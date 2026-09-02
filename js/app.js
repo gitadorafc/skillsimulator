@@ -312,6 +312,8 @@ const {
   getAdminSongPickerChoices,
   saveMasterSongRows,
   createGameVersion,
+  reorderGameVersions,
+  deleteGameVersion,
   getAdminSongIdentities,
   getAdminSongIdentitiesByIds
 } = adminApi;
@@ -5386,8 +5388,91 @@ async function loadAdminSettingUsage() {
       </div>`;
 
     $('btnRefreshAdminSettingUsage')?.addEventListener('click', loadAdminSettingUsage);
+    await renderAdminVersionManager();
   } catch (e) {
     $('adminBody').innerHTML = `<div class="empty-state">取得失敗: ${esc(e.message)}</div>`;
+  }
+}
+
+
+
+async function renderAdminVersionManager() {
+  const container = document.createElement('div');
+  container.id = 'adminVersionManager';
+  container.innerHTML = '<div class="admin-usage-section-title">バージョン管理</div><div class="empty-state">読み込み中...</div>';
+  $('adminBody').appendChild(container);
+
+  try {
+    gameVersions = await getGameVersions();
+    renderAdminVersionList(gameVersions);
+  } catch (e) {
+    container.innerHTML = `
+      <div class="admin-usage-section-title">バージョン管理</div>
+      <div class="empty-state">取得失敗: ${esc(e.message)}</div>`;
+  }
+}
+
+function renderAdminVersionList(versions) {
+  const container = $('adminVersionManager');
+  if (!container) return;
+
+  container.innerHTML = `
+    <div class="admin-usage-section-title">バージョン管理</div>
+    <div class="admin-version-list">
+      ${versions.map((version, index) => `
+        <div class="admin-version-row" data-version-id="${esc(version.id)}">
+          <span class="admin-version-name">
+            ${esc(version.name)}${version.is_current ? '（現在）' : ''}
+          </span>
+          <div class="admin-version-actions">
+            <button type="button" class="btn-version-up" ${index === 0 ? 'disabled' : ''}>▲</button>
+            <button type="button" class="btn-version-down" ${index === versions.length - 1 ? 'disabled' : ''}>▼</button>
+            <button type="button" class="btn-version-delete" ${version.is_current ? 'disabled title="現在のバージョンは削除できません"' : ''}>削除</button>
+          </div>
+        </div>`).join('')}
+    </div>`;
+
+  container.querySelectorAll('.admin-version-row').forEach((row, index) => {
+    const versionId = row.dataset.versionId;
+    row.querySelector('.btn-version-up')
+      ?.addEventListener('click', () => moveAdminVersion(versions, index, index - 1));
+    row.querySelector('.btn-version-down')
+      ?.addEventListener('click', () => moveAdminVersion(versions, index, index + 1));
+    row.querySelector('.btn-version-delete')
+      ?.addEventListener('click', () => removeAdminVersion(versions, versionId));
+  });
+}
+
+async function moveAdminVersion(versions, fromIndex, toIndex) {
+  if (toIndex < 0 || toIndex >= versions.length) return;
+  const reordered = versions.slice();
+  const [moved] = reordered.splice(fromIndex, 1);
+  reordered.splice(toIndex, 0, moved);
+
+  try {
+    await reorderGameVersions(reordered.map(v => v.id));
+    gameVersions = await getGameVersions();
+    renderAdminVersionList(gameVersions);
+  } catch (e) {
+    await showSiteDialog('並び替えに失敗しました: ' + e.message, 'エラー');
+  }
+}
+
+async function removeAdminVersion(versions, versionId) {
+  const target = versions.find(v => v.id === versionId);
+  const confirmed = await showSiteConfirm(
+    `「${target?.name || ''}」を削除します。この操作は取り消せません。`,
+    'バージョン削除',
+    '削除する'
+  );
+  if (!confirmed) return;
+
+  try {
+    await deleteGameVersion(versionId);
+    gameVersions = await getGameVersions();
+    renderAdminVersionList(gameVersions);
+  } catch (e) {
+    await showSiteDialog('削除に失敗しました: ' + e.message, 'エラー');
   }
 }
 
