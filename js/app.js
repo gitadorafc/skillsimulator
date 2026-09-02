@@ -22,6 +22,7 @@ import {
 import {
   renderAdminMasterPager,
   renderAdminRequestList,
+  renderAdminSettingUsage,
   renderAdminUserList,
   renderAdminVersionList as renderAdminVersionListMarkup,
   renderAdminVersionManagerLoading
@@ -4944,36 +4945,12 @@ async function loadAdminSettingUsage() {
     const totalUsers = Number(first.total_users) || 0;
     const booleanRows = rows.filter(row => row.setting_key !== 'GF_DEFAULT_OPTION');
     const optionRows = rows.filter(row => row.setting_key === 'GF_DEFAULT_OPTION');
-    const optionLabels = {
-      NORMAL: '正規',
-      RAN: 'RAN',
-      SRA: 'SRA',
-      'RAN+': 'RAN+',
-      'SRA+': 'SRA+'
-    };
-    const usageCard = (label, row) => `
-      <div class="admin-usage-card">
-        <span>${esc(label)}</span>
-        <strong>${Number(row?.usage_rate || 0).toFixed(1)}%</strong>
-        <small>${Number(row?.enabled_count || 0).toLocaleString('ja-JP')} / ${trackedCount.toLocaleString('ja-JP')}人</small>
-      </div>`;
-
-    $('adminBody').innerHTML = `
-      <div class="admin-usage-summary">
-        <div>
-          <strong>設定移行済み ${trackedCount.toLocaleString('ja-JP')} / ${totalUsers.toLocaleString('ja-JP')}人</strong>
-          <small>更新版を開いたユーザーから順次集計されます。</small>
-        </div>
-        <button id="btnRefreshAdminSettingUsage" type="button">再読み込み</button>
-      </div>
-      <div class="admin-usage-section-title">表示設定</div>
-      <div class="admin-usage-grid">
-        ${booleanRows.map(row => usageCard(row.setting_label, row)).join('')}
-      </div>
-      <div class="admin-usage-section-title">GFのデフォルトオプション</div>
-      <div class="admin-usage-grid admin-usage-options">
-        ${optionRows.map(row => usageCard(optionLabels[row.option_value] || row.option_value, row)).join('')}
-      </div>`;
+    $('adminBody').innerHTML = renderAdminSettingUsage({
+      trackedCount,
+      totalUsers,
+      booleanRows,
+      optionRows
+    });
 
     $('btnRefreshAdminSettingUsage')?.addEventListener('click', loadAdminSettingUsage);
   } catch (e) {

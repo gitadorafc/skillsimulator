@@ -143,3 +143,52 @@ export function renderAdminUserList({ users, formatDate }) {
       </div>
     </div>`).join('') || '<div class="empty-state">該当するユーザーがいません</div>'}`;
 }
+
+function renderAdminUsageCard({ label, row, trackedCount }) {
+  return `
+    <div class="admin-usage-card">
+      <span>${escapeHtml(label)}</span>
+      <strong>${Number(row?.usage_rate || 0).toFixed(1)}%</strong>
+      <small>${Number(row?.enabled_count || 0).toLocaleString('ja-JP')} / ${trackedCount.toLocaleString('ja-JP')}人</small>
+    </div>`;
+}
+
+export function renderAdminSettingUsage({
+  trackedCount,
+  totalUsers,
+  booleanRows,
+  optionRows
+}) {
+  const optionLabels = {
+    NORMAL: '正規',
+    RAN: 'RAN',
+    SRA: 'SRA',
+    'RAN+': 'RAN+',
+    'SRA+': 'SRA+'
+  };
+
+  return `
+    <div class="admin-usage-summary">
+      <div>
+        <strong>設定移行済み ${trackedCount.toLocaleString('ja-JP')} / ${totalUsers.toLocaleString('ja-JP')}人</strong>
+        <small>更新版を開いたユーザーから順次集計されます。</small>
+      </div>
+      <button id="btnRefreshAdminSettingUsage" type="button">再読み込み</button>
+    </div>
+    <div class="admin-usage-section-title">表示設定</div>
+    <div class="admin-usage-grid">
+      ${booleanRows.map(row => renderAdminUsageCard({
+        label: row.setting_label,
+        row,
+        trackedCount
+      })).join('')}
+    </div>
+    <div class="admin-usage-section-title">GFのデフォルトオプション</div>
+    <div class="admin-usage-grid admin-usage-options">
+      ${optionRows.map(row => renderAdminUsageCard({
+        label: optionLabels[row.option_value] || row.option_value,
+        row,
+        trackedCount
+      })).join('')}
+    </div>`;
+}
