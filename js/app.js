@@ -19,6 +19,11 @@ import {
   renderUserListPager,
   renderUserListRow
 } from './user-renderer.js?v=4_14_35';
+import {
+  renderAdminMasterPager,
+  renderAdminVersionList as renderAdminVersionListMarkup,
+  renderAdminVersionManagerLoading
+} from './admin-renderer.js?v=4_14_36';
 
 let adminEnabled = false;
 import { supabase } from './supabase.js?v=21_57';
@@ -4671,28 +4676,6 @@ async function switchAdminTab(tab) {
   else if (tab === 'versions') await loadAdminVersionManager();
 }
 
-function buildAdminMasterPager(totalPages) {
-  if (totalPages <= 1) return '';
-
-  const pageOptions = Array.from({ length: totalPages }, (_, index) => `
-    <option value="${index}" ${index === adminSongPage ? 'selected' : ''}>
-      ${index + 1} / ${totalPages}
-    </option>`).join('');
-
-  return `
-    <button type="button" class="admin-master-arrow"
-      data-admin-master-page="prev"
-      ${adminSongPage <= 0 ? 'disabled' : ''}
-      aria-label="前のページ">◀</button>
-    <label class="admin-master-jump" aria-label="ページを選択">
-      <select data-admin-master-page-select>${pageOptions}</select>
-    </label>
-    <button type="button" class="admin-master-arrow"
-      data-admin-master-page="next"
-      ${adminSongPage + 1 >= totalPages ? 'disabled' : ''}
-      aria-label="次のページ">▶</button>`;
-}
-
 async function loadAdminSongs() {
   $('adminBody').classList.add('admin-body-table');
   $('adminBody').innerHTML = '<div class="empty-state">読み込み中...</div>';
@@ -4806,7 +4789,7 @@ async function loadAdminSongs() {
         </table>
       </div>
       <div class="admin-master-pager">
-        ${buildAdminMasterPager(totalPages)}
+        ${renderAdminMasterPager({ totalPages, currentPage: adminSongPage })}
       </div>`;
 
     if (!rows.length && !adminNewSongRowVisible) {
@@ -5066,17 +5049,7 @@ async function loadAdminSettingUsage() {
 
 async function loadAdminVersionManager() {
   $('adminBody').classList.remove('admin-body-table');
-  $('adminBody').innerHTML = `
-    <section id="adminVersionManager" class="admin-version-manager" aria-labelledby="adminVersionHeading">
-      <div class="admin-version-heading">
-        <div>
-          <h2 id="adminVersionHeading">バージョン管理</h2>
-          <p>表示順の変更と、使用されていない過去バージョンの削除ができます。</p>
-        </div>
-        <button id="btnRefreshAdminVersions" type="button">再読み込み</button>
-      </div>
-      <div class="empty-state">読み込み中...</div>
-    </section>`;
+  $('adminBody').innerHTML = renderAdminVersionManagerLoading();
 
   $('btnRefreshAdminVersions')?.addEventListener('click', loadAdminVersionManager);
 
@@ -5093,29 +5066,7 @@ function renderAdminVersionList(versions) {
   const container = $('adminVersionManager');
   if (!container) return;
 
-  container.innerHTML = `
-    <div class="admin-version-heading">
-      <div>
-        <h2 id="adminVersionHeading">バージョン管理</h2>
-        <p>表示順の変更と、使用されていない過去バージョンの削除ができます。</p>
-      </div>
-      <button id="btnRefreshAdminVersions" type="button">再読み込み</button>
-    </div>
-    <div class="admin-version-list">
-      ${versions.map((version, index) => `
-        <div class="admin-version-row" data-version-id="${esc(version.id)}">
-          <div class="admin-version-info">
-            <span class="admin-version-name">${esc(version.name)}</span>
-            ${version.is_current ? '<span class="admin-version-current">現在</span>' : ''}
-            ${version.eamusement_slug ? `<small>${esc(version.eamusement_slug)}</small>` : ''}
-          </div>
-          <div class="admin-version-actions">
-            <button type="button" class="btn-version-up" ${index === 0 ? 'disabled' : ''}>▲</button>
-            <button type="button" class="btn-version-down" ${index === versions.length - 1 ? 'disabled' : ''}>▼</button>
-            <button type="button" class="btn-version-delete" ${version.is_current ? 'disabled title="現在のバージョンは削除できません"' : ''}>削除</button>
-          </div>
-        </div>`).join('')}
-    </div>`;
+  container.innerHTML = renderAdminVersionListMarkup(versions);
 
   $('btnRefreshAdminVersions')?.addEventListener('click', loadAdminVersionManager);
 
