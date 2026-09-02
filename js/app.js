@@ -997,6 +997,7 @@ let currentAuthMode = 'login';
 let scores = [];
 let editingScoreId = null;
 let selectedSong = null;
+let autoLoadedExistingScore = false;
 let scoreModalScrollY = 0;
 let rateComparisonEditScoreId = null;
 
@@ -3912,6 +3913,7 @@ function switchTab(tab) {
 function openScoreModal(score = null) {
   previousScoreSettingsRequestSeq++;
   editingScoreId = score?.score_id || null;
+  autoLoadedExistingScore = false;
   selectedSong = score?.song_id ? {
     id: score.song_id,
     title: score.title,
@@ -3996,6 +3998,7 @@ function closeModal() {
   const restoreY = scoreModalScrollY;
 
   editingScoreId = null;
+  autoLoadedExistingScore = false;
   selectedSong = null;
 
   // 登録一覧を一度再描画して、Safariに残った不正なレイアウトキャッシュを破棄。
@@ -4131,6 +4134,23 @@ async function refreshSelectedPart() {
   const title = $('formTitle').value.trim();
   const part = $('partSelect').value;
 
+  // 新規登録画面から自動的に既存データを読み込んだ後、別の曲・パートへ
+  // 変更した場合は通常の新規登録状態へ戻す。
+  if (autoLoadedExistingScore) {
+    editingScoreId = null;
+    autoLoadedExistingScore = false;
+    $('domModalTitle').textContent = 'スコア登録';
+    $('formRate').value = '';
+    $('formFc').value = '';
+    $('formOption').value = activeInstrument === 'DM'
+      ? 'NORMAL'
+      : getGfDefaultOption();
+    $('formDmOption').value = 'NORMAL';
+    $('formPrivateComment').value = '';
+    $('formSkill').textContent = '-';
+    $('editDeleteArea').classList.add('hidden');
+  }
+
   selectedSong = null;
   $('formLevel').value = '';
   $('formLevel').readOnly = true;
@@ -4153,6 +4173,30 @@ async function refreshSelectedPart() {
       $('btnSubmitForm').textContent = '保存する';
       hide('masterRequestArea');
       show('levelCorrectionArea');
+
+      // 既に登録済みの曲・パートなら現在値を表示し、保存時は既存行を更新する。
+      if (!editingScoreId) {
+        const existingScore = scores.find(score =>
+          String(score.song_id || '') === String(song.id)
+        );
+        if (existingScore) {
+          editingScoreId = existingScore.score_id;
+          autoLoadedExistingScore = true;
+          $('domModalTitle').textContent = '登録情報の編集';
+          $('formRate').value = formatRate(existingScore.achievement_rate);
+          $('formFc').value = existingScore.fc === 'FC' ? 'FC' : '';
+          $('formOption').value = activeInstrument === 'DM'
+            ? 'NORMAL'
+            : (existingScore.play_option || getGfDefaultOption());
+          $('formDmOption').value =
+            activeInstrument === 'DM' && existingScore.play_option === 'BASS_MIRROR'
+              ? 'BASS_MIRROR'
+              : 'NORMAL';
+          $('formPrivateComment').value = existingScore.private_comment || '';
+          $('formSkill').textContent = formatSkill(existingScore.skill);
+          $('editDeleteArea').classList.remove('hidden');
+        }
+      }
     } else {
       setMissingMasterState();
     }
@@ -4161,7 +4205,9 @@ async function refreshSelectedPart() {
     setMissingMasterState();
   }
 
-  await applyPreviousScoreSettings(title, part);
+  if (!autoLoadedExistingScore) {
+    await applyPreviousScoreSettings(title, part);
+  }
   updateSkillPreview();
 }
 
