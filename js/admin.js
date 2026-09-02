@@ -182,16 +182,11 @@ export async function saveMasterSongRows(rows, versionId) {
     levels: row.levels ?? {}
   }));
 
-  const { data, error } = await supabase.rpc('admin_bulk_save_song_master', {
+  const { data, error } = await supabase.rpc('admin_save_song_master_rows_atomic', {
     p_rows: payload,
     p_version_id: versionId
   });
   if (error) throw error;
-
-  const { error: statusError } = await supabase.rpc('admin_update_song_reading_status', {
-    p_rows: payload
-  });
-  if (statusError) throw statusError;
 
   return Number(data) || 0;
 }
@@ -204,30 +199,15 @@ export async function saveMasterSong({ id = null, isHot = false, title, part, le
   if (!part) throw new Error('Partを選択してください。');
   if (!Number.isFinite(numericLevel)) throw new Error('難易度を入力してください。');
 
-  const payload = {
-    is_hot: Boolean(isHot),
-    title: cleanTitle,
-    part,
-    version_id: versionId,
-    level: Math.round((numericLevel + Number.EPSILON) * 100) / 100
-  };
-
-  if (id) {
-    const { error } = await supabase.from('songs').update(payload).eq('id', id);
-    if (error) throw error;
-  } else {
-    const { error } = await supabase.from('songs').insert(payload);
-    if (error) throw error;
-  }
-
-  // HOTは曲単位で扱うため、同名曲の全譜面へ反映
-  const { error: hotError } = await supabase
-    .from('songs')
-    .update({ is_hot: Boolean(isHot) })
-    .eq('title', cleanTitle)
-    .eq('version_id', versionId);
-
-  if (hotError) throw hotError;
+  const { error } = await supabase.rpc('admin_save_song_master_atomic', {
+    p_id: id || null,
+    p_is_hot: Boolean(isHot),
+    p_title: cleanTitle,
+    p_part: part,
+    p_level: Math.round((numericLevel + Number.EPSILON) * 100) / 100,
+    p_version_id: versionId
+  });
+  if (error) throw error;
 }
 
 export async function deleteMasterSong(id) {
