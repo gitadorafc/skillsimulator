@@ -13,6 +13,12 @@ import {
   getPartColorClass,
   getSongSkillRank
 } from './card-renderer.js?v=4_14_34';
+import {
+  renderUserDetailRegisteredSection,
+  renderUserDetailSkillSections,
+  renderUserListPager,
+  renderUserListRow
+} from './user-renderer.js?v=4_14_35';
 
 let adminEnabled = false;
 import { supabase } from './supabase.js?v=21_57';
@@ -3991,25 +3997,6 @@ async function loadUsers({ resetPage = false } = {}) {
   }
 }
 
-function buildUserListPager(totalPages) {
-  if (totalPages <= 1) return '';
-
-  const pageOptions = Array.from({ length: totalPages }, (_, index) => `
-    <option value="${index}" ${index === userListPage ? 'selected' : ''}>
-      ${index + 1} / ${totalPages}
-    </option>`).join('');
-
-  return `
-    <button type="button" class="user-pager-arrow" data-user-page="prev"
-      ${userListPage <= 0 ? 'disabled' : ''} aria-label="前のページ">◀</button>
-    <label class="user-pager-jump" aria-label="ページを選択">
-      <select data-user-page-select>${pageOptions}</select>
-    </label>
-    <button type="button" class="user-pager-arrow" data-user-page="next"
-      ${userListPage + 1 >= totalPages ? 'disabled' : ''} aria-label="次のページ">▶</button>
-  `;
-}
-
 function syncUserListSortControls() {
   const keySelect = $('userListSortKey');
   const directionSelect = $('userListSortDirection');
@@ -4063,21 +4050,18 @@ function renderUsers() {
     const dmClass = `score-rank-${getTotalSkillRank(dm)}`;
     // TOTALの色はGF/DMのうち高い方のスキルカラーを採用する。
     const totalClass = `score-rank-${getTotalSkillRank(Math.max(gf, dm))}`;
-    const rivalLabel = `${activeInstrument}ライバル`;
-
-    return `
-      <div class="user-list-row user-list-row-${getTotalSkillRank(Math.max(gf, dm))}" data-user-open="${user.user_id}" data-user-name="${esc(user.username)}">
-        <div class="user-list-name">${esc(user.username)}${user.is_self ? '（自分）' : ''}</div>
-        <div class="user-list-skill user-list-gf"><div class="user-list-skill-value ${gfClass}">${formatSkill(gf)}</div></div>
-        <div class="user-list-skill user-list-dm"><div class="user-list-skill-value ${dmClass}">${formatSkill(dm)}</div></div>
-        <div class="user-list-skill user-list-total"><span class="user-list-skill-value ${totalClass}">${formatSkill(combined)}</span></div>
-        ${user.is_self
-          ? '<div></div>'
-          : `<button class="favorite-toggle ${user.is_favorite ? 'active' : ''}"
-              data-favorite-user="${user.user_id}"
-              data-favorite-instrument="${activeInstrument}"
-              title="${rivalLabel}">${user.is_favorite ? '★' : '☆'}</button>`}
-      </div>`;
+    return renderUserListRow({
+      user,
+      gfSkill: gf,
+      dmSkill: dm,
+      totalSkill: combined,
+      gfClass,
+      dmClass,
+      totalClass,
+      rowRank: getTotalSkillRank(Math.max(gf, dm)),
+      instrument: activeInstrument,
+      formatSkill
+    });
   }).join('') || '<div class="empty-state">該当するユーザーがいません</div>';
 
   const pager = $('userListPager');
@@ -4088,7 +4072,7 @@ function renderUsers() {
         : '';
     } else {
       pager.innerHTML = `
-        <div class="user-pager-main">${buildUserListPager(totalPages)}</div>
+        <div class="user-pager-main">${renderUserListPager({ totalPages, currentPage: userListPage })}</div>
         <div class="user-list-page-summary">${users.length}件</div>
       `;
     }
@@ -4109,13 +4093,10 @@ function renderViewedUserSkill() {
     el.className = `score-val user-detail-skill-value ${rankClass}`;
   });
 
-  $('userDetailSkill').innerHTML = `
-    <div class="sk-section skill-hot-section"><h2>HOT Top25</h2><div class="list-container">
-      ${target.hotRows.map((r,i) => createCard(r,i+1,'SKILL')).join('') || '<div class="empty-state">記録がありません</div>'}
-    </div></div>
-    <div class="sk-section skill-other-section"><h2>OTHER Top25</h2><div class="list-container">
-      ${target.otherRows.map((r,i) => createCard(r,i+1,'SKILL')).join('') || '<div class="empty-state">記録がありません</div>'}
-    </div></div>`;
+  $('userDetailSkill').innerHTML = renderUserDetailSkillSections({
+    hotCards: target.hotRows.map((r,i) => createCard(r,i+1,'SKILL')).join(''),
+    otherCards: target.otherRows.map((r,i) => createCard(r,i+1,'SKILL')).join('')
+  });
 }
 
 function setUserDetailTab(tab) {
@@ -4133,18 +4114,12 @@ function renderViewedUserRegisteredScores() {
   const visibleRows = getVisibleRegisteredRows(data, viewedUserRegisteredBatch);
   const hasMore = visibleRows.length < data.length;
 
-  $('userDetailRecords').innerHTML = `
-    <div class="sk-section">
-      <h2>登録曲 ${data.length}件（${visibleRows.length}件表示）</h2>
-      <div class="list-container">
-        ${renderRegisteredCardList(visibleRows, 'PUBLIC') || '<div class="empty-state">登録曲がありません</div>'}
-      </div>
-      ${hasMore ? `
-        <div class="user-detail-records-more">
-          <span>${visibleRows.length} / ${data.length}件表示</span>
-          <button type="button" data-user-detail-records-more>もっと見る</button>
-        </div>` : ''}
-    </div>`;
+  $('userDetailRecords').innerHTML = renderUserDetailRegisteredSection({
+    totalCount: data.length,
+    visibleCount: visibleRows.length,
+    cards: renderRegisteredCardList(visibleRows, 'PUBLIC'),
+    hasMore
+  });
 }
 
 async function loadViewedUserRegisteredScores() {
