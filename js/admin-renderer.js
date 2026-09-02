@@ -2,6 +2,22 @@ const escapeHtml = value => String(value ?? '').replace(/[&<>"']/g, character =>
   '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'
 }[character]));
 
+export function renderAdminCsvVersionOptions(versions) {
+  return [
+    ...versions.map(version => `
+      <option value="${version.id}">
+        ${escapeHtml(version.name)}${version.is_current ? '（最新版）' : ''}
+      </option>`),
+    '<option value="__NEW__">＋ 新しいバージョンを追加</option>'
+  ].join('');
+}
+
+export function renderAdminSongPickerOptions(rows) {
+  return `
+    <option value="">選択してください（${rows.length}曲）</option>
+    ${rows.map(row => `<option value="${escapeHtml(row.title)}">${escapeHtml(row.title)}</option>`).join('')}`;
+}
+
 export function renderAdminMasterPager({ totalPages, currentPage }) {
   if (totalPages <= 1) return '';
 

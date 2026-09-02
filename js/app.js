@@ -20,14 +20,16 @@ import {
   renderUserListRow
 } from './user-renderer.js?v=4_14_35';
 import {
+  renderAdminCsvVersionOptions as renderAdminCsvVersionOptionsMarkup,
   renderAdminFeedbackList,
   renderAdminMasterTable,
   renderAdminRequestList,
   renderAdminSettingUsage,
+  renderAdminSongPickerOptions,
   renderAdminUserList,
   renderAdminVersionList as renderAdminVersionListMarkup,
   renderAdminVersionManagerLoading
-} from './admin-renderer.js?v=4_14_41';
+} from './admin-renderer.js?v=4_14_42';
 
 let adminEnabled = false;
 import { supabase } from './supabase.js?v=21_57';
@@ -619,13 +621,7 @@ async function downloadAdminMasterCsv() {
 
 function renderAdminCsvVersionOptions() {
   const select = $('adminCsvVersion');
-  select.innerHTML = [
-    ...gameVersions.map(version => `
-      <option value="${version.id}">
-        ${esc(version.name)}${version.is_current ? '（最新版）' : ''}
-      </option>`),
-    '<option value="__NEW__">＋ 新しいバージョンを追加</option>'
-  ].join('');
+  select.innerHTML = renderAdminCsvVersionOptionsMarkup(gameVersions);
   select.value = activeVersionId;
   toggleAdminCsvNewVersionFields();
 }
@@ -873,9 +869,7 @@ function renderAdminSongPickerCandidates() {
         a.title.localeCompare(b.title, 'ja', { numeric:true, sensitivity:'base' });
     });
 
-  songSelect.innerHTML = `
-    <option value="">選択してください（${rows.length}曲）</option>
-    ${rows.map(row => `<option value="${esc(row.title)}">${esc(row.title)}</option>`).join('')}`;
+  songSelect.innerHTML = renderAdminSongPickerOptions(rows);
   songSelect.value = rows.some(row => row.title === currentTitle) ? currentTitle : '';
   songSelect.disabled = rows.length === 0;
 }
