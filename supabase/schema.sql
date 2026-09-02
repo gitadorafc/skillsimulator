@@ -545,7 +545,6 @@ CREATE TABLE public.user_scores (
     song_request_id uuid,
     CONSTRAINT user_scores_achievement_rate_check CHECK (((achievement_rate >= (0)::numeric) AND (achievement_rate <= 100.00))),
     CONSTRAINT user_scores_fc_allowed CHECK (((fc IS NULL) OR (fc = ANY (ARRAY['FC'::text, 'EXC'::text])))),
-    CONSTRAINT user_scores_fc_check CHECK (((fc IS NULL) OR (fc = ANY (ARRAY['FC'::text, 'EXC'::text])))),
     CONSTRAINT user_scores_play_option_allowed CHECK ((play_option = ANY (ARRAY['NORMAL'::text, 'RAN'::text, 'SRA'::text, 'RAN+'::text, 'SRA+'::text]))),
     CONSTRAINT user_scores_play_option_check CHECK ((play_option = ANY (ARRAY['NORMAL'::text, 'RAN'::text, 'SRA'::text, 'RAN+'::text, 'SRA+'::text]))),
     CONSTRAINT user_scores_song_or_request_check CHECK ((((song_id IS NOT NULL) AND (song_request_id IS NULL)) OR ((song_id IS NULL) AND (song_request_id IS NOT NULL))))
@@ -1267,4 +1266,3 @@ ALTER DEFAULT PRIVILEGES FOR ROLE supabase_admin IN SCHEMA public GRANT ALL ON T
 --
 
 \unrestrict k4ZV2YpKeLRzz38fxrAXA9BHLXX30IpvPFGJpISUzL60agaxHiTn4k35dFDpDkI
-
