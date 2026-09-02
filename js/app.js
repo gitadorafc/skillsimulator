@@ -20,13 +20,14 @@ import {
   renderUserListRow
 } from './user-renderer.js?v=4_14_35';
 import {
+  renderAdminFeedbackList,
   renderAdminMasterPager,
   renderAdminRequestList,
   renderAdminSettingUsage,
   renderAdminUserList,
   renderAdminVersionList as renderAdminVersionListMarkup,
   renderAdminVersionManagerLoading
-} from './admin-renderer.js?v=4_14_36';
+} from './admin-renderer.js?v=4_14_40';
 
 let adminEnabled = false;
 import { supabase } from './supabase.js?v=21_57';
@@ -5067,64 +5068,11 @@ async function loadAdminFeedback() {
       (profiles ?? []).forEach(profile => usernameMap.set(profile.id, profile.username));
     }
 
-    $('adminBody').innerHTML = adminFeedback.map(item => {
-      const isDone = item.status === 'resolved';
-      const categoryLabel = item.category === 'bug' ? '不具合' : '要望';
-      return `
-        <div class="admin-card feedback-admin-card ${isDone ? 'resolved' : ''}">
-          <div class="admin-card-top">
-            <div class="admin-card-title">
-              <span class="feedback-category ${item.category === 'bug' ? 'bug' : 'request'}">${categoryLabel}</span>
-              ${esc(usernameMap.get(item.user_id) || 'ユーザー')}
-            </div>
-            <div class="admin-actions">
-              <button
-                class="${isDone ? 'admin-reset' : 'admin-edit'}"
-                data-admin-feedback-status="${item.id}"
-                data-feedback-next-status="${isDone ? 'new' : 'resolved'}">
-                ${isDone ? '未対応に戻す' : '対応済みにする'}
-              </button>
-              <button
-                class="admin-delete"
-                data-admin-feedback-delete="${item.id}">
-                削除
-              </button>
-            </div>
-          </div>
-          <div class="feedback-admin-message">${esc(item.message).replace(/\\n/g, '<br>')}</div>
-          ${(item.device_name || item.browser_name) ? `
-            <div class="feedback-admin-env">
-              <strong>ご利用環境</strong><br>
-              機種名：${esc(item.device_name || '未入力')}<br>
-              ブラウザ：${esc(item.browser_name || '未入力')}
-            </div>
-          ` : ''}
-
-          ${item.admin_reply ? `
-            <div class="feedback-admin-replied">
-              <strong>返信済み</strong>
-              ${esc(item.admin_reply).replace(/\\n/g, '<br>')}
-              ${item.replied_at ? `<div class="admin-card-meta" style="margin-top:5px;">${new Date(item.replied_at).toLocaleString('ja-JP')}</div>` : ''}
-            </div>
-          ` : `
-            <div class="feedback-admin-reply-box">
-              <div class="feedback-admin-reply-label">ユーザーへ返信（1回のみ）</div>
-              <textarea
-                maxlength="2000"
-                data-admin-feedback-reply-input="${item.id}"
-                placeholder="返信内容を入力してください"></textarea>
-              <div class="feedback-admin-reply-actions">
-                <button data-admin-feedback-reply="${item.id}">返信する</button>
-              </div>
-            </div>
-          `}
-
-          <div class="admin-card-meta">
-            <span>${new Date(item.created_at).toLocaleString('ja-JP')}</span>
-            <span>${item.admin_reply ? '返信済み' : (isDone ? '対応済み' : '未対応')}</span>
-          </div>
-        </div>`;
-    }).join('') || '<div class="empty-state">要望・不具合報告はありません</div>';
+    $('adminBody').innerHTML = renderAdminFeedbackList({
+      items: adminFeedback,
+      getUsername: userId => usernameMap.get(userId),
+      formatDate: value => new Date(value).toLocaleString('ja-JP')
+    });
   } catch (e) {
     $('adminBody').innerHTML = `<div class="empty-state">取得失敗: ${esc(e.message)}</div>`;
   }

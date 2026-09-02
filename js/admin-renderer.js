@@ -192,3 +192,64 @@ export function renderAdminSettingUsage({
       })).join('')}
     </div>`;
 }
+
+export function renderAdminFeedbackList({ items, getUsername, formatDate }) {
+  return items.map(item => {
+    const isDone = item.status === 'resolved';
+    const categoryLabel = item.category === 'bug' ? '不具合' : '要望';
+    return `
+      <div class="admin-card feedback-admin-card ${isDone ? 'resolved' : ''}">
+        <div class="admin-card-top">
+          <div class="admin-card-title">
+            <span class="feedback-category ${item.category === 'bug' ? 'bug' : 'request'}">${categoryLabel}</span>
+            ${escapeHtml(getUsername(item.user_id) || 'ユーザー')}
+          </div>
+          <div class="admin-actions">
+            <button
+              class="${isDone ? 'admin-reset' : 'admin-edit'}"
+              data-admin-feedback-status="${item.id}"
+              data-feedback-next-status="${isDone ? 'new' : 'resolved'}">
+              ${isDone ? '未対応に戻す' : '対応済みにする'}
+            </button>
+            <button
+              class="admin-delete"
+              data-admin-feedback-delete="${item.id}">
+              削除
+            </button>
+          </div>
+        </div>
+        <div class="feedback-admin-message">${escapeHtml(item.message).replace(/\\n/g, '<br>')}</div>
+        ${(item.device_name || item.browser_name) ? `
+          <div class="feedback-admin-env">
+            <strong>ご利用環境</strong><br>
+            機種名：${escapeHtml(item.device_name || '未入力')}<br>
+            ブラウザ：${escapeHtml(item.browser_name || '未入力')}
+          </div>
+        ` : ''}
+
+        ${item.admin_reply ? `
+          <div class="feedback-admin-replied">
+            <strong>返信済み</strong>
+            ${escapeHtml(item.admin_reply).replace(/\\n/g, '<br>')}
+            ${item.replied_at ? `<div class="admin-card-meta" style="margin-top:5px;">${formatDate(item.replied_at)}</div>` : ''}
+          </div>
+        ` : `
+          <div class="feedback-admin-reply-box">
+            <div class="feedback-admin-reply-label">ユーザーへ返信（1回のみ）</div>
+            <textarea
+              maxlength="2000"
+              data-admin-feedback-reply-input="${item.id}"
+              placeholder="返信内容を入力してください"></textarea>
+            <div class="feedback-admin-reply-actions">
+              <button data-admin-feedback-reply="${item.id}">返信する</button>
+            </div>
+          </div>
+        `}
+
+        <div class="admin-card-meta">
+          <span>${formatDate(item.created_at)}</span>
+          <span>${item.admin_reply ? '返信済み' : (isDone ? '対応済み' : '未対応')}</span>
+        </div>
+      </div>`;
+  }).join('') || '<div class="empty-state">要望・不具合報告はありません</div>';
+}
