@@ -21,13 +21,13 @@ import {
 } from './user-renderer.js?v=4_14_35';
 import {
   renderAdminFeedbackList,
-  renderAdminMasterPager,
+  renderAdminMasterTable,
   renderAdminRequestList,
   renderAdminSettingUsage,
   renderAdminUserList,
   renderAdminVersionList as renderAdminVersionListMarkup,
   renderAdminVersionManagerLoading
-} from './admin-renderer.js?v=4_14_40';
+} from './admin-renderer.js?v=4_14_41';
 
 let adminEnabled = false;
 import { supabase } from './supabase.js?v=21_57';
@@ -4704,97 +4704,15 @@ async function loadAdminSongs() {
       return loadAdminSongs();
     }
 
-    $('adminBody').innerHTML = `
-      <div class="admin-master-summary">
-        <span>${result.total.toLocaleString('ja-JP')}曲</span>
-        <span>${adminSongPage + 1} / ${totalPages}ページ</span>
-      </div>
-      <div class="master-sheet-wrap">
-        <table class="master-sheet" id="adminMasterTable">
-          <thead>
-            <tr>
-              <th class="master-hot-cell">HOT</th>
-              <th class="master-title-cell">曲名</th>
-              <th class="master-reading-cell">ふりがな</th>
-              <th class="master-reading-review-cell">確認</th>
-              ${MASTER_PARTS.map(part => `<th class="master-level-cell">${part}</th>`).join('')}
-              <th class="master-action-cell">操作</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${adminNewSongRowVisible ? `
-              <tr class="master-new-row" data-master-new-row>
-                <td class="master-hot-cell">
-                  <input type="checkbox" data-master-hot>
-                </td>
-                <td class="master-title-cell">
-                  <input type="text" data-master-title value="" placeholder="曲名">
-                </td>
-                <td class="master-reading-cell">
-                  <input type="text" data-master-reading value="" placeholder="漢字曲など">
-                </td>
-                <td class="master-reading-review-cell">
-                  <input type="checkbox" data-master-reading-reviewed aria-label="ふりがな確認済み">
-                </td>
-                ${MASTER_PARTS.map(part => `
-                  <td class="master-level-cell">
-                    <input
-                      type="text"
-                      inputmode="decimal"
-                      autocomplete="off"
-                      data-master-level="${part}"
-                      value=""
-                      placeholder="-">
-                  </td>`).join('')}
-                <td class="master-action-cell">
-                  <div class="master-row-actions">
-                    <button class="master-row-save" data-admin-register-master-row>登録</button>
-                    <button class="master-row-delete" data-admin-cancel-master-row>キャンセル</button>
-                  </div>
-                </td>
-              </tr>` : ''}
-            ${rows.map((row, index) => `
-              <tr data-master-row="${index}"
-                data-original-title="${esc(row.title)}"
-                data-original-reading="${esc(row.reading || '')}"
-                data-reading-source="${esc(row.reading_source || 'NONE')}">
-                <td class="master-hot-cell">
-                  <input type="checkbox" data-master-hot ${row.is_hot ? 'checked' : ''}>
-                </td>
-                <td class="master-title-cell">
-                  <input type="text" data-master-title value="${esc(row.title)}">
-                </td>
-                <td class="master-reading-cell">
-                  <input type="text" data-master-reading value="${esc(row.reading || '')}" placeholder="漢字曲など">
-                </td>
-                <td class="master-reading-review-cell" title="${row.reading_source === 'AUTO' ? '自動付与' : row.reading_source === 'MANUAL' ? '手動入力' : '曲名と同一'}">
-                  <input type="checkbox" data-master-reading-reviewed
-                    aria-label="ふりがな確認済み"
-                    ${row.reading_reviewed ? 'checked' : ''}>
-                </td>
-                ${MASTER_PARTS.map(part => `
-                  <td class="master-level-cell">
-                    <input
-                      type="text"
-                      inputmode="decimal"
-                      autocomplete="off"
-                      data-master-level="${part}"
-                      value="${row.levels?.[part] != null ? formatLevel(row.levels[part]) : ''}"
-                      placeholder="-">
-                  </td>`).join('')}
-                <td class="master-action-cell">
-                  <div class="master-row-actions">
-                    <button class="master-row-save" data-admin-save-master-row="${index}">保存</button>
-                    <button class="master-row-delete" data-admin-delete-master-row="${index}">削除</button>
-                  </div>
-                </td>
-              </tr>`).join('')}
-          </tbody>
-        </table>
-      </div>
-      <div class="admin-master-pager">
-        ${renderAdminMasterPager({ totalPages, currentPage: adminSongPage })}
-      </div>`;
+    $('adminBody').innerHTML = renderAdminMasterTable({
+      rows,
+      totalCount: result.total,
+      totalPages,
+      currentPage: adminSongPage,
+      parts: MASTER_PARTS,
+      newSongRowVisible: adminNewSongRowVisible,
+      formatLevel
+    });
 
     if (!rows.length && !adminNewSongRowVisible) {
       $('adminBody').innerHTML = '<div class="empty-state">該当する曲がありません</div>';

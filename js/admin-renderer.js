@@ -24,6 +24,108 @@ export function renderAdminMasterPager({ totalPages, currentPage }) {
       aria-label="次のページ">▶</button>`;
 }
 
+export function renderAdminMasterTable({
+  rows,
+  totalCount,
+  totalPages,
+  currentPage,
+  parts,
+  newSongRowVisible,
+  formatLevel
+}) {
+  return `
+    <div class="admin-master-summary">
+      <span>${totalCount.toLocaleString('ja-JP')}曲</span>
+      <span>${currentPage + 1} / ${totalPages}ページ</span>
+    </div>
+    <div class="master-sheet-wrap">
+      <table class="master-sheet" id="adminMasterTable">
+        <thead>
+          <tr>
+            <th class="master-hot-cell">HOT</th>
+            <th class="master-title-cell">曲名</th>
+            <th class="master-reading-cell">ふりがな</th>
+            <th class="master-reading-review-cell">確認</th>
+            ${parts.map(part => `<th class="master-level-cell">${part}</th>`).join('')}
+            <th class="master-action-cell">操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${newSongRowVisible ? `
+            <tr class="master-new-row" data-master-new-row>
+              <td class="master-hot-cell">
+                <input type="checkbox" data-master-hot>
+              </td>
+              <td class="master-title-cell">
+                <input type="text" data-master-title value="" placeholder="曲名">
+              </td>
+              <td class="master-reading-cell">
+                <input type="text" data-master-reading value="" placeholder="漢字曲など">
+              </td>
+              <td class="master-reading-review-cell">
+                <input type="checkbox" data-master-reading-reviewed aria-label="ふりがな確認済み">
+              </td>
+              ${parts.map(part => `
+                <td class="master-level-cell">
+                  <input
+                    type="text"
+                    inputmode="decimal"
+                    autocomplete="off"
+                    data-master-level="${part}"
+                    value=""
+                    placeholder="-">
+                </td>`).join('')}
+              <td class="master-action-cell">
+                <div class="master-row-actions">
+                  <button class="master-row-save" data-admin-register-master-row>登録</button>
+                  <button class="master-row-delete" data-admin-cancel-master-row>キャンセル</button>
+                </div>
+              </td>
+            </tr>` : ''}
+          ${rows.map((row, index) => `
+            <tr data-master-row="${index}"
+              data-original-title="${escapeHtml(row.title)}"
+              data-original-reading="${escapeHtml(row.reading || '')}"
+              data-reading-source="${escapeHtml(row.reading_source || 'NONE')}">
+              <td class="master-hot-cell">
+                <input type="checkbox" data-master-hot ${row.is_hot ? 'checked' : ''}>
+              </td>
+              <td class="master-title-cell">
+                <input type="text" data-master-title value="${escapeHtml(row.title)}">
+              </td>
+              <td class="master-reading-cell">
+                <input type="text" data-master-reading value="${escapeHtml(row.reading || '')}" placeholder="漢字曲など">
+              </td>
+              <td class="master-reading-review-cell" title="${row.reading_source === 'AUTO' ? '自動付与' : row.reading_source === 'MANUAL' ? '手動入力' : '曲名と同一'}">
+                <input type="checkbox" data-master-reading-reviewed
+                  aria-label="ふりがな確認済み"
+                  ${row.reading_reviewed ? 'checked' : ''}>
+              </td>
+              ${parts.map(part => `
+                <td class="master-level-cell">
+                  <input
+                    type="text"
+                    inputmode="decimal"
+                    autocomplete="off"
+                    data-master-level="${part}"
+                    value="${row.levels?.[part] != null ? formatLevel(row.levels[part]) : ''}"
+                    placeholder="-">
+                </td>`).join('')}
+              <td class="master-action-cell">
+                <div class="master-row-actions">
+                  <button class="master-row-save" data-admin-save-master-row="${index}">保存</button>
+                  <button class="master-row-delete" data-admin-delete-master-row="${index}">削除</button>
+                </div>
+              </td>
+            </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>
+    <div class="admin-master-pager">
+      ${renderAdminMasterPager({ totalPages, currentPage })}
+    </div>`;
+}
+
 function renderAdminVersionHeading() {
   return `
     <div class="admin-version-heading">
