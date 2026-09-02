@@ -112,3 +112,34 @@ export function renderAdminRequestList({ requests, parts, formatLevel }) {
       </div>
     </div>`).join('') || '<div class="empty-state">未処理の登録依頼はありません</div>';
 }
+
+export function renderAdminUserList({ users, formatDate }) {
+  return `
+    <div class="admin-activity-legend">
+      <b>アクティブ度</b>
+      <span>S：7日連続更新</span><span>A：7日連続アクセス</span>
+      <span>B：更新＋通常利用</span><span>C：更新のみ</span>
+      <span>D：登録後に利用</span><span>E：登録のみ</span>
+    </div>
+    ${users.map(user => `
+    <div class="admin-card">
+      <div class="admin-card-top">
+        <div class="admin-card-user-heading">
+          <span class="admin-activity-badge level-${String(user.activity_level || 'E').toLowerCase()}">${escapeHtml(user.activity_level || 'E')}</span>
+          <div class="admin-card-title">${escapeHtml(user.username)}</div>
+        </div>
+        <div class="admin-actions">
+          <button class="admin-edit" data-user-open="${user.id}" data-user-name="${escapeHtml(user.username)}">詳細</button>
+          <button class="admin-reset" data-admin-reset-user="${user.id}">PW変更</button>
+          <button class="admin-delete" data-admin-delete-user="${user.id}">削除</button>
+        </div>
+      </div>
+      <div class="admin-card-meta">
+        <span><b>登録日時</b> ${formatDate(user.created_at)}</span>
+        <span><b>最終ログイン日時</b> ${formatDate(user.last_sign_in_at)}</span>
+        <span><b>最終アクセス</b> ${formatDate(user.last_open_at)}</span>
+        <span><b>最終更新</b> ${formatDate(user.last_update_at)}</span>
+        <span><b>直近7日</b> アクセス ${Number(user.open_days_7) || 0}日 / 更新 ${Number(user.update_days_7) || 0}日</span>
+      </div>
+    </div>`).join('') || '<div class="empty-state">該当するユーザーがいません</div>'}`;
+}
