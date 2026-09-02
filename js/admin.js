@@ -113,6 +113,28 @@ export async function createGameVersion({
   return Array.isArray(data) ? data[0] : data;
 }
 
+// admin.js の createGameVersion 関数の直後に、以下の2関数を追加する。
+
+export async function reorderGameVersions(orderedVersionIds) {
+  const ids = (orderedVersionIds ?? []).map(id => String(id || '').trim()).filter(Boolean);
+  if (!ids.length) throw new Error('並び替える対象がありません。');
+
+  const { error } = await supabase.rpc('admin_reorder_game_versions', {
+    p_version_ids: ids
+  });
+  if (error) throw error;
+}
+
+export async function deleteGameVersion(versionId) {
+  const cleanId = String(versionId || '').trim();
+  if (!cleanId) throw new Error('バージョンを選択してください。');
+
+  const { error } = await supabase.rpc('admin_delete_game_version', {
+    p_version_id: cleanId
+  });
+  if (error) throw error;
+}
+
 export async function getAdminSongIdentities(versionId) {
   const all = [];
   const pageSize = 1000;
