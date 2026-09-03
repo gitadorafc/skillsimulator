@@ -79,3 +79,57 @@ export function renderUserDetailRegisteredSection({
         </div>` : ''}
     </div>`;
 }
+
+export function renderAccountSwitchRows(accounts, currentUserId) {
+  if (!accounts.length) {
+    return '<div class="account-switch-empty">保存済みのユーザーはありません。</div>';
+  }
+
+  return accounts.map(account => {
+    const isCurrent = account.userId === currentUserId;
+    return `
+      <div class="account-switch-row${isCurrent ? ' current' : ''}">
+        <div>
+          <strong>${escapeHtml(account.username)}</strong>
+          <small>${isCurrent ? '現在のアカウント' : '切り替え可能'}</small>
+        </div>
+        <div class="account-switch-actions">
+          ${isCurrent ? '' : `<button type="button" class="btn-danger-wide account-switch-remove" data-remove-admin-account="${escapeHtml(account.userId)}">削除</button>`}
+          <button type="button" class="app-primary-button" data-switch-admin-account="${escapeHtml(account.userId)}" ${isCurrent ? 'disabled' : ''}>
+            ${isCurrent ? '使用中' : '切り替え'}
+          </button>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+export function renderFeedbackHistoryRows(rows, formatDate) {
+  return rows.map(item => {
+    const categoryLabel = item.category === 'bug' ? '不具合' : '要望';
+    const isDone = item.status === 'resolved';
+    const reply = String(item.admin_reply || '').trim();
+
+    return `
+      <div class="feedback-history-card">
+        <div class="feedback-history-top">
+          <span class="feedback-category ${item.category === 'bug' ? 'bug' : 'request'}">${categoryLabel}</span>
+          <span class="feedback-history-date">${formatDate(item.created_at)}</span>
+        </div>
+        <div class="feedback-history-message">${escapeHtml(item.message).replace(/\\n/g, '<br>')}</div>
+        ${(item.device_name || item.browser_name) ? `
+          <div class="feedback-history-env">
+            <strong>ご利用環境</strong><br>
+            機種名：${escapeHtml(item.device_name || '未入力')}<br>
+            ブラウザ：${escapeHtml(item.browser_name || '未入力')}
+          </div>
+        ` : ''}
+        ${reply ? `
+          <div class="feedback-history-reply">
+            <div class="feedback-history-reply-label">管理者からの返信</div>
+            <div class="feedback-history-reply-message">${escapeHtml(reply).replace(/\\n/g, '<br>')}</div>
+          </div>
+        ` : ''}
+        <div class="feedback-history-status">${reply ? '返信済み' : (isDone ? '対応済み' : '未対応')}</div>
+      </div>`;
+  }).join('') || '<div class="feedback-history-empty">送信履歴はありません</div>';
+}
