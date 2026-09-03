@@ -796,6 +796,7 @@ let viewedUserId = null;
 let viewedUserName = '';
 let viewedUserProfile = null;
 let viewedUserRegisteredScores = [];
+let userDetailReturnTarget = null;
 const REGISTERED_RECORD_BATCH_SIZE = 50;
 const REGISTERED_RECORD_COLUMN_BATCH_SIZE = 25;
 let ownRegisteredBatch = 1;
@@ -1694,7 +1695,7 @@ async function switchInstrument(instrument) {
   if (activeTabName === 'USERS') await loadUsers({ resetPage: true });
 
   if (viewedUserId && $('userDetailPage').style.display !== 'none') {
-    await openUserDetail(viewedUserId, viewedUserName);
+    await openUserDetail(viewedUserId, viewedUserName, userDetailReturnTarget);
   }
 }
 
@@ -2281,7 +2282,7 @@ async function openFavoriteUserDetail(userId, username, instrument) {
     await switchInstrument(instrument);
   }
 
-  await openUserDetail(userId, username);
+  await openUserDetail(userId, username, 'rivals');
 }
 
 function closeMenu() { $('menuMask').style.display = 'none'; }
@@ -3964,7 +3965,8 @@ async function loadViewedUserRegisteredScores() {
   }
 }
 
-async function openUserDetail(userId, username) {
+async function openUserDetail(userId, username, returnTarget = null) {
+  userDetailReturnTarget = returnTarget;
   viewedUserId = userId;
   viewedUserName = username;
   viewedUserProfile = null;
@@ -4013,7 +4015,8 @@ async function openUserDetail(userId, username) {
   }
 }
 
-function closeUserDetail() {
+function closeUserDetail(returnToOrigin = false) {
+  const returnTarget = userDetailReturnTarget;
   const detailPage = $('userDetailPage');
   detailPage.classList.remove('user-detail-open');
   detailPage.style.display = 'none';
@@ -4023,9 +4026,14 @@ function closeUserDetail() {
   viewedUserProfile = null;
   viewedUserId = null;
   viewedUserName = '';
+  userDetailReturnTarget = null;
   $('userDetailXLink').classList.add('hidden');
   $('userDetailTabs').classList.add('hidden');
   setUserDetailTab('skill');
+
+  if (returnToOrigin && returnTarget === 'rivals') {
+    openRivalManage();
+  }
 }
 
 async function toggleFavorite(userId, instrument = activeInstrument) {
@@ -5601,7 +5609,7 @@ $('userListPager')?.addEventListener('change', e => {
 
 $('versionSelect').addEventListener('change', async e => { await switchGameVersion(e.target.value); });
 
-$('btnCloseUserDetail').addEventListener('click', closeUserDetail);
+$('btnCloseUserDetail').addEventListener('click', () => closeUserDetail(true));
 $('userDetailTabs').addEventListener('click', async e => {
   const button = e.target.closest('[data-user-detail-tab]');
   if (!button) return;
