@@ -791,6 +791,8 @@ let adminSongPickerKey = '';
 let publicUsers = [];
 let favoriteUsers = { GF: [], DM: [] };
 const pendingFavoriteMutations = new Set();
+const pendingFavoriteRemovals = new Set();
+let favoriteListLoadSeq = 0;
 let viewedUserScores = [];
 let currentUserId = null;
 let viewedUserId = null;
@@ -4054,6 +4056,7 @@ async function toggleFavorite(userId, instrument = activeInstrument) {
   }
 
   pendingFavoriteMutations.add(mutationKey);
+  if (isRemoving) pendingFavoriteRemovals.add(mutationKey);
   user.is_favorite = !isRemoving;
   user.favorite_pending = true;
 
@@ -4093,9 +4096,7 @@ async function toggleFavorite(userId, instrument = activeInstrument) {
 
     // 星の表示を先に確定し、重い再集計は操作完了後に行う。
     loadUsers().catch(error => console.error('ユーザー一覧再取得失敗:', error));
-    setTimeout(() => {
-      loadFavorites().catch(error => console.error('ライバル一覧再取得失敗:', error));
-    }, 0);
+    loadFavorites().catch(error => console.error('ライバル一覧再取得失敗:', error));
   } catch (e) {
     user.is_favorite = originalFavorite;
     user.favorite_pending = false;
@@ -4120,6 +4121,7 @@ async function toggleFavorite(userId, instrument = activeInstrument) {
     }
   } finally {
     pendingFavoriteMutations.delete(mutationKey);
+    pendingFavoriteRemovals.delete(mutationKey);
   }
 }
 
@@ -4134,6 +4136,7 @@ async function removeFavoriteFromManage(userId, instrument) {
   if (!target) return;
 
   pendingFavoriteMutations.add(mutationKey);
+  pendingFavoriteRemovals.add(mutationKey);
   favoriteUsers[instrument] = originalRows.filter(
     favorite => String(favorite.favorite_user_id) !== String(userId)
   );
@@ -4149,9 +4152,7 @@ async function removeFavoriteFromManage(userId, instrument) {
   try {
     await removeFavorite(userId, instrument);
     loadUsers().catch(error => console.error('ユーザー一覧再取得失敗:', error));
-    setTimeout(() => {
-      loadFavorites().catch(error => console.error('ライバル一覧再取得失敗:', error));
-    }, 0);
+    loadFavorites().catch(error => console.error('ライバル一覧再取得失敗:', error));
   } catch (error) {
     favoriteUsers[instrument] = originalRows;
     if (publicUser && instrument === activeInstrument) {
@@ -4165,10 +4166,12 @@ async function removeFavoriteFromManage(userId, instrument) {
     );
   } finally {
     pendingFavoriteMutations.delete(mutationKey);
+    pendingFavoriteRemovals.delete(mutationKey);
   }
 }
 
 async function loadFavorites() {
+  const requestSeq = ++favoriteListLoadSeq;
   try {
     const [gf, dm] = await Promise.all([
       getMyFavorites('GF'),
@@ -4197,9 +4200,22 @@ async function loadFavorites() {
       enrich(dm, 'DM')
     ]);
 
-    favoriteUsers = { GF: gfWithSkill, DM: dmWithSkill };
+    // 連続操作中に古い取得結果が返っても、現在の一覧を巻き戻さない。
+    if (requestSeq !== favoriteListLoadSeq) return;
+
+    const excludePendingRemovals = (rows, instrument) => rows.filter(
+      favorite => !pendingFavoriteRemovals.has(
+        `${instrument}:${favorite.favorite_user_id}`
+      )
+    );
+
+    favoriteUsers = {
+      GF: excludePendingRemovals(gfWithSkill, 'GF'),
+      DM: excludePendingRemovals(dmWithSkill, 'DM')
+    };
     renderFavorites();
   } catch (e) {
+    if (requestSeq !== favoriteListLoadSeq) return;
     $('favoriteUserListGF').innerHTML = `<div class="empty-state">GFライバルの取得に失敗しました</div>`;
     $('favoriteUserListDM').innerHTML = `<div class="empty-state">DMライバルの取得に失敗しました</div>`;
     console.error(e);
