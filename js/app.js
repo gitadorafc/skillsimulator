@@ -21,7 +21,7 @@ import {
   renderUserDetailSkillSections,
   renderUserListPager,
   renderUserListRow
-} from './user-renderer.js?v=4_14_47';
+} from './user-renderer.js?v=4_14_49';
 import {
   renderAdminCsvVersionOptions as renderAdminCsvVersionOptionsMarkup,
   renderAdminFeedbackList,
@@ -790,6 +790,7 @@ let adminSongPickerChoices = [];
 let adminSongPickerKey = '';
 let publicUsers = [];
 let favoriteUsers = { GF: [], DM: [] };
+const pendingFavoriteMutations = new Set();
 let viewedUserScores = [];
 let currentUserId = null;
 let viewedUserId = null;
@@ -4040,21 +4041,46 @@ async function toggleFavorite(userId, instrument = activeInstrument) {
   const user = publicUsers.find(u => u.user_id === userId);
   if (!user) return;
 
+  const mutationKey = `${instrument}:${userId}`;
+  if (pendingFavoriteMutations.has(mutationKey)) return;
+
   const isRemoving = Boolean(user.is_favorite && instrument === activeInstrument);
+  const originalFavorite = Boolean(user.is_favorite);
+  const originalFavoriteRows = [...(favoriteUsers[instrument] || [])];
+
+  if (!isRemoving && originalFavoriteRows.length >= 10) {
+    await showSiteDialog('登録人数上限です。', 'ライバル登録');
+    return;
+  }
+
+  pendingFavoriteMutations.add(mutationKey);
+  user.is_favorite = !isRemoving;
+  user.favorite_pending = true;
+
+  if (isRemoving) {
+    favoriteUsers[instrument] = originalFavoriteRows.filter(
+      favorite => String(favorite.favorite_user_id) !== String(userId)
+    );
+  } else if (!originalFavoriteRows.some(
+    favorite => String(favorite.favorite_user_id) === String(userId)
+  )) {
+    favoriteUsers[instrument] = [
+      ...originalFavoriteRows,
+      {
+        favorite_user_id: userId,
+        username: user.username,
+        total_skill: instrument === 'DM' ? user.dm_skill : user.gf_skill
+      }
+    ];
+  }
+
+  renderUsers();
+  renderFavorites();
 
   try {
     if (isRemoving) {
       await removeFavorite(userId, instrument);
     } else {
-      // 11人目はDBへ登録処理を投げる前に止める。
-      // getMyFavorites() を直接取得して判定することで、
-      // 画面側のキャッシュ件数に依存しないようにする。
-      const currentFavorites = await getMyFavorites(instrument);
-      if ((currentFavorites ?? []).length >= 10) {
-        await showSiteDialog('登録人数上限です。', 'ライバル登録');
-        return;
-      }
-
       const { error: addError } = await supabase.rpc('add_favorite_v2', {
         p_favorite_user_id: userId,
         p_instrument: instrument
@@ -4062,8 +4088,21 @@ async function toggleFavorite(userId, instrument = activeInstrument) {
       if (addError) throw addError;
     }
 
-    await Promise.all([loadUsers(), loadFavorites()]);
+    user.favorite_pending = false;
+    renderUsers();
+
+    // 星の表示を先に確定し、重い再集計は操作完了後に行う。
+    loadUsers().catch(error => console.error('ユーザー一覧再取得失敗:', error));
+    setTimeout(() => {
+      loadFavorites().catch(error => console.error('ライバル一覧再取得失敗:', error));
+    }, 0);
   } catch (e) {
+    user.is_favorite = originalFavorite;
+    user.favorite_pending = false;
+    favoriteUsers[instrument] = originalFavoriteRows;
+    renderUsers();
+    renderFavorites();
+
     const message = String(e?.message || e);
 
     // 同時操作などで事前判定をすり抜けてDB側の10人制限に
@@ -4079,6 +4118,53 @@ async function toggleFavorite(userId, instrument = activeInstrument) {
         'エラー'
       );
     }
+  } finally {
+    pendingFavoriteMutations.delete(mutationKey);
+  }
+}
+
+async function removeFavoriteFromManage(userId, instrument) {
+  const mutationKey = `${instrument}:${userId}`;
+  if (pendingFavoriteMutations.has(mutationKey)) return;
+
+  const originalRows = [...(favoriteUsers[instrument] || [])];
+  const target = originalRows.find(
+    favorite => String(favorite.favorite_user_id) === String(userId)
+  );
+  if (!target) return;
+
+  pendingFavoriteMutations.add(mutationKey);
+  favoriteUsers[instrument] = originalRows.filter(
+    favorite => String(favorite.favorite_user_id) !== String(userId)
+  );
+  renderFavorites();
+
+  const publicUser = publicUsers.find(user => String(user.user_id) === String(userId));
+  const originalPublicFavorite = publicUser?.is_favorite;
+  if (publicUser && instrument === activeInstrument) {
+    publicUser.is_favorite = false;
+    renderUsers();
+  }
+
+  try {
+    await removeFavorite(userId, instrument);
+    loadUsers().catch(error => console.error('ユーザー一覧再取得失敗:', error));
+    setTimeout(() => {
+      loadFavorites().catch(error => console.error('ライバル一覧再取得失敗:', error));
+    }, 0);
+  } catch (error) {
+    favoriteUsers[instrument] = originalRows;
+    if (publicUser && instrument === activeInstrument) {
+      publicUser.is_favorite = originalPublicFavorite;
+      renderUsers();
+    }
+    renderFavorites();
+    await showSiteDialog(
+      `ライバルの削除に失敗しました。\n${error?.message || error}`,
+      'エラー'
+    );
+  } finally {
+    pendingFavoriteMutations.delete(mutationKey);
   }
 }
 
@@ -5751,11 +5837,10 @@ document.addEventListener('click', async e => {
   }
 
   if (favoriteRemove) {
-    await removeFavorite(
+    await removeFavoriteFromManage(
       favoriteRemove.dataset.favoriteRemove,
       favoriteRemove.dataset.favoriteInstrument || 'GF'
     );
-    await Promise.all([loadFavorites(), loadUsers()]);
     return;
   }
 

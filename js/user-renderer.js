@@ -43,9 +43,10 @@ export function renderUserListRow({
       <div class="user-list-skill user-list-total"><span class="user-list-skill-value ${totalClass}">${formatSkill(totalSkill)}</span></div>
       ${user.is_self
         ? '<div></div>'
-        : `<button class="favorite-toggle ${user.is_favorite ? 'active' : ''}"
+        : `<button class="favorite-toggle${user.is_favorite ? ' active' : ''}${user.favorite_pending ? ' pending' : ''}"
             data-favorite-user="${user.user_id}"
             data-favorite-instrument="${instrument}"
+            ${user.favorite_pending ? 'disabled aria-busy="true"' : ''}
             title="${rivalLabel}">${user.is_favorite ? '★' : '☆'}</button>`}
     </div>`;
 }

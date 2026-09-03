@@ -866,6 +866,10 @@ body.light-mode .user-list-row-sparkle-rainbow:active {
   cursor: pointer;
 }
 .favorite-toggle.active { color: #facc15; }
+.favorite-toggle.pending {
+  cursor: wait;
+  transform: scale(.92);
+}
 
 .user-detail-page {
   position: fixed;
