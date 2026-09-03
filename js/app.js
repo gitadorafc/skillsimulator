@@ -8,10 +8,7 @@ import {
 } from './skill-colors.js?v=4_14_33';
 import {
   createCard,
-  getFcBadgeMarkup,
-  getOptionBadgeMarkup,
-  getPartColorClass,
-  getSongSkillRank
+  getPartColorClass
 } from './card-renderer.js?v=4_14_34';
 import {
   renderAccountSwitchRows,
@@ -55,6 +52,11 @@ import {
 } from './skill-sync-data.js?v=4_14_52';
 import { csvEscape, parseMasterCsv } from './admin-csv.js?v=4_15_0';
 import { adminSongCategory } from './admin-song-utils.js?v=4_15_0';
+import {
+  renderOptionSummary,
+  renderPersonalBest,
+  renderRateComparisonRows
+} from './score-detail-renderer.js?v=4_15_2';
 
 let adminEnabled = false;
 import { supabase } from './supabase.js?v=21_57';
@@ -4019,30 +4021,6 @@ function renderFavorites() {
 }
 
 
-function getOptionDisplayName(option, part = '') {
-  switch (option) {
-    case 'NORMAL': return String(part).endsWith('-D') ? 'なし' : '正規';
-    case 'RAN': return 'RAN';
-    case 'SRA': return 'SRA';
-    case 'RAN+': return 'RAN+';
-    case 'SRA+': return 'SRA+';
-    case 'BASS_MIRROR': return 'バスミラー';
-    default: return String(option || '');
-  }
-}
-
-function getHistoricalOptionMarkup(option, part) {
-  if (!option || option === 'NORMAL') return '';
-  const badge = getOptionBadgeMarkup(option);
-  if (badge) return badge;
-  return `<span class="history-option-badge">${esc(getOptionDisplayName(option, part))}</span>`;
-}
-
-function formatOptionPercentage(value) {
-  const num = Number(value) || 0;
-  return Number.isInteger(num) ? String(num) : num.toFixed(1);
-}
-
 async function openRateComparison(songId, title, part, editScoreId = null) {
   rateComparisonEditScoreId = editScoreId && scores.some(row => String(row.score_id) === String(editScoreId))
     ? String(editScoreId)
@@ -4077,67 +4055,17 @@ async function openRateComparison(songId, title, part, editScoreId = null) {
       $('ratePrivateComment').classList.remove('hidden');
     }
 
-    if (personalBest) {
-      const bestBadges = [
-        getFcBadgeMarkup(personalBest.fc, personalBest.achievement_rate),
-        getHistoricalOptionMarkup(personalBest.play_option, part)
-      ].filter(Boolean).join('');
-      const bestBadgesMarkup = bestBadges
-        ? `<span class="rate-personal-best-badges">${bestBadges}</span>`
-        : '';
+    const personalBestMarkup = renderPersonalBest(personalBest, part);
+    if (personalBestMarkup) {
       $('ratePersonalBest').classList.remove('hidden');
-      $('ratePersonalBest').innerHTML = `
-        <div class="rate-personal-best-label">歴代自己ベスト</div>
-        <div class="rate-personal-best-detail">
-          <strong class="rate-personal-best-value">${formatRate(personalBest.achievement_rate)}%</strong>
-          ${bestBadgesMarkup}
-          <span class="rate-personal-best-version">(${esc(personalBest.version_name)})</span>
-        </div>`;
+      $('ratePersonalBest').innerHTML = personalBestMarkup;
     } else {
       $('ratePersonalBest').classList.add('hidden');
       $('ratePersonalBest').innerHTML = '';
     }
 
-    const isDm = part.endsWith('-D');
-    const visibleOptions = optionRows.filter(row => {
-      if (Number(row.percentage) <= 0) return false;
-      if (isDm) return ['NORMAL','BASS_MIRROR'].includes(row.play_option);
-      return ['NORMAL','RAN','SRA','RAN+','SRA+'].includes(row.play_option);
-    });
-    const hasBassMirror = isDm && optionRows.some(row =>
-      row.play_option === 'BASS_MIRROR' && Number(row.use_count) > 0
-    );
-    const showOptionSummary = isDm ? hasBassMirror : visibleOptions.length > 0;
-
-    $('rateOptionSummary').innerHTML = showOptionSummary
-      ? `
-          <div class="option-share-title">全ユーザーのオプション利用割合</div>
-          ${visibleOptions.map(row => `
-            <div class="option-share-item">
-              <span>${esc(getOptionDisplayName(row.play_option, part))}</span>
-              <strong>${formatOptionPercentage(row.percentage)}%</strong>
-            </div>`
-          ).join('')}
-        `
-      : '';
-
-    $('rateCompareBody').innerHTML = rows.length ? `
-      ${rows.map((row, index) => {
-        const compareSkillClass = `skill-box-${getSongSkillRank(Number(row.skill) || 0)}`;
-        return `
-          <div class="rate-row ${row.is_self ? 'self' : ''}">
-            <div class="rate-user">
-              <div class="rate-user-name">${esc(row.username)}${row.is_self ? '（自分）' : ''}</div>
-              <div class="rate-badges">
-                ${getFcBadgeMarkup(row.fc, row.achievement_rate)}
-                ${getOptionBadgeMarkup(row.play_option)}
-              </div>
-            </div>
-            <div class="rate-value">${formatRate(row.achievement_rate)}%</div>
-            <div class="rate-skill ${compareSkillClass}"><span class="dc-skill-value">${formatSkill(row.skill)}</span></div>
-          </div>`;
-      }).join('')}
-    ` : '<div class="empty-state">比較できる記録がありません</div>';
+    $('rateOptionSummary').innerHTML = renderOptionSummary(optionRows, part);
+    $('rateCompareBody').innerHTML = renderRateComparisonRows(rows);
   } catch (e) {
     $('rateOptionSummary').innerHTML = '';
     $('rateCompareBody').innerHTML = `<div class="empty-state">比較データの取得に失敗しました: ${esc(e.message)}</div>`;
