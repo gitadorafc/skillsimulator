@@ -15,12 +15,13 @@ import {
 } from './card-renderer.js?v=4_14_34';
 import {
   renderAccountSwitchRows,
+  renderFavoriteRows,
   renderFeedbackHistoryRows,
   renderUserDetailRegisteredSection,
   renderUserDetailSkillSections,
   renderUserListPager,
   renderUserListRow
-} from './user-renderer.js?v=4_14_46';
+} from './user-renderer.js?v=4_14_47';
 import {
   renderAdminCsvVersionOptions as renderAdminCsvVersionOptionsMarkup,
   renderAdminFeedbackList,
@@ -4127,31 +4128,12 @@ function renderFavoriteList(instrument) {
 
   const target = $(`favoriteUserList${instrument}`);
 
-  target.innerHTML = rows.map(fav => {
-    const total = Number(fav.total_skill);
-    const hasSkill = Number.isFinite(total);
-    const skillClass = hasSkill
-      ? `score-rank-${getTotalSkillRank(total)}`
-      : '';
-
-    return `
-      <div class="favorite-user-row" data-favorite-row="${fav.favorite_user_id}">
-        <button type="button"
-          class="favorite-user-open"
-          data-favorite-open="${fav.favorite_user_id}"
-          data-favorite-name="${esc(fav.username)}"
-          data-favorite-view-instrument="${instrument}">
-          <span class="name">${esc(fav.username)}</span>
-          <span class="favorite-user-skill-label">${instrument} TOTAL</span>
-          <span class="favorite-user-skill ${skillClass}">${hasSkill ? formatSkill(total) : '-'}</span>
-          <span class="favorite-user-arrow">›</span>
-        </button>
-        <button type="button"
-          class="remove"
-          data-favorite-remove="${fav.favorite_user_id}"
-          data-favorite-instrument="${instrument}">削除</button>
-      </div>`;
-  }).join('') || `<div class="section-note">${instrument}ライバルはまだ登録されていません。</div>`;
+  target.innerHTML = renderFavoriteRows({
+    rows,
+    instrument,
+    getTotalSkillRank,
+    formatSkill
+  });
 }
 
 function renderFavorites() {

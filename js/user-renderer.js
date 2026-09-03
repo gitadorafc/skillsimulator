@@ -133,3 +133,36 @@ export function renderFeedbackHistoryRows(rows, formatDate) {
       </div>`;
   }).join('') || '<div class="feedback-history-empty">送信履歴はありません</div>';
 }
+
+export function renderFavoriteRows({
+  rows,
+  instrument,
+  getTotalSkillRank,
+  formatSkill
+}) {
+  return rows.map(favorite => {
+    const total = Number(favorite.total_skill);
+    const hasSkill = Number.isFinite(total);
+    const skillClass = hasSkill
+      ? `score-rank-${getTotalSkillRank(total)}`
+      : '';
+
+    return `
+      <div class="favorite-user-row" data-favorite-row="${favorite.favorite_user_id}">
+        <button type="button"
+          class="favorite-user-open"
+          data-favorite-open="${favorite.favorite_user_id}"
+          data-favorite-name="${escapeHtml(favorite.username)}"
+          data-favorite-view-instrument="${instrument}">
+          <span class="name">${escapeHtml(favorite.username)}</span>
+          <span class="favorite-user-skill-label">${instrument} TOTAL</span>
+          <span class="favorite-user-skill ${skillClass}">${hasSkill ? formatSkill(total) : '-'}</span>
+          <span class="favorite-user-arrow">›</span>
+        </button>
+        <button type="button"
+          class="remove"
+          data-favorite-remove="${favorite.favorite_user_id}"
+          data-favorite-instrument="${instrument}">削除</button>
+      </div>`;
+  }).join('') || `<div class="section-note">${instrument}ライバルはまだ登録されていません。</div>`;
+}
