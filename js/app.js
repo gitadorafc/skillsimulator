@@ -35,6 +35,7 @@ import {
   renderSkillRankingRows,
   sortSkillRankingRows
 } from './ranking-renderer.js?v=4_14_43';
+import { shareGeneratedSkillFiles } from './skill-share.js?v=4_14_44';
 
 let adminEnabled = false;
 import { supabase } from './supabase.js?v=21_57';
@@ -2277,7 +2278,8 @@ async function shareSkillHistoryPreview() {
     const snapshot = skillHistoryPreviewSnapshot;
     await shareGeneratedSkillFiles(
       [skillHistoryPreviewFile],
-      [`GITADORA ${snapshot.instrument} SKILL ${Number(snapshot.total).toFixed(2)}`]
+      [`GITADORA ${snapshot.instrument} SKILL ${Number(snapshot.total).toFixed(2)}`],
+      showSiteDialog
     );
   } finally {
     button.disabled = false;
@@ -3043,21 +3045,6 @@ async function createSkillShareFile(instrument, snapshot = null, comparisonBasel
   return new File([blob], `GITADORA_${instrument}_skill.png`, { type: 'image/png' });
 }
 
-function downloadSkillShareFiles(files) {
-  files.forEach((file, index) => {
-    const url = URL.createObjectURL(file);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = file.name;
-    document.body.appendChild(a);
-    setTimeout(() => {
-      a.click();
-      a.remove();
-      setTimeout(() => URL.revokeObjectURL(url), 2000);
-    }, index * 180);
-  });
-}
-
 async function shareSkillImage(selection = activeInstrument) {
   const instruments = selection === 'BOTH' ? ['GF', 'DM'] : [selection];
   // mapが渡す(index, array)をsnapshot引数へ混入させない。
@@ -3066,29 +3053,7 @@ async function shareSkillImage(selection = activeInstrument) {
   );
   const skillLines = instruments
     .map(instrument => `GITADORA ${instrument} SKILL ${Number(totals(instrument).total).toFixed(2)}`);
-  await shareGeneratedSkillFiles(files, skillLines);
-}
-
-async function shareGeneratedSkillFiles(files, skillLines) {
-  // Xの共有画面で末尾のハッシュタグと認識候補が重なって見えないため、
-  // ハッシュタグの後に改行を入れてカーソル位置を次の行へ送る。
-  const text = `${skillLines.join('\n')}\n#GITADORASkillSimulator\n`;
-
-  try {
-    if (navigator.share && (!navigator.canShare || navigator.canShare({ files }))) {
-      await navigator.share({ files, title: 'GITADORA Skill Simulator', text });
-    } else {
-      downloadSkillShareFiles(files);
-      const message = files.length === 2
-        ? 'GF・DMの共有画像2枚を保存しました。XやInstagramの投稿画面から画像を選択してください。'
-        : '画像を保存しました。XやInstagramの投稿画面から画像を選択してください。';
-      await showSiteDialog(message, '共有画像');
-    }
-  } catch (e) {
-    if (e?.name !== 'AbortError') {
-      await showSiteDialog('共有に失敗しました: ' + e.message, 'エラー');
-    }
-  }
+  await shareGeneratedSkillFiles(files, skillLines, showSiteDialog);
 }
 
 async function getMyPrivateScoreComments() {
