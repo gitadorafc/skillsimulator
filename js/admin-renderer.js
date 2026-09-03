@@ -2,6 +2,21 @@ const escapeHtml = value => String(value ?? '').replace(/[&<>"']/g, character =>
   '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'
 }[character]));
 
+const INITIAL_GROUPS = [
+  '記号・数字',
+  ...'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+  'あ行','か行','さ行','た行','な行',
+  'は行','ま行','や行','ら行','わ行'
+];
+
+function renderInitialOptions(selected = '') {
+  return [
+    '<option value="">選択</option>',
+    ...INITIAL_GROUPS.map(value => `
+      <option value="${value}" ${value === selected ? 'selected' : ''}>${value}</option>`)
+  ].join('');
+}
+
 export function renderAdminCsvVersionOptions(versions) {
   return [
     ...versions.map(version => `
@@ -60,8 +75,8 @@ export function renderAdminMasterTable({
           <tr>
             <th class="master-hot-cell">HOT</th>
             <th class="master-title-cell">曲名</th>
-            <th class="master-reading-cell">ふりがな</th>
-            <th class="master-reading-review-cell">確認</th>
+            <th class="master-initial-cell">頭文字</th>
+            <th class="master-order-cell">並び順</th>
             ${parts.map(part => `<th class="master-level-cell">${part}</th>`).join('')}
             <th class="master-action-cell">操作</th>
           </tr>
@@ -75,11 +90,12 @@ export function renderAdminMasterTable({
               <td class="master-title-cell">
                 <input type="text" data-master-title value="" placeholder="曲名">
               </td>
-              <td class="master-reading-cell">
-                <input type="text" data-master-reading value="" placeholder="漢字曲など">
+              <td class="master-initial-cell">
+                <select data-master-initial>${renderInitialOptions()}</select>
               </td>
-              <td class="master-reading-review-cell">
-                <input type="checkbox" data-master-reading-reviewed aria-label="ふりがな確認済み">
+              <td class="master-order-cell">
+                <input type="number" min="0" step="0.0001" inputmode="decimal"
+                  data-master-order value="" placeholder="0">
               </td>
               ${parts.map(part => `
                 <td class="master-level-cell">
@@ -100,22 +116,21 @@ export function renderAdminMasterTable({
             </tr>` : ''}
           ${rows.map((row, index) => `
             <tr data-master-row="${index}"
-              data-original-title="${escapeHtml(row.title)}"
-              data-original-reading="${escapeHtml(row.reading || '')}"
-              data-reading-source="${escapeHtml(row.reading_source || 'NONE')}">
+              data-original-title="${escapeHtml(row.title)}">
               <td class="master-hot-cell">
                 <input type="checkbox" data-master-hot ${row.is_hot ? 'checked' : ''}>
               </td>
               <td class="master-title-cell">
                 <input type="text" data-master-title value="${escapeHtml(row.title)}">
               </td>
-              <td class="master-reading-cell">
-                <input type="text" data-master-reading value="${escapeHtml(row.reading || '')}" placeholder="漢字曲など">
+              <td class="master-initial-cell">
+                <select data-master-initial>${renderInitialOptions(row.initial_group || '')}</select>
               </td>
-              <td class="master-reading-review-cell" title="${row.reading_source === 'AUTO' ? '自動付与' : row.reading_source === 'MANUAL' ? '手動入力' : '曲名と同一'}">
-                <input type="checkbox" data-master-reading-reviewed
-                  aria-label="ふりがな確認済み"
-                  ${row.reading_reviewed ? 'checked' : ''}>
+              <td class="master-order-cell">
+                <input type="number" min="0" step="0.0001" inputmode="decimal"
+                  data-master-order
+                  value="${row.official_order == null ? '' : escapeHtml(row.official_order)}"
+                  placeholder="0">
               </td>
               ${parts.map(part => `
                 <td class="master-level-cell">

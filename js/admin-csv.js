@@ -62,6 +62,47 @@ function parseCsvBoolean(value, label, rowNumber) {
   throw new Error(`${rowNumber}行目の${label}は 1 または 0 で入力してください。`);
 }
 
+const VALID_INITIAL_GROUPS = new Set([
+  '記号・数字',
+  ...'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+  'あ行','か行','さ行','た行','な行',
+  'は行','ま行','や行','ら行','わ行'
+]);
+
+function normalizeDuplicateOrders(rows) {
+  const byInitial = new Map();
+  rows.forEach(row => {
+    if (row.initialGroup == null || row.officialOrder == null) return;
+    if (!byInitial.has(row.initialGroup)) byInitial.set(row.initialGroup, []);
+    byInitial.get(row.initialGroup).push(row);
+  });
+
+  byInitial.forEach(groupRows => {
+    for (let start = 0; start < groupRows.length;) {
+      let end = start + 1;
+      while (
+        end < groupRows.length &&
+        groupRows[end].officialOrder === groupRows[start].officialOrder
+      ) end += 1;
+
+      const duplicateCount = end - start;
+      if (duplicateCount > 1) {
+        const base = groupRows[start].officialOrder;
+        const next = end < groupRows.length && groupRows[end].officialOrder > base
+          ? groupRows[end].officialOrder
+          : base + 1;
+        const step = (next - base) / duplicateCount;
+        for (let offset = 1; offset < duplicateCount; offset += 1) {
+          groupRows[start + offset].officialOrder = Number(
+            (base + step * offset).toFixed(4)
+          );
+        }
+      }
+      start = end;
+    }
+  });
+}
+
 export function parseMasterCsv(text, parts) {
   const table = parseCsvTable(text);
   if (table.length < 2) throw new Error('CSVに登録データがありません。');
@@ -74,9 +115,8 @@ export function parseMasterCsv(text, parts) {
 
   const idColumn = findColumn('曲ID', 'SONG_ID', 'ID');
   const titleColumn = findColumn('曲名', 'TITLE');
-  const readingColumn = findColumn('ふりがな', 'READING');
-  const readingSourceColumn = findColumn('ふりがな種別', 'READING_SOURCE');
-  const readingReviewedColumn = findColumn('ふりがな確認済み', 'READING_REVIEWED');
+  const initialColumn = findColumn('頭文字', 'INITIAL_GROUP');
+  const orderColumn = findColumn('並び順', '公式並び順', 'OFFICIAL_ORDER', 'SORT_ORDER');
   const hotColumn = findColumn('HOT', '種別');
   const partColumns = new Map(parts.map(part => [part, findColumn(part)]));
 
@@ -94,14 +134,17 @@ export function parseMasterCsv(text, parts) {
     const valueAt = column => column >= 0 ? String(cells[column] ?? '').trim() : '';
     const songId = valueAt(idColumn);
     const titleRaw = valueAt(titleColumn);
-    const readingRaw = valueAt(readingColumn);
-    const readingSourceRaw = valueAt(readingSourceColumn).toUpperCase();
     const title = titleRaw || null;
-    const reading = readingRaw || null;
-    const readingSource = readingSourceRaw || null;
-    const readingReviewed = readingReviewedColumn >= 0
-      ? parseCsvBoolean(valueAt(readingReviewedColumn), 'ふりがな確認済み', rowNumber)
-      : null;
+    const initialRaw = valueAt(initialColumn);
+    const initialGroup = initialRaw || null;
+    if (initialGroup && !VALID_INITIAL_GROUPS.has(initialGroup)) {
+      throw new Error(`${rowNumber}行目の頭文字が不正です。`);
+    }
+    const orderRaw = valueAt(orderColumn).replace(/,/g, '');
+    const officialOrder = orderRaw === '' ? null : Number(orderRaw);
+    if (officialOrder != null && (!Number.isFinite(officialOrder) || officialOrder < 0)) {
+      throw new Error(`${rowNumber}行目の並び順は0以上の数値で入力してください。`);
+    }
     const isHot = hotColumn >= 0
       ? parseCsvBoolean(valueAt(hotColumn), 'HOT', rowNumber)
       : null;
@@ -153,14 +196,14 @@ export function parseMasterCsv(text, parts) {
       rowNumber,
       songId,
       title,
-      reading,
-      readingSource,
-      readingReviewed,
+      initialGroup,
+      officialOrder,
       isHot,
       levels
     });
   });
 
   if (!parsed.length) throw new Error('CSVに登録データがありません。');
+  normalizeDuplicateOrders(parsed);
   return parsed;
 }

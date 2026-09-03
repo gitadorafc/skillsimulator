@@ -32,7 +32,7 @@ import {
   renderAdminUserList,
   renderAdminVersionList as renderAdminVersionListMarkup,
   renderAdminVersionManagerLoading
-} from './admin-renderer.js?v=4_14_42';
+} from './admin-renderer.js?v=4_15_0';
 import {
   renderSkillRankingRangeOptions,
   renderSkillRankingRows,
@@ -53,8 +53,8 @@ import {
   formatSkillSyncCountText,
   normalizeSkillSyncRecords
 } from './skill-sync-data.js?v=4_14_52';
-import { csvEscape, parseMasterCsv } from './admin-csv.js?v=4_14_53';
-import { adminSongCategory } from './admin-song-utils.js?v=4_14_54';
+import { csvEscape, parseMasterCsv } from './admin-csv.js?v=4_15_0';
+import { adminSongCategory } from './admin-song-utils.js?v=4_15_0';
 
 let adminEnabled = false;
 import { supabase } from './supabase.js?v=21_57';
@@ -86,10 +86,12 @@ const {
 
 // 曲マスター表の列順。admin.jsが古くても画面自体は起動できるようローカルにも保持。
 const MASTER_PARTS = adminApi.MASTER_PARTS ?? [
-  'MAS-G','MAS-B','MAS-D','EXT-G','EXT-B','EXT-D','ADV-G','ADV-B','ADV-D','BSC-G','BSC-B','BSC-D'
+  'BSC-D','ADV-D','EXT-D','MAS-D',
+  'BSC-G','ADV-G','EXT-G','MAS-G',
+  'BSC-B','ADV-B','EXT-B','MAS-B'
 ];
 const MASTER_CSV_HEADERS = [
-  '曲ID', '曲名', 'ふりがな', 'ふりがな種別', 'ふりがな確認済み', 'HOT', ...MASTER_PARTS
+  '曲ID', '曲名', '頭文字', '並び順', 'HOT', ...MASTER_PARTS
 ];
 
 const EAMUSEMENT_ORIGIN = 'https://p.eagate.573.jp';
@@ -251,14 +253,16 @@ async function processPendingSkillSync() {
 async function saveMasterSongRow({
   originalTitle = '',
   title,
-  reading = '',
+  initialGroup = '',
+  officialOrder = null,
   isHot = false,
   levels = {}
 }) {
   return saveMasterSongRows([{
     originalTitle,
     title,
-    reading,
+    initialGroup,
+    officialOrder,
     isHot,
     levels
   }], activeVersionId);
@@ -270,23 +274,22 @@ function collectMasterSongRow(tr) {
     levels[part] = tr.querySelector(`[data-master-level="${part}"]`)?.value ?? '';
   });
 
-  const reading = tr.querySelector('[data-master-reading]')?.value || '';
-  const originalReading = tr.dataset.originalReading || '';
-  const readingChanged = reading.trim() !== originalReading.trim();
-  const readingReviewed = Boolean(
-    tr.querySelector('[data-master-reading-reviewed]')?.checked
-  );
+  const initialGroup = tr.querySelector('[data-master-initial]')?.value || '';
+  const orderRaw = tr.querySelector('[data-master-order]')?.value ?? '';
+  const officialOrder = String(orderRaw).trim() === ''
+    ? null
+    : Number(String(orderRaw).replace(/,/g, ''));
+  if (officialOrder != null && (!Number.isFinite(officialOrder) || officialOrder < 0)) {
+    throw new Error('並び順は0以上の数値で入力してください。');
+  }
+  if (!initialGroup) throw new Error('頭文字を選択してください。');
+  if (officialOrder == null) throw new Error('並び順を入力してください。');
 
   return {
     originalTitle: tr.dataset.originalTitle || '',
     title: tr.querySelector('[data-master-title]')?.value || '',
-    reading,
-    readingSource: reading.trim()
-      ? (readingChanged ? 'MANUAL' : (tr.dataset.readingSource || 'MANUAL'))
-      : 'NONE',
-    readingReviewed: reading.trim()
-      ? (readingChanged || readingReviewed)
-      : false,
+    initialGroup,
+    officialOrder,
     isHot: Boolean(tr.querySelector('[data-master-hot]')?.checked),
     levels
   };
@@ -311,7 +314,7 @@ async function loadAllAdminMasterRows(versionId) {
   const pageSize = 200;
 
   for (let page = 0; ; page += 1) {
-    const result = await getAdminSongMasterPage('', page, pageSize, versionId, '', '');
+    const result = await getAdminSongMasterPage('', page, pageSize, versionId, '');
     rows.push(...result.rows);
     if (rows.length >= result.total || result.rows.length < pageSize) break;
   }
@@ -362,18 +365,13 @@ async function buildMasterImportRows(parsedRows, targetVersionId, allowSourceVer
       }
       if (!baseline) throw new Error(`${row.rowNumber}行目の曲IDに対応する曲データがありません。`);
     } else {
-      if (targetRowsByTitle.has(row.title)) {
-        throw new Error(`${row.rowNumber}行目は曲IDが空欄ですが、同名曲がすでに存在します。`);
-      }
+      targetBaseline = targetRowsByTitle.get(row.title) || null;
+      baseline = targetBaseline;
     }
 
     const title = row.title ?? baseline?.title ?? '';
-    const reading = row.reading ?? baseline?.reading ?? '';
-    const readingChanged = row.reading != null && row.reading !== (baseline?.reading ?? '');
-    const readingSource = row.readingSource
-      ?? (readingChanged ? 'MANUAL' : (baseline?.reading_source || (reading ? 'MANUAL' : 'NONE')));
-    const readingReviewed = row.readingReviewed
-      ?? (readingChanged ? true : Boolean(baseline?.reading_reviewed));
+    const initialGroup = row.initialGroup ?? baseline?.initial_group ?? '';
+    const officialOrder = row.officialOrder ?? baseline?.official_order ?? null;
     const isHot = row.isHot ?? Boolean(baseline?.is_hot);
     const levels = {};
 
@@ -385,6 +383,12 @@ async function buildMasterImportRows(parsedRows, targetVersionId, allowSourceVer
     });
 
     if (!title) throw new Error(`${row.rowNumber}行目の曲名がありません。`);
+    if (!baseline && !initialGroup) {
+      throw new Error(`${row.rowNumber}行目の新規曲には頭文字が必要です。`);
+    }
+    if (!baseline && officialOrder == null) {
+      throw new Error(`${row.rowNumber}行目の新規曲には並び順が必要です。`);
+    }
     if (!MASTER_PARTS.some(part => String(levels[part] ?? '').trim() !== '')) {
       throw new Error(`${row.rowNumber}行目は全難易度が空になります。`);
     }
@@ -392,9 +396,8 @@ async function buildMasterImportRows(parsedRows, targetVersionId, allowSourceVer
     return {
       originalTitle: targetBaseline?.title || '',
       title,
-      reading,
-      readingSource,
-      readingReviewed,
+      initialGroup,
+      officialOrder,
       isHot,
       levels
     };
@@ -422,9 +425,8 @@ async function downloadAdminMasterCsv() {
       const values = [
         representativeIdByTitle.get(row.title) || '',
         row.title,
-        row.reading || '',
-        row.reading_source || 'NONE',
-        row.reading_reviewed ? '1' : '0',
+        row.initial_group || '',
+        row.official_order ?? '',
         row.is_hot ? '1' : '0',
         ...MASTER_PARTS.map(part => row.levels?.[part] != null ? formatLevel(row.levels[part]) : '')
       ];
@@ -573,7 +575,7 @@ async function deleteMasterSongTitle(title) {
   if (error) throw error;
 }
 
-import * as adminApi from './admin.js?v=4_14_31';
+import * as adminApi from './admin.js?v=4_15_0';
 import { listUserSummaries, getUserSkillTargets, getSongRateComparison, getSongPersonalBestHistory, getSongOptionDistribution, getMyFavorites, removeFavorite } from './users.js?v=3_6_0';
 
 let activeInstrument = localStorage.getItem('gitadora_instrument') === 'DM' ? 'DM' : 'GF';
@@ -646,9 +648,9 @@ function renderAdminSongPickerCandidates() {
       ? row.isHot
       : adminSongCategory(row) === group)
     .sort((a, b) => {
-      const aKey = a.reading || a.title;
-      const bKey = b.reading || b.title;
-      return aKey.localeCompare(bKey, 'ja', { numeric:true, sensitivity:'base' }) ||
+      const aOrder = Number.isFinite(a.officialOrder) ? a.officialOrder : Number.MAX_SAFE_INTEGER;
+      const bOrder = Number.isFinite(b.officialOrder) ? b.officialOrder : Number.MAX_SAFE_INTEGER;
+      return aOrder - bOrder ||
         a.title.localeCompare(b.title, 'ja', { numeric:true, sensitivity:'base' });
     });
 
@@ -4361,8 +4363,7 @@ async function loadAdminSongs() {
       adminSongPage,
       ADMIN_SONG_PAGE_SIZE,
       activeVersionId,
-      $('adminSongTypeFilter')?.value || '',
-      $('adminSongReadingFilter')?.value || ''
+      $('adminSongTypeFilter')?.value || ''
     );
 
     const rows = result.rows;
@@ -5186,11 +5187,9 @@ $('adminSongSearch').addEventListener('input', () => {
   adminSongPage = 0;
   adminSongSearchTimer = setTimeout(loadAdminSongs,250);
 });
-['adminSongTypeFilter', 'adminSongReadingFilter'].forEach(id => {
-  $(id)?.addEventListener('change', () => {
-    adminSongPage = 0;
-    loadAdminSongs();
-  });
+$('adminSongTypeFilter')?.addEventListener('change', () => {
+  adminSongPage = 0;
+  loadAdminSongs();
 });
 let adminRequestSearchTimer = null;
 $('adminRequestSearch').addEventListener('input', () => {
@@ -5215,14 +5214,6 @@ $('adminUserSortKey')?.addEventListener('change', event => {
 $('adminUserSortDir')?.addEventListener('change', event => {
   adminUserSort.dir = event.target.value === 'asc' ? 'asc' : 'desc';
   loadAdminUsers();
-});
-
-$('adminBody')?.addEventListener('input', event => {
-  const readingInput = event.target.closest('[data-master-reading]');
-  if (!readingInput) return;
-  const reviewed = readingInput.closest('tr')
-    ?.querySelector('[data-master-reading-reviewed]');
-  if (reviewed) reviewed.checked = Boolean(readingInput.value.trim());
 });
 
 $('btnAdminAddSong').addEventListener('click', async () => {

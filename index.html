@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>GITADORA Skill Simulator</title>
-<meta name="app-version" content="4.14.54">
+<meta name="app-version" content="4.15.0">
 <link rel="icon" type="image/svg+xml" href="./favicon.svg?v=21_7">
 <link rel="icon" type="image/png" sizes="48x48" href="./favicon-48x48.png?v=21_7">
 <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32x32.png?v=21_7">
@@ -38,9 +38,9 @@
   })();
 </script>
 
-<link rel="stylesheet" href="./css/app.css?v=4_14_54">
-<link rel="stylesheet" href="./css/app-overrides.css?v=4_14_54">
-  <link rel="stylesheet" href="./css/layout-canonical.css?v=4_14_54">
+<link rel="stylesheet" href="./css/app.css?v=4_15_0">
+<link rel="stylesheet" href="./css/app-overrides.css?v=4_15_0">
+  <link rel="stylesheet" href="./css/layout-canonical.css?v=4_15_0">
   <link rel="preconnect" href="https://challenges.cloudflare.com">
   <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" defer></script>
 </head>
@@ -235,7 +235,6 @@
               <option value="な">な行</option><option value="は">は行</option>
               <option value="ま">ま行</option><option value="や">や行</option>
               <option value="ら">ら行</option><option value="わ">わ行</option>
-              <option value="unclassified">未分類</option>
             </select>
           </div>
         </div>
@@ -375,7 +374,7 @@
     <div class="app-menu-version">
       <label>VERSION</label>
       <select id="versionSelect" class="version-select" aria-label="GITADORAバージョン"></select>
-      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 4.14.54</div>
+      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 4.15.0</div>
     </div>
   </div>
 </div>
@@ -835,7 +834,7 @@
 <div id="adminModal" class="admin-modal">
   <div class="admin-header">
     <div class="admin-title-row">
-      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 4.14.54</div></div>
+      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 4.15.0</div></div>
       <button id="btnCloseAdmin" class="admin-close">閉じる</button>
     </div>
     <div class="admin-tabs">
@@ -847,17 +846,11 @@
       <button class="admin-tab" data-admin-tab="versions">バージョン管理</button>
     </div>
     <div id="adminSongToolbar" class="admin-toolbar">
-      <input id="adminSongSearch" placeholder="曲名・ふりがなを検索...">
+      <input id="adminSongSearch" placeholder="曲名・頭文字を検索...">
       <select id="adminSongTypeFilter" class="admin-toolbar-select" aria-label="曲種別">
         <option value="">種別：すべて</option>
         <option value="HOT">HOT</option>
         <option value="OTHER">OTHER</option>
-      </select>
-      <select id="adminSongReadingFilter" class="admin-toolbar-select" aria-label="ふりがな状態">
-        <option value="">ふりがな：すべて</option>
-        <option value="MISSING">ふりがな未入力</option>
-        <option value="AUTO_UNREVIEWED">自動付与・未確認</option>
-        <option value="REVIEWED">確認済み</option>
       </select>
       <button id="btnAdminSaveAllSongs" type="button">まとめて保存</button>
       <button id="btnAdminCsvDownload" type="button">CSVダウンロード</button>
@@ -974,7 +967,7 @@
   </div>
 </div>
 
-<script type="module" src="./js/app.js?v=4_14_54"></script>
+<script type="module" src="./js/app.js?v=4_15_0"></script>
 <script src="./js/version-check.js?v=4_10_0" defer></script>
 </body>
 </html>

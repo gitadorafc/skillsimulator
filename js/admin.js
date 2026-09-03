@@ -28,28 +28,25 @@ export async function getAdminSongMasterPage(
   page = 0,
   pageSize = 100,
   versionId = null,
-  typeFilter = '',
-  readingFilter = ''
+  typeFilter = ''
 ) {
   const safePage = Math.max(0, Number(page) || 0);
   const safeSize = Math.min(200, Math.max(25, Number(pageSize) || 100));
 
-  const { data, error } = await supabase.rpc('admin_list_song_master', {
+  const { data, error } = await supabase.rpc('admin_list_song_master_ordered', {
     p_search: String(keyword || '').trim(),
     p_limit: safeSize,
     p_offset: safePage * safeSize,
     p_version_id: versionId,
-    p_type_filter: String(typeFilter || '').trim().toUpperCase(),
-    p_reading_filter: String(readingFilter || '').trim().toUpperCase()
+    p_type_filter: String(typeFilter || '').trim().toUpperCase()
   });
 
   if (error) throw error;
 
   const rows = (data ?? []).map(row => ({
     title: row.title,
-    reading: row.reading || '',
-    reading_source: row.reading_source || 'NONE',
-    reading_reviewed: Boolean(row.reading_reviewed),
+    initial_group: row.initial_group || '',
+    official_order: row.official_order == null ? null : Number(row.official_order),
     is_hot: Boolean(row.is_hot),
     levels: row.levels ?? {},
     total_count: Number(row.total_count) || 0
@@ -67,7 +64,7 @@ export async function getAdminSongPickerChoices(versionId, instrument = 'GF') {
   const all = [];
   const pageSize = 500;
   for (let offset = 0; ; offset += pageSize) {
-    const { data, error } = await supabase.rpc('list_song_picker', {
+    const { data, error } = await supabase.rpc('list_song_picker_ordered', {
       p_version_id: versionId,
       p_instrument: instrument === 'DM' ? 'DM' : 'GF',
       p_limit: pageSize,
@@ -80,7 +77,8 @@ export async function getAdminSongPickerChoices(versionId, instrument = 'GF') {
 
   return all.map(row => ({
     title: row.title,
-    reading: row.reading || '',
+    initialGroup: row.initial_group || '',
+    officialOrder: row.official_order == null ? null : Number(row.official_order),
     isHot: Boolean(row.is_hot)
   }));
 }
@@ -175,9 +173,10 @@ export async function saveMasterSongRows(rows, versionId) {
   const payload = (rows ?? []).map(row => ({
     original_title: String(row.originalTitle || '').trim(),
     title: String(row.title || '').trim(),
-    reading: String(row.reading || '').trim(),
-    reading_source: String(row.readingSource || '').trim().toUpperCase() || 'NONE',
-    reading_reviewed: Boolean(row.readingReviewed),
+    initial_group: String(row.initialGroup || '').trim() || null,
+    official_order: row.officialOrder == null || row.officialOrder === ''
+      ? null
+      : Number(row.officialOrder),
     is_hot: Boolean(row.isHot),
     levels: row.levels ?? {}
   }));

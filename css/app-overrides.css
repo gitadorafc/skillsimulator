@@ -3382,7 +3382,7 @@ body.text-size-up #menuMask .app-menu-group-label{
   font-size:10px !important;
 }
 
-/* === APP VERSION 4.7.0: 全ユーザー向け曲名分類／管理者向けふりがな・一括保存 === */
+/* === APP VERSION 4.7.0: 全ユーザー向け曲名分類／管理者向け一括保存 === */
 .admin-song-picker{
   display:grid;
   grid-template-columns:minmax(112px, .72fr) minmax(0, 1.7fr);
@@ -3401,11 +3401,12 @@ body.text-size-up #menuMask .app-menu-group-label{
   min-height:42px;
   font-size:13px;
 }
-.master-reading-cell{
-  min-width:150px;
-  width:150px;
+.master-initial-cell{
+  min-width:108px;
+  width:108px;
 }
-#adminMasterTable input[data-master-reading]{
+#adminMasterTable .master-initial-cell select,
+#adminMasterTable .master-order-cell input{
   width:100%;
   min-width:0;
   box-sizing:border-box;
@@ -3608,20 +3609,16 @@ body.light-mode .admin-master-pager .admin-master-status{
 #adminMasterTable .master-title-cell{
   width:240px !important;
 }
-#adminMasterTable .master-reading-cell{
-  width:150px !important;
+#adminMasterTable .master-initial-cell{
+  width:108px !important;
 }
-#adminMasterTable .master-reading-review-cell{
-  width:58px !important;
-  min-width:58px;
-  text-align:center;
+#adminMasterTable .master-order-cell{
+  width:100px !important;
+  min-width:100px;
 }
-#adminMasterTable .master-reading-review-cell input{
-  width:18px !important;
-  height:18px;
-  min-width:18px !important;
-  padding:0 !important;
-  accent-color:#2563eb;
+#adminMasterTable .master-initial-cell select{
+  min-width:100px;
+  min-height:36px;
 }
 #adminSongToolbar .admin-toolbar-select,
 #adminUserToolbar select{
@@ -3644,7 +3641,6 @@ body.light-mode .admin-master-pager .admin-master-status{
   white-space:nowrap;
 }
 #adminSongTypeFilter{ width:112px; }
-#adminSongReadingFilter{ width:170px; }
 body.light-mode #adminSongToolbar .admin-toolbar-select,
 body.light-mode #adminUserToolbar select{
   border-color:#94a3b8 !important;
