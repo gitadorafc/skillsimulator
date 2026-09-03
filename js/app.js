@@ -57,6 +57,7 @@ import {
   renderPersonalBest,
   renderRateComparisonRows
 } from './score-detail-renderer.js?v=4_15_2';
+import { createSiteDialogController } from './site-dialog.js?v=4_15_3';
 
 let adminEnabled = false;
 import { supabase } from './supabase.js?v=21_57';
@@ -630,6 +631,11 @@ let viewedUserRegisteredBatch = 1;
 let adminPasswordUserId = null;
 
 const $ = id => document.getElementById(id);
+const siteDialog = createSiteDialogController($);
+const showSiteDialog = siteDialog.showDialog;
+const showSiteConfirm = siteDialog.showConfirm;
+const showSitePrompt = siteDialog.showPrompt;
+const closeSiteDialog = siteDialog.close;
 
 function renderAdminSongPickerCandidates() {
   const initialSelect = $('adminSongInitialFilter');
@@ -1295,76 +1301,6 @@ document.addEventListener('visibilitychange', () => {
     void recordMyActivity('OPEN');
   }
 });
-
-
-let siteDialogResolver = null;
-let siteDialogConfirmMode = false;
-let siteDialogPromptMode = false;
-
-function showSiteDialog(message, title = 'お知らせ') {
-  siteDialogConfirmMode = false;
-  siteDialogPromptMode = false;
-  $('siteDialogInput').classList.add('hidden');
-  $('siteDialogInput').value = '';
-  $('siteDialogTitle').textContent = title;
-  $('siteDialogMessage').textContent = String(message || '');
-  $('siteDialogOk').textContent = 'OK';
-  $('siteDialogCancel').classList.add('hidden');
-  $('siteDialogMask').style.display = 'flex';
-
-  return new Promise(resolve => {
-    siteDialogResolver = resolve;
-  });
-}
-
-function showSiteConfirm(message, title = '確認', confirmText = '削除する') {
-  siteDialogConfirmMode = true;
-  siteDialogPromptMode = false;
-  $('siteDialogInput').classList.add('hidden');
-  $('siteDialogInput').value = '';
-  $('siteDialogTitle').textContent = title;
-  $('siteDialogMessage').textContent = String(message || '');
-  $('siteDialogOk').textContent = confirmText;
-  $('siteDialogCancel').classList.remove('hidden');
-  $('siteDialogMask').style.display = 'flex';
-
-  return new Promise(resolve => {
-    siteDialogResolver = resolve;
-  });
-}
-
-function showSitePrompt(message, title = '入力', confirmText = 'OK', placeholder = '') {
-  siteDialogConfirmMode = true;
-  siteDialogPromptMode = true;
-  $('siteDialogTitle').textContent = title;
-  $('siteDialogMessage').textContent = String(message || '');
-  $('siteDialogInput').classList.remove('hidden');
-  $('siteDialogInput').value = '';
-  $('siteDialogInput').placeholder = placeholder;
-  $('siteDialogOk').textContent = confirmText;
-  $('siteDialogCancel').classList.remove('hidden');
-  $('siteDialogMask').style.display = 'flex';
-
-  setTimeout(() => $('siteDialogInput').focus(), 0);
-
-  return new Promise(resolve => {
-    siteDialogResolver = resolve;
-  });
-}
-
-function closeSiteDialog(result = true) {
-  const promptValue = siteDialogPromptMode ? $('siteDialogInput').value : result;
-  $('siteDialogMask').style.display = 'none';
-  $('siteDialogCancel').classList.add('hidden');
-  $('siteDialogInput').classList.add('hidden');
-  $('siteDialogInput').value = '';
-  const resolve = siteDialogResolver;
-  siteDialogResolver = null;
-  const wasPrompt = siteDialogPromptMode;
-  siteDialogConfirmMode = false;
-  siteDialogPromptMode = false;
-  if (resolve) resolve(wasPrompt ? (result ? promptValue : null) : result);
-}
 
 
 async function loadGameVersionOptions() {
@@ -5828,7 +5764,7 @@ $('siteDialogOk').addEventListener('click', () => closeSiteDialog(true));
 $('siteDialogInput').addEventListener('keydown', e => { if (e.key === 'Enter') closeSiteDialog(true); });
 $('siteDialogCancel').addEventListener('click', () => closeSiteDialog(false));
 $('siteDialogMask').addEventListener('click', e => {
-  if (e.target === $('siteDialogMask')) closeSiteDialog(siteDialogConfirmMode ? false : true);
+  if (e.target === $('siteDialogMask')) closeSiteDialog(siteDialog.isConfirmMode() ? false : true);
 });
 
 document.addEventListener('visibilitychange', () => {
