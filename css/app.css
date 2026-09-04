@@ -3511,6 +3511,8 @@ html.ios-viewport-repair {
 /* === FIX117: 機能設定 / 公開設定 / ライトモード === */
 .feature-settings-dialog{
   width:min(92vw,520px);
+  max-height:84dvh;
+  overflow:auto;
   background:#0f172a;
   color:#f8fafc;
   border:1px solid #334155;

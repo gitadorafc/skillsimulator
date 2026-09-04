@@ -546,6 +546,7 @@ body:not(.skill-target-columns) .dc-card > .dc-rate {
 body:not(.skill-target-columns) .dc-card > .dc-option {
   grid-column: 4;
   grid-row: 2;
+  justify-content: flex-end;
 }
 
 body:not(.skill-target-columns) .dc-card > .dc-edit {
