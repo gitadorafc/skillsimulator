@@ -56,6 +56,7 @@ import {
 } from './score-detail-renderer.js?v=4_15_2';
 import { createSiteDialogController } from './site-dialog.js?v=4_15_3';
 import { selectSkillTargetRows, calcTargetTotals } from './skill-targets.js?v=4_15_7';
+import { renderPartOptions, renderSongSuggestions } from './score-form-renderer.js?v=4_15_8';
 
 let adminEnabled = false;
 import { supabase } from './supabase.js?v=21_57';
@@ -1357,17 +1358,7 @@ async function switchGameVersion(versionId) {
 
 function instrumentParts() { return partsForInstrument(activeInstrument); }
 function instrumentPartOptionsHtml() {
-  const optionHtml = part => `<option value="${part}">${part}</option>`;
-  const parts = instrumentParts();
-  if (activeInstrument === 'DM') return parts.map(optionHtml).join('');
-
-  return `
-    <optgroup label="-GUITAR-">
-      ${parts.filter(part => part.endsWith('-G')).map(optionHtml).join('')}
-    </optgroup>
-    <optgroup label="-BASS-">
-      ${parts.filter(part => part.endsWith('-B')).map(optionHtml).join('')}
-    </optgroup>`;
+  return renderPartOptions(instrumentParts(), activeInstrument);
 }
 function isCurrentInstrumentPart(part) { return instrumentParts().includes(String(part || '')); }
 function updateDmBassMirrorFieldVisibility() {
@@ -2791,29 +2782,7 @@ async function suggestSongs() {
       return;
     }
 
-    // 完全一致する曲名は候補の先頭へ。
-    const sortedRows = [...(rows ?? [])].sort((a, b) => {
-      const aExact = String(a.title || '') === title ? 1 : 0;
-      const bExact = String(b.title || '') === title ? 1 : 0;
-      return bExact - aExact;
-    });
-
-    const suggestionHtml = sortedRows.map(r => `
-      <button class="suggestion"
-        data-title="${esc(r.title)}"
-        data-is-hot="${r.is_hot ? '1':'0'}">
-        <span>${r.is_hot ? '[HOT] ' : ''}${esc(r.title)}</span>
-      </button>`).join('');
-
-    // 現在の「曲名 + Part」がマスターに完全一致している場合は
-    // 新規登録依頼を絶対に表示しない。
-    const requestHtml = exactCurrentSong ? '' : `
-      <button class="suggestion request-suggestion"
-        data-request-title="${esc(title)}">
-        <span>＋「${esc(title)}」を曲マスターへ登録依頼</span>
-      </button>`;
-
-    $('songSuggestions').innerHTML = suggestionHtml + requestHtml;
+    $('songSuggestions').innerHTML = renderSongSuggestions(rows, title, exactCurrentSong);
 
     // 入力途中の完全一致では自動確定しない。
     // Flow → Flower のように続けて入力できる仕様を維持する。
