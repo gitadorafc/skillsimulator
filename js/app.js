@@ -57,7 +57,8 @@ import {
 import { createSiteDialogController } from './site-dialog.js?v=4_15_3';
 import { selectSkillTargetRows, calcTargetTotals } from './skill-targets.js?v=4_15_7';
 import { renderPartOptions, renderSongSuggestions } from './score-form-renderer.js?v=4_15_8';
-import { getMyPrivateScoreComments, savePrivateScoreComment } from './score-comments.js?v=4_15_9';
+import { getMyPrivateScoreComments, savePrivateScoreComment } from './score-comments.js?v=4_16_0';
+import { createCommentHistory } from './comment-history.js?v=4_16_0';
 
 let adminEnabled = false;
 import { supabase } from './supabase.js?v=21_57';
@@ -596,6 +597,7 @@ let selectedSong = null;
 let autoLoadedExistingScore = false;
 let scoreModalScrollY = 0;
 let rateComparisonEditScoreId = null;
+let rateComparisonRequestSeq = 0;
 
 let adminAccessChecked = false;
 let primaryAdminEnabled = false;
@@ -632,6 +634,7 @@ let adminPasswordUserId = null;
 
 const $ = id => document.getElementById(id);
 const siteDialog = createSiteDialogController($);
+const commentHistory = createCommentHistory($('rateCommentHistory'));
 const showSiteDialog = siteDialog.showDialog;
 const showSiteConfirm = siteDialog.showConfirm;
 const showSitePrompt = siteDialog.showPrompt;
@@ -3399,14 +3402,14 @@ function renderFavorites() {
 
 
 async function openRateComparison(songId, title, part, editScoreId = null) {
+  const requestSeq = ++rateComparisonRequestSeq;
   rateComparisonEditScoreId = editScoreId && scores.some(row => String(row.score_id) === String(editScoreId))
     ? String(editScoreId)
     : null;
   $('rateCompareTitle').textContent = `${title} / ${part}`;
   $('rateCompareEditArea')?.classList.toggle('hidden', !rateComparisonEditScoreId);
   $('btnEditRateCompare')?.classList.toggle('hidden', !rateComparisonEditScoreId);
-  $('ratePrivateComment').classList.add('hidden');
-  $('ratePrivateComment').textContent = '';
+  void commentHistory.open(songId, activeVersionId);
   $('ratePersonalBest').classList.add('hidden');
   $('ratePersonalBest').innerHTML = '';
   $('rateOptionSummary').innerHTML =
@@ -3423,14 +3426,7 @@ async function openRateComparison(songId, title, part, editScoreId = null) {
       getSongPersonalBestHistory(songId)
     ]);
 
-    // 詳細に出すコメントは常に「自分の同一譜面」のものだけ。
-    // 他ユーザーのスキル対象から開いた場合でも他人のコメントは取得・表示しない。
-    const ownScore = scores.find(row => row.song_id === songId);
-    const ownComment = String(ownScore?.private_comment || '').trim();
-    if (ownComment) {
-      $('ratePrivateComment').textContent = ownComment;
-      $('ratePrivateComment').classList.remove('hidden');
-    }
+    if (requestSeq !== rateComparisonRequestSeq) return;
 
     const personalBestMarkup = renderPersonalBest(personalBest, part);
     if (personalBestMarkup) {
@@ -3444,12 +3440,15 @@ async function openRateComparison(songId, title, part, editScoreId = null) {
     $('rateOptionSummary').innerHTML = renderOptionSummary(optionRows, part);
     $('rateCompareBody').innerHTML = renderRateComparisonRows(rows);
   } catch (e) {
+    if (requestSeq !== rateComparisonRequestSeq) return;
     $('rateOptionSummary').innerHTML = '';
     $('rateCompareBody').innerHTML = `<div class="empty-state">比較データの取得に失敗しました: ${esc(e.message)}</div>`;
   }
 }
 
 function closeRateComparison() {
+  rateComparisonRequestSeq++;
+  commentHistory.reset();
   $('rateCompareMask').style.display = 'none';
   rateComparisonEditScoreId = null;
   $('rateCompareEditArea')?.classList.add('hidden');

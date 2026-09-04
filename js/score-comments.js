@@ -1,5 +1,14 @@
 import { supabase } from './supabase.js?v=21_57';
 
+export async function getMySongCommentHistory(songId, versionId) {
+  const { data, error } = await supabase.rpc('get_my_song_comment_history', {
+    p_song_id: songId,
+    p_version_id: versionId
+  });
+  if (error) throw error;
+  return data ?? [];
+}
+
 export async function getMyPrivateScoreComments() {
   const { data: userData, error: userError } = await supabase.auth.getUser();
   if (userError || !userData.user) return new Map();
@@ -58,4 +67,3 @@ export async function savePrivateScoreComment({ scoreId = null, songId = null, r
   const { error } = await query;
   if (error) throw error;
 }
-

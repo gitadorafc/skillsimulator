@@ -751,23 +751,52 @@ body.light-mode #btnCloseSkillShare.menu-back-btn{
   font-size:9px;
   line-height:1.4;
 }
-.rate-private-comment{
+.rate-comment-history{
   padding:9px 14px;
   border-bottom:1px solid #334155;
   background:#111827;
   color:#e2e8f0;
   font-size:11px;
   line-height:1.55;
-  white-space:pre-wrap;
   overflow-wrap:anywhere;
 }
-.rate-private-comment::before{
-  content:"コメント";
-  display:block;
-  margin-bottom:3px;
+.comment-history-heading{
+  display:grid;
+  grid-template-columns:auto minmax(0,1fr);
+  align-items:center;
+  gap:10px;
+  margin-bottom:7px;
+}
+.comment-history-heading label{
   color:#94a3b8;
-  font-size:9px;
+  font-size:11px;
   font-weight:900;
+}
+#rateCommentHistory select{
+  width:100%;
+  min-width:0;
+  min-height:36px;
+  border:1px solid #475569;
+  border-radius:7px;
+  padding:6px 38px 6px 10px;
+  background-color:#111827;
+  color:#e5e7eb;
+  font-size:12px;
+  box-sizing:border-box;
+}
+.comment-history-record{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  flex-wrap:wrap;
+}
+.comment-history-record :is(.fc-unified-badge,.opt-badge){flex:0 0 auto;}
+.comment-history-rate{white-space:nowrap;}
+.comment-history-text{
+  white-space:pre-wrap;
+  overflow-wrap:anywhere;
+  max-height:4.65em;
+  overflow-y:auto;
 }
 body.light-mode #formPrivateComment{
   background:#fff !important;
@@ -779,13 +808,13 @@ body.light-mode #formPrivateComment::placeholder{
   color:#94a3b8 !important;
   -webkit-text-fill-color:#94a3b8 !important;
 }
-body.light-mode .rate-private-comment{
+body.light-mode .rate-comment-history{
   background:#e9edf2 !important;
   color:#111827 !important;
   -webkit-text-fill-color:#111827 !important;
   border-color:#cbd5e1 !important;
 }
-body.light-mode .rate-private-comment::before{
+body.light-mode .comment-history-heading label{
   color:#64748b !important;
   -webkit-text-fill-color:#64748b !important;
 }
@@ -2468,7 +2497,7 @@ body.text-size-up .rate-value{
 body.text-size-up .rate-skill{
   font-size:12px !important;
 }
-body.text-size-up .rate-private-comment{
+body.text-size-up .rate-comment-history{
   font-size:13px !important;
 }
 
