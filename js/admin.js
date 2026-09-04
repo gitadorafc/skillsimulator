@@ -228,8 +228,11 @@ export async function getAdminFeatureSettingUsage() {
   return data ?? [];
 }
 
-export async function getPendingSongRequests(keyword = '', versionId = null) {
-  let query = supabase
+export async function getPendingSongRequests(keyword = '') {
+  const rows = [];
+  const pageSize = 1000;
+  for (let from = 0; ; from += pageSize) {
+    let query = supabase
     .from('song_requests')
     .select(`
       id,
@@ -241,18 +244,22 @@ export async function getPendingSongRequests(keyword = '', versionId = null) {
       created_at,
       request_type,
       current_song_id,
+      version_id,
+      game_versions!song_requests_version_id_fkey(name),
       profiles!song_requests_requester_id_fkey(username)
     `)
     .eq('status', 'pending')
-    .eq('version_id', versionId)
     .order('created_at', { ascending: true })
-    .limit(1000);
+    .order('id', { ascending: true })
+    .range(from, from + pageSize - 1);
 
-  if (keyword.trim()) query = query.ilike('title', `%${keyword.trim()}%`);
+    if (keyword.trim()) query = query.ilike('title', `%${keyword.trim()}%`);
 
-  const { data, error } = await query;
-  if (error) throw error;
-  return data ?? [];
+    const { data, error } = await query;
+    if (error) throw error;
+    rows.push(...(data ?? []));
+    if (!data || data.length < pageSize) return rows;
+  }
 }
 
 export async function approveSongRequest(requestId, level, isHot = false) {

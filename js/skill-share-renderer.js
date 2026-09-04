@@ -6,7 +6,7 @@ import {
   drawShareTotalSparkles
 } from './skill-colors.js?v=4_14_33';
 import { formatSkillHistoryDate } from './skill-history.js?v=4_14_45';
-import { normalizeSongTitleForMatch } from './songs.js?v=4_12_7';
+import { normalizeSongTitleForMatch } from './songs.js?v=4_15_5';
 
 export async function renderSkillShareFile({
   instrument,
@@ -404,4 +404,3 @@ export async function renderSkillShareFile({
 
   return new File([blob], `GITADORA_${instrument}_skill.png`, { type: 'image/png' });
 }
-

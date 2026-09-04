@@ -214,6 +214,7 @@ export function renderAdminRequestList({ requests, parts, formatLevel }) {
         <span class="pending-badge">${request.request_type === 'level_correction' ? '難易度修正' : '新規曲'}</span>
       </div>
       <div class="admin-card-meta">
+        <span>バージョン: ${escapeHtml(request.game_versions?.name || request.version_id || '不明')}</span>
         <span>依頼パート: ${escapeHtml(request.part)}</span>
         ${request.request_type === 'level_correction' ? `<span>現在: ${formatLevel(request.current_level)}</span>` : ''}
         <span>依頼者: ${escapeHtml(request.profiles?.username || '-')}</span>

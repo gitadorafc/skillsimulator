@@ -7,16 +7,13 @@ export const PARTS = [...GF_PARTS, ...DM_PARTS];
 export const partsForInstrument = instrument => instrument === 'DM' ? DM_PARTS : GF_PARTS;
 
 // 曲マスター照合専用。
-// 保存済みの正式曲名は変更せず、比較するときだけ表記ゆれを吸収する。
+// 保存済みの正式曲名は変更せず、空白の幅・連続・前後だけを補正する。
+// 大文字小文字・全角英数字・記号は別の文字として扱う。
 // ユーザー名など他の文字列には使用しない。
 export function normalizeSongTitleForMatch(value) {
   return String(value ?? '')
-    .normalize('NFKC')
-    .replace(/[〜～]/g, '~')
-    .replace(/[\u00AD\u200B-\u200D\u2060\uFEFF]/g, '')
-    .replace(/[\s\u00A0\u3000]+/g, ' ')
-    .trim()
-    .toLocaleLowerCase('ja-JP');
+    .replace(/[ \t\r\n\f\v\u00A0\u3000]+/g, ' ')
+    .replace(/^ +| +$/g, '');
 }
 
 async function findNormalizedSong(title, part, versionId = null) {
