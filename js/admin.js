@@ -1,5 +1,6 @@
 // GD Pocket Board admin.js v14_2
 import { supabase } from './supabase.js';
+import { normalizeSongTitle } from './song-title.js?v=4_15_6';
 
 export async function isAdmin() {
   const { data, error } = await supabase.rpc('is_admin');
@@ -171,8 +172,8 @@ export async function getAdminSongIdentitiesByIds(songIds) {
 
 export async function saveMasterSongRows(rows, versionId) {
   const payload = (rows ?? []).map(row => ({
-    original_title: String(row.originalTitle || '').trim(),
-    title: String(row.title || '').trim(),
+    original_title: normalizeSongTitle(row.originalTitle),
+    title: normalizeSongTitle(row.title),
     initial_group: String(row.initialGroup || '').trim() || null,
     official_order: row.officialOrder == null || row.officialOrder === ''
       ? null
@@ -191,7 +192,7 @@ export async function saveMasterSongRows(rows, versionId) {
 }
 
 export async function saveMasterSong({ id = null, isHot = false, title, part, level, versionId = null }) {
-  const cleanTitle = String(title || '').trim();
+  const cleanTitle = normalizeSongTitle(title);
   const numericLevel = Number(level);
 
   if (!cleanTitle) throw new Error('曲名を入力してください。');
@@ -305,8 +306,8 @@ export async function saveMasterSongRow({
   isHot = false,
   levels = {}
 }) {
-  const cleanTitle = String(title || '').trim();
-  const oldTitle = String(originalTitle || '').trim();
+  const cleanTitle = normalizeSongTitle(title);
+  const oldTitle = normalizeSongTitle(originalTitle);
 
   if (!cleanTitle) throw new Error('曲名を入力してください。');
 
@@ -372,7 +373,7 @@ export async function saveMasterSongRow({
 }
 
 export async function deleteMasterSongTitle(title) {
-  const cleanTitle = String(title || '').trim();
+  const cleanTitle = normalizeSongTitle(title);
   if (!cleanTitle) return;
 
   const { error } = await supabase

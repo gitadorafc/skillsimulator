@@ -32,7 +32,7 @@ import {
   sortSkillRankingRows
 } from './ranking-renderer.js?v=4_14_43';
 import { shareGeneratedSkillFiles } from './skill-share.js?v=4_14_44';
-import { renderSkillShareFile } from './skill-share-renderer.js?v=4_15_5';
+import { renderSkillShareFile } from './skill-share-renderer.js?v=4_15_6';
 import {
   formatSkillHistoryDate,
   renderSkillHistoryRows,
@@ -46,8 +46,8 @@ import {
   buildSkillSyncBookmarklet,
   formatSkillSyncCountText,
   normalizeSkillSyncRecords
-} from './skill-sync-data.js?v=4_14_52';
-import { csvEscape, parseMasterCsv } from './admin-csv.js?v=4_15_0';
+} from './skill-sync-data.js?v=4_15_6';
+import { csvEscape, parseMasterCsv } from './admin-csv.js?v=4_15_6';
 import { adminSongCategory } from './admin-song-utils.js?v=4_15_0';
 import {
   renderOptionSummary,
@@ -60,7 +60,7 @@ let adminEnabled = false;
 import { supabase } from './supabase.js?v=21_57';
 import { register, login, loginForAccountSwitch, logout, changePassword, getSession, validateUsername } from './auth.js?v=4_1_2';
 import { initAuthCaptcha, prepareAuthCaptcha, getAuthCaptchaToken, resetAuthCaptcha } from './captcha.js?v=21_84';
-import { PARTS, partsForInstrument, normalizeSongTitleForMatch, searchSongTitles, getSongByTitleAndPart, requestSongMaster, requestSongLevelCorrection } from './songs.js?v=4_15_5';
+import { PARTS, partsForInstrument, normalizeSongTitleForMatch, searchSongTitles, getSongByTitleAndPart, requestSongMaster, requestSongLevelCorrection } from './songs.js?v=4_15_6';
 import { calcSkill, formatLevel, formatRate, formatSkill, getMyScores, saveScore, deleteScore } from './scores.js?v=3_18_4';
 import { getGameVersions } from './versions.js?v=21_57';
 const {
@@ -575,7 +575,7 @@ async function deleteMasterSongTitle(title) {
   if (error) throw error;
 }
 
-import * as adminApi from './admin.js?v=4_15_5';
+import * as adminApi from './admin.js?v=4_15_6';
 import { listUserSummaries, getUserSkillTargets, getSongRateComparison, getSongPersonalBestHistory, getSongOptionDistribution, getMyFavorites, removeFavorite } from './users.js?v=3_6_0';
 
 let activeInstrument = localStorage.getItem('gitadora_instrument') === 'DM' ? 'DM' : 'GF';

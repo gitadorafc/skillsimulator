@@ -1,4 +1,5 @@
 import { supabase } from './supabase.js';
+import { normalizeSongTitle } from './song-title.js?v=4_15_6';
 
 // 上から選びやすい順
 export const GF_PARTS = ['MAS-G','EXT-G','ADV-G','BSC-G','MAS-B','EXT-B','ADV-B','BSC-B'];
@@ -10,11 +11,7 @@ export const partsForInstrument = instrument => instrument === 'DM' ? DM_PARTS :
 // 保存済みの正式曲名は変更せず、空白の幅・連続・前後だけを補正する。
 // 大文字小文字・全角英数字・記号は別の文字として扱う。
 // ユーザー名など他の文字列には使用しない。
-export function normalizeSongTitleForMatch(value) {
-  return String(value ?? '')
-    .replace(/[ \t\r\n\f\v\u00A0\u3000]+/g, ' ')
-    .replace(/^ +| +$/g, '');
-}
+export const normalizeSongTitleForMatch = normalizeSongTitle;
 
 async function findNormalizedSong(title, part, versionId = null) {
   const normalized = normalizeSongTitleForMatch(title);
@@ -98,7 +95,7 @@ export async function searchSongTitles(keyword = '', instrument = 'GF', versionI
 }
 
 export async function getSongByTitleAndPart(title, part, versionId = null) {
-  const cleanTitle = String(title || '').trim();
+  const cleanTitle = normalizeSongTitle(title);
   if (!cleanTitle || !part) return null;
 
   // まず従来の完全一致。通常ケースの速度は落とさない。
@@ -118,7 +115,7 @@ export async function getSongByTitleAndPart(title, part, versionId = null) {
 }
 
 export async function requestSongMaster({ title, part, proposedLevel, versionId }) {
-  const cleanTitle = String(title || '').trim();
+  const cleanTitle = normalizeSongTitle(title);
   const numericLevel = Number(proposedLevel);
 
   if (!cleanTitle) throw new Error('曲名を入力してください。');

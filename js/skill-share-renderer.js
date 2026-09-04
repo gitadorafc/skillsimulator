@@ -6,7 +6,7 @@ import {
   drawShareTotalSparkles
 } from './skill-colors.js?v=4_14_33';
 import { formatSkillHistoryDate } from './skill-history.js?v=4_14_45';
-import { normalizeSongTitleForMatch } from './songs.js?v=4_15_5';
+import { normalizeSongTitleForMatch } from './songs.js?v=4_15_6';
 
 export async function renderSkillShareFile({
   instrument,

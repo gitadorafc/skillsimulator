@@ -1,3 +1,5 @@
+import { normalizeSongTitle } from './song-title.js?v=4_15_6';
+
 export function csvEscape(value) {
   return `"${String(value ?? '').replace(/"/g, '""')}"`;
 }
@@ -134,7 +136,7 @@ export function parseMasterCsv(text, parts) {
     const valueAt = column => column >= 0 ? String(cells[column] ?? '').trim() : '';
     const songId = valueAt(idColumn);
     const titleRaw = valueAt(titleColumn);
-    const title = titleRaw || null;
+    const title = normalizeSongTitle(titleRaw) || null;
     const initialRaw = valueAt(initialColumn);
     const initialGroup = initialRaw || null;
     if (initialGroup && !VALID_INITIAL_GROUPS.has(initialGroup)) {

@@ -7,7 +7,7 @@ export function normalizeSkillSyncRecords(records, parts, normalizeTitle) {
   const unique = new Map();
 
   for (const row of records) {
-    const title = String(row?.title || '').trim();
+    const title = normalizeTitle(row?.title);
     const part = String(row?.part || '');
     const rate = Number(row?.rate);
     const level = Number(row?.level);
