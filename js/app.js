@@ -55,6 +55,7 @@ import {
   renderRateComparisonRows
 } from './score-detail-renderer.js?v=4_15_2';
 import { createSiteDialogController } from './site-dialog.js?v=4_15_3';
+import { selectSkillTargetRows, calcTargetTotals } from './skill-targets.js?v=4_15_7';
 
 let adminEnabled = false;
 import { supabase } from './supabase.js?v=21_57';
@@ -2396,33 +2397,7 @@ async function loadScores() {
 
 
 function getOwnSkillTargetRows(instrument = activeInstrument) {
-  const bestByTitle = new Map();
-  const instrumentPartSet = new Set(partsForInstrument(instrument));
-
-  for (const row of scores) {
-    if (!instrumentPartSet.has(String(row.part || ''))) continue;
-    if (row.pending_master) continue;
-    if (/\(CLASSIC\)\s*$/i.test(String(row.title || ''))) continue;
-
-    const current = bestByTitle.get(row.title);
-    if (!current || Number(row.skill) > Number(current.skill)) {
-      bestByTitle.set(row.title, row);
-    }
-  }
-
-  return Array.from(bestByTitle.values())
-    .sort((a, b) => Number(b.skill) - Number(a.skill));
-}
-
-function calcTargetTotals(targetRows) {
-  const sorted = [...targetRows].sort((a, b) => Number(b.skill) - Number(a.skill));
-  const hotRows = sorted.filter(r => r.is_hot).slice(0, 25);
-  const otherRows = sorted.filter(r => !r.is_hot).slice(0, 25);
-
-  const hot = hotRows.reduce((sum, row) => sum + Number(row.skill), 0);
-  const other = otherRows.reduce((sum, row) => sum + Number(row.skill), 0);
-
-  return { hot, other, total: hot + other, hotRows, otherRows };
+  return selectSkillTargetRows(scores, partsForInstrument(instrument));
 }
 
 function totals(instrument = activeInstrument) {
