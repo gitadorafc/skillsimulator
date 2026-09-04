@@ -51,6 +51,15 @@ export function getSkillSyncVisualGuideMarkup(browser) {
 
   return `
     <div class="sync-visual-device">${browserMark}<strong>${browserName}</strong></div>
+    ${isSafari ? `
+    <section class="sync-tutorial-video" aria-label="Safariの同期手順動画">
+      <strong>動画で見る：Safariの同期手順</strong>
+      <video controls playsinline preload="none" width="1080" height="1920" aria-label="Safariの同期手順（約58秒）">
+        <source src="./assets/videos/safari-sync-guide.mp4" type="video/mp4">
+        動画を再生できない場合は、下のリンクからダウンロードしてください。
+      </video>
+      <a class="sync-visual-primary sync-tutorial-download" href="./assets/videos/safari-sync-guide.mp4" download="safari-sync-guide.mp4">動画をダウンロード（約24MB）</a>
+    </section>` : ''}
 
     <div class="sync-visual-card">
       <span class="sync-visual-no">1</span>

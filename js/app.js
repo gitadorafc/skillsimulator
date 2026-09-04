@@ -41,7 +41,7 @@ import {
 import {
   detectSkillSyncGuideBrowser,
   getSkillSyncVisualGuideMarkup
-} from './skill-sync-guide.js?v=4_14_51';
+} from './skill-sync-guide.js?v=4_16_2';
 import {
   buildSkillSyncBookmarklet,
   formatSkillSyncCountText,
@@ -4329,6 +4329,7 @@ function openSkillSyncDialog() {
 
 function closeSkillSyncDialog(returnToMenu = false) {
   if (skillSyncInProgress) return;
+  $('skillSyncVisualGuide').querySelector('video')?.pause();
   $('skillSyncMask').style.display = 'none';
   if (returnToMenu) openMenu();
 }
@@ -4339,7 +4340,7 @@ $('btnCloseSkillSync').addEventListener('click', () => {
 
 $('skillSyncMask').addEventListener('click', e => {
   if (e.target === $('skillSyncMask') && !skillSyncInProgress) {
-    $('skillSyncMask').style.display = 'none';
+    closeSkillSyncDialog();
   }
 });
 

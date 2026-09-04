@@ -1247,6 +1247,28 @@ body.light-mode .option-share-title{
 .skill-sync-visual-guide{
   margin-top:12px;
 }
+.sync-tutorial-video{
+  margin:12px 0;
+  display:grid;
+  gap:8px;
+  font-size:12px;
+}
+.sync-tutorial-video video{
+  display:block;
+  width:100%;
+  height:auto;
+  max-height:50dvh;
+  object-fit:contain;
+  background:#000;
+  border-radius:8px;
+}
+.sync-tutorial-download{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  box-sizing:border-box;
+  text-decoration:none;
+}
 .sync-visual-device{
   display:flex;
   align-items:center;
