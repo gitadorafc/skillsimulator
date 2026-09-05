@@ -1,5 +1,5 @@
-import { getMySongCommentHistory } from './score-comments.js?v=4_16_4';
-import { getFcBadgeMarkup, getOptionBadgeMarkup } from './card-renderer.js?v=4_16_4';
+import { getMySongCommentHistory } from './score-comments.js?v=4_16_5';
+import { getFcBadgeMarkup, getOptionBadgeMarkup } from './card-renderer.js?v=4_16_5';
 
 const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({
   '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'
@@ -12,7 +12,7 @@ export function renderCommentRecord(row) {
     ${getFcBadgeMarkup(row.fc, row.achievement_rate)}
     ${getOptionBadgeMarkup(row.play_option)}
     <strong class="comment-history-rate">${Number.isFinite(rate) ? rate.toFixed(2) + '%' : '—'}</strong>
-    <span class="comment-history-text">${esc(String(row.private_comment || '').trim() || 'なし')}</span>`;
+    <span class="comment-history-text">${esc(String(row.private_comment || '').trim() || 'コメントなし')}</span>`;
 }
 
 export function createCommentHistory(element, fetchHistory = getMySongCommentHistory) {
