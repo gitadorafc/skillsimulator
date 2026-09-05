@@ -790,7 +790,13 @@ body.light-mode #btnCloseSkillShare.menu-back-btn{
   gap:6px;
   flex-wrap:wrap;
 }
-.comment-history-record :is(.fc-unified-badge,.opt-badge){flex:0 0 auto;}
+.comment-history-record :is(.fc-unified-badge,.opt-badge){
+  flex:0 0 auto;
+  width:auto !important;
+  min-width:48px !important;
+  padding:2px 6px !important;
+  box-sizing:border-box;
+}
 .comment-history-rate{white-space:nowrap;}
 .comment-history-text{
   white-space:pre-wrap;

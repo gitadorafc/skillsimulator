@@ -58,7 +58,7 @@ import { createSiteDialogController } from './site-dialog.js?v=4_15_3';
 import { selectSkillTargetRows, calcTargetTotals } from './skill-targets.js?v=4_15_7';
 import { renderPartOptions, renderSongSuggestions } from './score-form-renderer.js?v=4_15_8';
 import { getMyPrivateScoreComments, savePrivateScoreComment } from './score-comments.js?v=4_16_0';
-import { createCommentHistory } from './comment-history.js?v=4_16_0';
+import { createCommentHistory } from './comment-history.js?v=4_16_3';
 
 let adminEnabled = false;
 import { supabase } from './supabase.js?v=21_57';

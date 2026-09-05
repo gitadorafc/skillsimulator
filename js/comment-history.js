@@ -1,5 +1,5 @@
-import { getMySongCommentHistory } from './score-comments.js?v=4_16_0';
-import { getFcBadgeMarkup, getOptionBadgeMarkup } from './card-renderer.js?v=4_14_34';
+import { getMySongCommentHistory } from './score-comments.js?v=4_16_3';
+import { getFcBadgeMarkup, getOptionBadgeMarkup } from './card-renderer.js?v=4_16_3';
 
 const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({
   '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'
@@ -54,4 +54,3 @@ export function createCommentHistory(element, fetchHistory = getMySongCommentHis
   }
   return { open, reset };
 }
-
