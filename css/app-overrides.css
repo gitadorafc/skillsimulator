@@ -1211,6 +1211,14 @@ body.light-mode #domModal #correctionLevel{
   font-weight:900 !important;
   line-height:1.2 !important;
 }
+.rate-compare-section-title{
+  flex:0 0 auto;
+  padding:10px 14px 0;
+  color:#94a3b8;
+  font-size:10px;
+  font-weight:900;
+  line-height:1.2;
+}
 .rate-personal-best-detail{
   display:flex;
   align-items:center;
@@ -1244,7 +1252,8 @@ body.light-mode .rate-option-summary:not(:empty){
   border-top-color:#94a3b8 !important;
 }
 body.light-mode .rate-personal-best-label,
-body.light-mode .option-share-title{
+body.light-mode .option-share-title,
+body.light-mode .rate-compare-section-title{
   color:#64748b !important;
   -webkit-text-fill-color:#64748b !important;
 }
@@ -2518,6 +2527,9 @@ body.text-size-up .rate-personal-best-badges :is(.fc-unified-badge,.opt-badge,.h
 }
 body.text-size-up .option-share-title{
   font-size:10px !important;
+}
+body.text-size-up .rate-compare-section-title{
+  font-size:11px !important;
 }
 body.text-size-up .rate-value{
   font-size:15px !important;
