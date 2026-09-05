@@ -1,5 +1,5 @@
-import { getMySongCommentHistory } from './score-comments.js?v=4_16_3';
-import { getFcBadgeMarkup, getOptionBadgeMarkup } from './card-renderer.js?v=4_16_3';
+import { getMySongCommentHistory } from './score-comments.js?v=4_16_4';
+import { getFcBadgeMarkup, getOptionBadgeMarkup } from './card-renderer.js?v=4_16_4';
 
 const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({
   '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'
@@ -21,7 +21,7 @@ export function createCommentHistory(element, fetchHistory = getMySongCommentHis
   element.addEventListener('change', event => {
     if (event.target.id !== 'commentHistoryVersion') return;
     const row = rows.find(item => item.version_id === event.target.value);
-    element.querySelector('.comment-history-record').innerHTML = renderCommentRecord(row);
+    element.querySelector('.comment-history-record').innerHTML = row ? renderCommentRecord(row) : '';
   });
   function reset() {
     sequence++;
@@ -37,15 +37,15 @@ export function createCommentHistory(element, fetchHistory = getMySongCommentHis
       if (request !== sequence) return;
       rows = data;
       if (!rows.length) throw new Error('バージョン情報がありません。');
-      const selected = rows.find(row => row.version_id === versionId) || rows[0];
       element.innerHTML = `
         <div class="comment-history-heading">
           <label for="commentHistoryVersion">コメント一覧</label>
           <select id="commentHistoryVersion" aria-label="コメントのバージョン">
-            ${rows.map(row => `<option value="${esc(row.version_id)}"${row.version_id === selected.version_id ? ' selected' : ''}>${esc(row.version_name)}</option>`).join('')}
+            <option value="" selected disabled>バージョン選択</option>
+            ${rows.map(row => `<option value="${esc(row.version_id)}">${esc(row.version_name)}</option>`).join('')}
           </select>
         </div>
-        <div class="comment-history-record" aria-live="polite">${renderCommentRecord(selected)}</div>`;
+        <div class="comment-history-record" aria-live="polite"></div>`;
     } catch (error) {
       if (request !== sequence) return;
       element.textContent = 'コメント一覧を取得できませんでした。再度開いてください。';
