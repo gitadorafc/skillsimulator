@@ -1311,7 +1311,12 @@ body.light-mode .score-tag-empty,
 body.light-mode .tag-settings-empty{color:#475569}
 body.light-mode .tag-settings-row input,
 body.light-mode .score-tag-choice span{background:#f8fafc;color:#0f172a}
-body.light-mode .score-tag-choice input:checked + span{background:#2563eb;color:#fff}
+body.light-mode .score-tag-choice input:checked + span{
+  border-color:#2563eb;
+  background:#3b82f6;
+  color:#fff !important;
+  -webkit-text-fill-color:#fff !important;
+}
 #domModal #correctionLevel{
   box-sizing:border-box !important;
   min-height:38px !important;
