@@ -59,13 +59,13 @@ import { selectSkillTargetRows, calcTargetTotals } from './skill-targets.js?v=4_
 import { renderPartOptions, renderSongSuggestions } from './score-form-renderer.js?v=4_15_8';
 import { getMyPrivateScoreComments, savePrivateScoreComment } from './score-comments.js?v=4_16_0';
 import { createCommentHistory } from './comment-history.js?v=4_16_6';
-import { readResultPhotos } from './admin-photo-ocr.js?v=4_17_1';
+import { readResultPhotos } from './admin-photo-ocr.js?v=4_17_2';
 
 let adminEnabled = false;
 import { supabase } from './supabase.js?v=21_57';
 import { register, login, loginForAccountSwitch, logout, changePassword, getSession, validateUsername } from './auth.js?v=4_1_2';
 import { initAuthCaptcha, prepareAuthCaptcha, getAuthCaptchaToken, resetAuthCaptcha } from './captcha.js?v=21_84';
-import { PARTS, partsForInstrument, normalizeSongTitleForMatch, searchSongTitles, getSongByTitleAndPart, requestSongMaster, requestSongLevelCorrection } from './songs.js?v=4_15_6';
+import { PARTS, partsForInstrument, normalizeSongTitleForMatch, searchSongTitles, getSongByTitleAndPart, getSongsForPhotoOcr, requestSongMaster, requestSongLevelCorrection } from './songs.js?v=4_17_2';
 import { calcSkill, formatLevel, formatRate, formatSkill, getMyScores, saveScore, deleteScore } from './scores.js?v=3_18_4';
 import { getGameVersions } from './versions.js?v=21_57';
 const {
@@ -2252,6 +2252,113 @@ async function shareSkillImage(selection = activeInstrument) {
 let previousScoreSettingsRequestSeq = 0;
 let photoOcrResults = [];
 let photoOcrBusy = false;
+let photoOcrMasterCache = { versionId: '', rows: [] };
+let activePhotoOcrIndex = null;
+
+function photoOcrMatchKey(value) {
+  return String(value || '')
+    .normalize('NFKC')
+    .toLocaleLowerCase('ja')
+    .replace(/[^\p{L}\p{N}]/gu, '');
+}
+
+function photoOcrSimilarity(left, right) {
+  const a = photoOcrMatchKey(left);
+  const b = photoOcrMatchKey(right);
+  if (!a || !b) return 0;
+  if (a === b) return 1;
+
+  const previous = Array.from({ length: b.length + 1 }, (_, index) => index);
+  for (let i = 1; i <= a.length; i++) {
+    let diagonal = previous[0];
+    previous[0] = i;
+    for (let j = 1; j <= b.length; j++) {
+      const before = previous[j];
+      previous[j] = Math.min(
+        previous[j] + 1,
+        previous[j - 1] + 1,
+        diagonal + (a[i - 1] === b[j - 1] ? 0 : 1)
+      );
+      diagonal = before;
+    }
+  }
+  const distanceScore = 1 - previous[b.length] / Math.max(a.length, b.length);
+  const containsScore = a.includes(b) || b.includes(a)
+    ? Math.min(a.length, b.length) / Math.max(a.length, b.length)
+    : 0;
+  return Math.max(distanceScore, containsScore);
+}
+
+async function getPhotoOcrMasterRows() {
+  if (photoOcrMasterCache.versionId !== activeVersionId) {
+    photoOcrMasterCache = {
+      versionId: activeVersionId,
+      rows: await getSongsForPhotoOcr(activeVersionId)
+    };
+  }
+  return photoOcrMasterCache.rows;
+}
+
+function applyPhotoOcrMasterMatch(result, masterRows) {
+  const byTitle = new Map();
+  for (const row of masterRows) {
+    if (!byTitle.has(row.title)) byTitle.set(row.title, []);
+    byTitle.get(row.title).push(row);
+  }
+
+  const candidates = result.titleCandidates?.length
+    ? result.titleCandidates
+    : [result.title].filter(Boolean);
+  let best = null;
+  for (const [title, rows] of byTitle) {
+    for (const candidate of candidates) {
+      let score = photoOcrSimilarity(candidate, title);
+      if (result.level && rows.some(row => Math.abs(Number(row.level) - Number(result.level)) < .001)) {
+        score += .08;
+      }
+      if (!best || score > best.score) best = { title, rows, score };
+    }
+  }
+
+  // 短い誤読を無理に別曲へ確定しない。候補が十分近い時だけ正式名へ置換する。
+  if (!best || best.score < .58) return result;
+
+  let chartRows = best.rows;
+  const inferredInstrument = result.instrument || (
+    result.option === 'BASS_MIRROR' ? 'DM'
+      : ['RAN','SRA','RAN+','SRA+'].includes(result.option) ? 'GF'
+        : ''
+  );
+  if (inferredInstrument === 'DM') chartRows = chartRows.filter(row => row.part.endsWith('-D'));
+  if (inferredInstrument === 'GF') chartRows = chartRows.filter(row => !row.part.endsWith('-D'));
+  if (result.level) {
+    const sameLevel = chartRows.filter(row => Math.abs(Number(row.level) - Number(result.level)) < .001);
+    if (sameLevel.length) chartRows = sameLevel;
+  }
+  if (result.difficulty) {
+    const sameDifficulty = chartRows.filter(row => row.part.startsWith(`${result.difficulty}-`));
+    if (sameDifficulty.length) chartRows = sameDifficulty;
+  }
+
+  const resolvedPart = chartRows.length === 1 ? chartRows[0].part : result.part;
+  const resolvedLevel = chartRows.length === 1
+    ? Number(chartRows[0].level).toFixed(2)
+    : result.level;
+  const missing = [];
+  if (!best.title) missing.push('曲名');
+  if (!resolvedPart) missing.push('パート・難易度');
+  if (!result.rate) missing.push('達成率');
+
+  return {
+    ...result,
+    title: best.title,
+    part: resolvedPart,
+    level: resolvedLevel,
+    instrument: inferredInstrument,
+    missing,
+    masterMatched: true
+  };
+}
 
 function photoOcrResultMarkup(row, index) {
   const missingText = row.missing.length
@@ -2318,7 +2425,9 @@ async function processPhotoOcrFiles(fileList) {
       const detail = percent ? ` ${percent}%` : '';
       progress.textContent = `${number} / ${state.fileCount}枚目：${state.status || '読取中'}${detail}`;
     });
-    photoOcrResults.push(...rows);
+    progress.textContent = '曲マスターと照合しています。';
+    const masterRows = await getPhotoOcrMasterRows();
+    photoOcrResults.push(...rows.map(row => applyPhotoOcrMasterMatch(row, masterRows)));
     renderPhotoOcrResults();
     progress.textContent = `${rows.length}枚の読取りが完了しました。内容を1件ずつ確認してください。`;
   } catch (error) {
@@ -2342,6 +2451,8 @@ async function openPhotoOcrCandidate(index) {
   if (instrument !== activeInstrument) await switchInstrument(instrument);
 
   openScoreModal();
+  activePhotoOcrIndex = index;
+  $('photoDraftDeleteArea').classList.remove('hidden');
   $('domModalTitle').textContent = `写真から登録（${index + 1}/${photoOcrResults.length}）`;
   $('formTitle').value = row.title || '';
   if (row.part && instrumentParts().includes(row.part)) $('partSelect').value = row.part;
@@ -2708,6 +2819,8 @@ function openScoreModal(score = null) {
   if ($('adminSongCandidate')) $('adminSongCandidate').value = '';
   $('btnSubmitForm').textContent = '保存する';
   $('editDeleteArea').classList.toggle('hidden', !score);
+  activePhotoOcrIndex = null;
+  $('photoDraftDeleteArea')?.classList.add('hidden');
   hide('masterRequestArea');
   hide('levelCorrectionArea');
   hide('levelCorrectionForm');
@@ -2759,6 +2872,8 @@ function closeModal() {
   editingScoreId = null;
   autoLoadedExistingScore = false;
   selectedSong = null;
+  activePhotoOcrIndex = null;
+  $('photoDraftDeleteArea')?.classList.add('hidden');
 
   // 登録一覧を一度再描画して、Safariに残った不正なレイアウトキャッシュを破棄。
   render();
@@ -4327,6 +4442,22 @@ $('btnSendLevelCorrection').addEventListener('click', async () => {
   }
 });
 $('btnHeaderAdd').addEventListener('click', () => openScoreModal());
+$('btnDeletePhotoDraft').addEventListener('click', async () => {
+  if (activePhotoOcrIndex === null) return;
+  const index = activePhotoOcrIndex;
+  const confirmed = await showSiteConfirm(
+    'この写真から作成した下書きを削除しますか？\n登録済みのスコアは削除されません。',
+    '下書きの削除',
+    '削除する'
+  );
+  if (!confirmed) return;
+
+  photoOcrResults.splice(index, 1);
+  closeModal();
+  renderPhotoOcrResults();
+  $('photoOcrMask').style.display = 'flex';
+  syncGlobalModalScrollLock();
+});
 $('btnPhotoRegister').addEventListener('click', openPhotoOcrDialog);
 $('btnClosePhotoOcr').addEventListener('click', closePhotoOcrDialog);
 $('photoOcrMask').addEventListener('click', event => {
