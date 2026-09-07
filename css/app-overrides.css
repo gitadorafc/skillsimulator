@@ -1162,20 +1162,23 @@ body.light-mode .history-option-badge{
 
 @media (max-width:430px){
   .record-search-row{
-    flex-wrap:wrap;
+    flex-wrap:nowrap;
   }
   .record-search-row .search-input{
-    flex-basis:100%;
+    flex:1 1 auto;
+    min-width:0;
   }
   .record-search-row .btn-add-inline{
-    flex:1;
+    flex:0 0 auto;
   }
 }
 
 /* === v4.18.0 管理者限定・登録曲タグ === */
 #recordTagFilterField{
-  grid-column:1 / -1;
+  flex:1 1 140px;
+  min-width:140px;
 }
+#recordTagFilter{width:100%}
 .score-tag-choices{
   display:flex;
   flex-wrap:wrap;
@@ -3740,7 +3743,7 @@ body.light-mode .admin-master-pager button.admin-master-page.active{
   display: flex !important;
   align-items: flex-end !important;
   justify-content: flex-start !important;
-  flex-wrap: nowrap !important;
+  flex-wrap: wrap !important;
   gap: 7px !important;
 }
 .record-type-filter-field {
@@ -3760,12 +3763,13 @@ body.light-mode .admin-master-pager button.admin-master-page.active{
 body.light-mode .record-type-filter-field {
   color: #111827;
 }
-body.skill-target-columns .record-type-filter-field {
+body.skill-target-columns #recordTypeFilterField {
   display: none !important;
 }
 #recordTypeFilter,
 #recordClearRankFilter,
-#recordFcFilter {
+#recordFcFilter,
+#recordTagFilter {
   appearance: none !important;
   -webkit-appearance: none !important;
   height: 38px !important;
@@ -3786,7 +3790,8 @@ body.skill-target-columns .record-type-filter-field {
 #recordFcFilter { width: 82px !important; }
 body.light-mode #recordTypeFilter,
 body.light-mode #recordClearRankFilter,
-body.light-mode #recordFcFilter {
+body.light-mode #recordFcFilter,
+body.light-mode #recordTagFilter {
   padding: 0 32px 0 10px !important;
   background-color: #f8fafc !important;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Cpath d='M4 6.5 8 10l4-3.5' fill='none' stroke='%23334155' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") !important;
