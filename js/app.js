@@ -59,7 +59,7 @@ import { selectSkillTargetRows, calcTargetTotals } from './skill-targets.js?v=4_
 import { renderPartOptions, renderSongSuggestions } from './score-form-renderer.js?v=4_15_8';
 import { getMyPrivateScoreComments, savePrivateScoreComment } from './score-comments.js?v=4_16_0';
 import { createCommentHistory } from './comment-history.js?v=4_16_6';
-import { getMyTags, getMyScoreTagMap, replaceMyTags, setMyScoreTags } from './score-tags.js?v=4_18_0';
+import { getMyTags, getMyScoreTagMap, getMyScoreTagIds, replaceMyTags, setMyScoreTags } from './score-tags.js?v=4_19_0';
 
 let adminEnabled = false;
 import { supabase } from './supabase.js?v=21_57';
@@ -602,6 +602,8 @@ let rateComparisonRequestSeq = 0;
 let myTags = [];
 let scoreTagMap = new Map();
 let editingTagRows = [];
+let scoreTagChoiceRequestSeq = 0;
+let scoreTagsLoading = false;
 
 let adminAccessChecked = false;
 let primaryAdminEnabled = false;
@@ -2359,12 +2361,31 @@ function renderScoreTagChoices(scoreId = null) {
     : '<div class="score-tag-empty">タグ設定からタグを追加できます。</div>';
 }
 
-async function loadTagData() {
-  if (!adminEnabled) {
-    myTags = [];
-    scoreTagMap = new Map();
-    return;
+async function refreshScoreTagChoices(scoreId = null) {
+  const requestSeq = ++scoreTagChoiceRequestSeq;
+  // 前に開いた曲のチェック状態を残さない。
+  renderScoreTagChoices();
+  scoreTagsLoading = Boolean(scoreId);
+  if (!scoreId) return;
+
+  $('scoreTagChoices').innerHTML = '<div class="score-tag-empty">設定済みのタグを確認中...</div>';
+
+  try {
+    const tagIds = await getMyScoreTagIds(scoreId);
+    if (requestSeq !== scoreTagChoiceRequestSeq || editingScoreId !== scoreId) return;
+    scoreTagMap.set(scoreId, new Set(tagIds));
+    renderScoreTagChoices(scoreId);
+  } catch (error) {
+    console.error('登録曲タグ取得エラー:', error);
+    if (requestSeq === scoreTagChoiceRequestSeq) {
+      $('scoreTagChoices').innerHTML = '<div class="score-tag-load-error">タグを取得できませんでした。編集画面を開き直してください。</div>';
+    }
+  } finally {
+    if (requestSeq === scoreTagChoiceRequestSeq) scoreTagsLoading = false;
   }
+}
+
+async function loadTagData() {
   [myTags, scoreTagMap] = await Promise.all([getMyTags(), getMyScoreTagMap()]);
   renderTagFilterOptions();
   render();
@@ -2383,7 +2404,6 @@ function renderTagSettingsRows() {
 }
 
 function openTagSettings() {
-  if (!adminEnabled) return;
   closeMenu();
   editingTagRows = myTags.map(tag => ({ id: tag.id, name: tag.name }));
   $('tagSettingsStatus').textContent = '';
@@ -2539,7 +2559,7 @@ function renderManage() {
     : ($('recordTypeFilter')?.value || '');
   const clearRankFilter = $('recordClearRankFilter')?.value || '';
   const fcFilter = $('recordFcFilter')?.value || '';
-  const tagFilter = adminEnabled ? ($('recordTagFilter')?.value || '') : '';
+  const tagFilter = $('recordTagFilter')?.value || '';
   const columnMode = document.body.classList.contains('skill-target-columns') ? 'COLUMNS' : 'LIST';
   const viewKey = [activeInstrument, columnMode, keyword, typeFilter, clearRankFilter, fcFilter, tagFilter].join('\u0000');
   if (viewKey !== ownRegisteredViewKey) {
@@ -2688,8 +2708,8 @@ function openScoreModal(score = null) {
   // コメントは本人だけが入力・参照できる非公開項目。
   $('scorePrivateCommentGroup').classList.remove('hidden');
   $('formPrivateComment').value = score?.private_comment || '';
-  $('scoreTagGroup').classList.toggle('hidden', !adminEnabled);
-  renderScoreTagChoices(score?.score_id || null);
+  $('scoreTagGroup').classList.remove('hidden');
+  refreshScoreTagChoices(score?.score_id || null);
 
   $('songSuggestions').innerHTML = '';
   if ($('adminSongInitialFilter')) $('adminSongInitialFilter').value = '';
@@ -2726,6 +2746,8 @@ function openScoreModal(score = null) {
 
 function closeModal() {
   previousScoreSettingsRequestSeq++;
+  scoreTagChoiceRequestSeq++;
+  scoreTagsLoading = false;
   // iOS Safariではキーボードを閉じた直後にVisualViewportと
   // ページレイアウトの再計算がずれることがあるため、
   // blur → body固定解除 → 再描画 → scroll復元の順で処理する。
@@ -2874,7 +2896,7 @@ async function refreshSelectedPart() {
     $('formPrivateComment').value = '';
     $('formSkill').textContent = '-';
     $('editDeleteArea').classList.add('hidden');
-    renderScoreTagChoices();
+    refreshScoreTagChoices();
   }
 
   selectedSong = null;
@@ -2921,7 +2943,7 @@ async function refreshSelectedPart() {
           $('formPrivateComment').value = existingScore.private_comment || '';
           $('formSkill').textContent = formatSkill(existingScore.skill);
           $('editDeleteArea').classList.remove('hidden');
-          renderScoreTagChoices(existingScore.score_id);
+          refreshScoreTagChoices(existingScore.score_id);
         }
       }
     } else {
@@ -2965,6 +2987,7 @@ async function submitScore() {
   const part = $('partSelect').value;
   const rate = $('formRate').value;
 
+  if (scoreTagsLoading) throw new Error('タグを確認中です。少し待ってから保存してください。');
   if (!title) throw new Error('曲名を入力してください。');
   if (rate === '') throw new Error('達成率を入力してください。');
 
@@ -3023,14 +3046,12 @@ async function submitScore() {
     playOption
   });
 
-  if (adminEnabled) {
-    const selectedTagIds = Array.from(
-      document.querySelectorAll('#scoreTagChoices input[type="checkbox"]:checked'),
-      input => input.value
-    );
-    await setMyScoreTags(savedScoreId, selectedTagIds);
-    scoreTagMap.set(savedScoreId, new Set(selectedTagIds));
-  }
+  const selectedTagIds = Array.from(
+    document.querySelectorAll('#scoreTagChoices input[type="checkbox"]:checked'),
+    input => input.value
+  );
+  await setMyScoreTags(savedScoreId, selectedTagIds);
+  scoreTagMap.set(savedScoreId, new Set(selectedTagIds));
 
   await savePrivateScoreComment({
     scoreId: savedScoreId,
@@ -3640,9 +3661,9 @@ async function checkAdminAccess() {
 
   adminAccessChecked = true;
   $('btnAdmin').classList.toggle('hidden', !adminEnabled);
-  $('btnMenuTags')?.classList.toggle('hidden', !adminEnabled);
-  $('recordTagFilterField')?.classList.toggle('hidden', !adminEnabled);
-  $('scoreTagGroup')?.classList.toggle('hidden', !adminEnabled);
+  $('btnMenuTags')?.classList.remove('hidden');
+  $('recordTagFilterField')?.classList.remove('hidden');
+  $('scoreTagGroup')?.classList.remove('hidden');
   $('mypageUserSwitchBlock')?.classList.remove('hidden');
   $('btnMenuSkillRanking')?.classList.remove('hidden');
   $('btnMenuSkillShareHistory')?.classList.remove('hidden');
@@ -3677,12 +3698,10 @@ async function checkAdminAccess() {
   }
   $('adminBulkDeleteArea')?.classList.toggle('hidden', !primaryAdminEnabled);
 
-  if (adminEnabled) {
-    try {
-      await loadTagData();
-    } catch (e) {
-      console.error('タグ取得エラー:', e);
-    }
+  try {
+    await loadTagData();
+  } catch (e) {
+    console.error('タグ取得エラー:', e);
   }
 
   // 保存済みの表示カスタマイズを全ユーザーに反映。

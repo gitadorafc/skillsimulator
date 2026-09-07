@@ -23,6 +23,16 @@ export async function getMyScoreTagMap() {
   return result;
 }
 
+export async function getMyScoreTagIds(scoreId) {
+  if (!scoreId) return [];
+  const { data, error } = await supabase
+    .from('user_score_tags')
+    .select('tag_id')
+    .eq('user_score_id', scoreId);
+  if (error) throw error;
+  return (data || []).map(row => row.tag_id);
+}
+
 export async function replaceMyTags(tags) {
   const { data, error } = await supabase.rpc('replace_my_tags', {
     p_tags: tags.map((tag, index) => ({

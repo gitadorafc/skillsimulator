@@ -1199,14 +1199,14 @@ body.light-mode .history-option-badge{
   font-size:12px;
   font-weight:800;
 }
-.score-tag-choice input:checked + span{
-  border-color:#3b82f6;
-  background:#1d4ed8;
-  color:#fff;
-}
 .score-tag-empty,.tag-settings-empty{
   color:#94a3b8;
   font-size:12px;
+}
+.score-tag-load-error{
+  color:#fca5a5;
+  font-size:12px;
+  font-weight:800;
 }
 .tag-settings-dialog{
   width:min(100%, 480px);
@@ -1309,9 +1309,10 @@ body.light-mode .tag-settings-add{background:#cbd5e1;color:#0f172a}
 body.light-mode .tag-settings-body > p,
 body.light-mode .score-tag-empty,
 body.light-mode .tag-settings-empty{color:#475569}
+body.light-mode .score-tag-load-error{color:#b91c1c}
 body.light-mode .tag-settings-row input,
 body.light-mode .score-tag-choice span{background:#f8fafc;color:#0f172a}
-body.light-mode .score-tag-choice input:checked + span{
+.score-tag-choice input:checked + span{
   border-color:#2563eb;
   background:#3b82f6;
   color:#fff !important;
