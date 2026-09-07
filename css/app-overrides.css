@@ -1175,8 +1175,7 @@ body.light-mode .history-option-badge{
 
 /* === v4.18.0 管理者限定・登録曲タグ === */
 #recordTagFilterField{
-  flex:1 1 140px;
-  min-width:140px;
+  min-width:0;
 }
 #recordTagFilter{width:100%}
 .score-tag-choices{
@@ -2307,7 +2306,7 @@ body.skill-target-columns #recordTypeFilter {
   display:none !important;
 }
 body.skill-target-columns .record-filter-row {
-  grid-template-columns:1fr !important;
+  grid-template-columns:repeat(3, minmax(0, 1fr)) !important;
 }
 body.skill-target-columns .record-column-placeholder {
   min-width:0 !important;
@@ -3740,15 +3739,15 @@ body.light-mode .admin-master-pager button.admin-master-page.active{
 
 /* === APP VERSION 4.11.5: 登録曲フィルタを見出し付き横一列に統一 === */
 .record-filter-row {
-  display: flex !important;
+  display: grid !important;
+  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
   align-items: flex-end !important;
-  justify-content: flex-start !important;
-  flex-wrap: wrap !important;
   gap: 7px !important;
 }
 .record-type-filter-field {
   display: flex;
-  flex: 0 0 auto;
+  min-width:0;
+  width:100%;
   flex-direction: column;
   align-items: flex-start;
   gap: 3px;
@@ -3758,7 +3757,11 @@ body.light-mode .admin-master-pager button.admin-master-page.active{
   white-space: nowrap;
 }
 .record-rank-filter-group {
-  flex: 0 0 auto;
+  display:contents;
+}
+.record-rank-filter-field {
+  min-width:0;
+  width:100%;
 }
 body.light-mode .record-type-filter-field {
   color: #111827;
@@ -3785,9 +3788,10 @@ body.skill-target-columns #recordTypeFilterField {
   border-radius: 7px !important;
   color-scheme: dark !important;
 }
-#recordTypeFilter { width: 92px !important; }
-#recordClearRankFilter { width: 92px !important; }
-#recordFcFilter { width: 82px !important; }
+#recordTypeFilter,
+#recordClearRankFilter,
+#recordFcFilter,
+#recordTagFilter { width:100% !important; }
 body.light-mode #recordTypeFilter,
 body.light-mode #recordClearRankFilter,
 body.light-mode #recordFcFilter,
