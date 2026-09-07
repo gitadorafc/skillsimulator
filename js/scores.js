@@ -1,4 +1,4 @@
-import { supabase } from './supabase.js';
+import { supabase, getSessionUserWithRetry } from './supabase.js?v=4_19_1';
 
 export function calcSkill(level, achievementRate) {
   const value = Number(level) * 20 * Number(achievementRate) / 100;
@@ -10,10 +10,7 @@ export const formatRate = value => Number(value).toFixed(2);
 export const formatSkill = value => Number(value).toFixed(2);
 
 export async function getMyScores(versionId = null) {
-  const { data: userData, error: userError } = await supabase.auth.getUser();
-  if (userError || !userData.user) {
-    throw new Error('ログイン情報を取得できません。');
-  }
+  await getSessionUserWithRetry();
 
   // 大量のsong_idを.in()でURLへ並べると、理論値アカウントのような
   // 数千件の登録でURL長上限を超える。結合済みVIEWをページ取得する。
@@ -102,10 +99,7 @@ export async function saveScore({
     play_option: playOption || 'NORMAL'
   };
 
-  const { data: userData, error: userError } = await supabase.auth.getUser();
-  if (userError || !userData.user) {
-    throw new Error('ログイン情報を取得できません。');
-  }
+  const sessionUser = await getSessionUserWithRetry();
 
   if (scoreId) {
     // 編集先の譜面がすでに登録済みの場合は、
@@ -115,7 +109,7 @@ export async function saveScore({
       const { data: existingRows, error: existingError } = await supabase
         .from('user_scores')
         .select('id')
-        .eq('user_id', userData.user.id)
+        .eq('user_id', sessionUser.id)
         .eq('song_id', songId)
         .limit(2);
 
@@ -140,7 +134,7 @@ export async function saveScore({
       const { data: existingRows, error: existingError } = await supabase
         .from('user_scores')
         .select('id')
-        .eq('user_id', userData.user.id)
+        .eq('user_id', sessionUser.id)
         .eq('song_request_id', requestId)
         .limit(2);
 
@@ -173,7 +167,7 @@ export async function saveScore({
   }
 
   const row = {
-    user_id: userData.user.id,
+    user_id: sessionUser.id,
     ...payload
   };
 
@@ -183,7 +177,7 @@ export async function saveScore({
     const { data: existing, error: existingError } = await supabase
       .from('user_scores')
       .select('id')
-      .eq('user_id', userData.user.id)
+      .eq('user_id', sessionUser.id)
       .eq('song_id', songId)
       .maybeSingle();
 
@@ -218,7 +212,7 @@ export async function saveScore({
   const { data: existingRequestScore, error: existingRequestError } = await supabase
     .from('user_scores')
     .select('id')
-    .eq('user_id', userData.user.id)
+    .eq('user_id', sessionUser.id)
     .eq('song_request_id', requestId)
     .maybeSingle();
 

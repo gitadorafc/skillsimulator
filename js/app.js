@@ -57,7 +57,7 @@ import {
 import { createSiteDialogController } from './site-dialog.js?v=4_15_3';
 import { selectSkillTargetRows, calcTargetTotals } from './skill-targets.js?v=4_15_7';
 import { renderPartOptions, renderSongSuggestions } from './score-form-renderer.js?v=4_15_8';
-import { getMyPrivateScoreComments, savePrivateScoreComment } from './score-comments.js?v=4_16_0';
+import { getMyPrivateScoreComments, savePrivateScoreComment } from './score-comments.js?v=4_19_1';
 import { createCommentHistory } from './comment-history.js?v=4_16_6';
 import { getMyTags, getMyScoreTagMap, getMyScoreTagIds, replaceMyTags, setMyScoreTags } from './score-tags.js?v=4_19_0';
 
@@ -66,7 +66,7 @@ import { supabase } from './supabase.js?v=21_57';
 import { register, login, loginForAccountSwitch, logout, changePassword, getSession, validateUsername } from './auth.js?v=4_1_2';
 import { initAuthCaptcha, prepareAuthCaptcha, getAuthCaptchaToken, resetAuthCaptcha } from './captcha.js?v=21_84';
 import { PARTS, partsForInstrument, normalizeSongTitleForMatch, searchSongTitles, getSongByTitleAndPart, requestSongMaster, requestSongLevelCorrection } from './songs.js?v=4_18_0';
-import { calcSkill, formatLevel, formatRate, formatSkill, getMyScores, saveScore, deleteScore } from './scores.js?v=4_18_0';
+import { calcSkill, formatLevel, formatRate, formatSkill, getMyScores, saveScore, deleteScore } from './scores.js?v=4_19_1';
 import { getGameVersions } from './versions.js?v=21_57';
 const {
   isAdmin,
@@ -2320,21 +2320,42 @@ async function applyPreviousScoreSettings(title, part) {
   }
 }
 
-async function loadScores() {
+let scoreLoadInFlight = null;
+let scoreLoadRequestSeq = 0;
+
+async function loadScores({ silent = false } = {}) {
+  const versionId = activeVersionId;
+  const loadKey = String(versionId || '');
+
+  // focusとvisibilitychangeが同時に発火しても同じ通信を重ねない。
+  if (scoreLoadInFlight?.key === loadKey) return scoreLoadInFlight.promise;
+
+  const requestSeq = ++scoreLoadRequestSeq;
+  const task = (async () => {
+    try {
+      const loadedScores = await getMyScores(versionId);
+      const commentMap = await getMyPrivateScoreComments();
+
+      // バージョン切替前の遅い応答で現在画面を上書きしない。
+      if (requestSeq !== scoreLoadRequestSeq || versionId !== activeVersionId) return;
+      scores = loadedScores.map(row => ({
+        ...row,
+        private_comment: commentMap.get(row.score_id) || ''
+      }));
+      render();
+    } catch (e) {
+      console.error(e);
+      if (!silent && requestSeq === scoreLoadRequestSeq) {
+        await showSiteDialog('データ取得に失敗しました: ' + e.message, 'データ取得エラー');
+      }
+    }
+  })();
+
+  scoreLoadInFlight = { key: loadKey, promise: task };
   try {
-    scores = await getMyScores(activeVersionId);
-
-    // private_commentは既存VIEWを変更せずuser_scoresから自分の分だけ取得して結合。
-    const commentMap = await getMyPrivateScoreComments();
-    scores = scores.map(row => ({
-      ...row,
-      private_comment: commentMap.get(row.score_id) || ''
-    }));
-
-    render();
-  } catch (e) {
-    console.error(e);
-    await showSiteDialog('データ取得に失敗しました: ' + e.message, 'データ取得エラー');
+    return await task;
+  } finally {
+    if (scoreLoadInFlight?.promise === task) scoreLoadInFlight = null;
   }
 }
 
@@ -5380,13 +5401,13 @@ $('siteDialogMask').addEventListener('click', e => {
 
 document.addEventListener('visibilitychange', () => {
   if (!document.hidden && !$('appScreen').classList.contains('hidden')) {
-    loadScores().catch(console.error);
+    loadScores({ silent: true }).catch(console.error);
   }
 });
 
 window.addEventListener('focus', () => {
   if (!$('appScreen').classList.contains('hidden')) {
-    loadScores().catch(console.error);
+    loadScores({ silent: true }).catch(console.error);
   }
 });
 

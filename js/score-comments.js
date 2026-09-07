@@ -1,4 +1,4 @@
-import { supabase } from './supabase.js?v=21_57';
+import { supabase, getSessionUserWithRetry } from './supabase.js?v=4_19_1';
 
 export async function getMySongCommentHistory(songId, versionId) {
   const { data, error } = await supabase.rpc('get_my_song_comment_history', {
@@ -10,8 +10,12 @@ export async function getMySongCommentHistory(songId, versionId) {
 }
 
 export async function getMyPrivateScoreComments() {
-  const { data: userData, error: userError } = await supabase.auth.getUser();
-  if (userError || !userData.user) return new Map();
+  let sessionUser;
+  try {
+    sessionUser = await getSessionUserWithRetry();
+  } catch (_) {
+    return new Map();
+  }
 
   const pageSize = 1000;
   const rows = [];
@@ -21,7 +25,7 @@ export async function getMyPrivateScoreComments() {
     const { data, error } = await supabase
       .from('user_scores')
       .select('id,private_comment')
-      .eq('user_id', userData.user.id)
+      .eq('user_id', sessionUser.id)
       .order('id', { ascending: true })
       .range(from, from + pageSize - 1);
 
@@ -46,13 +50,12 @@ export async function savePrivateScoreComment({ scoreId = null, songId = null, r
     throw new Error('コメントは100文字以内で入力してください。');
   }
 
-  const { data: userData, error: userError } = await supabase.auth.getUser();
-  if (userError || !userData.user) throw new Error('ログイン情報を取得できません。');
+  const sessionUser = await getSessionUserWithRetry();
 
   let query = supabase
     .from('user_scores')
     .update({ private_comment: normalized || null })
-    .eq('user_id', userData.user.id);
+    .eq('user_id', sessionUser.id);
 
   if (scoreId) {
     query = query.eq('id', scoreId);
