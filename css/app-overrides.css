@@ -1160,172 +1160,6 @@ body.light-mode .history-option-badge{
   max-height:38px !important;
 }
 
-/* === v4.17.0 管理者用・写真からスコア登録 === */
-.btn-photo-register{
-  background:#0f9f7a;
-}
-.btn-photo-register:active{
-  background:#0b7f63;
-}
-.photo-ocr-dialog{
-  width:min(100%, 560px);
-  max-height:calc(100dvh - 32px);
-  display:flex;
-  flex-direction:column;
-  overflow:hidden;
-  border:1px solid #334155;
-  border-radius:14px;
-  background:#0f172a;
-  color:#f8fafc;
-}
-.photo-ocr-head{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:12px;
-  padding:14px 16px;
-  border-bottom:1px solid #334155;
-}
-.photo-ocr-head > div{
-  display:flex;
-  align-items:center;
-  gap:8px;
-}
-.photo-ocr-head strong{
-  font-size:16px;
-}
-.photo-ocr-head span{
-  padding:3px 7px;
-  border-radius:999px;
-  background:#7c3aed;
-  color:#fff;
-  font-size:10px;
-  font-weight:900;
-}
-.photo-ocr-head button{
-  width:38px;
-  height:38px;
-  border:0;
-  border-radius:8px;
-  background:#1e293b;
-  color:#fff;
-  font-size:23px;
-  font-weight:900;
-}
-.photo-ocr-body{
-  min-height:0;
-  padding:14px;
-  overflow:auto;
-  overscroll-behavior:contain;
-}
-.photo-ocr-note{
-  margin:0 0 12px;
-  color:#cbd5e1;
-  font-size:13px;
-  line-height:1.6;
-}
-.photo-ocr-select{
-  width:100%;
-  min-height:46px;
-  border:0;
-  border-radius:8px;
-  background:#3b82f6;
-  color:#fff;
-  font-size:14px;
-  font-weight:900;
-}
-.photo-ocr-select:disabled{
-  opacity:.55;
-}
-.photo-ocr-progress,
-.photo-ocr-empty{
-  margin-top:10px;
-  padding:10px 12px;
-  border-radius:8px;
-  background:#1e293b;
-  color:#cbd5e1;
-  font-size:12px;
-  line-height:1.5;
-}
-.photo-ocr-results{
-  display:grid;
-  gap:9px;
-  margin-top:10px;
-}
-.photo-ocr-result{
-  padding:11px;
-  border:1px solid #334155;
-  border-radius:10px;
-  background:#111c30;
-}
-.photo-ocr-file{
-  overflow:hidden;
-  color:#94a3b8;
-  font-size:10px;
-  text-overflow:ellipsis;
-  white-space:nowrap;
-}
-.photo-ocr-song{
-  margin-top:4px;
-  font-size:14px;
-  font-weight:900;
-}
-.photo-ocr-values{
-  display:flex;
-  flex-wrap:wrap;
-  gap:6px;
-  margin-top:7px;
-}
-.photo-ocr-values span{
-  padding:4px 7px;
-  border-radius:5px;
-  background:#1e293b;
-  color:#e2e8f0;
-  font-size:11px;
-  font-weight:800;
-}
-.photo-ocr-warning{
-  margin-top:7px;
-  color:#fbbf24;
-  font-size:11px;
-  font-weight:800;
-}
-.photo-ocr-result button{
-  width:100%;
-  min-height:40px;
-  margin-top:9px;
-  border:0;
-  border-radius:7px;
-  background:#2563eb;
-  color:#fff;
-  font-weight:900;
-}
-body.light-mode .photo-ocr-dialog{
-  border-color:#94a3b8;
-  background:#e2e8f0;
-  color:#0f172a;
-}
-body.light-mode .photo-ocr-head{
-  border-color:#94a3b8;
-}
-body.light-mode .photo-ocr-head button,
-body.light-mode .photo-ocr-progress,
-body.light-mode .photo-ocr-empty,
-body.light-mode .photo-ocr-values span{
-  background:#cbd5e1;
-  color:#0f172a;
-}
-body.light-mode .photo-ocr-note{
-  color:#475569;
-}
-body.light-mode .photo-ocr-result{
-  border-color:#94a3b8;
-  background:#f8fafc;
-}
-body.light-mode .photo-ocr-file{
-  color:#64748b;
-}
-
 @media (max-width:430px){
   .record-search-row{
     flex-wrap:wrap;
@@ -1337,6 +1171,145 @@ body.light-mode .photo-ocr-file{
     flex:1;
   }
 }
+
+/* === v4.18.0 管理者限定・登録曲タグ === */
+#recordTagFilterField{
+  grid-column:1 / -1;
+}
+.score-tag-choices{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  min-height:38px;
+}
+.score-tag-choice input{
+  position:absolute;
+  opacity:0;
+  pointer-events:none;
+}
+.score-tag-choice span{
+  display:block;
+  padding:8px 12px;
+  border:1px solid #475569;
+  border-radius:999px;
+  background:#111827;
+  color:#cbd5e1;
+  font-size:12px;
+  font-weight:800;
+}
+.score-tag-choice input:checked + span{
+  border-color:#3b82f6;
+  background:#1d4ed8;
+  color:#fff;
+}
+.score-tag-empty,.tag-settings-empty{
+  color:#94a3b8;
+  font-size:12px;
+}
+.tag-settings-dialog{
+  width:min(100%, 480px);
+  max-height:calc(100dvh - 32px);
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+  border:1px solid #334155;
+  border-radius:14px;
+  background:#0f172a;
+  color:#f8fafc;
+}
+.tag-settings-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:14px 16px;
+  border-bottom:1px solid #334155;
+}
+.tag-settings-head button{
+  width:38px;
+  height:38px;
+  border:0;
+  border-radius:8px;
+  background:#1e293b;
+  color:#fff;
+  font-size:23px;
+  font-weight:900;
+}
+.tag-settings-body{
+  min-height:0;
+  padding:14px;
+  overflow:auto;
+  overscroll-behavior:contain;
+}
+.tag-settings-body > p{
+  margin:0 0 12px;
+  color:#cbd5e1;
+  font-size:12px;
+  line-height:1.5;
+}
+.tag-settings-rows{
+  display:grid;
+  gap:8px;
+}
+.tag-settings-row{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  gap:8px;
+}
+.tag-settings-row input{
+  min-width:0;
+  min-height:42px;
+  padding:8px 10px;
+  border:1px solid #475569;
+  border-radius:8px;
+  background:#111827;
+  color:#f8fafc;
+  font-size:14px;
+}
+.tag-settings-row button{
+  min-width:58px;
+  border:0;
+  border-radius:8px;
+  background:#7f1d1d;
+  color:#fecaca;
+  font-weight:900;
+}
+.tag-settings-add{
+  width:100%;
+  min-height:42px;
+  margin-top:10px;
+  border:1px dashed #64748b;
+  border-radius:8px;
+  background:#1e293b;
+  color:#bfdbfe;
+  font-weight:900;
+}
+.tag-settings-add:disabled{opacity:.45}
+.tag-settings-status{
+  min-height:20px;
+  margin-top:8px;
+  color:#fca5a5;
+  font-size:12px;
+}
+.tag-settings-actions{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+  margin-top:8px;
+}
+body.light-mode .tag-settings-dialog{
+  border-color:#94a3b8;
+  background:#e2e8f0;
+  color:#0f172a;
+}
+body.light-mode .tag-settings-head{border-color:#94a3b8}
+body.light-mode .tag-settings-head button,
+body.light-mode .tag-settings-add{background:#cbd5e1;color:#0f172a}
+body.light-mode .tag-settings-body > p,
+body.light-mode .score-tag-empty,
+body.light-mode .tag-settings-empty{color:#475569}
+body.light-mode .tag-settings-row input,
+body.light-mode .score-tag-choice span{background:#f8fafc;color:#0f172a}
+body.light-mode .score-tag-choice input:checked + span{background:#2563eb;color:#fff}
 #domModal #correctionLevel{
   box-sizing:border-box !important;
   min-height:38px !important;

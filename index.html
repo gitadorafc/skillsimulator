@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>GITADORA Skill Simulator</title>
-<meta name="app-version" content="4.17.2">
+<meta name="app-version" content="4.18.0">
 <link rel="icon" type="image/svg+xml" href="./favicon.svg?v=21_7">
 <link rel="icon" type="image/png" sizes="48x48" href="./favicon-48x48.png?v=21_7">
 <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32x32.png?v=21_7">
@@ -39,7 +39,7 @@
 </script>
 
 <link rel="stylesheet" href="./css/app.css?v=4_17_0">
-<link rel="stylesheet" href="./css/app-overrides.css?v=4_17_0">
+<link rel="stylesheet" href="./css/app-overrides.css?v=4_18_0">
   <link rel="stylesheet" href="./css/layout-canonical.css?v=4_17_0">
   <link rel="preconnect" href="https://challenges.cloudflare.com">
   <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" defer></script>
@@ -126,7 +126,6 @@
     <div id="searchArea" class="search-bar-container hidden">
       <div class="record-search-row">
         <input id="domSearch" class="search-input" placeholder="登録済みの曲を検索...">
-        <button id="btnPhotoRegister" type="button" class="btn-add-inline btn-photo-register hidden">写真登録</button>
         <button id="btnHeaderAdd" class="btn-add-inline">＋ 登録</button>
       </div>
       <div id="adminBulkDeleteArea" class="admin-bulk-delete-area hidden">
@@ -163,6 +162,12 @@
             </select>
           </label>
         </div>
+        <label id="recordTagFilterField" class="record-type-filter-field hidden">
+          <span>タグ</span>
+          <select id="recordTagFilter" aria-label="タグフィルタ">
+            <option value="">すべて</option>
+          </select>
+        </label>
       </div>
     </div>
     <div id="userListHeaderSlot" class="user-list-header-slot hidden">
@@ -198,25 +203,6 @@
     <div id="viewUsers" class="hidden">
       <div id="userList"></div>
       <div id="userListPager" class="user-list-pager"></div>
-    </div>
-  </div>
-</div>
-
-<div id="photoOcrMask" class="site-dialog-mask" role="dialog" aria-modal="true" aria-labelledby="photoOcrTitle">
-  <div class="photo-ocr-dialog">
-    <div class="photo-ocr-head">
-      <div>
-        <strong id="photoOcrTitle">写真から登録</strong>
-        <span>管理者用</span>
-      </div>
-      <button id="btnClosePhotoOcr" type="button" aria-label="閉じる">×</button>
-    </div>
-    <div class="photo-ocr-body">
-      <p class="photo-ocr-note">リザルト画面全体が写った写真を選択してください。曲名・譜面・達成率・オプションを端末内で読み取り、保存前の登録画面へ仮入力します。写真自体は保存・送信しません。</p>
-      <input id="photoOcrFiles" class="hidden" type="file" accept="image/jpeg,image/png,image/webp,image/heic,image/heif" multiple>
-      <button id="btnSelectPhotoOcr" type="button" class="photo-ocr-select">写真を選択（複数可）</button>
-      <div id="photoOcrProgress" class="photo-ocr-progress hidden" aria-live="polite"></div>
-      <div id="photoOcrResults" class="photo-ocr-results"></div>
     </div>
   </div>
 </div>
@@ -359,12 +345,14 @@
       <div class="score-private-comment-note">自分だけに表示されます（100文字まで）</div>
     </div>
 
-    <div id="editDeleteArea" class="edit-delete-area hidden">
-      <button id="btnDeleteEditingScore" type="button" class="btn-delete-editing-score">この登録データを削除</button>
+    <div id="scoreTagGroup" class="f-group hidden">
+      <label>タグ（複数選択可）</label>
+      <div id="scoreTagChoices" class="score-tag-choices"></div>
+      <div class="score-private-comment-note">タグの追加・名前変更はメニューの「タグ設定」から行えます。</div>
     </div>
 
-    <div id="photoDraftDeleteArea" class="edit-delete-area hidden">
-      <button id="btnDeletePhotoDraft" type="button" class="btn-delete-editing-score">この下書きを削除</button>
+    <div id="editDeleteArea" class="edit-delete-area hidden">
+      <button id="btnDeleteEditingScore" type="button" class="btn-delete-editing-score">この登録データを削除</button>
     </div>
 
     <div class="btn-block">
@@ -381,6 +369,7 @@
     <div class="app-menu-group-label">アカウント・設定</div>
     <button id="btnMenuMypage" type="button" class="app-menu-item">マイページ <span>›</span></button>
     <button id="btnMenuFeatureSettings" type="button" class="app-menu-item">機能設定 <span>›</span></button>
+    <button id="btnMenuTags" type="button" class="app-menu-item hidden">タグ設定 <span>›</span></button>
 
     <div class="app-menu-group-label">スキル機能</div>
     <button id="btnMenuSkillSync" type="button" class="app-menu-item">スキル対象同期 <span>›</span></button>
@@ -398,7 +387,26 @@
     <div class="app-menu-version">
       <label>VERSION</label>
       <select id="versionSelect" class="version-select" aria-label="GITADORAバージョン"></select>
-      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 4.17.2</div>
+      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 4.18.0</div>
+    </div>
+  </div>
+</div>
+
+<div id="tagSettingsMask" class="site-dialog-mask" role="dialog" aria-modal="true" aria-labelledby="tagSettingsTitle">
+  <div class="tag-settings-dialog">
+    <div class="tag-settings-head">
+      <strong id="tagSettingsTitle">タグ設定</strong>
+      <button id="btnCloseTagSettings" type="button" aria-label="閉じる">×</button>
+    </div>
+    <div class="tag-settings-body">
+      <p>タグは最大10個まで設定できます。削除したタグは登録曲からも外れます。</p>
+      <div id="tagSettingsRows" class="tag-settings-rows"></div>
+      <button id="btnAddTagSetting" type="button" class="tag-settings-add">＋ タグを追加</button>
+      <div id="tagSettingsStatus" class="tag-settings-status" aria-live="polite"></div>
+      <div class="tag-settings-actions">
+        <button id="btnCancelTagSettings" type="button" class="btn-cancel">戻る</button>
+        <button id="btnSaveTagSettings" type="button" class="btn-submit">保存する</button>
+      </div>
     </div>
   </div>
 </div>
@@ -859,7 +867,7 @@
 <div id="adminModal" class="admin-modal">
   <div class="admin-header">
     <div class="admin-title-row">
-      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 4.17.2</div></div>
+      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 4.18.0</div></div>
       <button id="btnCloseAdmin" class="admin-close">閉じる</button>
     </div>
     <div class="admin-tabs">
@@ -992,7 +1000,7 @@
   </div>
 </div>
 
-<script type="module" src="./js/app.js?v=4_17_2"></script>
+<script type="module" src="./js/app.js?v=4_18_0"></script>
 <script src="./js/version-check.js?v=4_10_0" defer></script>
 </body>
 </html>

@@ -114,26 +114,6 @@ export async function getSongByTitleAndPart(title, part, versionId = null) {
   return findNormalizedSong(cleanTitle, part, versionId);
 }
 
-// 写真OCRの曖昧な曲名を正式な曲マスターへ照合するため、管理者が
-// 写真登録を使った時だけ対象バージョンの必要最小列を全件取得する。
-export async function getSongsForPhotoOcr(versionId = null) {
-  if (!versionId) return [];
-  const rows = [];
-  const pageSize = 1000;
-  for (let from = 0; ; from += pageSize) {
-    const { data, error } = await supabase
-      .from('songs')
-      .select('id,title,part,level,is_hot,version_id')
-      .eq('version_id', versionId)
-      .order('id', { ascending: true })
-      .range(from, from + pageSize - 1);
-    if (error) throw error;
-    rows.push(...(data || []));
-    if (!data || data.length < pageSize) break;
-  }
-  return rows;
-}
-
 export async function requestSongMaster({ title, part, proposedLevel, versionId }) {
   const cleanTitle = normalizeSongTitle(title);
   const numericLevel = Number(proposedLevel);

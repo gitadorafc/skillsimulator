@@ -161,13 +161,15 @@ export async function saveScore({
       }
     }
 
-    const { error } = await supabase
+    const { data, error } = await supabase
       .from('user_scores')
       .update(payload)
-      .eq('id', scoreId);
+      .eq('id', scoreId)
+      .select('id')
+      .single();
 
     if (error) throw error;
-    return;
+    return data.id;
   }
 
   const row = {
@@ -200,12 +202,14 @@ export async function saveScore({
       throw new Error(`この曲の${displayPart}は既に登録されています`);
     }
 
-    const { error } = await supabase
+    const { data, error } = await supabase
       .from('user_scores')
-      .insert(row);
+      .insert(row)
+      .select('id')
+      .single();
 
     if (error) throw error;
-    return;
+    return data.id;
   }
 
   // 申請中の曲:
@@ -233,11 +237,14 @@ export async function saveScore({
     throw new Error(`この曲の${displayPart}は既に登録されています`);
   }
 
-  const { error } = await supabase
+  const { data, error } = await supabase
     .from('user_scores')
-    .insert(row);
+    .insert(row)
+    .select('id')
+    .single();
 
   if (error) throw error;
+  return data.id;
 }
 
 export async function deleteScore(scoreId) {
