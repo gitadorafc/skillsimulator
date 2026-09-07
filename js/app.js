@@ -59,6 +59,7 @@ import { selectSkillTargetRows, calcTargetTotals } from './skill-targets.js?v=4_
 import { renderPartOptions, renderSongSuggestions } from './score-form-renderer.js?v=4_15_8';
 import { getMyPrivateScoreComments, savePrivateScoreComment } from './score-comments.js?v=4_16_0';
 import { createCommentHistory } from './comment-history.js?v=4_16_6';
+import { readResultPhotos } from './admin-photo-ocr.js?v=4_17_1';
 
 let adminEnabled = false;
 import { supabase } from './supabase.js?v=21_57';
@@ -2249,6 +2250,113 @@ async function shareSkillImage(selection = activeInstrument) {
 
 
 let previousScoreSettingsRequestSeq = 0;
+let photoOcrResults = [];
+let photoOcrBusy = false;
+
+function photoOcrResultMarkup(row, index) {
+  const missingText = row.missing.length
+    ? `<div class="photo-ocr-warning">要確認：${esc(row.missing.join('・'))}</div>`
+    : '';
+  const partText = row.part || '未読取';
+  const levelText = row.level ? ` / Lv${esc(row.level)}` : '';
+  const rateText = row.rate ? `${esc(row.rate)}%` : '未読取';
+  const optionText = row.option === 'RAN' ? 'RAN'
+    : row.option === 'SRA' ? 'SRA'
+      : row.option === 'BASS_MIRROR' ? 'バスミラー'
+        : '正規／なし';
+
+  return `
+    <div class="photo-ocr-result">
+      <div class="photo-ocr-file">${esc(row.fileName)}</div>
+      <div class="photo-ocr-song">${esc(row.title || '曲名を読み取れませんでした')}</div>
+      <div class="photo-ocr-values">
+        <span>${esc(partText)}${levelText}</span>
+        <span>${rateText}</span>
+        <span>${esc(optionText)}</span>
+      </div>
+      ${missingText}
+      <button type="button" data-photo-ocr-confirm="${index}">登録内容を確認</button>
+    </div>`;
+}
+
+function renderPhotoOcrResults() {
+  const target = $('photoOcrResults');
+  if (!target) return;
+  target.innerHTML = photoOcrResults.length
+    ? photoOcrResults.map(photoOcrResultMarkup).join('')
+    : '<div class="photo-ocr-empty">まだ写真は選択されていません。</div>';
+}
+
+function openPhotoOcrDialog() {
+  if (!adminEnabled || photoOcrBusy) return;
+  renderPhotoOcrResults();
+  $('photoOcrMask').style.display = 'flex';
+  syncGlobalModalScrollLock();
+}
+
+function closePhotoOcrDialog() {
+  if (photoOcrBusy) return;
+  $('photoOcrMask').style.display = 'none';
+  syncGlobalModalScrollLock();
+}
+
+async function processPhotoOcrFiles(fileList) {
+  const files = Array.from(fileList || []);
+  if (!adminEnabled || !files.length || photoOcrBusy) return;
+
+  photoOcrBusy = true;
+  const selectButton = $('btnSelectPhotoOcr');
+  const progress = $('photoOcrProgress');
+  selectButton.disabled = true;
+  progress.classList.remove('hidden');
+  progress.textContent = 'OCRを準備しています。初回は言語データの読込みに時間がかかります。';
+
+  try {
+    const rows = await readResultPhotos(files, state => {
+      const number = Math.min(state.fileIndex + 1, state.fileCount);
+      const percent = Math.round((state.progress || 0) * 100);
+      const detail = percent ? ` ${percent}%` : '';
+      progress.textContent = `${number} / ${state.fileCount}枚目：${state.status || '読取中'}${detail}`;
+    });
+    photoOcrResults.push(...rows);
+    renderPhotoOcrResults();
+    progress.textContent = `${rows.length}枚の読取りが完了しました。内容を1件ずつ確認してください。`;
+  } catch (error) {
+    console.error('写真OCRエラー:', error);
+    progress.textContent = '写真を読み取れませんでした。';
+    await showSiteDialog(error?.message || '写真の読取りに失敗しました。', '読取りエラー');
+  } finally {
+    photoOcrBusy = false;
+    selectButton.disabled = false;
+    $('photoOcrFiles').value = '';
+  }
+}
+
+async function openPhotoOcrCandidate(index) {
+  if (!adminEnabled || photoOcrBusy) return;
+  const row = photoOcrResults[index];
+  if (!row) return;
+
+  $('photoOcrMask').style.display = 'none';
+  const instrument = row.part?.endsWith('-D') ? 'DM' : 'GF';
+  if (instrument !== activeInstrument) await switchInstrument(instrument);
+
+  openScoreModal();
+  $('domModalTitle').textContent = `写真から登録（${index + 1}/${photoOcrResults.length}）`;
+  $('formTitle').value = row.title || '';
+  if (row.part && instrumentParts().includes(row.part)) $('partSelect').value = row.part;
+
+  if (row.title && row.part) await refreshSelectedPart();
+  if (!selectedSong && row.level) $('formLevel').value = row.level;
+  if (row.rate) $('formRate').value = row.rate;
+  if (activeInstrument === 'GF' && ['NORMAL','RAN','SRA','RAN+','SRA+'].includes(row.option)) {
+    $('formOption').value = row.option;
+  }
+  if (activeInstrument === 'DM') {
+    $('formDmOption').value = row.option === 'BASS_MIRROR' ? 'BASS_MIRROR' : 'NORMAL';
+  }
+  updateSkillPreview();
+}
 
 async function applyPreviousScoreSettings(title, part) {
   if (editingScoreId) return;
@@ -3533,6 +3641,7 @@ async function checkAdminAccess() {
 
   adminAccessChecked = true;
   $('btnAdmin').classList.toggle('hidden', !adminEnabled);
+  $('btnPhotoRegister')?.classList.toggle('hidden', !adminEnabled);
   $('mypageUserSwitchBlock')?.classList.remove('hidden');
   $('btnMenuSkillRanking')?.classList.remove('hidden');
   $('btnMenuSkillShareHistory')?.classList.remove('hidden');
@@ -4218,6 +4327,22 @@ $('btnSendLevelCorrection').addEventListener('click', async () => {
   }
 });
 $('btnHeaderAdd').addEventListener('click', () => openScoreModal());
+$('btnPhotoRegister').addEventListener('click', openPhotoOcrDialog);
+$('btnClosePhotoOcr').addEventListener('click', closePhotoOcrDialog);
+$('photoOcrMask').addEventListener('click', event => {
+  if (event.target === $('photoOcrMask')) closePhotoOcrDialog();
+});
+$('btnSelectPhotoOcr').addEventListener('click', () => {
+  if (!photoOcrBusy) $('photoOcrFiles').click();
+});
+$('photoOcrFiles').addEventListener('change', event => {
+  processPhotoOcrFiles(event.target.files).catch(console.error);
+});
+$('photoOcrResults').addEventListener('click', event => {
+  const button = event.target.closest('[data-photo-ocr-confirm]');
+  if (!button) return;
+  openPhotoOcrCandidate(Number(button.dataset.photoOcrConfirm)).catch(console.error);
+});
 $('formTitle').addEventListener('input', scheduleSongSuggestions);
 
 // IME変換確定時は待ち時間なしで最新候補を再取得する。

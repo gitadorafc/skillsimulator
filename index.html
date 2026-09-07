@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>GITADORA Skill Simulator</title>
-<meta name="app-version" content="4.16.6">
+<meta name="app-version" content="4.17.1">
 <link rel="icon" type="image/svg+xml" href="./favicon.svg?v=21_7">
 <link rel="icon" type="image/png" sizes="48x48" href="./favicon-48x48.png?v=21_7">
 <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32x32.png?v=21_7">
@@ -38,9 +38,9 @@
   })();
 </script>
 
-<link rel="stylesheet" href="./css/app.css?v=4_16_6">
-<link rel="stylesheet" href="./css/app-overrides.css?v=4_16_6">
-  <link rel="stylesheet" href="./css/layout-canonical.css?v=4_16_6">
+<link rel="stylesheet" href="./css/app.css?v=4_17_0">
+<link rel="stylesheet" href="./css/app-overrides.css?v=4_17_0">
+  <link rel="stylesheet" href="./css/layout-canonical.css?v=4_17_0">
   <link rel="preconnect" href="https://challenges.cloudflare.com">
   <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" defer></script>
 </head>
@@ -126,6 +126,7 @@
     <div id="searchArea" class="search-bar-container hidden">
       <div class="record-search-row">
         <input id="domSearch" class="search-input" placeholder="登録済みの曲を検索...">
+        <button id="btnPhotoRegister" type="button" class="btn-add-inline btn-photo-register hidden">写真登録</button>
         <button id="btnHeaderAdd" class="btn-add-inline">＋ 登録</button>
       </div>
       <div id="adminBulkDeleteArea" class="admin-bulk-delete-area hidden">
@@ -197,6 +198,25 @@
     <div id="viewUsers" class="hidden">
       <div id="userList"></div>
       <div id="userListPager" class="user-list-pager"></div>
+    </div>
+  </div>
+</div>
+
+<div id="photoOcrMask" class="site-dialog-mask" role="dialog" aria-modal="true" aria-labelledby="photoOcrTitle">
+  <div class="photo-ocr-dialog">
+    <div class="photo-ocr-head">
+      <div>
+        <strong id="photoOcrTitle">写真から登録</strong>
+        <span>管理者用</span>
+      </div>
+      <button id="btnClosePhotoOcr" type="button" aria-label="閉じる">×</button>
+    </div>
+    <div class="photo-ocr-body">
+      <p class="photo-ocr-note">リザルト画面全体が写った写真を選択してください。曲名・譜面・達成率・オプションを端末内で読み取り、保存前の登録画面へ仮入力します。写真自体は保存・送信しません。</p>
+      <input id="photoOcrFiles" class="hidden" type="file" accept="image/jpeg,image/png,image/webp,image/heic,image/heif" multiple>
+      <button id="btnSelectPhotoOcr" type="button" class="photo-ocr-select">写真を選択（複数可）</button>
+      <div id="photoOcrProgress" class="photo-ocr-progress hidden" aria-live="polite"></div>
+      <div id="photoOcrResults" class="photo-ocr-results"></div>
     </div>
   </div>
 </div>
@@ -374,7 +394,7 @@
     <div class="app-menu-version">
       <label>VERSION</label>
       <select id="versionSelect" class="version-select" aria-label="GITADORAバージョン"></select>
-      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 4.16.6</div>
+      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 4.17.1</div>
     </div>
   </div>
 </div>
@@ -835,7 +855,7 @@
 <div id="adminModal" class="admin-modal">
   <div class="admin-header">
     <div class="admin-title-row">
-      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 4.16.6</div></div>
+      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 4.17.1</div></div>
       <button id="btnCloseAdmin" class="admin-close">閉じる</button>
     </div>
     <div class="admin-tabs">
@@ -968,7 +988,7 @@
   </div>
 </div>
 
-<script type="module" src="./js/app.js?v=4_16_6"></script>
+<script type="module" src="./js/app.js?v=4_17_1"></script>
 <script src="./js/version-check.js?v=4_10_0" defer></script>
 </body>
 </html>
