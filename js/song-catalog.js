@@ -12,19 +12,22 @@ const escapeHtml = value => String(value ?? '').replace(/[&<>"']/g, c => ({
 export function buildSongCatalogEntries(songs, mode, direction) {
   const titleCompare = (a, b) => a.title.localeCompare(b.title, 'ja', { numeric: true });
   const multiplier = direction === 'desc' ? -1 : 1;
-  if (mode === 'title') return [...songs].sort((a, b) => multiplier * titleCompare(a, b))
+  // RPCの返却順は頭文字・公式並び順・曲名の順で、管理画面の曲マスターと一致する。
+  if (mode === 'title') return (direction === 'desc' ? [...songs].reverse() : songs)
     .map(song => ({ song, title: song.title, part: '', level: null }));
 
   const parts = mode === 'dm'
     ? CATALOG_PARTS.filter(part => part.endsWith('-D'))
     : CATALOG_PARTS.filter(part => !part.endsWith('-D'));
-  return songs.flatMap(song => parts.flatMap(part => {
+  return songs.flatMap((song, songOrder) => parts.flatMap(part => {
     const level = song.levels?.[part];
     return level == null || level === '' || !Number.isFinite(Number(level))
-      ? [] : [{ song, title: song.title, part, level: Number(level) }];
-  })).sort((a, b) => multiplier * (a.level - b.level) || titleCompare(a, b)
+      ? [] : [{ song, title: song.title, part, level: Number(level), songOrder }];
+  })).sort((a, b) => multiplier * (a.level - b.level) || a.songOrder - b.songOrder || titleCompare(a, b)
     || parts.indexOf(a.part) - parts.indexOf(b.part));
 }
+
+const partColorClass = part => ({ BSC: 'p-bsc', ADV: 'p-adv', EXT: 'p-ext', MAS: 'p-mas' })[part.slice(0, 3)] || '';
 
 export function renderSongCatalogDetails(song) {
   const sections = [
@@ -36,7 +39,7 @@ export function renderSongCatalogDetails(song) {
     <div class="song-catalog-detail-groups">${sections.map(([name, parts]) => `
       <div class="song-catalog-detail-group"><strong>${name}</strong>
         <div class="song-catalog-detail-grid">${parts.map(part => `
-          <div><span>${part}</span><b>${song.levels?.[part] == null || song.levels[part] === ''
+          <div><span class="p-badge ${partColorClass(part)}">${part}</span><b>${song.levels?.[part] == null || song.levels[part] === ''
             ? '－' : escapeHtml(Number(song.levels[part]).toFixed(2))}</b></div>`).join('')}</div>
       </div>`).join('')}</div>`;
 }

@@ -59,7 +59,7 @@ import { selectSkillTargetRows, calcTargetTotals } from './skill-targets.js?v=4_
 import { renderPartOptions, renderSongSuggestions } from './score-form-renderer.js?v=4_15_8';
 import { getMyPrivateScoreComments, savePrivateScoreComment } from './score-comments.js?v=4_19_1';
 import { createCommentHistory } from './comment-history.js?v=4_16_6';
-import { buildSongCatalogEntries, renderSongCatalogDetails } from './song-catalog.js?v=4_24_0';
+import { buildSongCatalogEntries, renderSongCatalogDetails } from './song-catalog.js?v=4_24_2';
 import { getMyTags, getMyScoreTagMap, getMyScoreTagIds, replaceMyTags, setMyScoreTags } from './score-tags.js?v=4_19_0';
 import {
   buildOfficialRankingBookmarklet,
@@ -1448,6 +1448,8 @@ async function init() {
     // 初期表示は上の getSession() で処理済み。
     // TOKEN_REFRESHED / USER_UPDATED では画面全体を再読込しない。
     if (event === 'SIGNED_IN' && session) {
+      // 同じユーザーの認証更新では表示中の画面を作り直さない。
+      if (currentUserId === session.user.id && !$('appScreen').classList.contains('hidden')) return;
       await showApp(session);
       await processPendingSkillSync();
       return;
@@ -2395,7 +2397,7 @@ function renderSongCatalog() {
     summary.append(title);
     if (entry.part) {
       const part = document.createElement('span');
-      part.className = 'song-catalog-part';
+      part.className = `song-catalog-part p-badge ${getPartColorClass(entry.part)}`;
       part.textContent = entry.part;
       const level = document.createElement('b');
       level.className = 'song-catalog-level';
@@ -5658,6 +5660,9 @@ $('songCatalogMask').addEventListener('click', event => {
   if (event.target === $('songCatalogMask')) closeSongCatalog();
 });
 $('btnShowSongCatalog').addEventListener('click', showSongCatalog);
+$('songCatalogMode').addEventListener('change', event => {
+  $('songCatalogDirection').value = event.target.value === 'title' ? 'asc' : 'desc';
+});
 $('songCatalogPager').addEventListener('click', event => {
   const button = event.target.closest('[data-user-page]');
   if (!button || button.disabled) return;
