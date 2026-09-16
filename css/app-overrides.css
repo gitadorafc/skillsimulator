@@ -4844,8 +4844,9 @@ body:not(.light-mode) #viewAllManage .own-registered-records-more{
   top:0;
   bottom:0;
   left:0;
-  width:100%;
-  max-width:100%;
+  /* Chromeのスクロールバーを除いた100%ではなく、ウィンドウ全幅の中央を使う。 */
+  width:100vw;
+  max-width:none;
   z-index:2147483000;
   display:flex;
   align-items:center;
