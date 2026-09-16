@@ -2236,6 +2236,7 @@ body.light-mode .skill-ranking-sort-wrap select{
 /* === APP VERSION 4.20.0: 公式スキルランキング（開発者限定） === */
 .official-ranking-dialog{
   width:min(94vw,620px);
+  height:min(92dvh,880px);
   max-height:min(92dvh,880px);
   display:flex;
   flex-direction:column;
@@ -2268,6 +2269,15 @@ body.light-mode .skill-ranking-sort-wrap select{
   overflow-y:auto;
   overscroll-behavior:contain;
 }
+.official-ranking-fixed-controls{
+  position:sticky;
+  top:-12px;
+  z-index:5;
+  margin:-12px -12px 0;
+  padding:12px 12px 8px;
+  border-bottom:1px solid #334155;
+  background:#0f172a;
+}
 .official-ranking-tabs{
   display:grid;
   grid-template-columns:1fr 1fr;
@@ -2285,8 +2295,21 @@ body.light-mode .skill-ranking-sort-wrap select{
 .official-ranking-tab-dm{border-color:#3caa2a;background:#3caa2a;color:#fff;}
 .official-ranking-tab{opacity:.46;}
 .official-ranking-tab.active{opacity:1;box-shadow:0 0 0 2px rgba(255,255,255,.18);}
-.official-ranking-updated{margin:8px 2px;}
+.official-ranking-updated{margin:8px 2px 0;}
 .official-ranking-list{display:flex;flex-direction:column;gap:4px;}
+.official-ranking-refreshing{
+  position:sticky;
+  top:0;
+  z-index:2;
+  padding:7px 10px;
+  border:1px solid #3b82f6;
+  border-radius:7px;
+  background:rgba(30,41,59,.96);
+  color:#93c5fd;
+  font-size:10px;
+  font-weight:900;
+  text-align:center;
+}
 .official-ranking-row{
   display:grid;
   grid-template-columns:36px minmax(0,1fr) 92px;
@@ -2353,13 +2376,16 @@ body.light-mode .official-ranking-head,
 body.light-mode .official-ranking-row,
 body.light-mode .official-ranking-import{background:#f8fafc;color:#111827;border-color:#94a3b8;}
 body.light-mode .official-ranking-body{background:#f1f5f9;}
+body.light-mode .official-ranking-fixed-controls{border-color:#94a3b8;background:#f1f5f9;}
+body.light-mode .official-ranking-refreshing{background:rgba(255,255,255,.96);color:#2563eb;}
 body.light-mode .official-ranking-tab-gf{border-color:#e8336a;background:#e8336a;color:#fff;}
 body.light-mode .official-ranking-tab-dm{border-color:#3caa2a;background:#3caa2a;color:#fff;}
 body.light-mode .official-ranking-file-label input{background:#fff;color:#111827;border-color:#94a3b8;}
 @media(max-width:560px){
-  .official-ranking-dialog{width:96vw;max-height:94dvh;}
+  .official-ranking-dialog{width:96vw;height:94dvh;max-height:94dvh;}
   .official-ranking-head{padding:11px;}
   .official-ranking-body{padding:9px;}
+  .official-ranking-fixed-controls{top:-9px;margin:-9px -9px 0;padding:9px 9px 7px;}
   .official-ranking-row{grid-template-columns:30px minmax(0,1fr) 86px;padding:5px 7px;gap:5px;}
   .official-ranking-import-actions{grid-template-columns:1fr;}
 }

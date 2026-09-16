@@ -2238,14 +2238,21 @@ function closeSkillTargetRanking(returnToMenu = false) {
   if (returnToMenu) openMenu();
 }
 
-const officialRankingState = { instrument: 'GF', rows: [], loading: false };
+const officialRankingState = {
+  instrument: 'GF',
+  versionId: null,
+  rows: [],
+  rowsByInstrument: { GF: null, DM: null },
+  loadingByInstrument: { GF: false, DM: false }
+};
 
 function renderOfficialSkillRanking() {
   const list = $('officialSkillRankingList');
   document.querySelectorAll('[data-official-ranking-instrument]').forEach(button => {
     button.classList.toggle('active', button.dataset.officialRankingInstrument === officialRankingState.instrument);
   });
-  if (officialRankingState.loading) {
+  const loading = officialRankingState.loadingByInstrument[officialRankingState.instrument];
+  if (loading && !officialRankingState.rows.length) {
     list.innerHTML = '<div class="official-ranking-empty">読み込み中...</div>';
     return;
   }
@@ -2268,33 +2275,53 @@ function renderOfficialSkillRanking() {
     item.append(rank, name, skill);
     return item;
   }));
+  if (loading) {
+    const loading = document.createElement('div');
+    loading.className = 'official-ranking-refreshing';
+    loading.textContent = '更新中...';
+    list.prepend(loading);
+  }
 }
 
 async function loadOfficialSkillRanking() {
-  if (!adminEnabled || officialRankingState.loading) return;
-  officialRankingState.loading = true;
-  officialRankingState.rows = [];
-  $('officialSkillRankingUpdated').textContent = '';
+  const requestedInstrument = officialRankingState.instrument;
+  const requestedVersionId = activeVersionId;
+  if (!adminEnabled || officialRankingState.loadingByInstrument[requestedInstrument]) return;
+  officialRankingState.loadingByInstrument[requestedInstrument] = true;
+  officialRankingState.rows = officialRankingState.rowsByInstrument[requestedInstrument] || [];
+  if (!officialRankingState.rows.length) $('officialSkillRankingUpdated').textContent = '';
   renderOfficialSkillRanking();
   try {
-    officialRankingState.rows = await getOfficialSkillRanking(activeVersionId, officialRankingState.instrument);
+    const rows = await getOfficialSkillRanking(requestedVersionId, requestedInstrument);
+    if (activeVersionId !== requestedVersionId) return;
+    officialRankingState.rowsByInstrument[requestedInstrument] = rows;
+    if (officialRankingState.instrument !== requestedInstrument) return;
+    officialRankingState.rows = rows;
     const capturedAt = officialRankingState.rows[0]?.captured_at;
     $('officialSkillRankingUpdated').textContent = capturedAt
-      ? `最終取得：${new Date(capturedAt).toLocaleString('ja-JP')}`
-      : '最終取得：未登録';
+      ? `最終更新：${new Date(capturedAt).toLocaleString('ja-JP')}`
+      : '最終更新：未登録';
   } catch (error) {
     console.error('official skill ranking load failed:', error);
-    $('officialSkillRankingUpdated').textContent = `取得エラー：${error?.message || '不明なエラー'}`;
+    if (officialRankingState.instrument === requestedInstrument && activeVersionId === requestedVersionId) {
+      $('officialSkillRankingUpdated').textContent = `取得エラー：${error?.message || '不明なエラー'}`;
+    }
   } finally {
-    officialRankingState.loading = false;
-    renderOfficialSkillRanking();
+    officialRankingState.loadingByInstrument[requestedInstrument] = false;
+    if (officialRankingState.instrument === requestedInstrument) renderOfficialSkillRanking();
   }
 }
 
 async function openOfficialSkillRanking() {
   if (!adminEnabled) return;
   closeMenu();
+  if (officialRankingState.versionId !== activeVersionId) {
+    officialRankingState.versionId = activeVersionId;
+    officialRankingState.rowsByInstrument = { GF: null, DM: null };
+    officialRankingState.loadingByInstrument = { GF: false, DM: false };
+  }
   officialRankingState.instrument = activeInstrument === 'DM' ? 'DM' : 'GF';
+  officialRankingState.rows = officialRankingState.rowsByInstrument[officialRankingState.instrument] || [];
   $('officialSkillRankingContext').textContent = activeVersion?.name || '現在のVERSION';
   $('officialSkillRankingMask').style.display = 'flex';
   await loadOfficialSkillRanking();
@@ -5487,6 +5514,8 @@ $('officialSkillRankingMask').addEventListener('click', event => {
 document.querySelectorAll('[data-official-ranking-instrument]').forEach(button => {
   button.addEventListener('click', async () => {
     officialRankingState.instrument = button.dataset.officialRankingInstrument;
+    officialRankingState.rows = officialRankingState.rowsByInstrument[officialRankingState.instrument] || [];
+    renderOfficialSkillRanking();
     await loadOfficialSkillRanking();
   });
 });
