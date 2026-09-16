@@ -1,4 +1,4 @@
-// 曲マスターを表示するための整形処理。管理者向け画面からのみ呼び出す。
+// 曲マスターを表示するための整形処理。
 export const CATALOG_PARTS = [
   'BSC-D', 'ADV-D', 'EXT-D', 'MAS-D',
   'BSC-G', 'ADV-G', 'EXT-G', 'MAS-G',
@@ -8,6 +8,34 @@ export const CATALOG_PARTS = [
 const escapeHtml = value => String(value ?? '').replace(/[&<>"']/g, c => ({
   '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
 }[c]));
+
+const INITIAL_GROUPS = ['記号・数字', ...'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+  'あ行', 'か行', 'さ行', 'た行', 'な行', 'は行', 'ま行', 'や行', 'ら行', 'わ行'];
+
+// 公開可能なsongsの譜面行を曲単位にまとめ、管理者画面と同じ公式順に並べる。
+export function groupSongCatalogRows(rows) {
+  const byTitle = new Map();
+  for (const row of rows) {
+    if (!byTitle.has(row.title)) byTitle.set(row.title, {
+      title: row.title, initial_group: '', official_order: null, levels: {}
+    });
+    const song = byTitle.get(row.title);
+    if (row.initial_group && row.initial_group > song.initial_group) song.initial_group = row.initial_group;
+    if (row.official_order != null && (song.official_order == null || Number(row.official_order) < song.official_order)) {
+      song.official_order = Number(row.official_order);
+    }
+    song.levels[row.part] = row.level;
+  }
+  return [...byTitle.values()].sort((a, b) => {
+    const rank = group => {
+      const index = INITIAL_GROUPS.indexOf(group);
+      return index < 0 ? 999 : index;
+    };
+    return rank(a.initial_group) - rank(b.initial_group)
+      || (a.official_order ?? Infinity) - (b.official_order ?? Infinity)
+      || a.title.localeCompare(b.title, 'ja');
+  });
+}
 
 export function buildSongCatalogEntries(songs, mode, direction) {
   const titleCompare = (a, b) => a.title.localeCompare(b.title, 'ja', { numeric: true });
@@ -37,7 +65,7 @@ export function renderSongCatalogDetails(song) {
   ];
   return `<div class="song-catalog-details-title">${escapeHtml(song.title)}</div>
     <div class="song-catalog-detail-groups">${sections.map(([name, parts]) => `
-      <div class="song-catalog-detail-group"><strong>${name}</strong>
+      <div class="song-catalog-detail-group ${name === 'DM' ? 'song-catalog-dm' : 'song-catalog-gf'}"><strong>${name}</strong>
         <div class="song-catalog-detail-grid">${parts.map(part => `
           <div><span class="p-badge ${partColorClass(part)}">${part}</span><b>${song.levels?.[part] == null || song.levels[part] === ''
             ? '－' : escapeHtml(Number(song.levels[part]).toFixed(2))}</b></div>`).join('')}</div>

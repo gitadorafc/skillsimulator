@@ -59,7 +59,7 @@ import { selectSkillTargetRows, calcTargetTotals } from './skill-targets.js?v=4_
 import { renderPartOptions, renderSongSuggestions } from './score-form-renderer.js?v=4_15_8';
 import { getMyPrivateScoreComments, savePrivateScoreComment } from './score-comments.js?v=4_19_1';
 import { createCommentHistory } from './comment-history.js?v=4_16_6';
-import { buildSongCatalogEntries, renderSongCatalogDetails } from './song-catalog.js?v=4_24_2';
+import { buildSongCatalogEntries, groupSongCatalogRows, renderSongCatalogDetails } from './song-catalog.js?v=4_24_3';
 import { getMyTags, getMyScoreTagMap, getMyScoreTagIds, replaceMyTags, setMyScoreTags } from './score-tags.js?v=4_19_0';
 import {
   buildOfficialRankingBookmarklet,
@@ -2373,6 +2373,27 @@ function closeOfficialSkillRanking(returnToMenu = false) {
 const SONG_CATALOG_PAGE_SIZE = 100;
 const songCatalogState = { rows: [], page: 0, loading: false, requestId: 0 };
 
+async function getPublicSongCatalog(versionId) {
+  const pageSize = 1000;
+  const select = 'title,part,level,initial_group,official_order';
+  const fetchPage = from => supabase.from('songs').select(select, { count: from === 0 ? 'exact' : undefined })
+    .eq('version_id', versionId).order('id', { ascending: true }).range(from, from + pageSize - 1);
+  const first = await fetchPage(0);
+  if (first.error) throw first.error;
+  const rows = [...(first.data || [])];
+  const total = first.count ?? rows.length;
+  // 同時要求を4ページに抑えつつ、1,000譜面を超えるバージョンも最後まで取得する。
+  for (let from = pageSize; from < total; from += pageSize * 4) {
+    const offsets = Array.from({ length: Math.min(4, Math.ceil((total - from) / pageSize)) }, (_, index) => from + index * pageSize);
+    const pages = await Promise.all(offsets.map(fetchPage));
+    for (const page of pages) {
+      if (page.error) throw page.error;
+      rows.push(...(page.data || []));
+    }
+  }
+  return groupSongCatalogRows(rows);
+}
+
 function scrollSongCatalogToTop() {
   $('songCatalogBody').scrollTo({ top: 0, left: 0, behavior: 'instant' });
 }
@@ -2416,7 +2437,7 @@ function renderSongCatalog() {
 }
 
 async function showSongCatalog() {
-  if (!adminEnabled || songCatalogState.loading) return;
+  if (songCatalogState.loading) return;
   const versionId = activeVersionId;
   const requestId = ++songCatalogState.requestId;
   const button = $('btnShowSongCatalog');
@@ -2427,13 +2448,8 @@ async function showSongCatalog() {
   renderSongCatalog();
   $('songCatalogStatus').textContent = '曲データを取得中...';
   try {
-    // RPCは曲単位で返す。全ページ取得してから並び替えるため、後半の曲も欠落しない。
-    const first = await getAdminSongMasterPage('', 0, 200, versionId);
-    const pageCount = Math.ceil(first.total / 200);
-    const remaining = await Promise.all(Array.from({ length: Math.max(0, pageCount - 1) }, (_, index) =>
-      getAdminSongMasterPage('', index + 1, 200, versionId)));
+    const songs = await getPublicSongCatalog(versionId);
     if (requestId !== songCatalogState.requestId || versionId !== activeVersionId) return;
-    const songs = [first, ...remaining].flatMap(page => page.rows);
     songCatalogState.rows = buildSongCatalogEntries(songs, $('songCatalogMode').value, $('songCatalogDirection').value);
     songCatalogState.page = 0;
     $('songCatalogStatus').textContent = songCatalogState.rows.length ? '' : '該当する曲データがありません。';
@@ -2454,7 +2470,6 @@ async function showSongCatalog() {
 }
 
 function openSongCatalog() {
-  if (!adminEnabled) return;
   closeMenu();
   ++songCatalogState.requestId;
   songCatalogState.loading = false;
@@ -3947,7 +3962,7 @@ async function checkAdminAccess() {
 
   adminAccessChecked = true;
   $('btnAdmin').classList.toggle('hidden', !adminEnabled);
-  $('songCatalogMenuGroup').classList.toggle('hidden', !adminEnabled);
+  $('songCatalogMenuGroup').classList.remove('hidden');
   $('btnMenuTags')?.classList.remove('hidden');
   $('recordTagFilterField')?.classList.remove('hidden');
   $('scoreTagGroup')?.classList.remove('hidden');
