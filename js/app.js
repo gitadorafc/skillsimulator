@@ -62,10 +62,9 @@ import { createCommentHistory } from './comment-history.js?v=4_16_6';
 import { getMyTags, getMyScoreTagMap, getMyScoreTagIds, replaceMyTags, setMyScoreTags } from './score-tags.js?v=4_19_0';
 import {
   buildOfficialRankingBookmarklet,
-  getOfficialSkillRanking,
-  replaceOfficialSkillRankings,
-  validateOfficialRankingFile
-} from './official-skill-ranking.js?v=4_20_0';
+  createOfficialRankingImportToken,
+  getOfficialSkillRanking
+} from './official-skill-ranking.js?v=4_21_0';
 
 let adminEnabled = false;
 import { supabase } from './supabase.js?v=21_57';
@@ -2260,19 +2259,33 @@ function renderOfficialSkillRanking() {
     const rank = document.createElement('span');
     rank.className = 'official-ranking-rank';
     rank.textContent = String(row.rank);
+    const movement = document.createElement('span');
+    movement.className = 'official-ranking-movement';
+    const previousRank = row.previous_rank == null ? null : Number(row.previous_rank);
+    const change = previousRank == null ? null : previousRank - Number(row.rank);
+    if (previousRank == null) {
+      movement.classList.add('new');
+      movement.textContent = 'NEW';
+    } else if (change > 0) {
+      movement.classList.add('up');
+      movement.textContent = `↑${change}`;
+    } else if (change < 0) {
+      movement.classList.add('down');
+      movement.textContent = `↓${Math.abs(change)}`;
+    }
     const name = document.createElement('strong');
     name.className = 'official-ranking-name';
     name.textContent = row.player_name;
     const skill = document.createElement('span');
-    skill.className = 'official-ranking-skill';
+    skill.className = `official-ranking-skill score-rank-${getTotalSkillRank(row.skill)}`;
     skill.textContent = Number(row.skill).toFixed(2);
-    item.append(rank, name, skill);
+    item.append(rank, movement, name, skill);
     return item;
   }));
 }
 
 async function loadOfficialSkillRanking() {
-  if (!primaryAdminEnabled || officialRankingState.loading) return;
+  if (!adminEnabled || officialRankingState.loading) return;
   officialRankingState.loading = true;
   officialRankingState.rows = [];
   $('officialSkillRankingUpdated').textContent = '';
@@ -2293,7 +2306,7 @@ async function loadOfficialSkillRanking() {
 }
 
 async function openOfficialSkillRanking() {
-  if (!primaryAdminEnabled) return;
+  if (!adminEnabled) return;
   closeMenu();
   officialRankingState.instrument = activeInstrument === 'DM' ? 'DM' : 'GF';
   $('officialSkillRankingContext').textContent = activeVersion?.name || '現在のVERSION';
@@ -2307,36 +2320,22 @@ function closeOfficialSkillRanking(returnToMenu = false) {
 }
 
 async function copyOfficialRankingScript() {
-  await navigator.clipboard.writeText(buildOfficialRankingBookmarklet());
-  $('officialRankingImportStatus').textContent = '取得スクリプトをコピーしました。公式ページのアドレス欄へ貼り付けて実行してください。';
-}
-
-async function importOfficialRankingFile() {
-  if (!primaryAdminEnabled) return;
-  const file = $('officialRankingFile').files?.[0];
-  if (!file) {
-    await showSiteDialog('取得したJSONファイルを選択してください。', 'ファイル未選択');
-    return;
-  }
-  const button = $('btnImportOfficialRanking');
+  if (!adminEnabled) return;
+  const button = $('btnCopyOfficialRankingScript');
   const status = $('officialRankingImportStatus');
   try {
     button.disabled = true;
-    button.textContent = '取り込み中...';
+    button.textContent = '発行中...';
     status.textContent = '';
-    const payload = validateOfficialRankingFile(JSON.parse(await file.text()));
-    if (payload.versionSlug && payload.versionSlug !== activeVersion?.eamusement_slug) {
-      throw new Error(`選択中のVERSIONとJSONのVERSIONが一致しません（${payload.versionSlug}）。`);
-    }
-    await replaceOfficialSkillRankings(activeVersionId, payload.rankings, payload.capturedAt);
-    status.textContent = `GF ${payload.rankings.GF.length}名・DM ${payload.rankings.DM.length}名を取り込みました。`;
-    await loadOfficialSkillRanking();
+    const token = await createOfficialRankingImportToken(activeVersionId);
+    await navigator.clipboard.writeText(buildOfficialRankingBookmarklet(token));
+    status.textContent = '更新スクリプトをコピーしました。30分以内に公式ページのアドレス欄へ貼り付けて実行してください。';
   } catch (error) {
-    console.error('official ranking import failed:', error);
-    status.textContent = `取り込みに失敗しました：${error?.message || '不明なエラー'}`;
+    console.error('official ranking script issue failed:', error);
+    status.textContent = `発行に失敗しました：${error?.message || '不明なエラー'}`;
   } finally {
     button.disabled = false;
-    button.textContent = 'GF・DMを取り込む';
+    button.textContent = '更新スクリプトをコピー';
   }
 }
 
@@ -3826,7 +3825,7 @@ async function checkAdminAccess() {
     console.error('user switch session save failed:', e);
   }
   $('adminBulkDeleteArea')?.classList.toggle('hidden', !primaryAdminEnabled);
-  $('btnMenuOfficialSkillRanking')?.classList.toggle('hidden', !primaryAdminEnabled);
+  $('btnMenuOfficialSkillRanking')?.classList.toggle('hidden', !adminEnabled);
 
   try {
     await loadTagData();
@@ -5508,7 +5507,6 @@ document.querySelectorAll('[data-official-ranking-instrument]').forEach(button =
 $('btnCopyOfficialRankingScript').addEventListener('click', () => copyOfficialRankingScript().catch(async error => {
   await showSiteDialog(`コピーに失敗しました：${error?.message || '不明なエラー'}`, 'エラー');
 }));
-$('btnImportOfficialRanking').addEventListener('click', importOfficialRankingFile);
 $('btnMenuRivals').addEventListener('click', openRivalManage);
 $('btnMenuHowTo').addEventListener('click', openHowTo);
 $('btnCloseHowTo').addEventListener('click', () => closeHowTo(true));
@@ -5532,6 +5530,9 @@ document.addEventListener('visibilitychange', () => {
 window.addEventListener('focus', () => {
   if (!$('appScreen').classList.contains('hidden')) {
     loadScores({ silent: true }).catch(console.error);
+  }
+  if (isOverlayVisible($('officialSkillRankingMask'))) {
+    loadOfficialSkillRanking().catch(console.error);
   }
 });
 

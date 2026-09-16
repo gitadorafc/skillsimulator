@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>GITADORA Skill Simulator</title>
-<meta name="app-version" content="4.20.0">
+<meta name="app-version" content="4.21.0">
 <link rel="icon" type="image/svg+xml" href="./favicon.svg?v=21_7">
 <link rel="icon" type="image/png" sizes="48x48" href="./favicon-48x48.png?v=21_7">
 <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32x32.png?v=21_7">
@@ -39,7 +39,7 @@
 </script>
 
 <link rel="stylesheet" href="./css/app.css?v=4_17_0">
-<link rel="stylesheet" href="./css/app-overrides.css?v=4_20_0">
+<link rel="stylesheet" href="./css/app-overrides.css?v=4_21_0">
   <link rel="stylesheet" href="./css/layout-canonical.css?v=4_17_0">
   <link rel="preconnect" href="https://challenges.cloudflare.com">
   <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" defer></script>
@@ -388,7 +388,7 @@
     <div class="app-menu-version">
       <label>VERSION</label>
       <select id="versionSelect" class="version-select" aria-label="GITADORAバージョン"></select>
-      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 4.20.0</div>
+      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 4.21.0</div>
     </div>
   </div>
 </div>
@@ -533,23 +533,19 @@
     </div>
     <div class="official-ranking-body">
       <div class="official-ranking-tabs" role="tablist" aria-label="機種">
-        <button type="button" class="official-ranking-tab active" data-official-ranking-instrument="GF">GF</button>
-        <button type="button" class="official-ranking-tab" data-official-ranking-instrument="DM">DM</button>
+        <button type="button" class="official-ranking-tab official-ranking-tab-gf active" data-official-ranking-instrument="GF">GF</button>
+        <button type="button" class="official-ranking-tab official-ranking-tab-dm" data-official-ranking-instrument="DM">DM</button>
       </div>
       <div id="officialSkillRankingUpdated" class="official-ranking-updated"></div>
       <div id="officialSkillRankingList" class="official-ranking-list"></div>
 
       <details class="official-ranking-import">
         <summary>ランキングを更新する（開発者用）</summary>
-        <p>e-amusementへログイン後、公式ページで取得スクリプトを実行し、ダウンロードされたJSONを取り込みます。ログイン情報は保存しません。</p>
+        <p>取得スクリプトをコピーし、e-amusementへログイン後に公式ページで実行します。取得結果はサイトへ直接反映され、ログイン情報は保存しません。スクリプトは発行後30分間・1回のみ有効です。</p>
         <div class="official-ranking-import-actions">
           <a class="official-ranking-link" href="https://p.eagate.573.jp/game/gfdm/gitadora_galaxywave_delta/p/setting/rival_search.html?gtype=gf&amp;anum=1" target="_blank" rel="noopener noreferrer">公式ページを開く</a>
-          <button id="btnCopyOfficialRankingScript" type="button">取得スクリプトをコピー</button>
+          <button id="btnCopyOfficialRankingScript" type="button">更新スクリプトをコピー</button>
         </div>
-        <label class="official-ranking-file-label">取得したJSON
-          <input id="officialRankingFile" type="file" accept="application/json,.json">
-        </label>
-        <button id="btnImportOfficialRanking" type="button" class="btn-submit">GF・DMを取り込む</button>
         <div id="officialRankingImportStatus" class="official-ranking-import-status" aria-live="polite"></div>
       </details>
     </div>
@@ -902,7 +898,7 @@
 <div id="adminModal" class="admin-modal">
   <div class="admin-header">
     <div class="admin-title-row">
-      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 4.20.0</div></div>
+      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 4.21.0</div></div>
       <button id="btnCloseAdmin" class="admin-close">閉じる</button>
     </div>
     <div class="admin-tabs">
@@ -1035,7 +1031,7 @@
   </div>
 </div>
 
-<script type="module" src="./js/app.js?v=4_20_0"></script>
+<script type="module" src="./js/app.js?v=4_21_0"></script>
 <script src="./js/version-check.js?v=4_10_0" defer></script>
 </body>
 </html>

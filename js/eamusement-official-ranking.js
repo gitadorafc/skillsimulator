@@ -8,6 +8,10 @@
   const MAX_ROWS = 100;
   const MAX_REQUESTS = 160;
   const WAIT_MS = 350;
+  const scriptSettings = new URLSearchParams((document.currentScript?.src.split('#')[1] || ''));
+  const importToken = scriptSettings.get('token');
+  const supabaseEndpoint = scriptSettings.get('endpoint');
+  const supabaseKey = scriptSettings.get('key');
 
   if (location.origin !== OFFICIAL_ORIGIN || !location.pathname.includes('/game/gfdm/')) {
     alert('e-amusementのGITADORAページを開き、ログインしてから実行してください。');
@@ -126,16 +130,33 @@
       .slice(0, MAX_ROWS);
   }
 
-  function download(data) {
-    const stamp = new Date().toISOString().replace(/[-:]/g, '').replace(/T/, '_').slice(0, 13);
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = `gitadora_official_skill_ranking_${stamp}.json`;
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-    setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+  async function sendToSimulator(data) {
+    if (!importToken || !supabaseEndpoint || !supabaseKey) {
+      throw new Error('取込トークンがありません。サイトから新しい取得スクリプトをコピーしてください。');
+    }
+    const response = await fetch(`${supabaseEndpoint}/rest/v1/rpc/consume_official_ranking_import`, {
+      method: 'POST',
+      headers: {
+        apikey: supabaseKey,
+        Authorization: `Bearer ${supabaseKey}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        p_token: importToken,
+        p_rankings: Object.fromEntries(['GF', 'DM'].map(instrument => [
+          instrument,
+          data.rankings[instrument].map(row => ({
+            player_name: row.playerName,
+            skill: row.skill
+          }))
+        ])),
+        p_captured_at: data.capturedAt
+      })
+    });
+    if (!response.ok) {
+      const detail = await response.json().catch(() => ({}));
+      throw new Error(detail.message || `サイトへの取込に失敗しました (${response.status})`);
+    }
   }
 
   (async () => {
@@ -147,8 +168,8 @@
         if (!rankings[instrument].length) throw new Error(`${instrument}の検索結果を取得できませんでした。`);
       }
       const data = { schemaVersion: 1, versionSlug: VERSION_SLUG, capturedAt: new Date().toISOString(), rankings };
-      download(data);
-      alert(`取得完了：GF ${rankings.GF.length}名 / DM ${rankings.DM.length}名\nダウンロードしたJSONをスキルシミュレーターで取り込んでください。`);
+      await sendToSimulator(data);
+      alert(`更新完了：GF ${rankings.GF.length}名 / DM ${rankings.DM.length}名\nスキルシミュレーターへ直接反映しました。`);
     } catch (error) {
       console.error(error);
       alert(`公式ランキングの取得に失敗しました。\n${error?.message || error}`);

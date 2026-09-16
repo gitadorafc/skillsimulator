@@ -673,6 +673,7 @@ body.light-mode #btnCloseSupport.menu-back-btn{
 #btnCloseFeedback.menu-back-btn,
 #btnCloseSupport.menu-back-btn,
 #btnCloseSkillRanking.menu-back-btn,
+#btnCloseOfficialSkillRanking.menu-back-btn,
 #btnCloseSkillShare.menu-back-btn{
   display:inline-flex !important;
   align-items:center !important;
@@ -709,6 +710,7 @@ body.light-mode #btnCloseHowTo.menu-back-btn,
 body.light-mode #btnCloseFeedback.menu-back-btn,
 body.light-mode #btnCloseSupport.menu-back-btn,
 body.light-mode #btnCloseSkillRanking.menu-back-btn,
+body.light-mode #btnCloseOfficialSkillRanking.menu-back-btn,
 body.light-mode #btnCloseSkillShare.menu-back-btn{
   border:1px solid #94a3b8 !important;
   background:#f8fafc !important;
@@ -2279,12 +2281,15 @@ body.light-mode .skill-ranking-sort-wrap select{
   color:#94a3b8;
   font-weight:900;
 }
-.official-ranking-tab.active{border-color:#3b82f6;background:#3b82f6;color:#fff;}
+.official-ranking-tab-gf{border-color:#e8336a;background:#e8336a;color:#fff;}
+.official-ranking-tab-dm{border-color:#3caa2a;background:#3caa2a;color:#fff;}
+.official-ranking-tab{opacity:.46;}
+.official-ranking-tab.active{opacity:1;box-shadow:0 0 0 2px rgba(255,255,255,.18);}
 .official-ranking-updated{margin:8px 2px;}
 .official-ranking-list{display:flex;flex-direction:column;gap:4px;}
 .official-ranking-row{
   display:grid;
-  grid-template-columns:36px minmax(0,1fr) 82px;
+  grid-template-columns:30px 34px minmax(0,1fr) 92px;
   align-items:center;
   gap:8px;
   min-height:38px;
@@ -2294,8 +2299,21 @@ body.light-mode .skill-ranking-sort-wrap select{
   background:#111827;
 }
 .official-ranking-rank{color:#60a5fa;font-size:12px;font-weight:900;text-align:center;}
+.official-ranking-movement{font-size:10px;font-weight:900;text-align:center;white-space:nowrap;}
+.official-ranking-movement:empty{visibility:hidden;}
+.official-ranking-movement.up{color:#4ade80;}
+.official-ranking-movement.down{color:#fb7185;}
+.official-ranking-movement.new{color:#facc15;font-size:8px;}
 .official-ranking-name{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13px;}
-.official-ranking-skill{font-size:15px;font-weight:900;text-align:right;}
+.official-ranking-skill{
+  font-family:"SFMono-Regular","Roboto Mono","Noto Sans Mono",Consolas,monospace !important;
+  font-variant-numeric:tabular-nums lining-nums !important;
+  font-size:15px;
+  font-weight:900;
+  letter-spacing:-.35px;
+  text-align:right;
+  white-space:nowrap;
+}
 .official-ranking-empty{
   padding:24px 10px;
   border:1px dashed #475569;
@@ -2340,14 +2358,14 @@ body.light-mode .official-ranking-head,
 body.light-mode .official-ranking-row,
 body.light-mode .official-ranking-import{background:#f8fafc;color:#111827;border-color:#94a3b8;}
 body.light-mode .official-ranking-body{background:#f1f5f9;}
-body.light-mode .official-ranking-tab{background:#e2e8f0;color:#475569;border-color:#94a3b8;}
-body.light-mode .official-ranking-tab.active{background:#3b82f6;color:#fff;border-color:#3b82f6;}
+body.light-mode .official-ranking-tab-gf{border-color:#e8336a;background:#e8336a;color:#fff;}
+body.light-mode .official-ranking-tab-dm{border-color:#3caa2a;background:#3caa2a;color:#fff;}
 body.light-mode .official-ranking-file-label input{background:#fff;color:#111827;border-color:#94a3b8;}
 @media(max-width:560px){
   .official-ranking-dialog{width:96vw;max-height:94dvh;}
   .official-ranking-head{padding:11px;}
   .official-ranking-body{padding:9px;}
-  .official-ranking-row{grid-template-columns:30px minmax(0,1fr) 72px;padding:5px 7px;}
+  .official-ranking-row{grid-template-columns:26px 31px minmax(0,1fr) 86px;padding:5px 7px;gap:5px;}
   .official-ranking-import-actions{grid-template-columns:1fr;}
 }
 
