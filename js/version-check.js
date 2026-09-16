@@ -48,8 +48,10 @@
 
   function hasPendingSync() {
     if (location.hash.startsWith('#skill-sync=')) return true;
+    if (location.hash.startsWith('#official-ranking-token=')) return true;
     try {
-      return Boolean(sessionStorage.getItem('gitadora_pending_skill_sync'));
+      return Boolean(sessionStorage.getItem('gitadora_pending_skill_sync')
+        || sessionStorage.getItem('gitadora_pending_ranking_token'));
     } catch (_) {
       return false;
     }

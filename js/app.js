@@ -65,7 +65,7 @@ import {
   buildOfficialRankingBookmarklet,
   createOfficialRankingImportToken,
   getOfficialSkillRanking
-} from './official-skill-ranking.js?v=4_23_0';
+} from './official-skill-ranking.js?v=4_25_0';
 
 let adminEnabled = false;
 import { supabase } from './supabase.js?v=21_57';
@@ -133,6 +133,47 @@ function captureSkillSyncHash() {
   } finally {
     history.replaceState(null, '', location.pathname + location.search);
   }
+}
+
+function captureOfficialRankingTokenRequest() {
+  if (!location.hash.startsWith('#official-ranking-token=')) return;
+  try {
+    const payload = JSON.parse(decodeURIComponent(location.hash.slice('#official-ranking-token='.length)));
+    if (/^gitadora_[a-z0-9_]+$/.test(payload.slug || '')
+      && /^[0-9a-f-]{36}$/i.test(payload.nonce || '')) {
+      sessionStorage.setItem('gitadora_pending_ranking_token', JSON.stringify(payload));
+    }
+  } catch (error) {
+    console.error('ranking token request parse failed:', error);
+  } finally {
+    history.replaceState(null, '', location.pathname + location.search);
+  }
+}
+
+async function processOfficialRankingTokenRequest() {
+  const raw = sessionStorage.getItem('gitadora_pending_ranking_token');
+  if (!raw) return;
+  sessionStorage.removeItem('gitadora_pending_ranking_token');
+  const { slug, nonce } = JSON.parse(raw);
+  let errorMessage = '';
+  let token = '';
+  try {
+    if (!window.opener) throw new Error('公式ページとの接続が切れました。公式ページから再実行してください。');
+    if (!adminEnabled) throw new Error('ランキング更新は管理者アカウントから実行してください。');
+    const version = gameVersions.find(item => item.eamusement_slug === slug);
+    if (!version) throw new Error('このバージョンはSkill Simulatorに登録されていません。');
+    token = await createOfficialRankingImportToken(version.id);
+  } catch (error) {
+    errorMessage = error?.message || '取り込み権限を確認できませんでした。';
+  }
+  if (window.opener) {
+    window.opener.postMessage({ type: 'GITADORA_RANKING_TOKEN', nonce, token, error: errorMessage }, EAMUSEMENT_ORIGIN);
+    if (!errorMessage) {
+      setTimeout(() => window.close(), 800);
+      return;
+    }
+  }
+  await showSiteDialog(errorMessage || '公式ページへの接続を確認できませんでした。', 'ランキング更新');
 }
 
 async function recordMyActivity(eventType = 'OPEN') {
@@ -1429,12 +1470,14 @@ async function switchInstrument(instrument) {
 
 async function init() {
   setAppLoading('ログイン情報を確認中...');
+  captureOfficialRankingTokenRequest();
   captureSkillSyncHash();
   applyInstrumentUI();
   await initAuthCaptcha();
   const session = await getSession();
   if (session) {
     await showApp(session);
+    await processOfficialRankingTokenRequest();
     await processPendingSkillSync();
   } else {
     applyLightMode(false);
@@ -1451,6 +1494,7 @@ async function init() {
       // 同じユーザーの認証更新では表示中の画面を作り直さない。
       if (currentUserId === session.user.id && !$('appScreen').classList.contains('hidden')) return;
       await showApp(session);
+      await processOfficialRankingTokenRequest();
       await processPendingSkillSync();
       return;
     }
@@ -2360,6 +2404,7 @@ async function openOfficialSkillRanking() {
   officialRankingState.rows = officialRankingState.rowsByInstrument[officialRankingState.instrument] || [];
   showOfficialRankingUpdated(officialRankingState.rows);
   $('officialSkillRankingContext').textContent = activeVersion?.name || '現在のVERSION';
+  $('officialRankingSourceLink').href = `https://p.eagate.573.jp/game/gfdm/${getEamusementSlug()}/p/setting/rival_search.html?gtype=gf&anum=1`;
   $('officialSkillRankingMask').style.display = 'flex';
   document.querySelector('.official-ranking-body')?.scrollTo({ top: 0, left: 0, behavior: 'auto' });
   await loadOfficialSkillRanking();
@@ -2521,17 +2566,16 @@ async function copyOfficialRankingScript() {
   const status = $('officialRankingImportStatus');
   try {
     button.disabled = true;
-    button.textContent = '発行中...';
+    button.textContent = 'コピー中...';
     status.textContent = '';
-    const token = await createOfficialRankingImportToken(activeVersionId);
-    await navigator.clipboard.writeText(buildOfficialRankingBookmarklet(token));
-    status.textContent = '更新スクリプトをコピーしました。30分以内に公式ページのアドレス欄へ貼り付けて実行してください。';
+    await navigator.clipboard.writeText(buildOfficialRankingBookmarklet());
+    status.textContent = '固定ブックマークレットをコピーしました。公式ページで実行すると管理者確認用の画面が開きます。次回も同じブックマークを使えます。';
   } catch (error) {
     console.error('official ranking script issue failed:', error);
-    status.textContent = `発行に失敗しました：${error?.message || '不明なエラー'}`;
+    status.textContent = `コピーに失敗しました：${error?.message || '不明なエラー'}`;
   } finally {
     button.disabled = false;
-    button.textContent = '更新スクリプトをコピー';
+    button.textContent = '固定ブックマークレットをコピー';
   }
 }
 

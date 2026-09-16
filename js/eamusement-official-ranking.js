@@ -2,18 +2,18 @@
   'use strict';
 
   const OFFICIAL_ORIGIN = 'https://p.eagate.573.jp';
-  const VERSION_SLUG = 'gitadora_galaxywave_delta';
+  const VERSION_SLUG = location.pathname.match(/\/game\/gfdm\/([^/]+)\//)?.[1] || '';
   const START_SKILL = 9700;
   const BAND_SIZE = 100;
   const MAX_ROWS = 1000;
   const MAX_REQUESTS = 320;
   const WAIT_MS = 350;
   const scriptSettings = new URLSearchParams((document.currentScript?.src.split('#')[1] || ''));
-  const importToken = scriptSettings.get('token');
+  let importToken = '';
   const supabaseEndpoint = scriptSettings.get('endpoint');
   const supabaseKey = scriptSettings.get('key');
 
-  if (location.origin !== OFFICIAL_ORIGIN || !location.pathname.includes('/game/gfdm/')) {
+  if (location.origin !== OFFICIAL_ORIGIN || !/^gitadora_[a-z0-9_]+$/.test(VERSION_SLUG)) {
     alert('e-amusementのGITADORAページを開き、ログインしてから実行してください。');
     return;
   }
@@ -212,6 +212,12 @@
 
   (async () => {
     try {
+      if (!window.__gitadoraOfficialRankingTokenPromise) {
+        throw new Error('以前の更新スクリプトは使用できません。固定ブックマークレットをコピーし直してください。');
+      }
+      updateProgress({ status: '管理者確認中', detail: '開いたSkill Simulatorの画面でログイン状態を確認しています。', percent: 0 });
+      importToken = await window.__gitadoraOfficialRankingTokenPromise;
+      if (!/^[0-9a-f-]{36}$/i.test(importToken || '')) throw new Error('取込トークンを取得できませんでした。');
       const rankings = {};
       for (const instrument of ['GF', 'DM']) {
         rankings[instrument] = await collect(instrument);

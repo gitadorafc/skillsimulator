@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>GITADORA Skill Simulator</title>
-<meta name="app-version" content="4.24.4">
+<meta name="app-version" content="4.25.0">
 <link rel="icon" type="image/svg+xml" href="./favicon.svg?v=21_7">
 <link rel="icon" type="image/png" sizes="48x48" href="./favicon-48x48.png?v=21_7">
 <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32x32.png?v=21_7">
@@ -412,7 +412,7 @@
     <div class="app-menu-version">
       <label>VERSION</label>
       <select id="versionSelect" class="version-select" aria-label="GITADORAバージョン"></select>
-      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 4.24.4</div>
+      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 4.25.0</div>
     </div>
   </div>
 </div>
@@ -595,10 +595,10 @@
 
       <details id="officialRankingAdminControls" class="official-ranking-import hidden">
         <summary>ランキングを更新する（管理者用）</summary>
-        <p>取得スクリプトをコピーし、e-amusementへログイン後に公式ページで実行します。取得結果はサイトへ直接反映され、ログイン情報は保存しません。スクリプトは発行後30分間・1回のみ有効です。</p>
+        <p>固定の更新ブックマークレットを一度保存し、e-amusementへログイン後に取得したいバージョンの公式ページで実行します。管理者確認のためSkill Simulatorが別画面で開き、確認後にGF・DMを取得します。ランキングは公式ページのバージョンに保存されます。ログイン情報は保存しません。</p>
         <div class="official-ranking-import-actions">
-          <a class="official-ranking-link" href="https://p.eagate.573.jp/game/gfdm/gitadora_galaxywave_delta/p/setting/rival_search.html?gtype=gf&amp;anum=1" target="_blank" rel="noopener noreferrer">公式ページを開く</a>
-          <button id="btnCopyOfficialRankingScript" type="button">更新スクリプトをコピー</button>
+          <a id="officialRankingSourceLink" class="official-ranking-link" href="https://p.eagate.573.jp/game/gfdm/gitadora_galaxywave_delta/p/setting/rival_search.html?gtype=gf&amp;anum=1" target="_blank" rel="noopener noreferrer">選択中のバージョンの公式ページ</a>
+          <button id="btnCopyOfficialRankingScript" type="button">固定ブックマークレットをコピー</button>
         </div>
         <div id="officialRankingImportStatus" class="official-ranking-import-status" aria-live="polite"></div>
       </details>
@@ -952,7 +952,7 @@
 <div id="adminModal" class="admin-modal">
   <div class="admin-header">
     <div class="admin-title-row">
-      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 4.24.4</div></div>
+      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 4.25.0</div></div>
       <button id="btnCloseAdmin" class="admin-close">閉じる</button>
     </div>
     <div class="admin-tabs">
@@ -1085,7 +1085,7 @@
   </div>
 </div>
 
-<script type="module" src="./js/app.js?v=4_24_4"></script>
-<script src="./js/version-check.js?v=4_10_0" defer></script>
+<script type="module" src="./js/app.js?v=4_25_0"></script>
+<script src="./js/version-check.js?v=4_25_0" defer></script>
 </body>
 </html>
