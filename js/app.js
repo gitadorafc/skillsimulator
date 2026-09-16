@@ -59,7 +59,7 @@ import { selectSkillTargetRows, calcTargetTotals } from './skill-targets.js?v=4_
 import { renderPartOptions, renderSongSuggestions } from './score-form-renderer.js?v=4_15_8';
 import { getMyPrivateScoreComments, savePrivateScoreComment } from './score-comments.js?v=4_19_1';
 import { createCommentHistory } from './comment-history.js?v=4_16_6';
-import { buildSongCatalogEntries, filterSongCatalogEntries, groupSongCatalogRows, renderSongCatalogDetails } from './song-catalog.js?v=4_24_4';
+import { buildSongCatalogEntries, filterSongCatalogEntries, groupSongCatalogRows, renderSongCatalogDetails } from './song-catalog.js?v=4_25_4';
 import { getMyTags, getMyScoreTagMap, getMyScoreTagIds, replaceMyTags, setMyScoreTags } from './score-tags.js?v=4_19_0';
 import {
   buildOfficialRankingBookmarklet,

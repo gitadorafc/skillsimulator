@@ -71,11 +71,14 @@ export function renderSongCatalogDetails(song) {
     ['GF Guitar', CATALOG_PARTS.slice(4, 8)],
     ['GF Bass', CATALOG_PARTS.slice(8, 12)]
   ];
-  return `<div class="song-catalog-details-title">${escapeHtml(song.title)}</div>
-    <div class="song-catalog-detail-groups">${sections.map(([name, parts]) => `
-      <div class="song-catalog-detail-group ${name === 'DM' ? 'song-catalog-dm' : 'song-catalog-gf'}"><strong>${name}</strong>
-        <div class="song-catalog-detail-grid">${parts.map(part => `
-          <div><span class="p-badge ${partColorClass(part)}">${part}</span><b>${song.levels?.[part] == null || song.levels[part] === ''
-            ? '－' : escapeHtml(Number(song.levels[part]).toFixed(2))}</b></div>`).join('')}</div>
-      </div>`).join('')}</div>`;
+  return `<table class="song-catalog-detail-table" aria-label="${escapeHtml(song.title)}の難易度">
+    <thead><tr><th scope="col"></th>${['BSC', 'ADV', 'EXT', 'MAS'].map(part =>
+      `<th scope="col"><span class="p-badge ${partColorClass(part)}">${part}</span></th>`).join('')}</tr></thead>
+    <tbody>${sections.map(([name, parts]) => `
+      <tr><th scope="row" class="${name === 'DM' ? 'song-catalog-dm' : 'song-catalog-gf'}">${name}</th>${parts.map(part => {
+        const level = song.levels?.[part];
+        return `<td>${level == null || level === '' || !Number.isFinite(Number(level))
+          ? '－' : Number(level).toFixed(2)}</td>`;
+      }).join('')}</tr>`).join('')}</tbody>
+  </table>`;
 }
