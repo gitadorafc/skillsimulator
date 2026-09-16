@@ -64,7 +64,7 @@ import {
   buildOfficialRankingBookmarklet,
   createOfficialRankingImportToken,
   getOfficialSkillRanking
-} from './official-skill-ranking.js?v=4_21_0';
+} from './official-skill-ranking.js?v=4_23_0';
 
 let adminEnabled = false;
 import { supabase } from './supabase.js?v=21_57';
@@ -919,6 +919,11 @@ const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({
 
 function show(id) { $(id).classList.remove('hidden'); }
 function hide(id) { $(id).classList.add('hidden'); }
+function setAppLoading(status = '') {
+  if (status) $('appLoadingStatus').textContent = status;
+  show('appLoadingScreen');
+}
+function finishAppLoading() { hide('appLoadingScreen'); }
 
 
 function applyLightMode(enabled = null) {
@@ -1248,6 +1253,7 @@ async function saveMyXId() {
 }
 
 async function showAuth(mode = 'login') {
+  finishAppLoading();
   hide('introScreen');
   currentAuthMode = mode;
   hide('appScreen');
@@ -1281,6 +1287,7 @@ async function showAuth(mode = 'login') {
 }
 
 async function showApp(session) {
+  setAppLoading('プロフィールを確認中...');
   hide('introScreen');
   hide('authScreen');
   show('appScreen');
@@ -1306,9 +1313,15 @@ async function showApp(session) {
   }
 
   $('headerUsername').textContent = username;
+  setAppLoading('表示設定を読み込み中...');
   await syncMyDisplaySettings();
+  setAppLoading('バージョン情報を取得中...');
   await loadGameVersionOptions();
+  setAppLoading('スキルデータを準備中...');
   await Promise.all([loadScores(), checkAdminAccess()]);
+  setAppLoading('画面を準備中...');
+  await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+  finishAppLoading();
 }
 
 document.addEventListener('visibilitychange', () => {
@@ -1413,6 +1426,7 @@ async function switchInstrument(instrument) {
 }
 
 async function init() {
+  setAppLoading('ログイン情報を確認中...');
   captureSkillSyncHash();
   applyInstrumentUI();
   await initAuthCaptcha();
@@ -1425,6 +1439,7 @@ async function init() {
     hide('authScreen');
     hide('appScreen');
     show('introScreen');
+    finishAppLoading();
   }
 
   supabase.auth.onAuthStateChange(async (event, session) => {
@@ -1445,6 +1460,7 @@ async function init() {
     }
 
     if (event === 'SIGNED_OUT' || !session) {
+      finishAppLoading();
       adminEnabled = false;
       adminAccessChecked = false;
       applyAppScrollLayout(false);
@@ -2238,9 +2254,11 @@ function closeSkillTargetRanking(returnToMenu = false) {
   if (returnToMenu) openMenu();
 }
 
+const OFFICIAL_RANKING_PAGE_SIZE = 100;
 const officialRankingState = {
   instrument: 'GF',
   versionId: null,
+  page: 0,
   rows: [],
   rowsByInstrument: { GF: null, DM: null },
   loadingByInstrument: { GF: false, DM: false }
@@ -2248,19 +2266,26 @@ const officialRankingState = {
 
 function renderOfficialSkillRanking() {
   const list = $('officialSkillRankingList');
+  const pager = $('officialSkillRankingPager');
   document.querySelectorAll('[data-official-ranking-instrument]').forEach(button => {
     button.classList.toggle('active', button.dataset.officialRankingInstrument === officialRankingState.instrument);
   });
   const loading = officialRankingState.loadingByInstrument[officialRankingState.instrument];
   if (loading && !officialRankingState.rows.length) {
     list.innerHTML = '<div class="official-ranking-empty">読み込み中...</div>';
+    pager.replaceChildren();
     return;
   }
   if (!officialRankingState.rows.length) {
     list.innerHTML = '<div class="official-ranking-empty">まだランキングが登録されていません。</div>';
+    pager.replaceChildren();
     return;
   }
-  list.replaceChildren(...officialRankingState.rows.map(row => {
+  const total = officialRankingState.rows.length;
+  const totalPages = Math.ceil(total / OFFICIAL_RANKING_PAGE_SIZE);
+  officialRankingState.page = Math.min(officialRankingState.page, totalPages - 1);
+  const offset = officialRankingState.page * OFFICIAL_RANKING_PAGE_SIZE;
+  list.replaceChildren(...officialRankingState.rows.slice(offset, offset + OFFICIAL_RANKING_PAGE_SIZE).map(row => {
     const item = document.createElement('div');
     item.className = 'official-ranking-row';
     const rank = document.createElement('span');
@@ -2281,12 +2306,22 @@ function renderOfficialSkillRanking() {
     loading.textContent = '更新中...';
     list.prepend(loading);
   }
+  pager.innerHTML = totalPages > 1
+    ? `<div class="user-pager-main">${renderUserListPager({ totalPages, currentPage: officialRankingState.page })}</div><div class="user-list-page-summary">${offset + 1}～${Math.min(offset + OFFICIAL_RANKING_PAGE_SIZE, total)}位 / ${total}件</div>`
+    : `<div class="user-list-page-summary">${total}件</div>`;
+}
+
+function showOfficialRankingUpdated(rows) {
+  const capturedAt = rows?.[0]?.captured_at;
+  $('officialSkillRankingUpdated').textContent = capturedAt
+    ? `最終更新：${new Date(capturedAt).toLocaleString('ja-JP')}`
+    : '最終更新：未登録';
 }
 
 async function loadOfficialSkillRanking() {
   const requestedInstrument = officialRankingState.instrument;
   const requestedVersionId = activeVersionId;
-  if (!adminEnabled || officialRankingState.loadingByInstrument[requestedInstrument]) return;
+  if (officialRankingState.loadingByInstrument[requestedInstrument]) return;
   officialRankingState.loadingByInstrument[requestedInstrument] = true;
   officialRankingState.rows = officialRankingState.rowsByInstrument[requestedInstrument] || [];
   if (!officialRankingState.rows.length) $('officialSkillRankingUpdated').textContent = '';
@@ -2297,10 +2332,7 @@ async function loadOfficialSkillRanking() {
     officialRankingState.rowsByInstrument[requestedInstrument] = rows;
     if (officialRankingState.instrument !== requestedInstrument) return;
     officialRankingState.rows = rows;
-    const capturedAt = officialRankingState.rows[0]?.captured_at;
-    $('officialSkillRankingUpdated').textContent = capturedAt
-      ? `最終更新：${new Date(capturedAt).toLocaleString('ja-JP')}`
-      : '最終更新：未登録';
+    showOfficialRankingUpdated(rows);
   } catch (error) {
     console.error('official skill ranking load failed:', error);
     if (officialRankingState.instrument === requestedInstrument && activeVersionId === requestedVersionId) {
@@ -2313,7 +2345,6 @@ async function loadOfficialSkillRanking() {
 }
 
 async function openOfficialSkillRanking() {
-  if (!adminEnabled) return;
   closeMenu();
   if (officialRankingState.versionId !== activeVersionId) {
     officialRankingState.versionId = activeVersionId;
@@ -2321,9 +2352,12 @@ async function openOfficialSkillRanking() {
     officialRankingState.loadingByInstrument = { GF: false, DM: false };
   }
   officialRankingState.instrument = activeInstrument === 'DM' ? 'DM' : 'GF';
+  officialRankingState.page = 0;
   officialRankingState.rows = officialRankingState.rowsByInstrument[officialRankingState.instrument] || [];
+  showOfficialRankingUpdated(officialRankingState.rows);
   $('officialSkillRankingContext').textContent = activeVersion?.name || '現在のVERSION';
   $('officialSkillRankingMask').style.display = 'flex';
+  document.querySelector('.official-ranking-body')?.scrollTo({ top: 0, left: 0, behavior: 'auto' });
   await loadOfficialSkillRanking();
 }
 
@@ -3838,7 +3872,8 @@ async function checkAdminAccess() {
     console.error('user switch session save failed:', e);
   }
   $('adminBulkDeleteArea')?.classList.toggle('hidden', !primaryAdminEnabled);
-  $('btnMenuOfficialSkillRanking')?.classList.toggle('hidden', !adminEnabled);
+  $('btnMenuOfficialSkillRanking')?.classList.remove('hidden');
+  $('officialRankingAdminControls')?.classList.toggle('hidden', !adminEnabled);
 
   try {
     await loadTagData();
@@ -5514,10 +5549,33 @@ $('officialSkillRankingMask').addEventListener('click', event => {
 document.querySelectorAll('[data-official-ranking-instrument]').forEach(button => {
   button.addEventListener('click', async () => {
     officialRankingState.instrument = button.dataset.officialRankingInstrument;
+    officialRankingState.page = 0;
     officialRankingState.rows = officialRankingState.rowsByInstrument[officialRankingState.instrument] || [];
+    showOfficialRankingUpdated(officialRankingState.rows);
     renderOfficialSkillRanking();
+    document.querySelector('.official-ranking-body')?.scrollTo({ top: 0, left: 0, behavior: 'auto' });
     await loadOfficialSkillRanking();
   });
+});
+$('officialSkillRankingPager').addEventListener('click', event => {
+  const button = event.target.closest('[data-user-page]');
+  if (!button || button.disabled) return;
+  const lastPage = Math.ceil(officialRankingState.rows.length / OFFICIAL_RANKING_PAGE_SIZE) - 1;
+  const nextPage = officialRankingState.page + (button.dataset.userPage === 'next' ? 1 : -1);
+  if (nextPage < 0 || nextPage > lastPage) return;
+  officialRankingState.page = nextPage;
+  renderOfficialSkillRanking();
+  document.querySelector('.official-ranking-body')?.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+});
+$('officialSkillRankingPager').addEventListener('change', event => {
+  const select = event.target.closest('[data-user-page-select]');
+  if (!select) return;
+  const nextPage = Number(select.value);
+  const totalPages = Math.ceil(officialRankingState.rows.length / OFFICIAL_RANKING_PAGE_SIZE);
+  if (!Number.isInteger(nextPage) || nextPage < 0 || nextPage >= totalPages) return;
+  officialRankingState.page = nextPage;
+  renderOfficialSkillRanking();
+  document.querySelector('.official-ranking-body')?.scrollTo({ top: 0, left: 0, behavior: 'auto' });
 });
 $('btnCopyOfficialRankingScript').addEventListener('click', () => copyOfficialRankingScript().catch(async error => {
   await showSiteDialog(`コピーに失敗しました：${error?.message || '不明なエラー'}`, 'エラー');
@@ -5584,5 +5642,6 @@ applyLightMode();
 
 init().catch(err => {
   console.error(err);
+  finishAppLoading();
   showSiteDialog('初期化に失敗しました: ' + err.message, '初期化エラー');
 });

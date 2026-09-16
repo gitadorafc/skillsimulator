@@ -2297,6 +2297,33 @@ body.light-mode .skill-ranking-sort-wrap select{
 .official-ranking-tab.active{opacity:1;box-shadow:0 0 0 2px rgba(255,255,255,.18);}
 .official-ranking-updated{margin:8px 2px 0;}
 .official-ranking-list{display:flex;flex-direction:column;gap:4px;}
+.official-ranking-pager{width:100%;}
+.official-ranking-pager .user-pager-jump{display:inline-flex;align-items:center;}
+#officialSkillRankingPager button.user-pager-arrow{
+  flex:0 0 34px;
+  width:34px;
+  min-width:34px;
+  height:34px;
+  min-height:34px;
+  padding:0;
+}
+.official-ranking-pager .user-pager-jump select{
+  min-width:88px;
+  height:34px;
+  padding:0 30px 0 8px;
+  border:1px solid #475569;
+  border-radius:7px;
+  background-color:#111827;
+  color:#e5e7eb;
+  font-size:12px;
+  font-weight:900;
+  text-align:center;
+}
+body.light-mode .official-ranking-pager .user-pager-jump select{
+  border-color:#94a3b8;
+  background-color:#f8fafc;
+  color:#111827;
+}
 .official-ranking-refreshing{
   position:sticky;
   top:0;
@@ -2388,6 +2415,7 @@ body.light-mode .official-ranking-file-label input{background:#fff;color:#111827
   .official-ranking-fixed-controls{top:-9px;margin:-9px -9px 0;padding:9px 9px 7px;}
   .official-ranking-row{grid-template-columns:30px minmax(0,1fr) 86px;padding:5px 7px;gap:5px;}
   .official-ranking-import-actions{grid-template-columns:1fr;}
+  #officialSkillRankingPager button.user-pager-arrow{flex-basis:32px;width:32px;min-width:32px;}
 }
 
 select:not([multiple]){
@@ -4729,4 +4757,72 @@ body:not(.light-mode) #viewAllManage .own-registered-records-more{
   background:#0b1220 !important;
   background-color:#0b1220 !important;
   background-image:none !important;
+}
+/* === APP VERSION 4.22.0: TOPローディング === */
+.app-loading-screen{
+  position:fixed;
+  inset:0;
+  z-index:2147483000;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+  background:#0b1220;
+  color:#f8fafc;
+}
+.app-loading-backdrop{position:absolute;inset:0;padding:22px 16px;opacity:.22;filter:blur(3px);}
+.app-loading-top-pills{display:flex;gap:9px;}
+.app-loading-top-pills i{display:block;width:64px;height:34px;border-radius:10px;background:#e8336a;}
+.app-loading-top-pills i+ i{background:#3caa2a;}
+.app-loading-stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-top:18px;}
+.app-loading-stat-row i{display:block;height:62px;border:1px solid #475569;border-radius:8px;background:#172033;}
+.app-loading-card-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:28px;}
+.app-loading-card-grid i{display:block;height:118px;border:1px solid #334155;border-radius:9px;background:linear-gradient(145deg,#172033,#111827);}
+.app-loading-content{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;width:min(88vw,420px);text-align:center;}
+.app-loading-ring{
+  position:relative;
+  width:150px;
+  height:150px;
+  border-radius:50%;
+  background:conic-gradient(#e60000,#f05a00,#e6b800,#12a936,#00aeb5,#1559e6,#681fd1,#bf16ad,#e60000);
+  animation:app-loading-spin 2.2s linear infinite !important;
+}
+.app-loading-ring::before{content:"";position:absolute;inset:10px;border-radius:50%;background:#0f172a;}
+.app-loading-ring::after{
+  content:"✦";
+  position:absolute;
+  top:-11px;
+  left:63px;
+  color:#fff;
+  font-size:27px;
+  line-height:1;
+  filter:drop-shadow(0 0 7px #ec4899);
+}
+.app-loading-symbol{position:absolute;inset:10px;z-index:1;display:flex;align-items:center;justify-content:center;border-radius:50%;animation:app-loading-counter-spin 2.2s linear infinite !important;}
+.app-loading-symbol span{font-size:62px;font-weight:900;color:#cbd5e1;line-height:1;}
+.app-loading-symbol b{margin:20px 0 0 -8px;color:#cbd5e1;font-size:29px;line-height:1;}
+.app-loading-content>strong{margin-top:31px;font-size:20px;font-weight:900;letter-spacing:.02em;}
+.app-loading-content>span{margin-top:9px;color:#94a3b8;font-size:12px;font-weight:800;}
+.app-loading-dots{display:flex;gap:15px;margin-top:23px;}
+.app-loading-dots i{width:9px;height:9px;border-radius:50%;background:#e8336a;animation:app-loading-dot 1.2s ease-in-out infinite !important;}
+.app-loading-dots i:nth-child(2){background:#f5b522;animation-delay:.2s;}
+.app-loading-dots i:nth-child(3){background:#16dfff;animation-delay:.4s;}
+@keyframes app-loading-spin{to{transform:rotate(360deg);}}
+@keyframes app-loading-counter-spin{to{transform:rotate(-360deg);}}
+@keyframes app-loading-dot{0%,60%,100%{transform:translateY(0);opacity:.45;}30%{transform:translateY(-6px);opacity:1;}}
+body.light-mode .app-loading-screen{background:#e2e8f0;color:#0f172a;}
+body.light-mode .app-loading-ring::before{background:#f8fafc;}
+body.light-mode .app-loading-content>span{color:#475569;}
+body.light-mode .app-loading-symbol :is(span,b){color:#334155;}
+@media(max-width:560px){
+  .app-loading-ring{width:132px;height:132px;}
+  .app-loading-ring::after{left:54px;}
+  .app-loading-symbol span{font-size:54px;}
+  .app-loading-content>strong{font-size:18px;}
+}
+/* iOSの「視差効果を減らす」がONでも、既存のスキル演出と同じく動作させる。 */
+@media(prefers-reduced-motion:reduce){
+  .app-loading-ring{animation:app-loading-spin 2.2s linear infinite !important;}
+  .app-loading-symbol{animation:app-loading-counter-spin 2.2s linear infinite !important;}
+  .app-loading-dots i{animation:app-loading-dot 1.2s ease-in-out infinite !important;}
 }

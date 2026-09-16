@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>GITADORA Skill Simulator</title>
-<meta name="app-version" content="4.21.4">
+<meta name="app-version" content="4.23.0">
 <link rel="icon" type="image/svg+xml" href="./favicon.svg?v=21_7">
 <link rel="icon" type="image/png" sizes="48x48" href="./favicon-48x48.png?v=21_7">
 <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32x32.png?v=21_7">
@@ -39,7 +39,7 @@
 </script>
 
 <link rel="stylesheet" href="./css/app.css?v=4_17_0">
-<link rel="stylesheet" href="./css/app-overrides.css?v=4_21_4">
+<link rel="stylesheet" href="./css/app-overrides.css?v=4_23_0">
   <link rel="stylesheet" href="./css/layout-canonical.css?v=4_17_0">
   <link rel="preconnect" href="https://challenges.cloudflare.com">
   <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" defer></script>
@@ -49,6 +49,22 @@
   // body以下が描画される前に、headで判定したテーマを引き継ぐ。
   document.body.classList.toggle('light-mode', document.documentElement.classList.contains('light-mode'));
 </script>
+
+<div id="appLoadingScreen" class="app-loading-screen" role="status" aria-live="polite">
+  <div class="app-loading-backdrop" aria-hidden="true">
+    <div class="app-loading-top-pills"><i></i><i></i></div>
+    <div class="app-loading-stat-row"><i></i><i></i><i></i></div>
+    <div class="app-loading-card-grid"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+  </div>
+  <div class="app-loading-content">
+    <div class="app-loading-ring" aria-hidden="true">
+      <div class="app-loading-symbol"><span>♪</span><b>↗</b></div>
+    </div>
+    <strong>データを読み込んでいます</strong>
+    <span id="appLoadingStatus">ログイン情報を確認中...</span>
+    <div class="app-loading-dots" aria-hidden="true"><i></i><i></i><i></i></div>
+  </div>
+</div>
 
 <div id="introScreen" class="intro-screen hidden">
   <div class="intro-hero">
@@ -388,7 +404,7 @@
     <div class="app-menu-version">
       <label>VERSION</label>
       <select id="versionSelect" class="version-select" aria-label="GITADORAバージョン"></select>
-      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 4.21.4</div>
+      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 4.23.0</div>
     </div>
   </div>
 </div>
@@ -540,9 +556,10 @@
         <div id="officialSkillRankingUpdated" class="official-ranking-updated"></div>
       </div>
       <div id="officialSkillRankingList" class="official-ranking-list"></div>
+      <div id="officialSkillRankingPager" class="user-list-pager official-ranking-pager"></div>
 
-      <details class="official-ranking-import">
-        <summary>ランキングを更新する（開発者用）</summary>
+      <details id="officialRankingAdminControls" class="official-ranking-import hidden">
+        <summary>ランキングを更新する（管理者用）</summary>
         <p>取得スクリプトをコピーし、e-amusementへログイン後に公式ページで実行します。取得結果はサイトへ直接反映され、ログイン情報は保存しません。スクリプトは発行後30分間・1回のみ有効です。</p>
         <div class="official-ranking-import-actions">
           <a class="official-ranking-link" href="https://p.eagate.573.jp/game/gfdm/gitadora_galaxywave_delta/p/setting/rival_search.html?gtype=gf&amp;anum=1" target="_blank" rel="noopener noreferrer">公式ページを開く</a>
@@ -900,7 +917,7 @@
 <div id="adminModal" class="admin-modal">
   <div class="admin-header">
     <div class="admin-title-row">
-      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 4.21.4</div></div>
+      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 4.23.0</div></div>
       <button id="btnCloseAdmin" class="admin-close">閉じる</button>
     </div>
     <div class="admin-tabs">
@@ -1033,7 +1050,7 @@
   </div>
 </div>
 
-<script type="module" src="./js/app.js?v=4_21_4"></script>
+<script type="module" src="./js/app.js?v=4_23_0"></script>
 <script src="./js/version-check.js?v=4_10_0" defer></script>
 </body>
 </html>

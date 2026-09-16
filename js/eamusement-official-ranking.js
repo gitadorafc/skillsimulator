@@ -5,8 +5,8 @@
   const VERSION_SLUG = 'gitadora_galaxywave_delta';
   const START_SKILL = 9700;
   const BAND_SIZE = 100;
-  const MAX_ROWS = 100;
-  const MAX_REQUESTS = 160;
+  const MAX_ROWS = 1000;
+  const MAX_REQUESTS = 320;
   const WAIT_MS = 350;
   const scriptSettings = new URLSearchParams((document.currentScript?.src.split('#')[1] || ''));
   const importToken = scriptSettings.get('token');
@@ -142,18 +142,23 @@
       while (cursor < upper && requestCount < MAX_REQUESTS) {
         updateProgress({
           status: `${instrument}：ランキング取得中`,
-          detail: `${found.size} / 100名　検索値 ${cursor.toFixed(2)}　通信 ${requestCount + 1}回目`,
-          percent: instrumentOffset + Math.min(50, found.size / 2)
+          detail: `${Math.min(found.size, MAX_ROWS)} / ${MAX_ROWS}名　検索値 ${cursor.toFixed(2)}　通信 ${requestCount + 1}回目`,
+          percent: instrumentOffset + Math.min(50, found.size / MAX_ROWS * 50)
         });
         const rows = await search(prepared, cursor);
         requestCount += 1;
+        const occurrences = new Map();
         for (const row of rows) {
-          if (row.skill >= floor && row.skill < upper) found.set(`${row.playerName}\u0000${row.skill.toFixed(2)}`, row);
+          if (row.skill < floor || row.skill >= upper) continue;
+          const nameAndSkill = `${row.playerName}\u0000${row.skill.toFixed(2)}`;
+          const occurrence = (occurrences.get(nameAndSkill) || 0) + 1;
+          occurrences.set(nameAndSkill, occurrence);
+          found.set(`${nameAndSkill}\u0000${occurrence}`, row);
         }
         updateProgress({
           status: `${instrument}：ランキング取得中`,
-          detail: `${Math.min(found.size, 100)} / 100名　検索値 ${cursor.toFixed(2)}　通信 ${requestCount}回`,
-          percent: instrumentOffset + Math.min(50, found.size / 2)
+          detail: `${Math.min(found.size, MAX_ROWS)} / ${MAX_ROWS}名　検索値 ${cursor.toFixed(2)}　通信 ${requestCount}回`,
+          percent: instrumentOffset + Math.min(50, found.size / MAX_ROWS * 50)
         });
         if (!rows.length || rows.length < 20) break;
         const lastSkill = Math.max(...rows.map(row => row.skill));
@@ -168,8 +173,11 @@
       if (floor === upper) break;
       await wait(WAIT_MS);
     }
+    if (found.size < MAX_ROWS && requestCount >= MAX_REQUESTS) {
+      throw new Error(`${instrument}は通信上限に達したため保存しませんでした（${found.size}名）。`);
+    }
     return [...found.values()]
-      .sort((a, b) => b.skill - a.skill || a.playerName.localeCompare(b.playerName, 'ja'))
+      .sort((a, b) => b.skill - a.skill)
       .slice(0, MAX_ROWS);
   }
 
