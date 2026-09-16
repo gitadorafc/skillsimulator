@@ -2282,6 +2282,20 @@ body.light-mode .skill-ranking-sort-wrap select{
   background:#3b82f6;color:#fff;font-size:13px;font-weight:900;
 }
 .song-catalog-controls button:disabled{opacity:.6;}
+.song-catalog-range{
+  display:flex;align-items:end;gap:8px;
+  padding:0 12px 11px;border-bottom:1px solid #334155;
+  color:#cbd5e1;font-size:11px;font-weight:900;
+}
+.song-catalog-range>span:first-child{align-self:center;white-space:nowrap;}
+.song-catalog-range label{display:flex;flex:1;flex-direction:column;gap:4px;min-width:0;}
+.song-catalog-range input{
+  width:100%;height:36px;padding:0 8px;border:1px solid #475569;
+  border-radius:8px;background:#111827;color:#f8fafc;font-size:13px;
+  font-variant-numeric:tabular-nums;
+}
+.song-catalog-range input::placeholder{color:#94a3b8;}
+.song-catalog-range-separator{align-self:end;line-height:36px;}
 .song-catalog-body{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;padding:9px 12px;}
 .song-catalog-status{color:#94a3b8;text-align:center;font-size:12px;font-weight:800;}
 .song-catalog-status:not(:empty){padding:20px 8px;}
@@ -2322,6 +2336,8 @@ body.light-mode .skill-ranking-sort-wrap select{
 body.light-mode .song-catalog-dialog,body.light-mode .song-catalog-head,
 body.light-mode .song-catalog-row{background:#f8fafc;color:#0f172a;border-color:#94a3b8;}
 body.light-mode .song-catalog-controls{border-color:#94a3b8;}
+body.light-mode .song-catalog-range{border-color:#94a3b8;color:#334155;}
+body.light-mode .song-catalog-range input{background:#fff;color:#0f172a;border-color:#94a3b8;}
 body.light-mode .song-catalog-controls select,body.light-mode .song-catalog-pager select{
   background:#fff;color:#0f172a;border-color:#94a3b8;
 }
@@ -2338,6 +2354,7 @@ body.light-mode .song-catalog-row summary::after{
   .song-catalog-controls{gap:6px;padding:9px;}
   .song-catalog-controls select{font-size:11px;padding-left:6px;}
   .song-catalog-controls button{padding:0 12px;}
+  .song-catalog-range{gap:6px;padding:0 9px 9px;}
   .song-catalog-body{padding:9px;}
 }
 .official-ranking-head{

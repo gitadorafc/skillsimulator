@@ -55,6 +55,14 @@ export function buildSongCatalogEntries(songs, mode, direction) {
     || parts.indexOf(a.part) - parts.indexOf(b.part));
 }
 
+export function filterSongCatalogEntries(entries, minLevel = null, maxLevel = null) {
+  const min = minLevel == null ? null : Math.round(minLevel * 100);
+  const max = maxLevel == null ? null : Math.round(maxLevel * 100);
+  return entries.filter(entry => entry.level != null
+    && (min == null || Math.round(entry.level * 100) >= min)
+    && (max == null || Math.round(entry.level * 100) <= max));
+}
+
 const partColorClass = part => ({ BSC: 'p-bsc', ADV: 'p-adv', EXT: 'p-ext', MAS: 'p-mas' })[part.slice(0, 3)] || '';
 
 export function renderSongCatalogDetails(song) {

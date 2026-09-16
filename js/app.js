@@ -59,7 +59,7 @@ import { selectSkillTargetRows, calcTargetTotals } from './skill-targets.js?v=4_
 import { renderPartOptions, renderSongSuggestions } from './score-form-renderer.js?v=4_15_8';
 import { getMyPrivateScoreComments, savePrivateScoreComment } from './score-comments.js?v=4_19_1';
 import { createCommentHistory } from './comment-history.js?v=4_16_6';
-import { buildSongCatalogEntries, groupSongCatalogRows, renderSongCatalogDetails } from './song-catalog.js?v=4_24_3';
+import { buildSongCatalogEntries, filterSongCatalogEntries, groupSongCatalogRows, renderSongCatalogDetails } from './song-catalog.js?v=4_24_4';
 import { getMyTags, getMyScoreTagMap, getMyScoreTagIds, replaceMyTags, setMyScoreTags } from './score-tags.js?v=4_19_0';
 import {
   buildOfficialRankingBookmarklet,
@@ -2371,7 +2371,7 @@ function closeOfficialSkillRanking(returnToMenu = false) {
 }
 
 const SONG_CATALOG_PAGE_SIZE = 100;
-const songCatalogState = { rows: [], page: 0, loading: false, requestId: 0 };
+const songCatalogState = { rows: [], songs: null, versionId: null, page: 0, loading: false, requestId: 0 };
 
 async function getPublicSongCatalog(versionId) {
   const pageSize = 1000;
@@ -2438,6 +2438,20 @@ function renderSongCatalog() {
 
 async function showSongCatalog() {
   if (songCatalogState.loading) return;
+  const mode = $('songCatalogMode').value;
+  const direction = $('songCatalogDirection').value;
+  const minInput = $('songCatalogMinLevel');
+  const maxInput = $('songCatalogMaxLevel');
+  const minLevel = mode === 'title' || !minInput.value.trim() ? null : Number(minInput.value);
+  const maxLevel = mode === 'title' || !maxInput.value.trim() ? null : Number(maxInput.value);
+  if (mode !== 'title' && (
+    (minLevel != null && (!minInput.checkValidity() || !Number.isFinite(minLevel)))
+    || (maxLevel != null && (!maxInput.checkValidity() || !Number.isFinite(maxLevel)))
+    || (minLevel != null && maxLevel != null && minLevel > maxLevel)
+  )) {
+    $('songCatalogStatus').textContent = '難易度は0.01～9.99で入力し、下限を上限以下にしてください。';
+    return;
+  }
   const versionId = activeVersionId;
   const requestId = ++songCatalogState.requestId;
   const button = $('btnShowSongCatalog');
@@ -2448,9 +2462,13 @@ async function showSongCatalog() {
   renderSongCatalog();
   $('songCatalogStatus').textContent = '曲データを取得中...';
   try {
-    const songs = await getPublicSongCatalog(versionId);
+    const songs = songCatalogState.versionId === versionId && songCatalogState.songs
+      ? songCatalogState.songs : await getPublicSongCatalog(versionId);
     if (requestId !== songCatalogState.requestId || versionId !== activeVersionId) return;
-    songCatalogState.rows = buildSongCatalogEntries(songs, $('songCatalogMode').value, $('songCatalogDirection').value);
+    songCatalogState.songs = songs;
+    songCatalogState.versionId = versionId;
+    const entries = buildSongCatalogEntries(songs, mode, direction);
+    songCatalogState.rows = mode === 'title' ? entries : filterSongCatalogEntries(entries, minLevel, maxLevel);
     songCatalogState.page = 0;
     $('songCatalogStatus').textContent = songCatalogState.rows.length ? '' : '該当する曲データがありません。';
     renderSongCatalog();
@@ -2476,9 +2494,14 @@ function openSongCatalog() {
   $('btnShowSongCatalog').disabled = false;
   $('btnShowSongCatalog').textContent = '表示';
   songCatalogState.rows = [];
+  songCatalogState.songs = null;
+  songCatalogState.versionId = null;
   songCatalogState.page = 0;
   $('songCatalogMode').value = 'title';
   $('songCatalogDirection').value = 'asc';
+  $('songCatalogMinLevel').value = '';
+  $('songCatalogMaxLevel').value = '';
+  $('songCatalogRange').classList.add('hidden');
   $('songCatalogVersion').textContent = activeVersion?.name || '';
   $('songCatalogStatus').textContent = '';
   renderSongCatalog();
@@ -5677,6 +5700,7 @@ $('songCatalogMask').addEventListener('click', event => {
 $('btnShowSongCatalog').addEventListener('click', showSongCatalog);
 $('songCatalogMode').addEventListener('change', event => {
   $('songCatalogDirection').value = event.target.value === 'title' ? 'asc' : 'desc';
+  $('songCatalogRange').classList.toggle('hidden', event.target.value === 'title');
 });
 $('songCatalogPager').addEventListener('click', event => {
   const button = event.target.closest('[data-user-page]');
