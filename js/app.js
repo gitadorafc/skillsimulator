@@ -2527,7 +2527,7 @@ async function showSongCatalog() {
     if (requestId === songCatalogState.requestId) {
       songCatalogState.loading = false;
       button.disabled = false;
-      button.textContent = '表示';
+      button.textContent = mode === 'title' ? '一覧を表示' : 'この条件で表示';
     }
   }
 }
@@ -2537,7 +2537,7 @@ function openSongCatalog() {
   ++songCatalogState.requestId;
   songCatalogState.loading = false;
   $('btnShowSongCatalog').disabled = false;
-  $('btnShowSongCatalog').textContent = '表示';
+  $('btnShowSongCatalog').textContent = '一覧を表示';
   songCatalogState.rows = [];
   songCatalogState.songs = null;
   songCatalogState.versionId = null;
@@ -5745,6 +5745,7 @@ $('btnShowSongCatalog').addEventListener('click', showSongCatalog);
 $('songCatalogMode').addEventListener('change', event => {
   $('songCatalogDirection').value = event.target.value === 'title' ? 'asc' : 'desc';
   $('songCatalogRange').classList.toggle('hidden', event.target.value === 'title');
+  $('btnShowSongCatalog').textContent = event.target.value === 'title' ? '一覧を表示' : 'この条件で表示';
 });
 $('songCatalogPager').addEventListener('click', event => {
   const button = event.target.closest('[data-user-page]');
