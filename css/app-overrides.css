@@ -2265,16 +2265,13 @@ body.light-mode .skill-ranking-sort-wrap select{
 }
 .official-ranking-body{
   min-height:0;
-  padding:12px;
+  padding:18px 12px 12px;
   overflow-y:auto;
   overscroll-behavior:contain;
 }
 .official-ranking-fixed-controls{
-  position:sticky;
-  top:-12px;
-  z-index:5;
-  margin:-12px -12px 0;
-  padding:12px 12px 8px;
+  flex:0 0 auto;
+  padding:12px 12px 10px;
   border-bottom:1px solid #334155;
   background:#0f172a;
 }
@@ -2411,8 +2408,8 @@ body.light-mode .official-ranking-file-label input{background:#fff;color:#111827
 @media(max-width:560px){
   .official-ranking-dialog{width:96vw;height:94dvh;max-height:94dvh;}
   .official-ranking-head{padding:11px;}
-  .official-ranking-body{padding:9px;}
-  .official-ranking-fixed-controls{top:-9px;margin:-9px -9px 0;padding:9px 9px 7px;}
+  .official-ranking-body{padding:16px 9px 9px;}
+  .official-ranking-fixed-controls{padding:9px 9px 9px;}
   .official-ranking-row{grid-template-columns:30px minmax(0,1fr) 86px;padding:5px 7px;gap:5px;}
   .official-ranking-import-actions{grid-template-columns:1fr;}
   #officialSkillRankingPager button.user-pager-arrow{flex-basis:32px;width:32px;min-width:32px;}
