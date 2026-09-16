@@ -1,13 +1,5 @@
--- v4.21.0 公式ランキングの直接取込・前回順位比較
+-- v4.21.0 公式ランキングの直接取込
 begin;
-
-alter table public.official_skill_rankings
-  add column if not exists previous_rank integer;
-
--- 導入直後は既存順位を基準値にし、全員がNEW表示になるのを防ぐ。
-update public.official_skill_rankings
-set previous_rank = rank
-where previous_rank is null;
 
 create table if not exists public.official_ranking_import_tokens (
   token uuid primary key default gen_random_uuid(),
@@ -34,31 +26,18 @@ set search_path = public, pg_temp
 as $$
 declare
   v_count integer;
-  v_previous jsonb;
 begin
   if p_instrument not in ('GF', 'DM') then raise exception '機種が不正です。'; end if;
   if jsonb_typeof(coalesce(p_rows, '[]'::jsonb)) <> 'array' then raise exception 'データ形式が不正です。'; end if;
   v_count := jsonb_array_length(coalesce(p_rows, '[]'::jsonb));
   if v_count < 1 or v_count > 100 then raise exception 'ランキングは1～100件で登録してください。'; end if;
 
-  select coalesce(jsonb_object_agg(player_name, rank), '{}'::jsonb)
-  into v_previous
-  from (
-    select player_name, min(rank) as rank
-    from public.official_skill_rankings
-    where version_id = p_version_id and instrument = p_instrument
-    group by player_name
-  ) previous_rows;
-
   delete from public.official_skill_rankings
   where version_id = p_version_id and instrument = p_instrument;
 
-  insert into public.official_skill_rankings(
-    version_id, instrument, rank, player_name, skill, captured_at, previous_rank
-  )
+  insert into public.official_skill_rankings(version_id, instrument, rank, player_name, skill, captured_at)
   select p_version_id, p_instrument, ordinality::integer,
-         btrim(value->>'player_name'), (value->>'skill')::numeric, p_captured_at,
-         nullif(v_previous->>btrim(value->>'player_name'), '')::integer
+         btrim(value->>'player_name'), (value->>'skill')::numeric, p_captured_at
   from jsonb_array_elements(p_rows) with ordinality
   where btrim(coalesce(value->>'player_name', '')) <> '';
 
@@ -114,10 +93,8 @@ begin
 end;
 $$;
 
-drop function if exists public.get_official_skill_ranking(uuid, text);
-
-create function public.get_official_skill_ranking(p_version_id uuid, p_instrument text)
-returns table(rank integer, player_name text, skill numeric, captured_at timestamptz, previous_rank integer)
+create or replace function public.get_official_skill_ranking(p_version_id uuid, p_instrument text)
+returns table(rank integer, player_name text, skill numeric, captured_at timestamptz)
 language plpgsql
 security definer
 set search_path = public, pg_temp
@@ -125,7 +102,7 @@ as $$
 begin
   if auth.uid() is null or not public.is_admin() then raise exception 'この機能は管理者専用です。'; end if;
   return query
-    select r.rank, r.player_name, r.skill, r.captured_at, r.previous_rank
+    select r.rank, r.player_name, r.skill, r.captured_at
     from public.official_skill_rankings r
     where r.version_id = p_version_id and r.instrument = p_instrument
     order by r.rank;

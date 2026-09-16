@@ -2259,27 +2259,13 @@ function renderOfficialSkillRanking() {
     const rank = document.createElement('span');
     rank.className = 'official-ranking-rank';
     rank.textContent = String(row.rank);
-    const movement = document.createElement('span');
-    movement.className = 'official-ranking-movement';
-    const previousRank = row.previous_rank == null ? null : Number(row.previous_rank);
-    const change = previousRank == null ? null : previousRank - Number(row.rank);
-    if (previousRank == null) {
-      movement.classList.add('new');
-      movement.textContent = 'NEW';
-    } else if (change > 0) {
-      movement.classList.add('up');
-      movement.textContent = `↑${change}`;
-    } else if (change < 0) {
-      movement.classList.add('down');
-      movement.textContent = `↓${Math.abs(change)}`;
-    }
     const name = document.createElement('strong');
     name.className = 'official-ranking-name';
     name.textContent = row.player_name;
     const skill = document.createElement('span');
     skill.className = `official-ranking-skill score-rank-${getTotalSkillRank(row.skill)}`;
     skill.textContent = Number(row.skill).toFixed(2);
-    item.append(rank, movement, name, skill);
+    item.append(rank, name, skill);
     return item;
   }));
 }
