@@ -27,6 +27,37 @@
   const cleanText = value => String(value || '').replace(/\s+/g, ' ').trim();
   const baseUrl = instrument => `${OFFICIAL_ORIGIN}/game/gfdm/${VERSION_SLUG}/p/setting/rival_search.html?gtype=${instrument.toLowerCase()}&anum=1`;
 
+  function createProgressPanel() {
+    document.getElementById('gitadora-ranking-progress')?.remove();
+    const panel = document.createElement('div');
+    panel.id = 'gitadora-ranking-progress';
+    panel.style.cssText = 'position:fixed;z-index:2147483647;left:50%;top:18px;transform:translateX(-50%);width:min(440px,calc(100vw - 24px));padding:16px;border:2px solid #3b82f6;border-radius:12px;background:#0f172a;color:#f8fafc;box-shadow:0 12px 36px rgba(0,0,0,.55);font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;box-sizing:border-box;text-align:left;';
+    panel.innerHTML = '<div style="font-size:16px;font-weight:900;">公式スキルランキング更新</div><div data-progress-status style="margin-top:10px;font-size:14px;font-weight:900;">準備中...</div><div data-progress-detail style="margin-top:5px;color:#cbd5e1;font-size:12px;line-height:1.5;">このページを閉じないでください。</div><div style="height:10px;margin-top:12px;overflow:hidden;border-radius:999px;background:#334155;"><div data-progress-bar style="width:0;height:100%;border-radius:999px;background:#3b82f6;transition:width .2s ease;"></div></div><div data-progress-percent style="margin-top:5px;color:#94a3b8;font-size:11px;font-weight:800;text-align:right;">0%</div>';
+    document.body.appendChild(panel);
+    return panel;
+  }
+
+  const progressPanel = createProgressPanel();
+  function updateProgress({ status, detail, percent }) {
+    progressPanel.querySelector('[data-progress-status]').textContent = status;
+    progressPanel.querySelector('[data-progress-detail]').textContent = detail;
+    const safePercent = Math.max(0, Math.min(100, Number(percent) || 0));
+    progressPanel.querySelector('[data-progress-bar]').style.width = `${safePercent}%`;
+    progressPanel.querySelector('[data-progress-percent]').textContent = `${Math.floor(safePercent)}%`;
+  }
+
+  function finishProgress(message, isError = false) {
+    updateProgress({ status: isError ? '更新失敗' : '更新完了', detail: message, percent: isError ? 0 : 100 });
+    progressPanel.style.borderColor = isError ? '#ef4444' : '#22c55e';
+    progressPanel.querySelector('[data-progress-bar]').style.background = isError ? '#ef4444' : '#22c55e';
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.textContent = '閉じる';
+    button.style.cssText = 'width:100%;height:38px;margin-top:12px;border:0;border-radius:8px;background:#3b82f6;color:#fff;font-size:13px;font-weight:900;cursor:pointer;';
+    button.addEventListener('click', () => progressPanel.remove());
+    progressPanel.appendChild(button);
+  }
+
   function findSearchForm(doc) {
     const forms = [...doc.forms];
     return forms.find(form => {
@@ -97,6 +128,8 @@
   }
 
   async function collect(instrument) {
+    const instrumentOffset = instrument === 'DM' ? 50 : 0;
+    updateProgress({ status: `${instrument}：検索画面を確認中`, detail: 'ログイン状態を確認しています。', percent: instrumentOffset });
     const prepared = await prepareInstrument(instrument);
     const found = new Map();
     let upper = Infinity;
@@ -107,11 +140,21 @@
       let cursor = floor;
       let lastCursor = -1;
       while (cursor < upper && requestCount < MAX_REQUESTS) {
+        updateProgress({
+          status: `${instrument}：ランキング取得中`,
+          detail: `${found.size} / 100名　検索値 ${cursor.toFixed(2)}　通信 ${requestCount + 1}回目`,
+          percent: instrumentOffset + Math.min(50, found.size / 2)
+        });
         const rows = await search(prepared, cursor);
         requestCount += 1;
         for (const row of rows) {
           if (row.skill >= floor && row.skill < upper) found.set(`${row.playerName}\u0000${row.skill.toFixed(2)}`, row);
         }
+        updateProgress({
+          status: `${instrument}：ランキング取得中`,
+          detail: `${Math.min(found.size, 100)} / 100名　検索値 ${cursor.toFixed(2)}　通信 ${requestCount}回`,
+          percent: instrumentOffset + Math.min(50, found.size / 2)
+        });
         if (!rows.length || rows.length < 20) break;
         const lastSkill = Math.max(...rows.map(row => row.skill));
         const nextCursor = Math.round((lastSkill + 0.01) * 100) / 100;
@@ -161,18 +204,18 @@
 
   (async () => {
     try {
-      alert('GF・DMの公式スキルランキング上位100名を取得します。完了までこのページを閉じないでください。');
       const rankings = {};
       for (const instrument of ['GF', 'DM']) {
         rankings[instrument] = await collect(instrument);
         if (!rankings[instrument].length) throw new Error(`${instrument}の検索結果を取得できませんでした。`);
       }
       const data = { schemaVersion: 1, versionSlug: VERSION_SLUG, capturedAt: new Date().toISOString(), rankings };
+      updateProgress({ status: 'サイトへ反映中', detail: 'GF・DMの取得結果を保存しています。', percent: 99 });
       await sendToSimulator(data);
-      alert(`更新完了：GF ${rankings.GF.length}名 / DM ${rankings.DM.length}名\nスキルシミュレーターへ直接反映しました。`);
+      finishProgress(`GF ${rankings.GF.length}名 / DM ${rankings.DM.length}名をスキルシミュレーターへ直接反映しました。`);
     } catch (error) {
       console.error(error);
-      alert(`公式ランキングの取得に失敗しました。\n${error?.message || error}`);
+      finishProgress(error?.message || String(error), true);
     } finally {
       window.__gitadoraOfficialRankingRunning = false;
     }
