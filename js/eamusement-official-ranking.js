@@ -7,7 +7,8 @@
   const BAND_SIZE = 100;
   const MAX_ROWS = 1000;
   const MAX_REQUESTS = 320;
-  const WAIT_MS = 350;
+  const MIN_REQUEST_INTERVAL_MS = 350;
+  let nextSearchAt = 0;
   const scriptSettings = new URLSearchParams((document.currentScript?.src.split('#')[1] || ''));
   let importToken = '';
   const supabaseEndpoint = scriptSettings.get('endpoint');
@@ -121,6 +122,9 @@
 
   async function search(prepared, skill) {
     const { url, options } = buildRequest(prepared.form, skill, prepared.pageUrl);
+    const remaining = nextSearchAt - Date.now();
+    if (remaining > 0) await wait(remaining);
+    nextSearchAt = Date.now() + MIN_REQUEST_INTERVAL_MS;
     const response = await fetch(url, options);
     if (!response.ok) throw new Error(`検索に失敗しました (${response.status})`);
     const doc = new DOMParser().parseFromString(await response.text(), 'text/html');
@@ -166,12 +170,10 @@
         if (nextCursor <= cursor || nextCursor === lastCursor) break;
         lastCursor = cursor;
         cursor = nextCursor;
-        await wait(WAIT_MS);
       }
       upper = floor;
       floor = Math.max(0, floor - BAND_SIZE);
       if (floor === upper) break;
-      await wait(WAIT_MS);
     }
     if (found.size < MAX_ROWS && requestCount >= MAX_REQUESTS) {
       throw new Error(`${instrument}は通信上限に達したため保存しませんでした（${found.size}名）。`);
