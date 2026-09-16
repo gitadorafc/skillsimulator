@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>GITADORA Skill Simulator</title>
-<meta name="app-version" content="4.23.2">
+<meta name="app-version" content="4.24.0">
 <link rel="icon" type="image/svg+xml" href="./favicon.svg?v=21_7">
 <link rel="icon" type="image/png" sizes="48x48" href="./favicon-48x48.png?v=21_7">
 <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32x32.png?v=21_7">
@@ -39,7 +39,7 @@
 </script>
 
 <link rel="stylesheet" href="./css/app.css?v=4_17_0">
-<link rel="stylesheet" href="./css/app-overrides.css?v=4_23_2">
+<link rel="stylesheet" href="./css/app-overrides.css?v=4_24_0">
   <link rel="stylesheet" href="./css/layout-canonical.css?v=4_17_0">
   <link rel="preconnect" href="https://challenges.cloudflare.com">
   <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" defer></script>
@@ -396,6 +396,11 @@
     <button id="btnMenuOfficialSkillRanking" type="button" class="app-menu-item hidden">公式スキルランキング <span>›</span></button>
     <button id="btnMenuRivals" type="button" class="app-menu-item">ライバル管理 <span>›</span></button>
 
+    <div id="songCatalogMenuGroup" class="hidden">
+      <div class="app-menu-group-label">曲データ</div>
+      <button id="btnMenuSongCatalog" type="button" class="app-menu-item">曲データ一覧 <span>›</span></button>
+    </div>
+
     <div class="app-menu-group-label">ヘルプ・運営</div>
     <button id="btnMenuHowTo" type="button" class="app-menu-item">使い方 <span>›</span></button>
     <button id="btnMenuFeedback" type="button" class="app-menu-item">要望・不具合報告 <span>›</span></button>
@@ -404,7 +409,7 @@
     <div class="app-menu-version">
       <label>VERSION</label>
       <select id="versionSelect" class="version-select" aria-label="GITADORAバージョン"></select>
-      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 4.23.2</div>
+      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 4.24.0</div>
     </div>
   </div>
 </div>
@@ -534,6 +539,27 @@
         </div>
       </div>
       <div id="skillRankingList" class="skill-ranking-list"></div>
+    </div>
+  </div>
+</div>
+
+<div id="songCatalogMask" class="site-dialog-mask" role="dialog" aria-modal="true" aria-labelledby="songCatalogTitle">
+  <div class="song-catalog-dialog">
+    <div class="song-catalog-head">
+      <div><strong id="songCatalogTitle">曲データ一覧</strong><div id="songCatalogVersion" class="song-catalog-version"></div></div>
+      <button id="btnCloseSongCatalog" type="button" class="menu-back-btn">戻る</button>
+    </div>
+    <div class="song-catalog-controls">
+      <label>項目<select id="songCatalogMode">
+        <option value="title">曲名順</option><option value="gf">GF難易度順</option><option value="dm">DM難易度順</option>
+      </select></label>
+      <label>並び順<select id="songCatalogDirection"><option value="asc">昇順</option><option value="desc">降順</option></select></label>
+      <button id="btnShowSongCatalog" type="button">表示</button>
+    </div>
+    <div id="songCatalogBody" class="song-catalog-body">
+      <div id="songCatalogStatus" class="song-catalog-status" aria-live="polite"></div>
+      <div id="songCatalogList" class="song-catalog-list"></div>
+      <div id="songCatalogPager" class="user-list-pager song-catalog-pager"></div>
     </div>
   </div>
 </div>
@@ -917,7 +943,7 @@
 <div id="adminModal" class="admin-modal">
   <div class="admin-header">
     <div class="admin-title-row">
-      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 4.23.2</div></div>
+      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 4.24.0</div></div>
       <button id="btnCloseAdmin" class="admin-close">閉じる</button>
     </div>
     <div class="admin-tabs">
@@ -1050,7 +1076,7 @@
   </div>
 </div>
 
-<script type="module" src="./js/app.js?v=4_23_2"></script>
+<script type="module" src="./js/app.js?v=4_24_0"></script>
 <script src="./js/version-check.js?v=4_10_0" defer></script>
 </body>
 </html>

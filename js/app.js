@@ -59,6 +59,7 @@ import { selectSkillTargetRows, calcTargetTotals } from './skill-targets.js?v=4_
 import { renderPartOptions, renderSongSuggestions } from './score-form-renderer.js?v=4_15_8';
 import { getMyPrivateScoreComments, savePrivateScoreComment } from './score-comments.js?v=4_19_1';
 import { createCommentHistory } from './comment-history.js?v=4_16_6';
+import { buildSongCatalogEntries, renderSongCatalogDetails } from './song-catalog.js?v=4_24_0';
 import { getMyTags, getMyScoreTagMap, getMyScoreTagIds, replaceMyTags, setMyScoreTags } from './score-tags.js?v=4_19_0';
 import {
   buildOfficialRankingBookmarklet,
@@ -732,6 +733,7 @@ const GLOBAL_SCROLL_LOCK_OVERLAYS = [
   '#skillShareMask',
   '#skillHistoryMask',
   '#officialSkillRankingMask',
+  '#songCatalogMask',
   '#accountSwitchMask',
   '#rateCompareMask',
   '#siteDialogMask',
@@ -2366,6 +2368,113 @@ function closeOfficialSkillRanking(returnToMenu = false) {
   if (returnToMenu) openMenu();
 }
 
+const SONG_CATALOG_PAGE_SIZE = 100;
+const songCatalogState = { rows: [], page: 0, loading: false, requestId: 0 };
+
+function scrollSongCatalogToTop() {
+  $('songCatalogBody').scrollTo({ top: 0, left: 0, behavior: 'instant' });
+}
+
+function renderSongCatalog() {
+  const list = $('songCatalogList');
+  const pager = $('songCatalogPager');
+  list.replaceChildren();
+  pager.replaceChildren();
+  const total = songCatalogState.rows.length;
+  if (!total) return;
+  const totalPages = Math.ceil(total / SONG_CATALOG_PAGE_SIZE);
+  songCatalogState.page = Math.min(songCatalogState.page, totalPages - 1);
+  const offset = songCatalogState.page * SONG_CATALOG_PAGE_SIZE;
+  for (const entry of songCatalogState.rows.slice(offset, offset + SONG_CATALOG_PAGE_SIZE)) {
+    const row = document.createElement('details');
+    row.className = `song-catalog-row${entry.part ? ' with-level' : ''}`;
+    const summary = document.createElement('summary');
+    const title = document.createElement('span');
+    title.className = 'song-catalog-title';
+    title.textContent = entry.title;
+    summary.append(title);
+    if (entry.part) {
+      const part = document.createElement('span');
+      part.className = 'song-catalog-part';
+      part.textContent = entry.part;
+      const level = document.createElement('b');
+      level.className = 'song-catalog-level';
+      level.textContent = entry.level.toFixed(2);
+      summary.append(part, level);
+    }
+    const detail = document.createElement('div');
+    detail.className = 'song-catalog-detail';
+    detail.innerHTML = renderSongCatalogDetails(entry.song);
+    row.append(summary, detail);
+    list.append(row);
+  }
+  pager.innerHTML = `${totalPages > 1
+    ? `<div class="user-pager-main">${renderUserListPager({ totalPages, currentPage: songCatalogState.page })}</div>` : ''}
+    <div class="user-list-page-summary">${offset + 1}～${Math.min(offset + SONG_CATALOG_PAGE_SIZE, total)}件 / ${total}件</div>`;
+}
+
+async function showSongCatalog() {
+  if (!adminEnabled || songCatalogState.loading) return;
+  const versionId = activeVersionId;
+  const requestId = ++songCatalogState.requestId;
+  const button = $('btnShowSongCatalog');
+  songCatalogState.loading = true;
+  button.disabled = true;
+  button.textContent = '取得中...';
+  songCatalogState.rows = [];
+  renderSongCatalog();
+  $('songCatalogStatus').textContent = '曲データを取得中...';
+  try {
+    // RPCは曲単位で返す。全ページ取得してから並び替えるため、後半の曲も欠落しない。
+    const first = await getAdminSongMasterPage('', 0, 200, versionId);
+    const pageCount = Math.ceil(first.total / 200);
+    const remaining = await Promise.all(Array.from({ length: Math.max(0, pageCount - 1) }, (_, index) =>
+      getAdminSongMasterPage('', index + 1, 200, versionId)));
+    if (requestId !== songCatalogState.requestId || versionId !== activeVersionId) return;
+    const songs = [first, ...remaining].flatMap(page => page.rows);
+    songCatalogState.rows = buildSongCatalogEntries(songs, $('songCatalogMode').value, $('songCatalogDirection').value);
+    songCatalogState.page = 0;
+    $('songCatalogStatus').textContent = songCatalogState.rows.length ? '' : '該当する曲データがありません。';
+    renderSongCatalog();
+    scrollSongCatalogToTop();
+  } catch (error) {
+    if (requestId === songCatalogState.requestId) {
+      console.error('song catalog load failed:', error);
+      $('songCatalogStatus').textContent = `取得に失敗しました：${error?.message || '不明なエラー'}`;
+    }
+  } finally {
+    if (requestId === songCatalogState.requestId) {
+      songCatalogState.loading = false;
+      button.disabled = false;
+      button.textContent = '表示';
+    }
+  }
+}
+
+function openSongCatalog() {
+  if (!adminEnabled) return;
+  closeMenu();
+  ++songCatalogState.requestId;
+  songCatalogState.loading = false;
+  $('btnShowSongCatalog').disabled = false;
+  $('btnShowSongCatalog').textContent = '表示';
+  songCatalogState.rows = [];
+  songCatalogState.page = 0;
+  $('songCatalogMode').value = 'title';
+  $('songCatalogDirection').value = 'asc';
+  $('songCatalogVersion').textContent = activeVersion?.name || '';
+  $('songCatalogStatus').textContent = '';
+  renderSongCatalog();
+  $('songCatalogMask').style.display = 'flex';
+}
+
+function closeSongCatalog(returnToMenu = false) {
+  ++songCatalogState.requestId;
+  songCatalogState.loading = false;
+  $('songCatalogMask').style.display = 'none';
+  if (returnToMenu) openMenu();
+}
+
 async function copyOfficialRankingScript() {
   if (!adminEnabled) return;
   const button = $('btnCopyOfficialRankingScript');
@@ -3836,6 +3945,7 @@ async function checkAdminAccess() {
 
   adminAccessChecked = true;
   $('btnAdmin').classList.toggle('hidden', !adminEnabled);
+  $('songCatalogMenuGroup').classList.toggle('hidden', !adminEnabled);
   $('btnMenuTags')?.classList.remove('hidden');
   $('recordTagFilterField')?.classList.remove('hidden');
   $('scoreTagGroup')?.classList.remove('hidden');
@@ -5542,6 +5652,28 @@ document.querySelectorAll('.skill-ranking-tab').forEach(button => {
   });
 });
 $('btnMenuOfficialSkillRanking').addEventListener('click', openOfficialSkillRanking);
+$('btnMenuSongCatalog').addEventListener('click', openSongCatalog);
+$('btnCloseSongCatalog').addEventListener('click', () => closeSongCatalog(true));
+$('songCatalogMask').addEventListener('click', event => {
+  if (event.target === $('songCatalogMask')) closeSongCatalog();
+});
+$('btnShowSongCatalog').addEventListener('click', showSongCatalog);
+$('songCatalogPager').addEventListener('click', event => {
+  const button = event.target.closest('[data-user-page]');
+  if (!button || button.disabled) return;
+  const next = songCatalogState.page + (button.dataset.userPage === 'next' ? 1 : -1);
+  if (next < 0 || next >= Math.ceil(songCatalogState.rows.length / SONG_CATALOG_PAGE_SIZE)) return;
+  songCatalogState.page = next;
+  renderSongCatalog();
+  scrollSongCatalogToTop();
+});
+$('songCatalogPager').addEventListener('change', event => {
+  const select = event.target.closest('[data-user-page-select]');
+  if (!select) return;
+  songCatalogState.page = Number(select.value);
+  renderSongCatalog();
+  scrollSongCatalogToTop();
+});
 $('btnCloseOfficialSkillRanking').addEventListener('click', () => closeOfficialSkillRanking(true));
 $('officialSkillRankingMask').addEventListener('click', event => {
   if (event.target === $('officialSkillRankingMask')) closeOfficialSkillRanking();
