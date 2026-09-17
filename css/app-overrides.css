@@ -2377,10 +2377,16 @@ body.light-mode .menu-context-actions .menu-context-help{
 .skill-ranking-head>div:first-child,.skill-history-head>div:first-child,
 .skill-sync-head>div:first-child,.mypage-title-row>h3{min-width:0;}
 #howToMask{z-index:3300;}
-.howto-dialog>.app-menu-head{
-  position:sticky;top:0;z-index:2;margin:0 -16px;padding:0 16px 10px;
-  background:#0f172a;
+.howto-dialog{
+  display:flex;flex-direction:column;overflow:hidden;box-sizing:border-box;
+  max-height:84dvh;
 }
+.howto-dialog>.app-menu-head{
+  flex:0 0 auto;position:relative;z-index:1;margin:0;padding:0 0 11px;
+  background:#0f172a;border-bottom:1px solid #334155;
+}
+.howto-dialog>.app-menu-head>strong{min-width:0;overflow-wrap:anywhere;font-size:15px;}
+.howto-body{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;scrollbar-gutter:stable;}
 .howto-index{padding:12px;margin-top:8px;border:1px solid #334155;border-radius:9px;background:#111827;}
 .howto-index>strong{display:block;font-size:12px;margin-bottom:9px;}
 .howto-index-links{display:flex;flex-wrap:wrap;gap:6px;}
@@ -2389,8 +2395,10 @@ body.light-mode .menu-context-actions .menu-context-help{
 #howToMask.howto-contextual .howto-index,
 #howToMask.howto-contextual .howto-body section:not(.howto-active){display:none;}
 #howToMask.howto-contextual .howto-body section{border-bottom:0;}
+#howToMask.howto-contextual .howto-body section b{display:none;}
 body.light-mode .howto-index{background:#f1f5f9;border-color:#94a3b8;color:#0f172a;}
 body.light-mode .howto-dialog>.app-menu-head{background:#f8fafc;}
+body.light-mode .howto-dialog>.app-menu-head{border-color:#94a3b8;}
 body.light-mode .howto-index-links a{color:#1d4ed8;border-color:#94a3b8;}
 @media(max-width:560px){
   .song-catalog-dialog{width:96vw;height:94dvh;}

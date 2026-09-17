@@ -2157,12 +2157,14 @@ function openHowTo(sectionId = null) {
   contextualHowTo = typeof sectionId === 'string' && !!document.getElementById(sectionId);
   if (!contextualHowTo) closeMenu();
   const mask = $('howToMask');
+  $('howToTitle').textContent = contextualHowTo
+    ? document.getElementById(sectionId).querySelector('b').textContent : '使い方';
   mask.classList.toggle('howto-contextual', contextualHowTo);
   mask.querySelectorAll('.howto-body section').forEach(section => {
     section.classList.toggle('howto-active', contextualHowTo && section.id === sectionId);
   });
   mask.style.display = 'flex';
-  mask.querySelector('.howto-dialog').scrollTop = 0;
+  mask.querySelector('.howto-body').scrollTop = 0;
 }
 function closeHowTo(returnToMenu = false) {
   $('howToMask').style.display = 'none';
@@ -2206,9 +2208,9 @@ $('howToMask').querySelector('.howto-index').addEventListener('click', event => 
   event.preventDefault();
   const section = document.getElementById(link.getAttribute('href').slice(1));
   if (!section) return;
-  const dialog = $('howToMask').querySelector('.howto-dialog');
-  dialog.scrollTo({
-    top: dialog.scrollTop + section.getBoundingClientRect().top - dialog.getBoundingClientRect().top - 64,
+  const body = $('howToMask').querySelector('.howto-body');
+  body.scrollTo({
+    top: body.scrollTop + section.getBoundingClientRect().top - body.getBoundingClientRect().top - 8,
     behavior: 'smooth'
   });
 });
