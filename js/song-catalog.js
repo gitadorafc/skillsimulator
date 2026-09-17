@@ -72,13 +72,14 @@ export function renderSongCatalogDetails(song) {
     ['GF Bass', CATALOG_PARTS.slice(8, 12)]
   ];
   return `<table class="song-catalog-detail-table" aria-label="${escapeHtml(song.title)}の難易度">
-    <thead><tr><th scope="col"></th>${['BSC', 'ADV', 'EXT', 'MAS'].map(part =>
+    <thead><tr><th scope="col"><div class="song-catalog-favorite-buttons" aria-label="お気に入りリストに追加・削除">${[1, 2, 3].map(slot =>
+      `<button type="button" data-favorite-slot="${slot}" aria-label="お気に入り${slot}に追加" title="お気に入り${slot}">${slot}</button>`).join('')}</div></th>${['BSC', 'ADV', 'EXT', 'MAS'].map(part =>
       `<th scope="col"><span class="p-badge ${partColorClass(part)}">${part}</span></th>`).join('')}</tr></thead>
     <tbody>${sections.map(([name, parts]) => `
       <tr><th scope="row" class="${name === 'DM' ? 'song-catalog-dm' : 'song-catalog-gf'}">${name}</th>${parts.map(part => {
         const level = song.levels?.[part];
         return `<td>${level == null || level === '' || !Number.isFinite(Number(level))
-          ? '－' : Number(level).toFixed(2)}</td>`;
+          ? '－' : `<button type="button" class="song-catalog-level-button" data-catalog-part="${part}" aria-label="${name} ${part.slice(0, 3)} ${Number(level).toFixed(2)} を登録・編集">${Number(level).toFixed(2)}</button>`}</td>`;
       }).join('')}</tr>`).join('')}</tbody>
   </table>`;
 }

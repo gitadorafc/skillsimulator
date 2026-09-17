@@ -59,7 +59,7 @@ import { selectSkillTargetRows, calcTargetTotals } from './skill-targets.js?v=4_
 import { renderPartOptions, renderSongSuggestions } from './score-form-renderer.js?v=4_15_8';
 import { getMyPrivateScoreComments, savePrivateScoreComment } from './score-comments.js?v=4_19_1';
 import { createCommentHistory } from './comment-history.js?v=4_16_6';
-import { buildSongCatalogEntries, filterSongCatalogEntries, groupSongCatalogRows, renderSongCatalogDetails } from './song-catalog.js?v=4_25_4';
+import { buildSongCatalogEntries, filterSongCatalogEntries, groupSongCatalogRows, renderSongCatalogDetails } from './song-catalog.js?v=4_26_0';
 import { getMyTags, getMyScoreTagMap, getMyScoreTagIds, replaceMyTags, setMyScoreTags } from './score-tags.js?v=4_19_0';
 import {
   buildOfficialRankingBookmarklet,
@@ -1690,6 +1690,7 @@ async function addAdminSwitchAccount() {
 function openMenu() {
   $('menuOfuseSupport')?.classList.remove('hidden');
   $('menuMask').style.display = 'flex';
+  loadSongFavorites().catch(error => console.warn('お気に入り名を取得できませんでした:', error));
 }
 
 function updateSkillShareSelection(selection) {
@@ -2416,7 +2417,59 @@ function closeOfficialSkillRanking(returnToMenu = false) {
 }
 
 const SONG_CATALOG_PAGE_SIZE = 100;
-const songCatalogState = { rows: [], songs: null, versionId: null, page: 0, loading: false, requestId: 0 };
+const songCatalogState = { rows: [], songs: null, versionId: null, page: 0, loading: false, requestId: 0, favoriteSlot: 0, pendingFavoriteUpdate: false };
+const songFavoriteState = { userId: null, versionId: null, names: {}, titles: [null, new Set(), new Set(), new Set()] };
+
+function favoriteListName(slot) {
+  return songFavoriteState.names[slot] || `お気に入りリスト${slot}`;
+}
+
+function refreshFavoriteMenuNames() {
+  document.querySelectorAll('[data-menu-favorite-slot]').forEach(button => {
+    button.firstChild.textContent = `${favoriteListName(Number(button.dataset.menuFavoriteSlot))} `;
+  });
+}
+
+async function loadSongFavorites(versionId = activeVersionId) {
+  const userId = currentUserId;
+  if (!userId || !versionId) throw new Error('ログイン状態とバージョンを確認してください。');
+  if (songFavoriteState.userId === userId && songFavoriteState.versionId === versionId) return;
+  const [lists, songs] = await Promise.all([
+    supabase.from('song_favorite_lists').select('slot,name').eq('user_id', userId).eq('version_id', versionId),
+    (async () => {
+      const rows = [];
+      for (let from = 0; ; from += 1000) {
+        const page = await supabase.from('song_favorites').select('slot,song_title')
+          .eq('user_id', userId).eq('version_id', versionId)
+          .order('slot').order('song_title').range(from, from + 999);
+        if (page.error) return page;
+        rows.push(...(page.data || []));
+        if ((page.data || []).length < 1000) return { data: rows, error: null };
+      }
+    })()
+  ]);
+  if (lists.error) throw lists.error;
+  if (songs.error) throw songs.error;
+  if (currentUserId !== userId || activeVersionId !== versionId) return;
+  songFavoriteState.userId = userId;
+  songFavoriteState.versionId = versionId;
+  songFavoriteState.names = Object.fromEntries((lists.data || []).map(row => [row.slot, row.name]));
+  songFavoriteState.titles = [null, new Set(), new Set(), new Set()];
+  for (const row of songs.data || []) songFavoriteState.titles[row.slot]?.add(row.song_title);
+  refreshFavoriteMenuNames();
+}
+
+function refreshFavoriteButtons(row) {
+  const title = row.dataset.catalogTitle;
+  row.querySelectorAll('[data-favorite-slot]').forEach(button => {
+    const slot = Number(button.dataset.favoriteSlot);
+    const selected = songFavoriteState.titles[slot]?.has(title) || false;
+    button.classList.toggle('selected', selected);
+    button.setAttribute('aria-pressed', String(selected));
+    button.setAttribute('aria-label', `${favoriteListName(slot)}に${selected ? '登録済み・タップで解除' : '追加'}`);
+    button.title = favoriteListName(slot);
+  });
+}
 
 async function getPublicSongCatalog(versionId) {
   const pageSize = 1000;
@@ -2456,6 +2509,7 @@ function renderSongCatalog() {
   for (const entry of songCatalogState.rows.slice(offset, offset + SONG_CATALOG_PAGE_SIZE)) {
     const row = document.createElement('details');
     row.className = `song-catalog-row${entry.part ? ' with-level' : ''}`;
+    row.dataset.catalogTitle = entry.title;
     const summary = document.createElement('summary');
     const title = document.createElement('span');
     title.className = 'song-catalog-title';
@@ -2474,6 +2528,7 @@ function renderSongCatalog() {
     detail.className = 'song-catalog-detail';
     detail.innerHTML = renderSongCatalogDetails(entry.song);
     row.append(summary, detail);
+    refreshFavoriteButtons(row);
     list.append(row);
   }
   pager.innerHTML = `${totalPages > 1
@@ -2482,7 +2537,11 @@ function renderSongCatalog() {
 }
 
 async function showSongCatalog() {
-  if (songCatalogState.loading) return;
+  if (songCatalogState.loading) {
+    if (songCatalogState.favoriteSlot) songCatalogState.pendingFavoriteUpdate = true;
+    return;
+  }
+  songCatalogState.pendingFavoriteUpdate = false;
   const mode = $('songCatalogMode').value;
   const direction = $('songCatalogDirection').value;
   const minInput = $('songCatalogMinLevel');
@@ -2512,7 +2571,9 @@ async function showSongCatalog() {
     if (requestId !== songCatalogState.requestId || versionId !== activeVersionId) return;
     songCatalogState.songs = songs;
     songCatalogState.versionId = versionId;
-    const entries = buildSongCatalogEntries(songs, mode, direction);
+    const visibleSongs = songCatalogState.favoriteSlot
+      ? songs.filter(song => songFavoriteState.titles[songCatalogState.favoriteSlot].has(song.title)) : songs;
+    const entries = buildSongCatalogEntries(visibleSongs, mode, direction);
     songCatalogState.rows = mode === 'title' ? entries : filterSongCatalogEntries(entries, minLevel, maxLevel);
     songCatalogState.page = 0;
     $('songCatalogStatus').textContent = songCatalogState.rows.length ? '' : '該当する曲データがありません。';
@@ -2528,14 +2589,17 @@ async function showSongCatalog() {
       songCatalogState.loading = false;
       button.disabled = false;
       button.textContent = mode === 'title' ? '一覧を表示' : 'この条件で表示';
+      if (songCatalogState.pendingFavoriteUpdate && songCatalogState.favoriteSlot) showSongCatalog();
     }
   }
 }
 
-function openSongCatalog() {
+async function openSongCatalog(favoriteSlot = 0) {
   closeMenu();
+  songCatalogState.favoriteSlot = favoriteSlot;
   ++songCatalogState.requestId;
   songCatalogState.loading = false;
+  songCatalogState.pendingFavoriteUpdate = false;
   $('btnShowSongCatalog').disabled = false;
   $('btnShowSongCatalog').textContent = '一覧を表示';
   songCatalogState.rows = [];
@@ -2547,17 +2611,114 @@ function openSongCatalog() {
   $('songCatalogMinLevel').value = '';
   $('songCatalogMaxLevel').value = '';
   $('songCatalogRange').classList.add('hidden');
+  $('songCatalogTitle').textContent = favoriteSlot ? favoriteListName(favoriteSlot) : '曲データ一覧';
+  $('songCatalogFavoriteName').classList.toggle('hidden', !favoriteSlot);
+  $('btnShowSongCatalog').classList.toggle('hidden', !!favoriteSlot);
+  $('songCatalogFavoriteNameInput').value = favoriteSlot ? favoriteListName(favoriteSlot) : '';
   $('songCatalogVersion').textContent = activeVersion?.name || '';
   $('songCatalogStatus').textContent = '';
   renderSongCatalog();
   $('songCatalogMask').style.display = 'flex';
+  try {
+    await loadSongFavorites();
+    if (songCatalogState.rows.length) document.querySelectorAll('.song-catalog-row').forEach(refreshFavoriteButtons);
+    if (favoriteSlot && songCatalogState.favoriteSlot === favoriteSlot && $('songCatalogMask').style.display === 'flex') {
+      $('songCatalogTitle').textContent = favoriteListName(favoriteSlot);
+      $('songCatalogFavoriteNameInput').value = favoriteListName(favoriteSlot);
+      await showSongCatalog();
+    }
+  } catch (error) {
+    $('songCatalogStatus').textContent = `お気に入りを読み込めませんでした：${error?.message || '不明なエラー'}`;
+  }
 }
 
 function closeSongCatalog(returnToMenu = false) {
   ++songCatalogState.requestId;
   songCatalogState.loading = false;
   $('songCatalogMask').style.display = 'none';
+  songCatalogState.favoriteSlot = 0;
   if (returnToMenu) openMenu();
+}
+
+async function toggleCatalogFavorite(button) {
+  const row = button.closest('.song-catalog-row');
+  const title = row?.dataset.catalogTitle;
+  const slot = Number(button.dataset.favoriteSlot);
+  if (!title || ![1, 2, 3].includes(slot) || button.disabled) return;
+  button.disabled = true;
+  const userId = currentUserId;
+  const versionId = activeVersionId;
+  try {
+    await loadSongFavorites(versionId);
+    if (userId !== currentUserId || versionId !== activeVersionId) return;
+    const selected = songFavoriteState.titles[slot].has(title);
+    let query;
+    if (selected) {
+      query = supabase.from('song_favorites').delete()
+        .eq('user_id', userId).eq('version_id', versionId).eq('slot', slot).eq('song_title', title);
+    } else {
+      query = supabase.from('song_favorites').insert({ user_id: userId, version_id: versionId, slot, song_title: title });
+    }
+    const { error } = await query;
+    if (error) throw error;
+    if (userId !== currentUserId || versionId !== activeVersionId) return;
+    if (selected) songFavoriteState.titles[slot].delete(title);
+    else songFavoriteState.titles[slot].add(title);
+    document.querySelectorAll('.song-catalog-row').forEach(item => {
+      if (item.dataset.catalogTitle === title) refreshFavoriteButtons(item);
+    });
+    if (songCatalogState.favoriteSlot === slot && selected) {
+      // 解除後もソート・難易度条件を保ったまま一覧に反映する。
+      const visible = songCatalogState.rows.filter(entry => entry.title !== title);
+      songCatalogState.rows = visible;
+      renderSongCatalog();
+      if (!visible.length) $('songCatalogStatus').textContent = '該当する曲データがありません。';
+    }
+  } catch (error) {
+    $('songCatalogStatus').textContent = `お気に入りを変更できませんでした：${error?.message || '不明なエラー'}`;
+  } finally {
+    button.disabled = false;
+  }
+}
+
+async function saveCatalogFavoriteName() {
+  const slot = songCatalogState.favoriteSlot;
+  const userId = currentUserId;
+  const versionId = activeVersionId;
+  const name = $('songCatalogFavoriteNameInput').value.trim();
+  if (!slot || !name || name.length > 24) {
+    $('songCatalogStatus').textContent = 'リスト名は1～24文字で入力してください。';
+    return;
+  }
+  const button = $('btnSaveSongCatalogFavoriteName');
+  button.disabled = true;
+  try {
+    const { error } = await supabase.from('song_favorite_lists')
+      .upsert({ user_id: userId, version_id: versionId, slot, name }, { onConflict: 'user_id,version_id,slot' });
+    if (error) throw error;
+    if (userId !== currentUserId || versionId !== activeVersionId || slot !== songCatalogState.favoriteSlot) return;
+    songFavoriteState.names[slot] = name;
+    $('songCatalogTitle').textContent = name;
+    $('songCatalogStatus').textContent = 'リスト名を保存しました。';
+    refreshFavoriteMenuNames();
+    document.querySelectorAll('.song-catalog-row').forEach(refreshFavoriteButtons);
+  } catch (error) {
+    $('songCatalogStatus').textContent = `リスト名を保存できませんでした：${error?.message || '不明なエラー'}`;
+  } finally {
+    button.disabled = false;
+  }
+}
+
+async function openCatalogScore(title, part) {
+  const instrument = part.endsWith('-D') ? 'DM' : 'GF';
+  if (instrument !== activeInstrument) await switchInstrument(instrument);
+  await loadScores({ silent: true });
+  const score = scores.find(item => item.title === title && item.part === part);
+  openScoreModal(score || null, true);
+  if (!score) {
+    $('partSelect').value = part;
+    await selectSongTitle(title);
+  }
 }
 
 async function copyOfficialRankingScript() {
@@ -3043,7 +3204,7 @@ function switchTab(tab) {
   render();
 }
 
-function openScoreModal(score = null) {
+function openScoreModal(score = null, skipInitialFocus = false) {
   previousScoreSettingsRequestSeq++;
   editingScoreId = score?.score_id || null;
   autoLoadedExistingScore = false;
@@ -3107,7 +3268,7 @@ function openScoreModal(score = null) {
 
   prepareAdminSongPicker().catch(console.error);
 
-  if (!score) {
+  if (!score && !skipInitialFocus) {
     requestAnimationFrame(() => $('formTitle').focus({ preventScroll: true }));
   }
 }
@@ -5736,7 +5897,27 @@ document.querySelectorAll('.skill-ranking-tab').forEach(button => {
   });
 });
 $('btnMenuOfficialSkillRanking').addEventListener('click', openOfficialSkillRanking);
-$('btnMenuSongCatalog').addEventListener('click', openSongCatalog);
+$('btnMenuSongCatalog').addEventListener('click', () => openSongCatalog());
+document.querySelectorAll('[data-menu-favorite-slot]').forEach(button => {
+  button.addEventListener('click', () => openSongCatalog(Number(button.dataset.menuFavoriteSlot)));
+});
+$('btnSaveSongCatalogFavoriteName').addEventListener('click', saveCatalogFavoriteName);
+$('songCatalogList').addEventListener('click', event => {
+  const favorite = event.target.closest('[data-favorite-slot]');
+  if (favorite) {
+    event.preventDefault();
+    toggleCatalogFavorite(favorite);
+    return;
+  }
+  const level = event.target.closest('[data-catalog-part]');
+  if (level) {
+    event.preventDefault();
+    const title = level.closest('.song-catalog-row')?.dataset.catalogTitle;
+    if (title) openCatalogScore(title, level.dataset.catalogPart).catch(async error => {
+      await showSiteDialog(`登録画面を開けませんでした：${error?.message || '不明なエラー'}`, 'エラー');
+    });
+  }
+});
 $('btnCloseSongCatalog').addEventListener('click', () => closeSongCatalog(true));
 $('songCatalogMask').addEventListener('click', event => {
   if (event.target === $('songCatalogMask')) closeSongCatalog();
@@ -5746,7 +5927,16 @@ $('songCatalogMode').addEventListener('change', event => {
   $('songCatalogDirection').value = event.target.value === 'title' ? 'asc' : 'desc';
   $('songCatalogRange').classList.toggle('hidden', event.target.value === 'title');
   $('btnShowSongCatalog').textContent = event.target.value === 'title' ? '一覧を表示' : 'この条件で表示';
+  if (songCatalogState.favoriteSlot) showSongCatalog();
 });
+$('songCatalogDirection').addEventListener('change', () => {
+  if (songCatalogState.favoriteSlot) showSongCatalog();
+});
+for (const id of ['songCatalogMinLevel', 'songCatalogMaxLevel']) {
+  $(id).addEventListener('input', () => {
+    if (songCatalogState.favoriteSlot) showSongCatalog();
+  });
+}
 $('songCatalogPager').addEventListener('click', event => {
   const button = event.target.closest('[data-user-page]');
   if (!button || button.disabled) return;
