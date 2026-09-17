@@ -2152,8 +2152,66 @@ async function submitFeedback() {
   }
 }
 
-function openHowTo() { closeMenu(); $('howToMask').style.display = 'flex'; }
-function closeHowTo(returnToMenu = false) { $('howToMask').style.display = 'none'; if (returnToMenu) openMenu(); }
+let contextualHowTo = false;
+function openHowTo(sectionId = null) {
+  contextualHowTo = typeof sectionId === 'string' && !!document.getElementById(sectionId);
+  if (!contextualHowTo) closeMenu();
+  const mask = $('howToMask');
+  mask.classList.toggle('howto-contextual', contextualHowTo);
+  mask.querySelectorAll('.howto-body section').forEach(section => {
+    section.classList.toggle('howto-active', contextualHowTo && section.id === sectionId);
+  });
+  mask.style.display = 'flex';
+  mask.querySelector('.howto-dialog').scrollTop = 0;
+}
+function closeHowTo(returnToMenu = false) {
+  $('howToMask').style.display = 'none';
+  if (returnToMenu && !contextualHowTo) openMenu();
+  contextualHowTo = false;
+}
+
+// 各メニュー画面の戻るボタンの左へ、対応する説明への入口をまとめて配置する。
+const contextualHelpTargets = {
+  btnCloseMypage: 'howto-mypage',
+  btnCloseFeatureSettings: 'howto-settings',
+  btnCloseAccountSwitch: 'howto-accounts',
+  btnCloseTagSettings: 'howto-tags',
+  btnCloseSkillSync: 'howto-sync',
+  btnCloseSkillShare: 'howto-share',
+  btnCloseSkillHistory: 'howto-share',
+  btnCloseSkillRanking: 'howto-ranking',
+  btnCloseOfficialSkillRanking: 'howto-official',
+  btnCloseRivalManage: 'howto-rivals',
+  btnCloseFeedback: 'howto-feedback',
+  btnCloseSupport: 'howto-support',
+  btnCloseSongCatalog: () => songCatalogState.favoriteSlot ? 'howto-favorites' : 'howto-catalog'
+};
+for (const [backId, section] of Object.entries(contextualHelpTargets)) {
+  const back = $(backId);
+  if (!back) continue;
+  const actions = document.createElement('div');
+  actions.className = 'menu-context-actions';
+  const help = document.createElement('button');
+  help.type = 'button';
+  help.className = 'menu-context-help';
+  help.textContent = '使い方';
+  help.addEventListener('click', () => openHowTo(typeof section === 'function' ? section() : section));
+  back.before(actions);
+  actions.append(help, back);
+}
+
+$('howToMask').querySelector('.howto-index').addEventListener('click', event => {
+  const link = event.target.closest('a[href^="#howto-"]');
+  if (!link) return;
+  event.preventDefault();
+  const section = document.getElementById(link.getAttribute('href').slice(1));
+  if (!section) return;
+  const dialog = $('howToMask').querySelector('.howto-dialog');
+  dialog.scrollTo({
+    top: dialog.scrollTop + section.getBoundingClientRect().top - dialog.getBoundingClientRect().top - 64,
+    behavior: 'smooth'
+  });
+});
 
 const skillRankingState = {
   rows: [],
@@ -2418,6 +2476,7 @@ function closeOfficialSkillRanking(returnToMenu = false) {
 
 const SONG_CATALOG_PAGE_SIZE = 100;
 const songCatalogState = { rows: [], songs: null, versionId: null, page: 0, loading: false, requestId: 0, favoriteSlot: 0, pendingFavoriteUpdate: false };
+let catalogScoreReturn = null;
 const songFavoriteState = { userId: null, versionId: null, names: {}, titles: [null, new Set(), new Set(), new Set()] };
 
 function favoriteListName(slot) {
@@ -2633,6 +2692,7 @@ async function openSongCatalog(favoriteSlot = 0) {
 }
 
 function closeSongCatalog(returnToMenu = false) {
+  catalogScoreReturn = null;
   ++songCatalogState.requestId;
   songCatalogState.loading = false;
   $('songCatalogMask').style.display = 'none';
@@ -2714,6 +2774,8 @@ async function openCatalogScore(title, part) {
   if (instrument !== activeInstrument) await switchInstrument(instrument);
   await loadScores({ silent: true });
   const score = scores.find(item => item.title === title && item.part === part);
+  catalogScoreReturn = { userId: currentUserId, versionId: activeVersionId };
+  $('songCatalogMask').style.display = 'none';
   openScoreModal(score || null, true);
   if (!score) {
     $('partSelect').value = part;
@@ -3292,6 +3354,13 @@ function closeModal() {
   document.body.style.left = '';
   document.body.style.right = '';
   document.body.style.width = '';
+
+  const returnToCatalog = catalogScoreReturn;
+  catalogScoreReturn = null;
+  if (returnToCatalog && returnToCatalog.userId === currentUserId
+      && returnToCatalog.versionId === activeVersionId) {
+    $('songCatalogMask').style.display = 'flex';
+  }
 
   const restoreY = scoreModalScrollY;
 
