@@ -65,7 +65,7 @@ import {
   buildOfficialRankingBookmarklet,
   createOfficialRankingImportToken,
   getOfficialSkillRanking
-} from './official-skill-ranking.js?v=4_25_0';
+} from './official-skill-ranking.js?v=4_27_4';
 
 let adminEnabled = false;
 import { supabase } from './supabase.js?v=21_57';
@@ -157,17 +157,40 @@ async function processOfficialRankingTokenRequest() {
   const { slug, nonce } = JSON.parse(raw);
   let errorMessage = '';
   let token = '';
+  let operatorSkills;
   try {
     if (!window.opener) throw new Error('公式ページとの接続が切れました。公式ページから再実行してください。');
     if (!adminEnabled) throw new Error('ランキング更新は管理者アカウントから実行してください。');
     const version = gameVersions.find(item => item.eamusement_slug === slug);
     if (!version) throw new Error('このバージョンはSkill Simulatorに登録されていません。');
+    // ランキングを更新するときだけ、サイトのユーザーリストと同じ集計値を読む。
+    // 公式ページのログイン中カードや固定スキル値には依存しない。
+    const { data: users, error: usersError } = await supabase.rpc('list_user_summaries', {
+      p_search: 'FIZZ',
+      p_instrument: 'GF',
+      p_version_id: version.id
+    });
+    if (usersError) throw usersError;
+    const operators = (users || []).filter(user =>
+      /^FIZZ\s*[（(]運営[）)]$/i.test(String(user.username || '').trim())
+    );
+    if (operators.length !== 1) {
+      throw new Error('ユーザーリストからFIZZ(運営)を特定できませんでした。ランキングは更新していません。');
+    }
+    operatorSkills = Object.fromEntries(['GF', 'DM'].map(instrument => {
+      const value = operators[0][`${instrument.toLowerCase()}_skill`];
+      const skill = Number(value);
+      if (value === null || value === undefined || value === '' || !Number.isFinite(skill) || skill < 0) {
+        throw new Error(`ユーザーリストのFIZZ(運営)の${instrument}スキルを取得できませんでした。`);
+      }
+      return [instrument, skill];
+    }));
     token = await createOfficialRankingImportToken(version.id);
   } catch (error) {
     errorMessage = error?.message || '取り込み権限を確認できませんでした。';
   }
   if (window.opener) {
-    window.opener.postMessage({ type: 'GITADORA_RANKING_TOKEN', nonce, token, error: errorMessage }, EAMUSEMENT_ORIGIN);
+    window.opener.postMessage({ type: 'GITADORA_RANKING_TOKEN', nonce, token, operatorSkills: !errorMessage ? operatorSkills : undefined, error: errorMessage }, EAMUSEMENT_ORIGIN);
     if (!errorMessage) {
       setTimeout(() => window.close(), 800);
       return;

@@ -112,58 +112,6 @@
     }).filter(Boolean);
   }
 
-  // 公式のログイン中カードのTOTALスキルを、ランキングを更新するときだけ読み取る。
-  // 値を取得できない場合は過去の固定値を使わず、ランキング全体の保存を中止する。
-  function parseOperatorTotalSkill(doc, instrument) {
-    const candidates = [];
-    const numberPattern = /(?:^|[^\d])([\d,]{1,6}\.\d{2})(?!\d)/g;
-    const totalLabel = /(?:TOTAL(?:\s*SKILL|\s*スキル)?\b|合計スキル|総合スキル|トータルスキル)/i;
-    const readNumbers = text => {
-      const values = [];
-      for (const match of String(text).matchAll(numberPattern)) {
-        const value = Number(match[1].replace(/,/g, ''));
-        if (value >= 0 && value <= 20000) values.push(value);
-      }
-      return values;
-    };
-    // ページ全体や曲リストを一括検索すると曲別スキルを誤認するため、
-    // TOTALと明示された小さな要素だけを調べる。
-    for (const element of doc.querySelectorAll('body *')) {
-      if (element.children.length > 5) continue;
-      const ownText = [...element.childNodes]
-        .filter(node => node.nodeType === 3)
-        .map(node => node.textContent).join(' ').trim();
-      if (!totalLabel.test(ownText)) continue;
-      const text = cleanText(element.textContent);
-      if (text.length > 150) continue;
-      const values = readNumbers(text);
-      if (values.length === 1) candidates.push(values[0]);
-      if (values.length) continue;
-      const parent = element.parentElement;
-      if (!parent || parent.children.length > 5 || cleanText(parent.textContent).length > 150) continue;
-      const nearby = readNumbers(cleanText(parent.textContent));
-      if (nearby.length === 1) candidates.push(nearby[0]);
-    }
-    const unique = [...new Set(candidates)];
-    if (unique.length !== 1) {
-      throw new Error(`${instrument}の公式TOTALスキルを特定できませんでした。ランキングは保存していません。`);
-    }
-    return unique[0];
-  }
-
-  async function fetchOperatorSkills() {
-    const skills = {};
-    for (const instrument of ['GF', 'DM']) {
-      updateProgress({ status: `${instrument}：運営スキル確認中`, detail: 'ログイン中の公式TOTALスキルを取得しています。', percent: 0 });
-      const url = `${OFFICIAL_ORIGIN}/game/gfdm/${VERSION_SLUG}/p/playdata/skill.html?gtype=${instrument.toLowerCase()}&stype=1`;
-      const response = await fetch(url, { credentials: 'include', cache: 'no-store' });
-      if (!response.ok) throw new Error(`${instrument}の公式TOTALスキルを取得できませんでした (${response.status})`);
-      const doc = new DOMParser().parseFromString(await response.text(), 'text/html');
-      skills[instrument] = parseOperatorTotalSkill(doc, instrument);
-    }
-    return skills;
-  }
-
   async function prepareInstrument(instrument) {
     const pageUrl = baseUrl(instrument);
     const response = await fetch(pageUrl, { credentials: 'include' });
@@ -284,9 +232,13 @@
         throw new Error('以前の更新スクリプトは使用できません。固定ブックマークレットをコピーし直してください。');
       }
       updateProgress({ status: '管理者確認中', detail: '開いたSkill Simulatorの画面でログイン状態を確認しています。', percent: 0 });
-      importToken = await window.__gitadoraOfficialRankingTokenPromise;
+      const authorization = await window.__gitadoraOfficialRankingTokenPromise;
+      importToken = authorization?.token;
       if (!/^[0-9a-f-]{36}$/i.test(importToken || '')) throw new Error('取込トークンを取得できませんでした。');
-      const operatorSkills = await fetchOperatorSkills();
+      const operatorSkills = authorization?.operatorSkills;
+      if (!operatorSkills || !['GF', 'DM'].every(instrument =>
+        Number.isFinite(operatorSkills[instrument]) && operatorSkills[instrument] >= 0
+      )) throw new Error('サイトのユーザーリストからFIZZ(運営)のスキルを取得できませんでした。');
       const rankings = {};
       for (const instrument of ['GF', 'DM']) {
         const collected = await collect(instrument);
