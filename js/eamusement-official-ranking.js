@@ -17,31 +17,40 @@
   let importToken = '';
 
   function awaitRankingToken() {
-    const bridge = window.__rankingBridge;
-    if (!bridge) return Promise.reject(new Error('以前の更新スクリプトは使用できません。固定ブックマークレットをコピーし直してください。'));
+    const popup = window.__rankingPopup;
+    delete window.__rankingPopup;
+    if (!popup || popup.closed) return Promise.reject(new Error('管理者確認用の画面を開けませんでした。固定ブックマークレットをコピーし直してください。'));
+    const nonce = crypto.randomUUID();
     return new Promise((resolve, reject) => {
       const timeout = setTimeout(() => finish(new Error('管理者確認が時間切れになりました。')), 180000);
       function finish(error, data) {
         clearTimeout(timeout);
         window.removeEventListener('message', receive);
-        window.removeEventListener('message', bridge.on);
-        delete window.__rankingBridge;
         error ? reject(error) : resolve({ token: data.token, operatorSkills: data.operatorSkills });
       }
       function receive(event) {
-        if (event.source !== bridge.p || event.origin !== 'https://gitadorafc.github.io' || event.data?.type !== 'GITADORA_RANKING_TOKEN' || event.data?.nonce !== bridge.n) return;
+        if (event.source !== popup || event.origin !== 'https://gitadorafc.github.io' || event.data?.type !== 'GITADORA_RANKING_TOKEN' || event.data?.nonce !== nonce) return;
         finish(event.data.error ? new Error(event.data.error) : null, event.data);
       }
       window.addEventListener('message', receive);
-      if (bridge.message) finish(bridge.message.error ? new Error(bridge.message.error) : null, bridge.message);
+      try {
+        popup.location.replace('https://gitadorafc.github.io/skillsimulator/#official-ranking-token='
+          + encodeURIComponent(JSON.stringify({ slug: VERSION_SLUG, nonce })));
+      } catch (error) {
+        finish(error);
+      }
     });
   }
 
   if (location.origin !== OFFICIAL_ORIGIN || !/^gitadora_[a-z0-9_]+$/.test(VERSION_SLUG)) {
+    window.__rankingPopup?.close();
+    delete window.__rankingPopup;
     alert('e-amusementのGITADORAページを開き、ログインしてから実行してください。');
     return;
   }
   if (window.__gitadoraOfficialRankingRunning) {
+    window.__rankingPopup?.close();
+    delete window.__rankingPopup;
     alert('公式スキルランキングを取得中です。');
     return;
   }
