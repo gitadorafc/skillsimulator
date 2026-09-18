@@ -4,8 +4,9 @@ const SCRAPER_URL = new URL('./eamusement-official-ranking.js', import.meta.url)
 const APP_URL = new URL('../', import.meta.url).href;
 
 export function buildOfficialRankingBookmarklet() {
-  // ポップアップだけはユーザー操作中に同期的に開く。残りは読み込んだスクリプトで処理する。
-  return `javascript:(()=>{if(window.__gitadoraOfficialRankingRunning||window.__rankingPopup)return alert('ランキングを取得中です。');const p=open('about:blank','_blank');if(!p)return alert('ポップアップを許可してください。');window.__rankingPopup=p;const s=document.createElement('script');s.src=${JSON.stringify(SCRAPER_URL)}+'?t='+Date.now();s.onerror=()=>{delete window.__rankingPopup;p.close();alert('ランキング用スクリプトを読み込めませんでした。')};document.body.append(s)})()`;
+  // ポップアップはブラウザのブロックを避けるため、クリック直後に開く必要がある。
+  // それ以外の管理者確認とランキング取得は外部スクリプトに任せる。
+  return `javascript:(d=>{if(window.__rankingPopup||window.__gitadoraOfficialRankingRunning)return;var p=open('about:blank');if(!p)return alert('ポップアップを許可してください。');window.__rankingPopup=p;var s=d.createElement('script');s.src=${JSON.stringify(SCRAPER_URL)}+'?t='+Date.now();s.onerror=()=>{p.close();delete window.__rankingPopup;alert('読み込みに失敗しました。')};d.head.append(s)})(document)`;
 }
 
 export async function createOfficialRankingImportToken(versionId) {
