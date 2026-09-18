@@ -2453,14 +2453,15 @@ function showOfficialRankingUpdated(rows) {
 async function loadOfficialSkillRanking() {
   const requestedInstrument = officialRankingState.instrument;
   const requestedVersionId = activeVersionId;
-  if (officialRankingState.loadingByInstrument[requestedInstrument]) return;
+  // 取得済み（0件の結果も含む）は再利用し、戻る操作やGF/DM切替で再通信しない。
+  if (officialRankingState.rowsByInstrument[requestedInstrument] !== null || officialRankingState.loadingByInstrument[requestedInstrument]) return;
   officialRankingState.loadingByInstrument[requestedInstrument] = true;
   officialRankingState.rows = officialRankingState.rowsByInstrument[requestedInstrument] || [];
   if (!officialRankingState.rows.length) $('officialSkillRankingUpdated').textContent = '';
   renderOfficialSkillRanking();
   try {
     const rows = await getOfficialSkillRanking(requestedVersionId, requestedInstrument);
-    if (activeVersionId !== requestedVersionId) return;
+    if (activeVersionId !== requestedVersionId || officialRankingState.versionId !== requestedVersionId) return;
     officialRankingState.rowsByInstrument[requestedInstrument] = rows;
     if (officialRankingState.instrument !== requestedInstrument) return;
     officialRankingState.rows = rows;
@@ -2471,8 +2472,10 @@ async function loadOfficialSkillRanking() {
       $('officialSkillRankingUpdated').textContent = `取得エラー：${error?.message || '不明なエラー'}`;
     }
   } finally {
-    officialRankingState.loadingByInstrument[requestedInstrument] = false;
-    if (officialRankingState.instrument === requestedInstrument) renderOfficialSkillRanking();
+    if (officialRankingState.versionId === requestedVersionId) {
+      officialRankingState.loadingByInstrument[requestedInstrument] = false;
+      if (officialRankingState.instrument === requestedInstrument) renderOfficialSkillRanking();
+    }
   }
 }
 
@@ -6108,9 +6111,6 @@ document.addEventListener('visibilitychange', () => {
 window.addEventListener('focus', () => {
   if (!$('appScreen').classList.contains('hidden')) {
     loadScores({ silent: true }).catch(console.error);
-  }
-  if (isOverlayVisible($('officialSkillRankingMask'))) {
-    loadOfficialSkillRanking().catch(console.error);
   }
 });
 
