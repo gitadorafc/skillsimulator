@@ -11,10 +11,31 @@
   const MAX_REQUESTS = 320;
   const MIN_REQUEST_INTERVAL_MS = 350;
   let nextSearchAt = 0;
-  const scriptSettings = new URLSearchParams((document.currentScript?.src.split('#')[1] || ''));
+  // 公開用（anon）キー。サイトの js/config.js と同じ値を使用し、秘密鍵は使用しない。
+  const supabaseEndpoint = 'https://nokpcryawiitvpzmvfrd.supabase.co';
+  const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5va3Bjcnlhd2lpdHZwem12ZnJkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY5NTkwNTksImV4cCI6MjEwMjUzNTA1OX0.wPEqI4fommllj83mIoaSNZ_T2Nr_6xzWdNVGgRNoZSQ';
   let importToken = '';
-  const supabaseEndpoint = scriptSettings.get('endpoint');
-  const supabaseKey = scriptSettings.get('key');
+
+  function awaitRankingToken() {
+    const bridge = window.__rankingBridge;
+    if (!bridge) return Promise.reject(new Error('以前の更新スクリプトは使用できません。固定ブックマークレットをコピーし直してください。'));
+    return new Promise((resolve, reject) => {
+      const timeout = setTimeout(() => finish(new Error('管理者確認が時間切れになりました。')), 180000);
+      function finish(error, data) {
+        clearTimeout(timeout);
+        window.removeEventListener('message', receive);
+        window.removeEventListener('message', bridge.on);
+        delete window.__rankingBridge;
+        error ? reject(error) : resolve({ token: data.token, operatorSkills: data.operatorSkills });
+      }
+      function receive(event) {
+        if (event.source !== bridge.p || event.origin !== 'https://gitadorafc.github.io' || event.data?.type !== 'GITADORA_RANKING_TOKEN' || event.data?.nonce !== bridge.n) return;
+        finish(event.data.error ? new Error(event.data.error) : null, event.data);
+      }
+      window.addEventListener('message', receive);
+      if (bridge.message) finish(bridge.message.error ? new Error(bridge.message.error) : null, bridge.message);
+    });
+  }
 
   if (location.origin !== OFFICIAL_ORIGIN || !/^gitadora_[a-z0-9_]+$/.test(VERSION_SLUG)) {
     alert('e-amusementのGITADORAページを開き、ログインしてから実行してください。');
@@ -228,11 +249,8 @@
 
   (async () => {
     try {
-      if (!window.__gitadoraOfficialRankingTokenPromise) {
-        throw new Error('以前の更新スクリプトは使用できません。固定ブックマークレットをコピーし直してください。');
-      }
       updateProgress({ status: '管理者確認中', detail: '開いたSkill Simulatorの画面でログイン状態を確認しています。', percent: 0 });
-      const authorization = await window.__gitadoraOfficialRankingTokenPromise;
+      const authorization = await awaitRankingToken();
       importToken = authorization?.token;
       if (!/^[0-9a-f-]{36}$/i.test(importToken || '')) throw new Error('取込トークンを取得できませんでした。');
       const operatorSkills = authorization?.operatorSkills;

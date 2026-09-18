@@ -65,7 +65,7 @@ import {
   buildOfficialRankingBookmarklet,
   createOfficialRankingImportToken,
   getOfficialSkillRanking
-} from './official-skill-ranking.js?v=4_27_4';
+} from './official-skill-ranking.js?v=4_27_6';
 
 let adminEnabled = false;
 import { supabase } from './supabase.js?v=21_57';

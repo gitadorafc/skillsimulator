@@ -1,16 +1,11 @@
 import { supabase } from './supabase.js?v=21_57';
-import { SUPABASE_URL, SUPABASE_ANON_KEY } from './config.js?v=17_0';
 
 const SCRAPER_URL = new URL('./eamusement-official-ranking.js', import.meta.url).href;
 const APP_URL = new URL('../', import.meta.url).href;
 
 export function buildOfficialRankingBookmarklet() {
-  const settings = new URLSearchParams({
-    endpoint: SUPABASE_URL,
-    key: SUPABASE_ANON_KEY
-  }).toString();
-  // ポップアップはユーザー操作中に同期的に開く。トークンは管理者のサイト画面が毎回発行する。
-  const source = `javascript:(()=>{const o='https://p.eagate.573.jp',a=${JSON.stringify(APP_URL)},slug=location.pathname.match(/\\/game\\/gfdm\\/([^/]+)\\//)?.[1]||'';if(location.origin!==o||!slug){alert('GITADORAの公式ページで実行してください。');return}if(window.__gitadoraOfficialRankingRunning){alert('ランキングを取得中です。');return}const n=crypto.randomUUID(),p=window.open(a+'#official-ranking-token='+encodeURIComponent(JSON.stringify({slug,nonce:n})),'_blank');if(!p){alert('ポップアップを許可して再実行してください。');return}window.__gitadoraOfficialRankingTokenPromise=new Promise((resolve,reject)=>{const timer=setTimeout(()=>{window.removeEventListener('message',receive);reject(Error('管理者確認が時間切れになりました。'))},180000);function receive(e){if(e.origin!==new URL(a).origin||e.source!==p||e.data?.type!=='GITADORA_RANKING_TOKEN'||e.data?.nonce!==n)return;clearTimeout(timer);window.removeEventListener('message',receive);e.data.error?reject(Error(e.data.error)):resolve({token:e.data.token,operatorSkills:e.data.operatorSkills})}window.addEventListener('message',receive)});const s=document.createElement('script');s.src=${JSON.stringify(SCRAPER_URL)}+'?t='+Date.now()+'#'+${JSON.stringify(settings)};document.body.appendChild(s)})()`;
+  // ポップアップはクリック操作中に同期的に開く必要がある。返信は読み込み前でも失われないよう一時保持する。
+  const source = `javascript:(()=>{const a=${JSON.stringify(APP_URL)},v=location.pathname.split('/')[3];if(location.origin!=='https://p.eagate.573.jp'||!v){alert('GITADORAの公式ページで実行してください。');return}if(window.__gitadoraOfficialRankingRunning||window.__rankingBridge){alert('ランキングを取得中です。');return}const n=crypto.randomUUID(),p=open(a+'#official-ranking-token='+encodeURIComponent(JSON.stringify({slug:v,nonce:n})),'_blank');if(!p){alert('ポップアップを許可してください。');return}const b=window.__rankingBridge={p,n};addEventListener('message',b.on=e=>{if(e.source===p&&e.origin===new URL(a).origin&&e.data?.type==='GITADORA_RANKING_TOKEN'&&e.data?.nonce===n)b.message=e.data});const s=document.createElement('script');s.src=${JSON.stringify(SCRAPER_URL)}+'?t='+Date.now();s.onerror=()=>{removeEventListener('message',b.on);delete window.__rankingBridge;alert('ランキング用スクリプトを読み込めませんでした。')};document.body.append(s)})()`;
   return source;
 }
 
