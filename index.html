@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>GITADORA Skill Simulator</title>
-<meta name="app-version" content="4.27.1">
+<meta name="app-version" content="4.27.3">
 <link rel="icon" type="image/svg+xml" href="./favicon.svg?v=21_7">
 <link rel="icon" type="image/png" sizes="48x48" href="./favicon-48x48.png?v=21_7">
 <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32x32.png?v=21_7">
@@ -39,7 +39,7 @@
 </script>
 
 <link rel="stylesheet" href="./css/app.css?v=4_17_0">
-<link rel="stylesheet" href="./css/app-overrides.css?v=4_27_1">
+<link rel="stylesheet" href="./css/app-overrides.css?v=4_27_3">
   <link rel="stylesheet" href="./css/layout-canonical.css?v=4_17_0">
   <link rel="preconnect" href="https://challenges.cloudflare.com">
   <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" defer></script>
@@ -415,7 +415,7 @@
     <div class="app-menu-version">
       <label>VERSION</label>
       <select id="versionSelect" class="version-select" aria-label="GITADORAバージョン"></select>
-      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 4.27.1</div>
+      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 4.27.3</div>
     </div>
   </div>
 </div>
@@ -601,7 +601,7 @@
 
       <details id="officialRankingAdminControls" class="official-ranking-import hidden">
         <summary>ランキングを更新する（管理者用）</summary>
-        <p>固定の更新ブックマークレットを一度保存し、e-amusementへログイン後に取得したいバージョンの公式ページで実行します。管理者確認のためSkill Simulatorが別画面で開き、確認後にGF・DMを取得します。ランキングは公式ページのバージョンに保存されます。ログイン情報は保存しません。</p>
+        <p>固定の更新ブックマークレットを一度保存し、e-amusementへログイン後に取得したいバージョンの公式ページで実行します。管理者確認のためSkill Simulatorが別画面で開き、確認後にGF・DMを取得します。同期時にログイン中のカードのGF・DMの最新TOTALスキルを公式ページから読み取り、FIZZとして1000位以内の場合のみ加えます。普段のスキル同期ではランキングを更新しません。ランキングは公式ページのバージョンに保存されます。ログイン情報は保存しません。</p>
         <div class="official-ranking-import-actions">
           <a id="officialRankingSourceLink" class="official-ranking-link" href="https://p.eagate.573.jp/game/gfdm/gitadora_galaxywave_delta/p/setting/rival_search.html?gtype=gf&amp;anum=1" target="_blank" rel="noopener noreferrer">選択中のバージョンの公式ページ</a>
           <button id="btnCopyOfficialRankingScript" type="button">固定ブックマークレットをコピー</button>
@@ -794,7 +794,7 @@
       <section id="howto-tags"><b>タグで登録曲を整理する</b><p>MENU →「タグ設定」で自分用のタグを最大10個作成できます。登録曲の編集画面で曲ごとに複数のタグを付けられます。「登録」タブのタグフィルタで絞り込めます。</p></section>
       <section id="howto-catalog"><b>曲データ一覧を見る</b><p>MENU →「曲データ一覧」で曲名順、GF難易度順、DM難易度順を選び「表示」を押します。難易度順では下限・上限も指定できます。曲をタップすると全パートの難易度が見られ、難易度の数値をタップするとその曲・パートのスコアを登録・編集できます。</p></section>
       <section id="howto-favorites"><b>お気に入りリストを使う</b><p>「曲データ一覧」で曲を開き、難易度表の左上にある1・2・3をタップすると、対応するお気に入りリストに追加できます。選択済みのボタンをもう一度タップすると解除できます。曲は複数のリストに入れられます。MENU →「お気に入りリスト1～3」から各リストを開けます。リスト名は上部の入力欄で変更して「名前を保存」を押します。曲名順は昇順、難易度順は降順が初期設定です。並び順・難易度の下限と上限を変えると自動で絞り込まれ、難易度をタップすれば登録・編集できます。</p></section>
-      <section id="howto-official"><b>公式スキルランキングを見る</b><p>MENU →「公式スキルランキング」で、表示中のバージョンのGF / DMランキングを確認できます。100位ごとにページを切り替えられます。「最終更新」にデータの更新日時が表示されます。</p></section>
+      <section id="howto-official"><b>公式スキルランキングを見る</b><p>MENU →「公式スキルランキング」で、表示中のバージョンのGF / DMランキングを確認できます。100位ごとにページを切り替えられます。「最終更新」にデータの更新日時が表示されます。管理者が公式ランキングを更新するときだけ、ログイン中のカードの最新TOTALスキルをFIZZとして順位に反映します（1000位以内の場合のみ）。通常のスキル同期でランキングは更新されません。</p></section>
       <section id="howto-mypage"><b>マイページを使う</b><p>ユーザー名・パスワード・X IDの変更、ログアウトができます。アカウントの削除は元に戻せません。</p></section>
       <section id="howto-settings"><b>機能設定を変更する</b><p>MENU →「機能設定」でライトモード、曲一覧の横並び表示、文字サイズ、GFのデフォルトオプション、登録曲やX IDの公開設定を変更して「保存する」を押します。</p></section>
       <section id="howto-accounts"><b>ユーザーを切り替える</b><p>マイページの「ユーザー切り替え」で、この端末に追加したアカウントへ切り替えられます。追加時にログインが必要です。パスワードは端末に保存しません。</p></section>
@@ -981,7 +981,7 @@
 <div id="adminModal" class="admin-modal">
   <div class="admin-header">
     <div class="admin-title-row">
-      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 4.27.1</div></div>
+      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 4.27.3</div></div>
       <button id="btnCloseAdmin" class="admin-close">閉じる</button>
     </div>
     <div class="admin-tabs">
@@ -1114,7 +1114,7 @@
   </div>
 </div>
 
-<script type="module" src="./js/app.js?v=4_27_1"></script>
+<script type="module" src="./js/app.js?v=4_27_3"></script>
 <script src="./js/version-check.js?v=4_25_0" defer></script>
 </body>
 </html>
