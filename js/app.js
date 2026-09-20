@@ -64,8 +64,9 @@ import { getMyTags, getMyScoreTagMap, getMyScoreTagIds, replaceMyTags, setMyScor
 import {
   buildOfficialRankingBookmarklet,
   createOfficialRankingImportToken,
-  getOfficialSkillRanking
-} from './official-skill-ranking.js?v=4_27_6';
+  getOfficialSkillRanking,
+  getOfficialSkillRankingRevision
+} from './official-skill-ranking.js?v=4_27_10';
 
 let adminEnabled = false;
 import { supabase } from './supabase.js?v=21_57';
@@ -2387,14 +2388,23 @@ function closeSkillTargetRanking(returnToMenu = false) {
 }
 
 const OFFICIAL_RANKING_PAGE_SIZE = 100;
+const OFFICIAL_RANKING_CHECK_INTERVAL_MS = 45000;
 const officialRankingState = {
   instrument: 'GF',
   versionId: null,
   page: 0,
   rows: [],
   rowsByInstrument: { GF: null, DM: null },
-  loadingByInstrument: { GF: false, DM: false }
+  loadingByInstrument: { GF: false, DM: false },
+  silentByInstrument: { GF: false, DM: false },
+  checkingByInstrument: { GF: false, DM: false },
+  checkedAtByInstrument: { GF: 0, DM: 0 },
+  timer: null
 };
+
+function isOfficialRankingVisible() {
+  return $('officialSkillRankingMask').style.display === 'flex' && !document.hidden;
+}
 
 function renderOfficialSkillRanking() {
   const list = $('officialSkillRankingList');
@@ -2432,7 +2442,7 @@ function renderOfficialSkillRanking() {
     item.append(rank, name, skill);
     return item;
   }));
-  if (loading) {
+  if (loading && !officialRankingState.silentByInstrument[officialRankingState.instrument]) {
     const loading = document.createElement('div');
     loading.className = 'official-ranking-refreshing';
     loading.textContent = '更新中...';
@@ -2450,12 +2460,14 @@ function showOfficialRankingUpdated(rows) {
     : '最終更新：未登録';
 }
 
-async function loadOfficialSkillRanking() {
+async function loadOfficialSkillRanking({ force = false, silent = false } = {}) {
   const requestedInstrument = officialRankingState.instrument;
   const requestedVersionId = activeVersionId;
   // 取得済み（0件の結果も含む）は再利用し、戻る操作やGF/DM切替で再通信しない。
-  if (officialRankingState.rowsByInstrument[requestedInstrument] !== null || officialRankingState.loadingByInstrument[requestedInstrument]) return;
+  if (officialRankingState.loadingByInstrument[requestedInstrument]
+      || (!force && officialRankingState.rowsByInstrument[requestedInstrument] !== null)) return;
   officialRankingState.loadingByInstrument[requestedInstrument] = true;
+  officialRankingState.silentByInstrument[requestedInstrument] = silent;
   officialRankingState.rows = officialRankingState.rowsByInstrument[requestedInstrument] || [];
   if (!officialRankingState.rows.length) $('officialSkillRankingUpdated').textContent = '';
   renderOfficialSkillRanking();
@@ -2463,6 +2475,7 @@ async function loadOfficialSkillRanking() {
     const rows = await getOfficialSkillRanking(requestedVersionId, requestedInstrument);
     if (activeVersionId !== requestedVersionId || officialRankingState.versionId !== requestedVersionId) return;
     officialRankingState.rowsByInstrument[requestedInstrument] = rows;
+    officialRankingState.checkedAtByInstrument[requestedInstrument] = Date.now();
     if (officialRankingState.instrument !== requestedInstrument) return;
     officialRankingState.rows = rows;
     showOfficialRankingUpdated(rows);
@@ -2474,9 +2487,42 @@ async function loadOfficialSkillRanking() {
   } finally {
     if (officialRankingState.versionId === requestedVersionId) {
       officialRankingState.loadingByInstrument[requestedInstrument] = false;
+      officialRankingState.silentByInstrument[requestedInstrument] = false;
       if (officialRankingState.instrument === requestedInstrument) renderOfficialSkillRanking();
     }
   }
+}
+
+// ランキング表示中だけ更新日時を確認し、差分がある場合に限って一覧を取り直す。
+async function checkOfficialSkillRankingUpdate({ force = false } = {}) {
+  if (!isOfficialRankingVisible()) return;
+  const instrument = officialRankingState.instrument;
+  const versionId = officialRankingState.versionId;
+  if (!versionId || officialRankingState.rowsByInstrument[instrument] === null
+      || officialRankingState.loadingByInstrument[instrument]
+      || officialRankingState.checkingByInstrument[instrument]
+      || (!force && Date.now() - officialRankingState.checkedAtByInstrument[instrument] < OFFICIAL_RANKING_CHECK_INTERVAL_MS)) return;
+  officialRankingState.checkingByInstrument[instrument] = true;
+  officialRankingState.checkedAtByInstrument[instrument] = Date.now();
+  try {
+    const revision = await getOfficialSkillRankingRevision(versionId, instrument);
+    if (!isOfficialRankingVisible() || officialRankingState.versionId !== versionId
+        || officialRankingState.instrument !== instrument) return;
+    const currentRevision = officialRankingState.rowsByInstrument[instrument]?.[0]?.captured_at || null;
+    if (revision !== currentRevision) {
+      await loadOfficialSkillRanking({ force: true, silent: true });
+    }
+  } catch (error) {
+    // 一時的にオフラインでも、表示済みランキングを消さず次回の確認を待つ。
+    console.warn('official skill ranking revision check failed:', error);
+  } finally {
+    officialRankingState.checkingByInstrument[instrument] = false;
+  }
+}
+
+function stopOfficialRankingWatch() {
+  if (officialRankingState.timer !== null) clearInterval(officialRankingState.timer);
+  officialRankingState.timer = null;
 }
 
 async function openOfficialSkillRanking() {
@@ -2485,6 +2531,8 @@ async function openOfficialSkillRanking() {
     officialRankingState.versionId = activeVersionId;
     officialRankingState.rowsByInstrument = { GF: null, DM: null };
     officialRankingState.loadingByInstrument = { GF: false, DM: false };
+    officialRankingState.checkingByInstrument = { GF: false, DM: false };
+    officialRankingState.checkedAtByInstrument = { GF: 0, DM: 0 };
   }
   officialRankingState.instrument = activeInstrument === 'DM' ? 'DM' : 'GF';
   officialRankingState.page = 0;
@@ -2494,10 +2542,16 @@ async function openOfficialSkillRanking() {
   $('officialRankingSourceLink').href = `https://p.eagate.573.jp/game/gfdm/${getEamusementSlug()}/p/setting/rival_search.html?gtype=gf&anum=1`;
   $('officialSkillRankingMask').style.display = 'flex';
   document.querySelector('.official-ranking-body')?.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+  stopOfficialRankingWatch();
+  officialRankingState.timer = setInterval(() => {
+    void checkOfficialSkillRankingUpdate();
+  }, OFFICIAL_RANKING_CHECK_INTERVAL_MS);
   await loadOfficialSkillRanking();
+  void checkOfficialSkillRankingUpdate();
 }
 
 function closeOfficialSkillRanking(returnToMenu = false) {
+  stopOfficialRankingWatch();
   $('officialSkillRankingMask').style.display = 'none';
   if (returnToMenu) openMenu();
 }
@@ -6063,7 +6117,14 @@ document.querySelectorAll('[data-official-ranking-instrument]').forEach(button =
     renderOfficialSkillRanking();
     document.querySelector('.official-ranking-body')?.scrollTo({ top: 0, left: 0, behavior: 'auto' });
     await loadOfficialSkillRanking();
+    void checkOfficialSkillRankingUpdate({ force: true });
   });
+});
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden) void checkOfficialSkillRankingUpdate({ force: true });
+});
+window.addEventListener('focus', () => {
+  void checkOfficialSkillRankingUpdate();
 });
 $('officialSkillRankingPager').addEventListener('click', event => {
   const button = event.target.closest('[data-user-page]');

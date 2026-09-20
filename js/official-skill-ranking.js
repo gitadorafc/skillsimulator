@@ -25,3 +25,13 @@ export async function getOfficialSkillRanking(versionId, instrument) {
   if (error) throw error;
   return data || [];
 }
+
+// 既存の公開RPCの先頭1件だけを取得し、1000件の再ダウンロードを避けて更新を確認する。
+export async function getOfficialSkillRankingRevision(versionId, instrument) {
+  const { data, error } = await supabase.rpc('get_official_skill_ranking', {
+    p_version_id: versionId,
+    p_instrument: instrument
+  }).limit(1);
+  if (error) throw error;
+  return data?.[0]?.captured_at || null;
+}
