@@ -17,7 +17,7 @@ export function groupSongCatalogRows(rows) {
   const byTitle = new Map();
   for (const row of rows) {
     if (!byTitle.has(row.title)) byTitle.set(row.title, {
-      title: row.title, initial_group: '', official_order: null, levels: {}
+      title: row.title, initial_group: '', official_order: null, is_hot: Boolean(row.is_hot), levels: {}
     });
     const song = byTitle.get(row.title);
     if (row.initial_group && row.initial_group > song.initial_group) song.initial_group = row.initial_group;

@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>GITADORA Skill Simulator</title>
-<meta name="app-version" content="4.27.10">
+<meta name="app-version" content="4.27.11">
 <link rel="icon" type="image/svg+xml" href="./favicon.svg?v=21_7">
 <link rel="icon" type="image/png" sizes="48x48" href="./favicon-48x48.png?v=21_7">
 <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32x32.png?v=21_7">
@@ -39,7 +39,7 @@
 </script>
 
 <link rel="stylesheet" href="./css/app.css?v=4_17_0">
-<link rel="stylesheet" href="./css/app-overrides.css?v=4_27_3">
+<link rel="stylesheet" href="./css/app-overrides.css?v=4_27_11">
   <link rel="stylesheet" href="./css/layout-canonical.css?v=4_17_0">
   <link rel="preconnect" href="https://challenges.cloudflare.com">
   <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" defer></script>
@@ -415,7 +415,7 @@
     <div class="app-menu-version">
       <label>VERSION</label>
       <select id="versionSelect" class="version-select" aria-label="GITADORAバージョン"></select>
-      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 4.27.10</div>
+      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 4.27.11</div>
     </div>
   </div>
 </div>
@@ -569,7 +569,12 @@
         <span class="song-catalog-range-separator">～</span>
         <label>難易度上限<input id="songCatalogMaxLevel" type="number" inputmode="decimal" min="0.01" max="9.99" step="0.01" placeholder="指定なし" aria-label="難易度上限"></label>
       </div>
-      <button id="btnShowSongCatalog" type="button">表示</button>
+      <div class="song-catalog-action-row">
+        <label>フィルタ<select id="songCatalogHotFilter" aria-label="曲データ一覧のHOT・OTHERフィルタ">
+          <option value="all">すべて</option><option value="hot">HOT</option><option value="other">OTHER</option>
+        </select></label>
+        <button id="btnShowSongCatalog" type="button">一覧を表示</button>
+      </div>
     </div>
     <div id="songCatalogBody" class="song-catalog-body">
       <div id="songCatalogStatus" class="song-catalog-status" aria-live="polite"></div>
@@ -792,7 +797,7 @@
       <section id="howto-share"><b>現在のスキル対象を共有・保存する</b><p>MENU →「現在のスキル対象を共有・保存」からGF / DM / 両方を選び、画像の共有、履歴への保存、保存して共有ができます。</p></section>
       <section id="howto-history"><b>保存履歴と比較する</b><p>保存履歴の「比較」を押すと、当時と現在のスキル対象を曲名・パート単位で比較できます。履歴をタップすると当時の画像を確認して共有できます。</p></section>
       <section id="howto-tags"><b>タグで登録曲を整理する</b><p>MENU →「タグ設定」で自分用のタグを最大10個作成できます。登録曲の編集画面で曲ごとに複数のタグを付けられます。「登録」タブのタグフィルタで絞り込めます。</p></section>
-      <section id="howto-catalog"><b>曲データ一覧を見る</b><p>MENU →「曲データ一覧」で曲名順、GF難易度順、DM難易度順を選び「表示」を押します。難易度順では下限・上限も指定できます。曲をタップすると全パートの難易度が見られ、難易度の数値をタップするとその曲・パートのスコアを登録・編集できます。</p></section>
+      <section id="howto-catalog"><b>曲データ一覧を見る</b><p>MENU →「曲データ一覧」で曲名順、GF難易度順、DM難易度順を選び、フィルタで「すべて／HOT／OTHER」を指定して「一覧を表示」を押します。難易度順では下限・上限も指定できます。曲をタップすると全パートの難易度が見られ、難易度の数値をタップするとその曲・パートのスコアを登録・編集できます。</p></section>
       <section id="howto-favorites"><b>お気に入りリストを使う</b><p>「曲データ一覧」で曲を開き、難易度表の左上にある1・2・3をタップすると、対応するお気に入りリストに追加できます。選択済みのボタンをもう一度タップすると解除できます。曲は複数のリストに入れられます。MENU →「お気に入りリスト1～3」から各リストを開けます。リスト名は上部の入力欄で変更して「名前を保存」を押します。曲名順は昇順、難易度順は降順が初期設定です。並び順・難易度の下限と上限を変えると自動で絞り込まれ、難易度をタップすれば登録・編集できます。</p></section>
       <section id="howto-official"><b>公式スキルランキングを見る</b><p>MENU →「公式スキルランキング」で、表示中のバージョンのGF / DMランキングを確認できます。100位ごとにページを切り替えられます。「最終更新」にデータの更新日時が表示されます。</p></section>
       <section id="howto-mypage"><b>マイページを使う</b><p>ユーザー名・パスワード・X IDの変更、ログアウトができます。アカウントの削除は元に戻せません。</p></section>
@@ -981,7 +986,7 @@
 <div id="adminModal" class="admin-modal">
   <div class="admin-header">
     <div class="admin-title-row">
-      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 4.27.10</div></div>
+      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 4.27.11</div></div>
       <button id="btnCloseAdmin" class="admin-close">閉じる</button>
     </div>
     <div class="admin-tabs">
@@ -1114,7 +1119,7 @@
   </div>
 </div>
 
-<script type="module" src="./js/app.js?v=4_27_10"></script>
+<script type="module" src="./js/app.js?v=4_27_11"></script>
 <script src="./js/version-check.js?v=4_25_0" defer></script>
 </body>
 </html>

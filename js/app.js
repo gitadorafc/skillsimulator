@@ -2614,7 +2614,7 @@ function refreshFavoriteButtons(row) {
 
 async function getPublicSongCatalog(versionId) {
   const pageSize = 1000;
-  const select = 'title,part,level,initial_group,official_order';
+  const select = 'title,part,level,initial_group,official_order,is_hot';
   const fetchPage = from => supabase.from('songs').select(select, { count: from === 0 ? 'exact' : undefined })
     .eq('version_id', versionId).order('id', { ascending: true }).range(from, from + pageSize - 1);
   const first = await fetchPage(0);
@@ -2685,6 +2685,7 @@ async function showSongCatalog() {
   songCatalogState.pendingFavoriteUpdate = false;
   const mode = $('songCatalogMode').value;
   const direction = $('songCatalogDirection').value;
+  const hotFilter = $('songCatalogHotFilter').value;
   const minInput = $('songCatalogMinLevel');
   const maxInput = $('songCatalogMaxLevel');
   const minLevel = mode === 'title' || !minInput.value.trim() ? null : Number(minInput.value);
@@ -2714,7 +2715,8 @@ async function showSongCatalog() {
     songCatalogState.versionId = versionId;
     const visibleSongs = songCatalogState.favoriteSlot
       ? songs.filter(song => songFavoriteState.titles[songCatalogState.favoriteSlot].has(song.title)) : songs;
-    const entries = buildSongCatalogEntries(visibleSongs, mode, direction);
+    const filteredSongs = visibleSongs.filter(song => hotFilter === 'all' || song.is_hot === (hotFilter === 'hot'));
+    const entries = buildSongCatalogEntries(filteredSongs, mode, direction);
     songCatalogState.rows = mode === 'title' ? entries : filterSongCatalogEntries(entries, minLevel, maxLevel);
     songCatalogState.page = 0;
     $('songCatalogStatus').textContent = songCatalogState.rows.length ? '' : '該当する曲データがありません。';
@@ -2749,6 +2751,7 @@ async function openSongCatalog(favoriteSlot = 0) {
   songCatalogState.page = 0;
   $('songCatalogMode').value = 'title';
   $('songCatalogDirection').value = 'asc';
+  $('songCatalogHotFilter').value = 'all';
   $('songCatalogMinLevel').value = '';
   $('songCatalogMaxLevel').value = '';
   $('songCatalogRange').classList.add('hidden');
@@ -6074,6 +6077,9 @@ $('songCatalogMask').addEventListener('click', event => {
   if (event.target === $('songCatalogMask')) closeSongCatalog();
 });
 $('btnShowSongCatalog').addEventListener('click', showSongCatalog);
+$('songCatalogHotFilter').addEventListener('change', () => {
+  if (songCatalogState.favoriteSlot) showSongCatalog();
+});
 $('songCatalogMode').addEventListener('change', event => {
   $('songCatalogDirection').value = event.target.value === 'title' ? 'asc' : 'desc';
   $('songCatalogRange').classList.toggle('hidden', event.target.value === 'title');

@@ -2280,8 +2280,12 @@ body.light-mode .skill-ranking-sort-wrap select{
   border:1px solid #475569;border-radius:8px;background-color:#111827;
   color:#f8fafc;font-size:13px;font-weight:800;
 }
-.song-catalog-controls button{
-  grid-column:1/-1;height:39px;width:100%;padding:0 17px;border:0;border-radius:8px;
+.song-catalog-action-row{
+  grid-column:1/-1;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+  align-items:end;gap:9px;
+}
+.song-catalog-controls .song-catalog-action-row button{
+  grid-column:auto;height:39px;width:100%;padding:0 17px;border:0;border-radius:8px;
   background:#3b82f6;color:#fff;font-size:13px;font-weight:900;
 }
 .song-catalog-controls button:disabled{opacity:.6;}
