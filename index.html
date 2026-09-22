@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>GITADORA Skill Simulator</title>
-<meta name="app-version" content="4.27.12">
+<meta name="app-version" content="4.27.13">
 <link rel="icon" type="image/svg+xml" href="./favicon.svg?v=21_7">
 <link rel="icon" type="image/png" sizes="48x48" href="./favicon-48x48.png?v=21_7">
 <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32x32.png?v=21_7">
@@ -420,7 +420,7 @@
     <div class="app-menu-version">
       <label>VERSION</label>
       <select id="versionSelect" class="version-select" aria-label="GITADORAバージョン"></select>
-      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 4.27.12</div>
+      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 4.27.13</div>
     </div>
   </div>
 </div>
@@ -793,23 +793,86 @@
           <a href="#howto-support">運営を支援する</a>
         </div>
       </nav>
-      <section id="howto-instrument"><b>GF / DMを切り替える</b><p>画面上部のGF / DMボタンで表示するスキルを切り替えます。</p></section>
-      <section id="howto-sync"><b>スキル対象を同期する</b><p>MENU →「スキル対象同期」の手順に従い、公式ページで同期用ブックマークを実行します。スキル対象をまとめて登録できます。<br>FCマークやオプションは手動で登録します。</p></section>
-      <section id="howto-scores"><b>スコアを登録する</b><p>スキル対象外の曲は「登録」タブの「＋登録」から登録できます。曲名は直接入力するほか、「頭文字」と「曲名」のプルダウンから選択できます。<br>同期がうまくいかない場合も、手動で登録できます。登録曲をタップすると内容を編集できます。</p></section>
-      <section id="howto-rivals"><b>ライバルを登録する</b><p>ユーザーリストからGF / DMそれぞれ最大10人まで登録と解除ができます。<br>「ライバル管理」では登録しているライバルが一覧で確認できます。</p></section>
-      <section id="howto-score-detail"><b>登録曲詳細を見る</b><p>登録曲をタップすると以下の情報が閲覧可能です。<br>・歴代の自己ベスト<br>・全ユーザーのオプションの使用割合<br>・ライバルとの達成率比較</p></section>
-      <section id="howto-ranking"><b>スキル対象ランキングを見る</b><p>MENU →「スキル対象ランキング」から、指定したスキルの幅でスキル対象に入っている割合、平均スキル値、自分のスキルとの比較が確認できます。</p></section>
-      <section id="howto-share"><b>現在のスキル対象を共有・保存する</b><p>MENU →「現在のスキル対象を共有・保存」からGF / DM / 両方を選び、画像の共有、履歴への保存、保存して共有ができます。</p></section>
-      <section id="howto-history"><b>保存履歴と比較する</b><p>保存履歴の「比較」を押すと、当時と現在のスキル対象を曲名・パート単位で比較できます。履歴をタップすると当時の画像を確認して共有できます。</p></section>
-      <section id="howto-tags"><b>タグで登録曲を整理する</b><p>MENU →「タグ設定」で自分用のタグを最大10個作成できます。登録曲の編集画面で曲ごとに複数のタグを付けられます。「登録」タブのタグフィルタで絞り込めます。</p></section>
-      <section id="howto-catalog"><b>曲データ一覧を見る</b><p>MENU →「曲データ一覧」で曲名順、GF難易度順、DM難易度順を選び、フィルタで「すべて／HOT／OTHER」を指定して「一覧を表示」を押します。難易度順では下限・上限も指定できます。曲をタップすると全パートの難易度が見られ、難易度の数値をタップするとその曲・パートのスコアを登録・編集できます。</p></section>
-      <section id="howto-favorites"><b>お気に入りリストを使う</b><p>「曲データ一覧」で曲を開き、難易度表の左上にある1・2・3をタップすると、対応するお気に入りリストに追加できます。選択済みのボタンをもう一度タップすると解除できます。曲は複数のリストに入れられます。MENU →「お気に入りリスト1～3」から各リストを開けます。リスト名は上部の入力欄で変更して「名前を保存」を押します。曲名順は昇順、難易度順は降順が初期設定です。並び順・難易度の下限と上限を変えると自動で絞り込まれ、難易度をタップすれば登録・編集できます。</p></section>
-      <section id="howto-official"><b>公式スキルランキングを見る</b><p>MENU →「公式スキルランキング」で、表示中のバージョンのGF / DMランキングを確認できます。100位ごとにページを切り替えられます。「最終更新」にデータの更新日時が表示されます。</p></section>
-      <section id="howto-mypage"><b>マイページを使う</b><p>ユーザー名・パスワード・X IDの変更、ログアウトができます。アカウントの削除は元に戻せません。<br>新規登録時はユーザー名にメールアドレス・電話番号・本名などの個人情報を入力しないでください。管理者が個人情報に該当すると判断したアカウントは削除対象となる場合があります。</p></section>
-      <section id="howto-settings"><b>機能設定を変更する</b><p>MENU →「機能設定」でライトモード、曲一覧の横並び表示、文字サイズ、GFのデフォルトオプション、登録曲やX IDの公開設定を変更して「保存する」を押します。</p></section>
-      <section id="howto-accounts"><b>ユーザーを切り替える</b><p>マイページの「ユーザー切り替え」で、この端末に追加したアカウントへ切り替えられます。追加時にログインが必要です。パスワードは端末に保存しません。</p></section>
-      <section id="howto-feedback"><b>要望・不具合を報告する</b><p>MENU →「要望・不具合報告」で種類を選び、内容を入力して送信できます。過去の報告もこの画面で確認できます。</p></section>
-      <section id="howto-support"><b>運営を支援する</b><p>MENU →「運営を支援する」から任意で支援できます。支援の有無で利用できる機能は変わりません。</p></section>
+      <section id="howto-instrument">
+        <b>GF / DMを切り替える</b>
+        <p>画面上部のGF / DMボタンで表示するスキルを切り替えます。</p>
+      </section>
+      <section id="howto-sync">
+        <b>スキル対象を同期する</b>
+        <p>MENU →「スキル対象同期」の手順に従い、公式ページで同期用ブックマークを実行します。スキル対象をまとめて登録できます。</p>
+        <p>FCマークやオプションは手動で登録します。</p>
+      </section>
+      <section id="howto-scores">
+        <b>スコアを登録する</b>
+        <p>スキル対象外の曲は「登録」タブの「＋登録」から登録できます。曲名は直接入力するほか、「頭文字」と「曲名」のプルダウンから選択できます。</p>
+        <p>同期がうまくいかない場合も、手動で登録できます。登録曲をタップすると内容を編集できます。</p>
+      </section>
+      <section id="howto-rivals">
+        <b>ライバルを登録する</b>
+        <p>ユーザーリストからGF / DMそれぞれ最大10人まで登録と解除ができます。</p>
+        <p>「ライバル管理」では登録しているライバルが一覧で確認できます。</p>
+      </section>
+      <section id="howto-score-detail">
+        <b>登録曲詳細を見る</b>
+        <p>登録曲をタップすると、以下の情報を確認できます。</p>
+        <ul><li>歴代の自己ベスト</li><li>全ユーザーのオプションの使用割合</li><li>ライバルとの達成率比較</li></ul>
+      </section>
+      <section id="howto-ranking">
+        <b>スキル対象ランキングを見る</b>
+        <p>MENU →「スキル対象ランキング」から、指定したスキルの幅でスキル対象に入っている割合、平均スキル値、自分のスキルとの比較が確認できます。</p>
+      </section>
+      <section id="howto-share">
+        <b>現在のスキル対象を共有・保存する</b>
+        <p>MENU →「現在のスキル対象を共有・保存」からGF / DM / 両方を選び、画像の共有、履歴への保存、保存して共有ができます。</p>
+      </section>
+      <section id="howto-history">
+        <b>保存履歴と比較する</b>
+        <p>保存履歴の「比較」を押すと、当時と現在のスキル対象を曲名・パート単位で比較できます。履歴をタップすると当時の画像を確認して共有できます。</p>
+      </section>
+      <section id="howto-tags">
+        <b>タグで登録曲を整理する</b>
+        <p>MENU →「タグ設定」で自分用のタグを最大10個作成できます。登録曲の編集画面で曲ごとに複数のタグを付けられます。</p>
+        <p>「登録」タブのタグフィルタで絞り込めます。</p>
+      </section>
+      <section id="howto-catalog">
+        <b>曲データ一覧を見る</b>
+        <p>MENU →「曲データ一覧」で曲名順、GF難易度順、DM難易度順を選び、フィルタで「すべて／HOT／OTHER」を指定して「一覧を表示」を押します。</p>
+        <p>難易度順では下限・上限も指定できます。曲をタップすると全パートの難易度が見られ、難易度の数値をタップするとその曲・パートのスコアを登録・編集できます。</p>
+      </section>
+      <section id="howto-favorites">
+        <b>お気に入りリストを使う</b>
+        <p>「曲データ一覧」で曲を開き、難易度表の左上にある1・2・3をタップすると、対応するお気に入りリストに追加できます。</p>
+        <p>選択済みのボタンをもう一度タップすると解除できます。曲は複数のリストに入れられます。MENU →「お気に入りリスト1～3」から各リストを開けます。</p>
+        <p>リスト名は上部の入力欄で変更して「名前を保存」を押します。曲名順は昇順、難易度順は降順が初期設定です。</p>
+        <p>並び順・難易度の下限と上限を変えると自動で絞り込まれ、難易度をタップすれば登録・編集できます。</p>
+      </section>
+      <section id="howto-official">
+        <b>公式スキルランキングを見る</b>
+        <p>MENU →「公式スキルランキング」で、表示中のバージョンのGF / DMランキングを確認できます。100位ごとにページを切り替えられます。</p>
+        <p>「最終更新」にデータの更新日時が表示されます。</p>
+      </section>
+      <section id="howto-mypage">
+        <b>マイページを使う</b>
+        <p>ユーザー名・パスワード・X IDの変更、ログアウトができます。アカウントの削除は元に戻せません。</p>
+        <p>新規登録時はユーザー名にメールアドレス・電話番号・本名などの個人情報を入力しないでください。</p>
+        <p>管理者が個人情報に該当すると判断したアカウントは削除対象となる場合があります。</p>
+      </section>
+      <section id="howto-settings">
+        <b>機能設定を変更する</b>
+        <p>MENU →「機能設定」でライトモード、曲一覧の横並び表示、文字サイズ、GFのデフォルトオプション、登録曲やX IDの公開設定を変更して「保存する」を押します。</p>
+      </section>
+      <section id="howto-accounts">
+        <b>ユーザーを切り替える</b>
+        <p>マイページの「ユーザー切り替え」で、この端末に追加したアカウントへ切り替えられます。追加時にログインが必要です。パスワードは端末に保存しません。</p>
+      </section>
+      <section id="howto-feedback">
+        <b>要望・不具合を報告する</b>
+        <p>MENU →「要望・不具合報告」で種類を選び、内容を入力して送信できます。過去の報告もこの画面で確認できます。</p>
+      </section>
+      <section id="howto-support">
+        <b>運営を支援する</b>
+        <p>MENU →「運営を支援する」から任意で支援できます。支援の有無で利用できる機能は変わりません。</p>
+      </section>
     </div>
   </div>
 </div>
@@ -991,7 +1054,7 @@
 <div id="adminModal" class="admin-modal">
   <div class="admin-header">
     <div class="admin-title-row">
-      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 4.27.12</div></div>
+      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 4.27.13</div></div>
       <button id="btnCloseAdmin" class="admin-close">閉じる</button>
     </div>
     <div class="admin-tabs">

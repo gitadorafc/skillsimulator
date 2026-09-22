@@ -4992,3 +4992,11 @@ body.light-mode .app-loading-symbol{color:#334155;}
   .app-loading-symbol{animation:app-loading-counter-spin 2.2s linear infinite !important;}
   .app-loading-dots i{animation:app-loading-dot 1.2s ease-in-out infinite !important;}
 }
+
+/* 使い方：手順ごとに改段落し、長文を読みやすくする。 */
+.howto-body section p{margin:9px 0 0;line-height:1.8;}
+.howto-body section p+p{margin-top:8px;}
+.howto-body section ul{margin:8px 0 0;padding-left:1.5em;color:#cbd5e1;font-size:11px;line-height:1.8;}
+.howto-body section li+li{margin-top:4px;}
+body.text-size-up .howto-body section ul{font-size:inherit;}
+body.light-mode .howto-body section ul{color:#334155;}
