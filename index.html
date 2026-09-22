@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>GITADORA Skill Simulator</title>
-<meta name="app-version" content="4.27.11">
+<meta name="app-version" content="4.27.12">
 <link rel="icon" type="image/svg+xml" href="./favicon.svg?v=21_7">
 <link rel="icon" type="image/png" sizes="48x48" href="./favicon-48x48.png?v=21_7">
 <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32x32.png?v=21_7">
@@ -39,7 +39,7 @@
 </script>
 
 <link rel="stylesheet" href="./css/app.css?v=4_17_0">
-<link rel="stylesheet" href="./css/app-overrides.css?v=4_27_11">
+<link rel="stylesheet" href="./css/app-overrides.css?v=4_27_12">
   <link rel="stylesheet" href="./css/layout-canonical.css?v=4_17_0">
   <link rel="preconnect" href="https://challenges.cloudflare.com">
   <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" defer></script>
@@ -94,6 +94,11 @@
     <form id="authForm">
       <label>ユーザー名</label>
       <input id="authUsername" autocomplete="username" required maxlength="32" placeholder="日本語可・32文字まで">
+      <div id="authUsernamePrivacyNotice" class="auth-register-notice hidden" role="note">
+        <strong>ユーザー名に個人情報を入力しないでください</strong>
+        メールアドレス・電話番号・本名など、個人を特定できる情報をユーザー名に使用しないでください。<br>
+        管理者が個人情報に該当すると判断したアカウントは、削除対象となる場合があります。
+      </div>
       <label>パスワード</label>
       <input id="authPassword" type="password" autocomplete="current-password" required placeholder="パスワードを入力">
       <div id="authPasswordConfirmGroup" class="hidden">
@@ -415,7 +420,7 @@
     <div class="app-menu-version">
       <label>VERSION</label>
       <select id="versionSelect" class="version-select" aria-label="GITADORAバージョン"></select>
-      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 4.27.11</div>
+      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 4.27.12</div>
     </div>
   </div>
 </div>
@@ -800,7 +805,7 @@
       <section id="howto-catalog"><b>曲データ一覧を見る</b><p>MENU →「曲データ一覧」で曲名順、GF難易度順、DM難易度順を選び、フィルタで「すべて／HOT／OTHER」を指定して「一覧を表示」を押します。難易度順では下限・上限も指定できます。曲をタップすると全パートの難易度が見られ、難易度の数値をタップするとその曲・パートのスコアを登録・編集できます。</p></section>
       <section id="howto-favorites"><b>お気に入りリストを使う</b><p>「曲データ一覧」で曲を開き、難易度表の左上にある1・2・3をタップすると、対応するお気に入りリストに追加できます。選択済みのボタンをもう一度タップすると解除できます。曲は複数のリストに入れられます。MENU →「お気に入りリスト1～3」から各リストを開けます。リスト名は上部の入力欄で変更して「名前を保存」を押します。曲名順は昇順、難易度順は降順が初期設定です。並び順・難易度の下限と上限を変えると自動で絞り込まれ、難易度をタップすれば登録・編集できます。</p></section>
       <section id="howto-official"><b>公式スキルランキングを見る</b><p>MENU →「公式スキルランキング」で、表示中のバージョンのGF / DMランキングを確認できます。100位ごとにページを切り替えられます。「最終更新」にデータの更新日時が表示されます。</p></section>
-      <section id="howto-mypage"><b>マイページを使う</b><p>ユーザー名・パスワード・X IDの変更、ログアウトができます。アカウントの削除は元に戻せません。</p></section>
+      <section id="howto-mypage"><b>マイページを使う</b><p>ユーザー名・パスワード・X IDの変更、ログアウトができます。アカウントの削除は元に戻せません。<br>新規登録時はユーザー名にメールアドレス・電話番号・本名などの個人情報を入力しないでください。管理者が個人情報に該当すると判断したアカウントは削除対象となる場合があります。</p></section>
       <section id="howto-settings"><b>機能設定を変更する</b><p>MENU →「機能設定」でライトモード、曲一覧の横並び表示、文字サイズ、GFのデフォルトオプション、登録曲やX IDの公開設定を変更して「保存する」を押します。</p></section>
       <section id="howto-accounts"><b>ユーザーを切り替える</b><p>マイページの「ユーザー切り替え」で、この端末に追加したアカウントへ切り替えられます。追加時にログインが必要です。パスワードは端末に保存しません。</p></section>
       <section id="howto-feedback"><b>要望・不具合を報告する</b><p>MENU →「要望・不具合報告」で種類を選び、内容を入力して送信できます。過去の報告もこの画面で確認できます。</p></section>
@@ -986,7 +991,7 @@
 <div id="adminModal" class="admin-modal">
   <div class="admin-header">
     <div class="admin-title-row">
-      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 4.27.11</div></div>
+      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 4.27.12</div></div>
       <button id="btnCloseAdmin" class="admin-close">閉じる</button>
     </div>
     <div class="admin-tabs">
@@ -1119,7 +1124,7 @@
   </div>
 </div>
 
-<script type="module" src="./js/app.js?v=4_27_11"></script>
+<script type="module" src="./js/app.js?v=4_27_12"></script>
 <script src="./js/version-check.js?v=4_25_0" defer></script>
 </body>
 </html>

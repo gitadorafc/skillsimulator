@@ -1341,6 +1341,7 @@ async function showAuth(mode = 'login') {
   $('authPasswordConfirmGroup').classList.toggle('hidden', isLogin);
   $('authPasswordConfirm').required = !isLogin;
   $('authPasswordConfirm').value = '';
+  $('authUsernamePrivacyNotice').classList.toggle('hidden', isLogin);
   $('authRegisterNotice').classList.toggle('hidden', isLogin);
 
   // 認証画面を開くたびにTurnstileを1回だけ準備する。
