@@ -1927,6 +1927,7 @@ body.light-mode .user-detail-sticky{
 .skill-ranking-head{
   position:relative;
   z-index:7;
+  flex:0 0 auto;
   display:flex;
   align-items:center;
   justify-content:space-between;
@@ -1959,6 +1960,7 @@ body.light-mode .user-detail-sticky{
 }
 .skill-ranking-body{
   position:relative;
+  flex:1 1 auto;
   min-height:0;
   padding:0 12px 12px;
   overflow-y:auto;
