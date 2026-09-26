@@ -1929,12 +1929,17 @@ body.light-mode .user-detail-sticky{
   z-index:7;
   flex:0 0 auto;
   display:flex;
-  align-items:center;
-  justify-content:space-between;
+  flex-direction:column;
   gap:10px;
   padding:14px;
   border-bottom:1px solid #334155;
   background:#111827;
+}
+.skill-ranking-head-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
 }
 .skill-ranking-title-line{
   display:flex;
@@ -1969,13 +1974,12 @@ body.light-mode .user-detail-sticky{
   scrollbar-width:auto;
 }
 .skill-ranking-fixed-controls{
-  position:sticky;
-  top:0;
-  z-index:5;
-  margin:0 -12px;
-  padding:6px 12px 7px;
-  background:#0f172a;
-  box-shadow:0 6px 10px rgba(0,0,0,.28);
+  position:relative;
+  z-index:1;
+  margin:0;
+  padding:0;
+  background:#111827;
+  box-shadow:none;
 }
 .skill-ranking-range{
   display:grid;
@@ -2205,8 +2209,8 @@ body.light-mode .skill-ranking-body{
   scrollbar-color:#94a3b8 #f1f5f9;
 }
 body.light-mode .skill-ranking-fixed-controls{
-  background:#f1f5f9;
-  box-shadow:0 6px 10px rgba(15,23,42,.18);
+  background:#f8fafc;
+  box-shadow:none;
 }
 body.light-mode .skill-ranking-song,
 body.light-mode .skill-ranking-metric strong{
@@ -2224,8 +2228,8 @@ body.light-mode .skill-ranking-sort-wrap select{
   .skill-ranking-head{padding:11px;}
   .skill-ranking-body{padding:0 9px 9px;}
   .skill-ranking-fixed-controls{
-    margin:0 -9px;
-    padding:5px 9px 6px;
+    margin:0;
+    padding:0;
   }
   .skill-ranking-range{
     grid-template-columns:minmax(0,1fr) 12px minmax(0,1fr) 76px;
@@ -2382,7 +2386,7 @@ body.light-mode .menu-context-actions .menu-context-help{
 }
 .menu-context-actions .menu-back-btn{flex:0 0 auto;}
 .app-menu-head>strong,.song-catalog-head>div:first-child,.official-ranking-head>div:first-child,
-.skill-ranking-head>div:first-child,.skill-history-head>div:first-child,
+.skill-ranking-head-row>div:first-child,.skill-history-head>div:first-child,
 .skill-sync-head>div:first-child,.mypage-title-row>h3{min-width:0;}
 #howToMask{z-index:3300;}
 .howto-dialog{
