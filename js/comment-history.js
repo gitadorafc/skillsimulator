@@ -18,17 +18,24 @@ function renderCommentRows(rows) {
     </div>`).join('')}</div>`;
 }
 
-function renderRateRows(rows) {
+function renderRateRows(rows, currentRate) {
   if (!rows.length) return renderEmpty('過去作の記録はありません');
   return `<div class="song-history-list">${rows.map(row => {
-    const rate = Number(row.achievement_rate);
+    const rate = row.achievement_rate == null || row.achievement_rate === '' ? NaN : Number(row.achievement_rate);
+    const diff = Number.isFinite(rate) && Number.isFinite(currentRate) ? currentRate - rate : NaN;
+    const diffMarkup = Number.isFinite(diff)
+      ? `<span class="rate-history-diff ${diff > 0 ? 'positive' : diff < 0 ? 'negative' : 'neutral'}">${diff > 0 ? '+' : ''}${diff.toFixed(2)}%</span>`
+      : '';
     return `
       <div class="song-history-row rate-history-row">
         <div class="song-history-version">${esc(row.version_name)}</div>
         <div class="rate-history-values">
           ${getFcBadgeMarkup(row.fc, row.achievement_rate)}
           ${getOptionBadgeMarkup(row.play_option)}
-          <strong class="comment-history-rate">${Number.isFinite(rate) ? rate.toFixed(2) + '%' : '—'}</strong>
+          <span class="rate-history-rate-wrap">
+            <strong class="comment-history-rate">${Number.isFinite(rate) ? rate.toFixed(2) + '%' : '—'}</strong>
+            ${diffMarkup}
+          </span>
         </div>
       </div>`;
   }).join('')}</div>`;
@@ -67,6 +74,12 @@ export function createCommentHistory(commentElement, rateElement, fetchHistory =
       const commentRows = (rows || []).filter(row =>
         row?.score_id && String(row.private_comment || '').trim()
       );
+      const currentRow = (rows || []).find(row =>
+        row?.score_id && String(row.version_id) === String(versionId)
+      );
+      const currentRate = currentRow?.achievement_rate == null || currentRow?.achievement_rate === ''
+        ? NaN
+        : Number(currentRow.achievement_rate);
       const rateRows = (rows || []).filter(row =>
         row?.score_id && String(row.version_id) !== String(versionId)
       );
@@ -81,7 +94,7 @@ export function createCommentHistory(commentElement, rateElement, fetchHistory =
       if (rateElement) {
         rateElement.innerHTML = renderDetails(
           '過去作の達成率',
-          renderRateRows(rateRows),
+          renderRateRows(rateRows, currentRate),
           rateRows.length
         );
       }

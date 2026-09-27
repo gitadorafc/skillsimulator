@@ -5056,8 +5056,8 @@ body.light-mode .admin-user-skills b{color:#64748b;}
 .song-history-details > summary{
   display:flex;
   align-items:center;
-  justify-content:space-between;
-  gap:10px;
+  justify-content:flex-start;
+  gap:7px;
   min-height:40px;
   padding:8px 14px;
   color:#e2e8f0;
@@ -5089,7 +5089,7 @@ body.light-mode .admin-user-skills b{color:#64748b;}
   min-width:22px;
   height:20px;
   padding:0 6px;
-  margin-left:auto;
+  margin-left:0;
   border:1px solid #475569;
   border-radius:999px;
   color:#94a3b8;
@@ -5155,6 +5155,23 @@ body.light-mode .admin-user-skills b{color:#64748b;}
   font-size:11px;
   font-weight:900;
 }
+.rate-history-rate-wrap{
+  display:inline-flex;
+  align-items:baseline;
+  justify-content:flex-end;
+  gap:5px;
+  white-space:nowrap;
+}
+.rate-history-diff{
+  min-width:50px;
+  text-align:right;
+  font-size:9px;
+  font-weight:900;
+  line-height:1;
+}
+.rate-history-diff.positive{color:#86efac;}
+.rate-history-diff.negative{color:#fca5a5;}
+.rate-history-diff.neutral{color:#94a3b8;}
 .song-history-empty{
   padding:6px 2px 2px;
   color:#64748b;
@@ -5189,6 +5206,9 @@ body.light-mode .rate-history-values .comment-history-rate{
   color:#111827;
   -webkit-text-fill-color:#111827;
 }
+body.light-mode .rate-history-diff.positive{color:#15803d;-webkit-text-fill-color:#15803d;}
+body.light-mode .rate-history-diff.negative{color:#b91c1c;-webkit-text-fill-color:#b91c1c;}
+body.light-mode .rate-history-diff.neutral{color:#64748b;-webkit-text-fill-color:#64748b;}
 body.light-mode .song-history-empty{
   color:#64748b;
   -webkit-text-fill-color:#64748b;
