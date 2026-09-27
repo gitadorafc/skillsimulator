@@ -5013,3 +5013,191 @@ body.light-mode .app-loading-symbol{color:#334155;}
 .howto-body section li+li{margin-top:4px;}
 body.text-size-up .howto-body section ul{font-size:15px !important;}
 body.light-mode .howto-body section ul{color:#334155;}
+
+
+/* === APP VERSION 4.27.19: 管理者ユーザー一覧 スキル表示・複数削除 === */
+.admin-user-select{
+  display:flex;align-items:center;justify-content:center;flex:0 0 auto;
+  width:26px;height:28px;cursor:pointer;
+}
+.admin-user-select input{width:18px;height:18px;margin:0;accent-color:#3b82f6;}
+.admin-user-skills{
+  display:flex;align-items:center;gap:8px;flex:0 0 auto;margin-left:auto;
+  color:#cbd5e1;font-size:10px;font-weight:900;white-space:nowrap;
+}
+.admin-user-skills span{display:inline-flex;gap:3px;align-items:baseline;}
+.admin-user-skills b{color:#94a3b8;font-size:9px;}
+#btnAdminDeleteSelectedUsers{background:#b91c1c;border-color:#dc2626;color:#fff;}
+#btnAdminDeleteSelectedUsers:disabled{opacity:.45;cursor:not-allowed;}
+#adminSelectedUserCount{display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;padding:0 5px;margin-left:3px;border-radius:999px;background:rgba(255,255,255,.16);font-size:9px;}
+body.light-mode .admin-user-skills{color:#334155;}
+body.light-mode .admin-user-skills b{color:#64748b;}
+@media(max-width:720px){
+  .admin-card-user-heading{flex-wrap:wrap;}
+  .admin-user-skills{width:100%;margin-left:36px;justify-content:flex-start;}
+}
+
+/* === APP VERSION 4.27.20: 曲詳細のコメント・過去作履歴を折り畳み表示 === */
+.rate-score-history,
+.rate-comment-history{
+  padding:0 !important;
+  border-bottom:1px solid #334155;
+  background:#111827;
+  color:#e2e8f0;
+  font-size:11px;
+  line-height:1.55;
+  overflow-wrap:anywhere;
+}
+.song-history-details{
+  margin:0;
+  border:0;
+  background:transparent;
+}
+.song-history-details > summary{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  min-height:40px;
+  padding:8px 14px;
+  color:#e2e8f0;
+  font-size:11px;
+  font-weight:900;
+  cursor:pointer;
+  list-style:none;
+  user-select:none;
+}
+.song-history-details > summary::-webkit-details-marker{display:none;}
+.song-history-details > summary::after{
+  content:"";
+  flex:0 0 auto;
+  width:7px;
+  height:7px;
+  margin-left:auto;
+  border-right:2px solid #94a3b8;
+  border-bottom:2px solid #94a3b8;
+  transform:rotate(45deg) translateY(-2px);
+  transition:transform .15s ease;
+}
+.song-history-details[open] > summary::after{
+  transform:rotate(225deg) translate(-1px,-1px);
+}
+.song-history-count{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-width:22px;
+  height:20px;
+  padding:0 6px;
+  margin-left:auto;
+  border:1px solid #475569;
+  border-radius:999px;
+  color:#94a3b8;
+  font-size:9px;
+  line-height:1;
+  box-sizing:border-box;
+}
+.song-history-content{
+  padding:0 14px 10px;
+}
+.song-history-list{
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+}
+.song-history-row{
+  display:grid;
+  grid-template-columns:minmax(92px,auto) minmax(0,1fr);
+  align-items:center;
+  gap:10px;
+  min-height:34px;
+  padding:6px 8px;
+  border:1px solid #334155;
+  border-radius:7px;
+  background:#0f172a;
+  box-sizing:border-box;
+}
+.song-history-version{
+  min-width:0;
+  color:#cbd5e1;
+  font-size:10px;
+  font-weight:900;
+  line-height:1.35;
+  overflow-wrap:anywhere;
+}
+.comment-history-row .comment-history-text{
+  min-width:0;
+  max-height:none;
+  overflow:visible;
+  color:#f8fafc;
+  white-space:pre-wrap;
+  overflow-wrap:anywhere;
+}
+.rate-history-values{
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  flex-wrap:wrap;
+  gap:5px;
+  min-width:0;
+}
+.rate-history-values :is(.fc-unified-badge,.opt-badge){
+  flex:0 0 auto;
+  width:auto !important;
+  min-width:0 !important;
+  padding:2px 6px !important;
+  box-sizing:border-box;
+}
+.rate-history-values .comment-history-rate{
+  min-width:58px;
+  color:#f8fafc;
+  text-align:right;
+  font-size:11px;
+  font-weight:900;
+}
+.song-history-empty{
+  padding:6px 2px 2px;
+  color:#64748b;
+  font-size:10px;
+}
+body.light-mode :is(.rate-score-history,.rate-comment-history){
+  background:#e9edf2 !important;
+  color:#111827 !important;
+  -webkit-text-fill-color:#111827 !important;
+  border-color:#cbd5e1 !important;
+}
+body.light-mode .song-history-details > summary{
+  color:#111827;
+  -webkit-text-fill-color:#111827;
+}
+body.light-mode .song-history-details > summary::after{border-color:#64748b;}
+body.light-mode .song-history-count{
+  border-color:#94a3b8;
+  color:#64748b;
+  -webkit-text-fill-color:#64748b;
+}
+body.light-mode .song-history-row{
+  border-color:#cbd5e1;
+  background:#fff;
+}
+body.light-mode .song-history-version{
+  color:#475569;
+  -webkit-text-fill-color:#475569;
+}
+body.light-mode .comment-history-row .comment-history-text,
+body.light-mode .rate-history-values .comment-history-rate{
+  color:#111827;
+  -webkit-text-fill-color:#111827;
+}
+body.light-mode .song-history-empty{
+  color:#64748b;
+  -webkit-text-fill-color:#64748b;
+}
+@media(max-width:560px){
+  .song-history-row{
+    grid-template-columns:minmax(82px,34%) minmax(0,1fr);
+    gap:8px;
+  }
+  .song-history-details > summary{padding:8px 12px;}
+  .song-history-content{padding:0 12px 9px;}
+}

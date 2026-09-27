@@ -5,52 +5,93 @@ const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({
   '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'
 }[c]));
 
-export function renderCommentRecord(row) {
-  if (!row?.score_id) return '<span class="comment-history-empty">記録なし</span>';
-  const rate = Number(row.achievement_rate);
-  return `
-    ${getFcBadgeMarkup(row.fc, row.achievement_rate)}
-    ${getOptionBadgeMarkup(row.play_option)}
-    <strong class="comment-history-rate">${Number.isFinite(rate) ? rate.toFixed(2) + '%' : '—'}</strong>
-    <span class="comment-history-text">${esc(String(row.private_comment || '').trim() || 'コメントなし')}</span>`;
+function renderEmpty(message) {
+  return `<div class="song-history-empty">${esc(message)}</div>`;
 }
 
-export function createCommentHistory(element, fetchHistory = getMySongCommentHistory) {
+function renderCommentRows(rows) {
+  if (!rows.length) return renderEmpty('コメントはありません');
+  return `<div class="song-history-list">${rows.map(row => `
+    <div class="song-history-row comment-history-row">
+      <div class="song-history-version">${esc(row.version_name)}</div>
+      <div class="comment-history-text">${esc(String(row.private_comment || '').trim())}</div>
+    </div>`).join('')}</div>`;
+}
+
+function renderRateRows(rows) {
+  if (!rows.length) return renderEmpty('過去作の記録はありません');
+  return `<div class="song-history-list">${rows.map(row => {
+    const rate = Number(row.achievement_rate);
+    return `
+      <div class="song-history-row rate-history-row">
+        <div class="song-history-version">${esc(row.version_name)}</div>
+        <div class="rate-history-values">
+          ${getFcBadgeMarkup(row.fc, row.achievement_rate)}
+          ${getOptionBadgeMarkup(row.play_option)}
+          <strong class="comment-history-rate">${Number.isFinite(rate) ? rate.toFixed(2) + '%' : '—'}</strong>
+        </div>
+      </div>`;
+  }).join('')}</div>`;
+}
+
+function renderDetails(title, rowsMarkup, count) {
+  return `
+    <details class="song-history-details">
+      <summary>
+        <span>${esc(title)}</span>
+        <span class="song-history-count">${count}</span>
+      </summary>
+      <div class="song-history-content">${rowsMarkup}</div>
+    </details>`;
+}
+
+export function createCommentHistory(commentElement, rateElement, fetchHistory = getMySongCommentHistory) {
   let sequence = 0;
-  let rows = [];
-  element.addEventListener('change', event => {
-    if (event.target.id !== 'commentHistoryVersion') return;
-    const row = rows.find(item => item.version_id === event.target.value);
-    element.querySelector('.comment-history-record').innerHTML = row ? renderCommentRecord(row) : '';
-  });
+
   function reset() {
     sequence++;
-    rows = [];
-    element.replaceChildren();
+    commentElement?.replaceChildren();
+    rateElement?.replaceChildren();
   }
+
   async function open(songId, versionId) {
     reset();
     const request = sequence;
-    element.textContent = 'コメント一覧を読み込み中…';
+    if (commentElement) commentElement.textContent = 'コメント履歴を読み込み中…';
+    if (rateElement) rateElement.textContent = '過去作の達成率を読み込み中…';
+
     try {
-      const data = await fetchHistory(songId, versionId);
+      const rows = await fetchHistory(songId, versionId);
       if (request !== sequence) return;
-      rows = data;
-      if (!rows.length) throw new Error('バージョン情報がありません。');
-      element.innerHTML = `
-        <div class="comment-history-heading">
-          <label for="commentHistoryVersion">コメント一覧</label>
-          <select id="commentHistoryVersion" aria-label="コメントのバージョン">
-            <option value="" selected disabled>バージョン選択</option>
-            ${rows.map(row => `<option value="${esc(row.version_id)}">${esc(row.version_name)}</option>`).join('')}
-          </select>
-        </div>
-        <div class="comment-history-record" aria-live="polite"></div>`;
+
+      const commentRows = (rows || []).filter(row =>
+        row?.score_id && String(row.private_comment || '').trim()
+      );
+      const rateRows = (rows || []).filter(row =>
+        row?.score_id && String(row.version_id) !== String(versionId)
+      );
+
+      if (commentElement) {
+        commentElement.innerHTML = renderDetails(
+          'コメント一覧',
+          renderCommentRows(commentRows),
+          commentRows.length
+        );
+      }
+      if (rateElement) {
+        rateElement.innerHTML = renderDetails(
+          '過去作の達成率',
+          renderRateRows(rateRows),
+          rateRows.length
+        );
+      }
     } catch (error) {
       if (request !== sequence) return;
-      element.textContent = 'コメント一覧を取得できませんでした。再度開いてください。';
-      console.warn('曲コメント履歴取得失敗:', error);
+      if (commentElement) commentElement.innerHTML = renderDetails('コメント一覧', renderEmpty('取得できませんでした'), 0);
+      if (rateElement) rateElement.innerHTML = renderDetails('過去作の達成率', renderEmpty('取得できませんでした'), 0);
+      console.warn('曲コメント・過去作履歴取得失敗:', error);
     }
   }
+
   return { open, reset };
 }

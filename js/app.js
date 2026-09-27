@@ -25,7 +25,7 @@ import {
   renderAdminUserList,
   renderAdminVersionList as renderAdminVersionListMarkup,
   renderAdminVersionManagerLoading
-} from './admin-renderer.js?v=4_15_5';
+} from './admin-renderer.js?v=4_27_19';
 import {
   renderSkillRankingRangeOptions,
   renderSkillRankingRows,
@@ -58,7 +58,7 @@ import { createSiteDialogController } from './site-dialog.js?v=4_15_3';
 import { selectSkillTargetRows, calcTargetTotals } from './skill-targets.js?v=4_15_7';
 import { renderPartOptions, renderSongSuggestions } from './score-form-renderer.js?v=4_15_8';
 import { getMyPrivateScoreComments, savePrivateScoreComment } from './score-comments.js?v=4_19_1';
-import { createCommentHistory } from './comment-history.js?v=4_16_6';
+import { createCommentHistory } from './comment-history.js?v=4_27_20';
 import { buildSongCatalogEntries, filterSongCatalogEntries, groupSongCatalogRows, renderSongCatalogDetails } from './song-catalog.js?v=4_26_0';
 import { getMyTags, getMyScoreTagMap, getMyScoreTagIds, replaceMyTags, setMyScoreTags } from './score-tags.js?v=4_19_0';
 import {
@@ -651,7 +651,7 @@ async function deleteMasterSongTitle(title) {
   if (error) throw error;
 }
 
-import * as adminApi from './admin.js?v=4_15_6';
+import * as adminApi from './admin.js?v=4_27_19';
 import { listUserSummaries, getUserSkillTargets, getSongRateComparison, getSongPersonalBestHistory, getSongOptionDistribution, getMyFavorites, removeFavorite } from './users.js?v=3_6_0';
 
 let activeInstrument = localStorage.getItem('gitadora_instrument') === 'DM' ? 'DM' : 'GF';
@@ -681,6 +681,7 @@ let primaryAdminEnabled = false;
 let adminTab = 'songs';
 let adminSongs = [];
 let adminUsers = [];
+let adminSelectedUserIds = new Set();
 let adminUserSort = { key: 'created_at', dir: 'desc' };
 let adminSongPage = 0;
 const ADMIN_SONG_PAGE_SIZE = 100;
@@ -711,7 +712,7 @@ let adminPasswordUserId = null;
 
 const $ = id => document.getElementById(id);
 const siteDialog = createSiteDialogController($);
-const commentHistory = createCommentHistory($('rateCommentHistory'));
+const commentHistory = createCommentHistory($('rateCommentHistory'), $('rateScoreHistory'));
 const showSiteDialog = siteDialog.showDialog;
 const showSiteConfirm = siteDialog.showConfirm;
 const showSitePrompt = siteDialog.showPrompt;
@@ -4606,11 +4607,27 @@ async function approveEditedNewSongRequest(requestId, req, title, part, level, i
   }
 }
 
-async function loadAdminUsers() {
+function updateAdminUserSelectionUi() {
+  const count = adminSelectedUserIds.size;
+  const countEl = $('adminSelectedUserCount');
+  if (countEl) countEl.textContent = String(count);
+  const deleteButton = $('btnAdminDeleteSelectedUsers');
+  if (deleteButton) deleteButton.disabled = count === 0;
+
+  const visibleIds = adminUsers.map(user => user.id);
+  const allVisibleSelected = visibleIds.length > 0 && visibleIds.every(id => adminSelectedUserIds.has(id));
+  const selectAllButton = $('btnAdminSelectAllUsers');
+  if (selectAllButton) selectAllButton.textContent = allVisibleSelected ? '全解除' : '全選択';
+}
+
+async function loadAdminUsers({ preserveScroll = false, showLoading = true } = {}) {
   $('adminBody').classList.remove('admin-body-table');
-  $('adminBody').innerHTML = '<div class="empty-state">読み込み中...</div>';
+  const previousScrollTop = preserveScroll ? $('adminBody').scrollTop : 0;
+  if (showLoading) $('adminBody').innerHTML = '<div class="empty-state">読み込み中...</div>';
   try {
-    adminUsers = await getAdminUsers($('adminUserSearch').value);
+    adminUsers = await getAdminUsers($('adminUserSearch').value, activeVersionId);
+    const validIds = new Set(adminUsers.map(user => user.id));
+    adminSelectedUserIds = new Set([...adminSelectedUserIds].filter(id => validIds.has(id)));
     const allowedKeys = new Set([
       'username', 'activity_level', 'last_open_at', 'last_update_at',
       'last_sign_in_at', 'created_at'
@@ -4645,7 +4662,12 @@ async function loadAdminUsers() {
 
     $('adminBody').innerHTML = renderAdminUserList({
       users: sortedUsers,
-      formatDate: formatAdminDate
+      formatDate: formatAdminDate,
+      selectedUserIds: adminSelectedUserIds
+    });
+    updateAdminUserSelectionUi();
+    if (preserveScroll) requestAnimationFrame(() => {
+      $('adminBody').scrollTop = Math.min(previousScrollTop, Math.max(0, $('adminBody').scrollHeight - $('adminBody').clientHeight));
     });
   } catch (e) {
     $('adminBody').innerHTML = `<div class="empty-state">取得失敗: ${esc(e.message)}</div>`;
@@ -5346,6 +5368,58 @@ $('adminUserSortDir')?.addEventListener('change', event => {
   loadAdminUsers();
 });
 
+$('btnAdminSelectAllUsers')?.addEventListener('click', () => {
+  const visibleIds = adminUsers.map(user => user.id);
+  const allSelected = visibleIds.length > 0 && visibleIds.every(id => adminSelectedUserIds.has(id));
+  if (allSelected) visibleIds.forEach(id => adminSelectedUserIds.delete(id));
+  else visibleIds.forEach(id => adminSelectedUserIds.add(id));
+  $('adminBody').querySelectorAll('[data-admin-select-user]').forEach(input => {
+    input.checked = adminSelectedUserIds.has(input.dataset.adminSelectUser);
+  });
+  updateAdminUserSelectionUi();
+});
+
+$('btnAdminDeleteSelectedUsers')?.addEventListener('click', async () => {
+  const ids = [...adminSelectedUserIds];
+  if (!ids.length) return;
+  const targets = adminUsers.filter(user => adminSelectedUserIds.has(user.id));
+  const names = targets.slice(0, 5).map(user => user.username).join('、');
+  const suffix = targets.length > 5 ? ` ほか${targets.length - 5}人` : '';
+  if (!await showSiteConfirm(
+    `${targets.length}人のユーザーを削除します。\n${names}${suffix}\n登録スコアも削除され、元に戻せません。`,
+    'ユーザー一括削除',
+    '削除する'
+  )) return;
+
+  const button = $('btnAdminDeleteSelectedUsers');
+  const originalText = button?.innerHTML || '';
+  const scrollTop = $('adminBody').scrollTop;
+  if (button) { button.disabled = true; button.textContent = '削除中...'; }
+  try {
+    for (const userId of ids) {
+      await accountAdmin('delete_user', { target_user_id: userId });
+      adminSelectedUserIds.delete(userId);
+    }
+    $('adminBody').scrollTop = scrollTop;
+    await loadAdminUsers({ preserveScroll: true, showLoading: false });
+  } catch (error) {
+    await loadAdminUsers({ preserveScroll: true, showLoading: false });
+    await showSiteDialog('ユーザー一括削除に失敗しました: ' + (error?.message || error), 'エラー');
+  } finally {
+    if (button) button.innerHTML = originalText;
+    updateAdminUserSelectionUi();
+  }
+});
+
+$('adminBody').addEventListener('change', event => {
+  const checkbox = event.target.closest('[data-admin-select-user]');
+  if (!checkbox) return;
+  const userId = checkbox.dataset.adminSelectUser;
+  if (checkbox.checked) adminSelectedUserIds.add(userId);
+  else adminSelectedUserIds.delete(userId);
+  updateAdminUserSelectionUi();
+});
+
 $('btnAdminAddSong').addEventListener('click', async () => {
   adminNewSongRowVisible = true;
   adminSongPage = 0;
@@ -5866,8 +5940,11 @@ document.addEventListener('click', async e => {
       '削除する'
     )) return;
     try {
+      const scrollTop = $('adminBody').scrollTop;
       await accountAdmin('delete_user', { target_user_id: user.id });
-      await loadAdminUsers();
+      adminSelectedUserIds.delete(user.id);
+      $('adminBody').scrollTop = scrollTop;
+      await loadAdminUsers({ preserveScroll: true, showLoading: false });
     } catch (e) {
       await showSiteDialog('ユーザー削除に失敗しました: ' + e.message, 'エラー');
     }

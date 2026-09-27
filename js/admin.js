@@ -215,12 +215,28 @@ export async function deleteMasterSong(id) {
   if (error) throw error;
 }
 
-export async function getAdminUsers(keyword = '') {
-  const { data, error } = await supabase.rpc('admin_list_users', {
-    p_search: String(keyword || '').trim()
+export async function getAdminUsers(keyword = '', versionId = null) {
+  const search = String(keyword || '').trim();
+  const [{ data: users, error: usersError }, { data: summaries, error: summariesError }] = await Promise.all([
+    supabase.rpc('admin_list_users', { p_search: search }),
+    supabase.rpc('list_user_summaries', {
+      p_search: search,
+      p_instrument: 'GF',
+      p_version_id: versionId
+    })
+  ]);
+  if (usersError) throw usersError;
+  if (summariesError) throw summariesError;
+
+  const skillByUserId = new Map((summaries ?? []).map(row => [row.user_id, row]));
+  return (users ?? []).map(user => {
+    const skill = skillByUserId.get(user.id);
+    return {
+      ...user,
+      gf_skill: Number(skill?.gf_skill) || 0,
+      dm_skill: Number(skill?.dm_skill) || 0
+    };
   });
-  if (error) throw error;
-  return data ?? [];
 }
 
 export async function getAdminFeatureSettingUsage() {

@@ -247,7 +247,7 @@ export function renderAdminRequestList({ requests, parts, formatLevel }) {
     </div>`).join('') || '<div class="empty-state">未処理の登録依頼はありません</div>';
 }
 
-export function renderAdminUserList({ users, formatDate }) {
+export function renderAdminUserList({ users, formatDate, selectedUserIds = new Set() }) {
   return `
     <div class="admin-activity-legend">
       <b>アクティブ度</b>
@@ -256,11 +256,18 @@ export function renderAdminUserList({ users, formatDate }) {
       <span>D：登録後に利用</span><span>E：登録のみ</span>
     </div>
     ${users.map(user => `
-    <div class="admin-card">
+    <div class="admin-card admin-user-card">
       <div class="admin-card-top">
+        <label class="admin-user-select" aria-label="${escapeHtml(user.username)}を選択">
+          <input type="checkbox" data-admin-select-user="${user.id}" ${selectedUserIds.has(user.id) ? 'checked' : ''}>
+        </label>
         <div class="admin-card-user-heading">
           <span class="admin-activity-badge level-${String(user.activity_level || 'E').toLowerCase()}">${escapeHtml(user.activity_level || 'E')}</span>
           <div class="admin-card-title">${escapeHtml(user.username)}</div>
+          <div class="admin-user-skills" aria-label="GF・DMスキル">
+            <span><b>GF</b> ${Number(user.gf_skill || 0).toFixed(2)}</span>
+            <span><b>DM</b> ${Number(user.dm_skill || 0).toFixed(2)}</span>
+          </div>
         </div>
         <div class="admin-actions">
           <button class="admin-edit" data-user-open="${user.id}" data-user-name="${escapeHtml(user.username)}">詳細</button>
