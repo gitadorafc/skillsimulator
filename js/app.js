@@ -53,7 +53,7 @@ import {
   renderOptionSummary,
   renderPersonalBest,
   renderRateComparisonRows
-} from './score-detail-renderer.js?v=4_15_2';
+} from './score-detail-renderer.js?v=4_27_26';
 import { createSiteDialogController } from './site-dialog.js?v=4_15_3';
 import { selectSkillTargetRows, calcTargetTotals } from './skill-targets.js?v=4_15_7';
 import { renderPartOptions, renderSongSuggestions } from './score-form-renderer.js?v=4_15_8';

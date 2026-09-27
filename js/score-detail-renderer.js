@@ -86,8 +86,8 @@ export function renderRateComparisonRows(rows) {
         <div class="rate-user">
           <div class="rate-user-name">${escapeHtml(row.username)}${row.is_self ? '（自分）' : ''}</div>
           <div class="rate-badges">
-            ${getFcBadgeMarkup(row.fc, row.achievement_rate)}
-            ${getOptionBadgeMarkup(row.play_option)}
+            <span class="rate-badge-slot rate-fc-badge-slot">${getFcBadgeMarkup(row.fc, row.achievement_rate)}</span>
+            <span class="rate-badge-slot rate-option-badge-slot">${getOptionBadgeMarkup(row.play_option)}</span>
           </div>
         </div>
         <div class="rate-value">${formatRate(row.achievement_rate)}%</div>

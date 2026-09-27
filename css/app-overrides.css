@@ -5379,3 +5379,24 @@ body.light-mode #menuMask .app-menu-head{
 .rate-history-badge-slot :is(.fc-unified-badge,.opt-badge){
   margin:0 !important;
 }
+
+
+/* === APP VERSION 4.27.26: ライバル比較バッジ位置固定 === */
+.rate-badges{
+  display:grid !important;
+  grid-template-columns:48px 48px;
+  align-items:center;
+  justify-content:start;
+  gap:5px;
+}
+.rate-badge-slot{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  width:48px;
+  min-width:48px;
+  min-height:1px;
+}
+.rate-badge-slot :is(.fc-unified-badge,.opt-badge){
+  margin:0 !important;
+}
