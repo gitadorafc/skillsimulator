@@ -5259,3 +5259,30 @@ body.light-mode .song-history-empty{
     white-space:nowrap;
   }
 }
+
+/* === APP VERSION 4.27.23: 過去作達成率を1段表示 === */
+.rate-history-row{
+  grid-template-columns:minmax(72px,1fr) auto;
+  gap:6px;
+}
+.rate-history-values{
+  flex-wrap:nowrap;
+  gap:4px;
+  white-space:nowrap;
+}
+.rate-history-rate-wrap{
+  gap:4px;
+  flex:0 0 auto;
+}
+.rate-history-values .comment-history-rate{
+  min-width:54px;
+}
+.rate-history-diff{
+  min-width:46px;
+}
+@media(max-width:560px){
+  .rate-history-row{
+    grid-template-columns:minmax(72px,1fr) auto;
+    gap:6px;
+  }
+}
