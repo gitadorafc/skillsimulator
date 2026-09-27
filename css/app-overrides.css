@@ -5365,3 +5365,17 @@ body.light-mode #menuMask .app-menu-head{
     top:-16px !important;
   }
 }
+
+
+/* === APP VERSION 4.27.25: 過去作履歴のバッジ位置固定 === */
+.rate-history-badge-slot{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  width:48px;
+  min-width:48px;
+  min-height:1px;
+}
+.rate-history-badge-slot :is(.fc-unified-badge,.opt-badge){
+  margin:0 !important;
+}

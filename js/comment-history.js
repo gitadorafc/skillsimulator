@@ -34,8 +34,8 @@ function renderRateRows(rows, currentRate) {
             <strong class="comment-history-rate">${Number.isFinite(rate) ? rate.toFixed(2) + '%' : '—'}</strong>
             ${diffMarkup}
           </span>
-          ${getFcBadgeMarkup(row.fc, row.achievement_rate)}
-          ${getOptionBadgeMarkup(row.play_option)}
+          <span class="rate-history-badge-slot rate-history-fc-slot">${getFcBadgeMarkup(row.fc, row.achievement_rate)}</span>
+          <span class="rate-history-badge-slot rate-history-option-slot">${getOptionBadgeMarkup(row.play_option)}</span>
         </div>
       </div>`;
   }).join('')}</div>`;
@@ -65,7 +65,7 @@ export function createCommentHistory(commentElement, rateElement, fetchHistory =
     reset();
     const request = sequence;
     if (commentElement) commentElement.textContent = 'コメント履歴を読み込み中…';
-    if (rateElement) rateElement.textContent = '過去作の達成率を読み込み中…';
+    if (rateElement) rateElement.textContent = '過去作の達成率一覧/今作の達成率比較を読み込み中…';
 
     try {
       const rows = await fetchHistory(songId, versionId);
@@ -93,7 +93,7 @@ export function createCommentHistory(commentElement, rateElement, fetchHistory =
       }
       if (rateElement) {
         rateElement.innerHTML = renderDetails(
-          '過去作の達成率',
+          '過去作の達成率一覧/今作の達成率比較',
           renderRateRows(rateRows, currentRate),
           rateRows.length
         );
@@ -101,7 +101,7 @@ export function createCommentHistory(commentElement, rateElement, fetchHistory =
     } catch (error) {
       if (request !== sequence) return;
       if (commentElement) commentElement.innerHTML = renderDetails('コメント一覧', renderEmpty('取得できませんでした'), 0);
-      if (rateElement) rateElement.innerHTML = renderDetails('過去作の達成率', renderEmpty('取得できませんでした'), 0);
+      if (rateElement) rateElement.innerHTML = renderDetails('過去作の達成率一覧/今作の達成率比較', renderEmpty('取得できませんでした'), 0);
       console.warn('曲コメント・過去作履歴取得失敗:', error);
     }
   }
