@@ -4614,10 +4614,6 @@ function updateAdminUserSelectionUi() {
   const deleteButton = $('btnAdminDeleteSelectedUsers');
   if (deleteButton) deleteButton.disabled = count === 0;
 
-  const visibleIds = adminUsers.map(user => user.id);
-  const allVisibleSelected = visibleIds.length > 0 && visibleIds.every(id => adminSelectedUserIds.has(id));
-  const selectAllButton = $('btnAdminSelectAllUsers');
-  if (selectAllButton) selectAllButton.textContent = allVisibleSelected ? '全解除' : '全選択';
 }
 
 async function loadAdminUsers({ preserveScroll = false, showLoading = true } = {}) {
@@ -5366,17 +5362,6 @@ $('adminUserSortKey')?.addEventListener('change', event => {
 $('adminUserSortDir')?.addEventListener('change', event => {
   adminUserSort.dir = event.target.value === 'asc' ? 'asc' : 'desc';
   loadAdminUsers();
-});
-
-$('btnAdminSelectAllUsers')?.addEventListener('click', () => {
-  const visibleIds = adminUsers.map(user => user.id);
-  const allSelected = visibleIds.length > 0 && visibleIds.every(id => adminSelectedUserIds.has(id));
-  if (allSelected) visibleIds.forEach(id => adminSelectedUserIds.delete(id));
-  else visibleIds.forEach(id => adminSelectedUserIds.add(id));
-  $('adminBody').querySelectorAll('[data-admin-select-user]').forEach(input => {
-    input.checked = adminSelectedUserIds.has(input.dataset.adminSelectUser);
-  });
-  updateAdminUserSelectionUi();
 });
 
 $('btnAdminDeleteSelectedUsers')?.addEventListener('click', async () => {

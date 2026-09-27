@@ -5221,3 +5221,41 @@ body.light-mode .song-history-empty{
   .song-history-details > summary{padding:8px 12px;}
   .song-history-content{padding:0 12px 9px;}
 }
+
+
+/* === APP VERSION 4.27.22: 過去作バッジ統一 / 管理者一括削除UI === */
+.rate-history-values :is(.fc-unified-badge,.opt-badge){
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  width:48px !important;
+  min-width:48px !important;
+  height:20px !important;
+  min-height:20px !important;
+  padding:2px 5px !important;
+  box-sizing:border-box !important;
+  line-height:1.2 !important;
+  font-size:9px !important;
+}
+
+#adminUserToolbar{
+  grid-template-columns:minmax(150px,1fr) minmax(112px,auto) 74px minmax(132px,auto);
+}
+#btnAdminDeleteSelectedUsers{
+  min-width:132px;
+  white-space:nowrap;
+}
+@media(max-width:620px){
+  #adminUserToolbar{
+    grid-template-columns:minmax(0,1fr) 96px;
+  }
+  #adminUserToolbar input{
+    grid-column:1 / -1;
+  }
+  #btnAdminDeleteSelectedUsers{
+    grid-column:1 / -1;
+    width:100%;
+    min-width:0;
+    white-space:nowrap;
+  }
+}
