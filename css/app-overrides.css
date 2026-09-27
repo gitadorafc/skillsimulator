@@ -5286,3 +5286,82 @@ body.light-mode .song-history-empty{
     gap:6px;
   }
 }
+
+
+/* === APP VERSION 4.27.24: 過去作履歴整列 / MENU見出し固定 === */
+/* 過去作バッジは曲詳細上部と同じ縦寸法ルールに統一 */
+.rate-history-values :is(.fc-unified-badge,.opt-badge){
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  width:48px !important;
+  min-width:48px !important;
+  height:auto !important;
+  min-height:0 !important;
+  padding:2px 6px !important;
+  box-sizing:border-box !important;
+  line-height:1.2 !important;
+  font-size:9px !important;
+}
+/* 達成率 → FC → オプション。比較値は達成率の直下 */
+.rate-history-values{
+  display:grid;
+  grid-template-columns:64px 48px 48px;
+  align-items:center;
+  justify-content:end;
+  gap:5px;
+  flex-wrap:unset;
+  white-space:nowrap;
+}
+.rate-history-rate-wrap{
+  display:flex;
+  flex-direction:column;
+  align-items:flex-end;
+  justify-content:center;
+  gap:3px;
+  min-width:64px;
+  white-space:nowrap;
+}
+.rate-history-values .comment-history-rate{
+  min-width:0;
+  width:100%;
+  text-align:right;
+}
+.rate-history-diff{
+  min-width:0;
+  width:100%;
+  text-align:right;
+  line-height:1.05;
+}
+.rate-history-row{
+  grid-template-columns:minmax(72px,1fr) auto;
+  gap:7px;
+}
+@media(max-width:560px){
+  .rate-history-values{
+    grid-template-columns:60px 48px 48px;
+    gap:4px;
+  }
+  .rate-history-rate-wrap{min-width:60px;}
+}
+
+/* MENUは見出しを固定し、項目側だけをスクロールさせる */
+#menuMask .app-menu-head{
+  position:sticky !important;
+  top:-16px !important;
+  z-index:20 !important;
+  margin:-16px -16px 10px !important;
+  padding:16px 16px 10px !important;
+  background:#111827 !important;
+  border-bottom:1px solid #334155 !important;
+  box-sizing:border-box !important;
+}
+body.light-mode #menuMask .app-menu-head{
+  background:#f8fafc !important;
+  border-bottom-color:#cbd5e1 !important;
+}
+@media(max-width:600px){
+  #menuMask .app-menu-head{
+    top:-16px !important;
+  }
+}

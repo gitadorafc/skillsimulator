@@ -30,12 +30,12 @@ function renderRateRows(rows, currentRate) {
       <div class="song-history-row rate-history-row">
         <div class="song-history-version">${esc(row.version_name)}</div>
         <div class="rate-history-values">
-          ${getFcBadgeMarkup(row.fc, row.achievement_rate)}
-          ${getOptionBadgeMarkup(row.play_option)}
           <span class="rate-history-rate-wrap">
             <strong class="comment-history-rate">${Number.isFinite(rate) ? rate.toFixed(2) + '%' : '—'}</strong>
             ${diffMarkup}
           </span>
+          ${getFcBadgeMarkup(row.fc, row.achievement_rate)}
+          ${getOptionBadgeMarkup(row.play_option)}
         </div>
       </div>`;
   }).join('')}</div>`;
