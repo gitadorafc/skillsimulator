@@ -271,6 +271,7 @@ export function renderAdminUserList({ users, formatDate, selectedUserIds = new S
         </div>
         <div class="admin-actions">
           <button class="admin-edit" data-user-open="${user.id}" data-user-name="${escapeHtml(user.username)}">詳細</button>
+          <button class="admin-board-block ${user.board_posting_blocked ? 'is-blocked' : ''}" data-admin-board-block-user="${user.id}">${user.board_posting_blocked ? '投稿停止解除' : '投稿禁止'}</button>
           <button class="admin-reset" data-admin-reset-user="${user.id}">PW変更</button>
           <button class="admin-delete" data-admin-delete-user="${user.id}">削除</button>
         </div>

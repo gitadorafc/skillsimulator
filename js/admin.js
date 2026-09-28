@@ -1,6 +1,7 @@
 // GD Pocket Board admin.js v14_2
 import { supabase } from './supabase.js';
 import { normalizeSongTitle } from './song-title.js?v=4_15_6';
+import { listBoardUserStates } from './admin-board.js?v=4_28_0';
 
 export async function isAdmin() {
   const { data, error } = await supabase.rpc('is_admin');
@@ -217,24 +218,30 @@ export async function deleteMasterSong(id) {
 
 export async function getAdminUsers(keyword = '', versionId = null) {
   const search = String(keyword || '').trim();
-  const [{ data: users, error: usersError }, { data: summaries, error: summariesError }] = await Promise.all([
+  const [{ data: users, error: usersError }, { data: summaries, error: summariesError }, boardStates] = await Promise.all([
     supabase.rpc('admin_list_users', { p_search: search }),
     supabase.rpc('list_user_summaries', {
       p_search: search,
       p_instrument: 'GF',
       p_version_id: versionId
-    })
+    }),
+    listBoardUserStates()
   ]);
   if (usersError) throw usersError;
   if (summariesError) throw summariesError;
 
   const skillByUserId = new Map((summaries ?? []).map(row => [row.user_id, row]));
+  const boardStateByUserId = new Map((boardStates ?? []).map(row => [row.user_id, row]));
   return (users ?? []).map(user => {
     const skill = skillByUserId.get(user.id);
+    const boardState = boardStateByUserId.get(user.id);
     return {
       ...user,
       gf_skill: Number(skill?.gf_skill) || 0,
-      dm_skill: Number(skill?.dm_skill) || 0
+      dm_skill: Number(skill?.dm_skill) || 0,
+      board_posting_blocked: Boolean(boardState?.posting_blocked),
+      board_blocked_reason: boardState?.blocked_reason || '',
+      board_blocked_at: boardState?.blocked_at || null
     };
   });
 }

@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>GITADORA Skill Simulator</title>
-<meta name="app-version" content="4.27.26">
+<meta name="app-version" content="4.28.0">
 <link rel="icon" type="image/svg+xml" href="./favicon.svg?v=21_7">
 <link rel="icon" type="image/png" sizes="48x48" href="./favicon-48x48.png?v=21_7">
 <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32x32.png?v=21_7">
@@ -39,7 +39,7 @@
 </script>
 
 <link rel="stylesheet" href="./css/app.css?v=4_17_0">
-<link rel="stylesheet" href="./css/app-overrides.css?v=4_27_26">
+<link rel="stylesheet" href="./css/app-overrides.css?v=4_28_0">
   <link rel="stylesheet" href="./css/layout-canonical.css?v=4_17_0">
   <link rel="preconnect" href="https://challenges.cloudflare.com">
   <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" defer></script>
@@ -420,7 +420,7 @@
     <div class="app-menu-version">
       <label>VERSION</label>
       <select id="versionSelect" class="version-select" aria-label="GITADORAバージョン"></select>
-      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 4.27.26</div>
+      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 4.28.0</div>
     </div>
   </div>
 </div>
@@ -1018,6 +1018,7 @@
       </div>
       <div id="userDetailName" class="user-detail-name"></div>
       <a id="userDetailXLink" class="user-detail-x-link hidden" href="#" target="_blank" rel="noopener noreferrer" aria-label="Xアカウントを開く">X</a>
+      <button id="btnUserDetailBoardBan" type="button" class="user-detail-board-ban hidden">掲示板投稿禁止</button>
     </div>
     <div class="user-detail-summary">
       <div><span>TOTAL</span><strong id="userDetailTotal">0.00</strong></div>
@@ -1057,13 +1058,14 @@
 <div id="adminModal" class="admin-modal">
   <div class="admin-header">
     <div class="admin-title-row">
-      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 4.27.26</div></div>
+      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 4.28.0</div></div>
       <button id="btnCloseAdmin" class="admin-close">閉じる</button>
     </div>
     <div class="admin-tabs">
       <button class="admin-tab active" data-admin-tab="songs">曲マスター</button>
       <button class="admin-tab" data-admin-tab="requests">登録依頼</button>
       <button class="admin-tab" data-admin-tab="users">ユーザー</button>
+      <button class="admin-tab" data-admin-tab="board">掲示板</button>
       <button class="admin-tab" data-admin-tab="feedback">要望・不具合</button>
       <button class="admin-tab" data-admin-tab="settings">設定利用率</button>
       <button class="admin-tab" data-admin-tab="versions">バージョン管理</button>
@@ -1098,6 +1100,12 @@
         <option value="asc">昇順</option>
       </select>
       <button id="btnAdminDeleteSelectedUsers" type="button" class="admin-delete-selected" disabled>選択を削除 <span id="adminSelectedUserCount">0</span></button>
+    </div>
+    <div id="adminBoardToolbar" class="admin-toolbar admin-board-toolbar hidden">
+      <button id="btnAdminBoardThreads" type="button" class="active">スレッド</button>
+      <button id="btnAdminBoardReports" type="button">通報</button>
+      <button id="btnAdminBoardRefresh" type="button">再読み込み</button>
+      <button id="btnAdminBoardNewThread" type="button">＋新規スレッド</button>
     </div>
   </div>
   <div id="adminBody" class="admin-body"></div>
@@ -1179,6 +1187,38 @@
 </div>
 
 
+<div id="adminBoardThreadMask" class="admin-form-mask admin-board-thread-mask">
+  <div class="admin-form-sheet admin-board-thread-sheet">
+    <div class="admin-board-sheet-head">
+      <strong>掲示板スレッド</strong>
+      <button id="btnAdminBoardThreadClose" type="button">閉じる</button>
+    </div>
+    <div id="adminBoardThreadBody" class="admin-board-thread-body"></div>
+  </div>
+</div>
+
+<div id="adminBoardEditorMask" class="admin-form-mask">
+  <div class="admin-form-sheet admin-board-editor-sheet">
+    <h3 id="adminBoardEditorTitle">新規スレッド</h3>
+    <label for="adminBoardTitle">タイトル</label>
+    <input id="adminBoardTitle" type="text" maxlength="80" placeholder="タイトル（80文字まで）">
+    <div class="admin-board-rule-note">メールアドレス・電話番号・本名などの個人情報、誹謗中傷、公序良俗に反する内容の投稿は禁止です。管理者判断で削除・投稿禁止の対象になります。</div>
+    <label for="adminBoardBody">本文</label>
+    <textarea id="adminBoardBody" maxlength="2000" placeholder="本文（2000文字まで）"></textarea>
+    <div id="adminBoardExistingImages" class="admin-board-existing-images"></div>
+    <div class="admin-board-image-actions">
+      <label class="admin-board-file-button">画像を選択<input id="adminBoardImages" type="file" accept="image/*" multiple></label>
+      <label class="admin-board-file-button">カメラ<input id="adminBoardCamera" type="file" accept="image/*" capture="environment"></label>
+      <span>最大4枚・保存時に自動圧縮</span>
+    </div>
+    <div id="adminBoardEditorStatus" class="admin-board-editor-status"></div>
+    <div class="btn-block">
+      <button id="btnAdminBoardSave" type="button" class="btn-submit">保存する</button>
+      <button id="btnAdminBoardEditorCancel" type="button" class="btn-cancel">戻る</button>
+    </div>
+  </div>
+</div>
+
 <div id="siteDialogMask" class="site-dialog-mask" role="dialog" aria-modal="true" aria-labelledby="siteDialogTitle">
   <div class="site-dialog">
     <div id="siteDialogTitle" class="site-dialog-head">お知らせ</div>
@@ -1191,7 +1231,7 @@
   </div>
 </div>
 
-<script type="module" src="./js/app.js?v=4_27_26"></script>
+<script type="module" src="./js/app.js?v=4_28_0"></script>
 <script src="./js/version-check.js?v=4_25_0" defer></script>
 </body>
 </html>
