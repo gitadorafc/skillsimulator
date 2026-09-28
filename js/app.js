@@ -655,7 +655,7 @@ async function deleteMasterSongTitle(title) {
 }
 
 import * as adminApi from './admin.js?v=4_30_0';
-import * as adminBoard from './admin-board.js?v=4_31_0';
+import * as adminBoard from './admin-board.js?v=4_31_1';
 import { listUserSummaries, getUserSkillTargets, getSongRateComparison, getSongPersonalBestHistory, getSongOptionDistribution, getMyFavorites, removeFavorite } from './users.js?v=3_6_0';
 
 let activeInstrument = localStorage.getItem('gitadora_instrument') === 'DM' ? 'DM' : 'GF';
@@ -3366,7 +3366,35 @@ function render() {
   }
 }
 
-function switchTab(tab) {
+async function getCurrentBoardAccessStatus() {
+  const { data, error } = await supabase.rpc('board_current_user_access_status');
+  if (error) throw error;
+  return data || { can_access: false, remaining_seconds: 0 };
+}
+
+function formatBoardAccessWait(remainingSeconds) {
+  const seconds = Math.max(0, Number(remainingSeconds) || 0);
+  const totalMinutes = Math.max(1, Math.floor(seconds / 60));
+  const hours = Math.floor(totalMinutes / 60);
+  const minutes = totalMinutes % 60;
+  return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}後に利用可能`;
+}
+
+async function switchTab(tab) {
+  if (tab === 'BOARD' && activeTabName !== 'BOARD') {
+    try {
+      const access = await getCurrentBoardAccessStatus();
+      if (!access?.can_access) {
+        await showSiteDialog(formatBoardAccessWait(access?.remaining_seconds), '掲示板');
+        return;
+      }
+    } catch (error) {
+      console.error('board access check failed:', error);
+      await showSiteDialog('掲示板の利用可能時間を確認できませんでした。時間をおいて再度お試しください。', '掲示板');
+      return;
+    }
+  }
+
   if (tab === 'RECORDS' && activeTabName !== 'RECORDS') {
     ownRegisteredBatch = 1;
     ownRegisteredViewKey = '';
@@ -5538,7 +5566,7 @@ $('authForm').addEventListener('submit', async e => {
 $('authSwitch').addEventListener('click', () => { showAuth($('authSwitch').dataset.mode).catch(console.error); });
 
 document.querySelectorAll('.p-tab-btn').forEach(btn => {
-  btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+  btn.addEventListener('click', () => { void switchTab(btn.dataset.tab); });
 });
 
 $('domSearch').addEventListener('input', renderManage);
