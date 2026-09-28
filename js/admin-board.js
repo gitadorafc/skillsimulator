@@ -17,6 +17,19 @@ function formatDate(value) {
   return value ? new Date(value).toLocaleString('ja-JP') : '';
 }
 
+function formatThreadListDate(value) {
+  if (!value) return '';
+  const d = new Date(value);
+  if (Number.isNaN(d.getTime())) return '';
+  const now = new Date();
+  const sameYear = d.getFullYear() === now.getFullYear();
+  const date = sameYear
+    ? `${d.getMonth() + 1}/${d.getDate()}`
+    : `${String(d.getFullYear()).slice(-2)}/${d.getMonth() + 1}/${d.getDate()}`;
+  const time = `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+  return `${date} ${time}`;
+}
+
 export async function getAdminBoardThreads() {
   const { data, error } = await supabase.rpc('admin_board_list_threads_v2');
   if (error) throw error;
@@ -305,20 +318,20 @@ export async function signedBoardImageUrls(images) {
   return rows.map((row, index) => ({ ...row, signed_url: data?.[index]?.signedUrl || '' }));
 }
 
-export function renderAdminBoardThreadList(threads, { page = 1, totalPages = 1 } = {}) {
-  if (!threads.length) return '<div class="empty-state">スレッドはまだありません。</div>';
+export function renderAdminBoardThreadList(threads, { page = 1, totalPages = 1, emptyMessage = 'スレッドはまだありません。' } = {}) {
+  if (!threads.length) return `<div class="empty-state">${esc(emptyMessage)}</div>`;
   const rows = threads.map(thread => `
     <button type="button" class="admin-board-thread-card" data-board-open-thread="${thread.id}">
       <div class="admin-board-thread-title" title="${esc(thread.title)}">${esc(thread.title)}</div>
       <div class="admin-board-thread-info admin-board-thread-info-primary">
         <span class="admin-board-thread-author-label">投稿者</span>
         <span class="admin-board-thread-author" data-board-open-user="${thread.author_id}" data-board-open-user-name="${esc(thread.username)}">${esc(thread.username)}</span>
-        <span class="admin-board-thread-counts">投稿 ${Math.max(1, (Number(thread.reply_count) || 0) + 1)}</span>
-        <span class="admin-board-thread-counts">画像 ${Number(thread.image_count) || 0}</span>
       </div>
-      <div class="admin-board-thread-dates">
-        <span>作成 ${formatDate(thread.created_at)}</span>
-        <span>更新 ${formatDate(thread.activity_at || thread.created_at)}</span>
+      <div class="admin-board-thread-summary">
+        <span>投稿 ${Math.max(1, (Number(thread.reply_count) || 0) + 1)}</span>
+        <span>画像 ${Number(thread.image_count) || 0}</span>
+        <span>作成 ${formatThreadListDate(thread.created_at)}</span>
+        <span>更新 ${formatThreadListDate(thread.activity_at || thread.created_at)}</span>
       </div>
     </button>`).join('');
   return `<div class="admin-board-thread-list">${rows}</div>${renderPager('threads', page, totalPages)}`;
@@ -354,7 +367,7 @@ function renderPostImages(images, imageIndex, altPrefix = '投稿画像') {
     </button>`).join('')}</div>`;
 }
 
-export function renderAdminBoardThreadDetail(data, { replyPage = 1, replyTotalPages = 1, replyStart = 0, replyEnd = null, viewerUserId = null } = {}) {
+export function renderAdminBoardThreadDetail(data, { replyPage = 1, replyTotalPages = 1, replyStart = 0, replyEnd = null, viewerUserId = null, viewerIsAdmin = false } = {}) {
   if (!data?.thread) return '<div class="empty-state">スレッドを取得できませんでした。</div>';
   const thread = data.thread;
   const allReplies = data.replies || [];
@@ -380,7 +393,7 @@ export function renderAdminBoardThreadDetail(data, { replyPage = 1, replyTotalPa
         <div class="admin-board-post-actions">
           <button type="button" data-board-reply-to="${globalNumber}">返信</button>
           ${isOwn ? `<button type="button" data-board-edit-reply="${reply.id}">編集</button>` : ''}
-          <button type="button" class="danger" data-board-delete-reply="${reply.id}">削除</button>
+          ${(isOwn || viewerIsAdmin) ? `<button type="button" class="danger" data-board-delete-reply="${reply.id}">削除</button>` : ''}
         </div>
       </article>`;
   }).join('');
@@ -395,7 +408,7 @@ export function renderAdminBoardThreadDetail(data, { replyPage = 1, replyTotalPa
       <div class="admin-board-post-actions">
         <button type="button" data-board-reply-to="1">返信</button>
         ${threadIsOwn ? `<button type="button" data-board-edit-thread="${thread.id}">編集</button>` : ''}
-        <button type="button" class="danger" data-board-delete-thread="${thread.id}">削除</button>
+        ${(threadIsOwn || viewerIsAdmin) ? `<button type="button" class="danger" data-board-delete-thread="${thread.id}">削除</button>` : ''}
       </div>
     </article>
     <div class="admin-board-replies">${replyHtml}</div>

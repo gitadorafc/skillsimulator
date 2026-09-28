@@ -655,7 +655,7 @@ async function deleteMasterSongTitle(title) {
 }
 
 import * as adminApi from './admin.js?v=4_30_0';
-import * as adminBoard from './admin-board.js?v=4_30_3';
+import * as adminBoard from './admin-board.js?v=4_31_0';
 import { listUserSummaries, getUserSkillTargets, getSongRateComparison, getSongPersonalBestHistory, getSongOptionDistribution, getMyFavorites, removeFavorite } from './users.js?v=3_6_0';
 
 let activeInstrument = localStorage.getItem('gitadora_instrument') === 'DM' ? 'DM' : 'GF';
@@ -3355,7 +3355,7 @@ function render() {
   } else if (activeTabName === 'USERS') {
     show('viewUsers');
     loadUsers();
-  } else if (activeTabName === 'BOARD' && adminEnabled) {
+  } else if (activeTabName === 'BOARD') {
     show('boardMainFixed');
     show('viewBoard');
     loadMainBoard();
@@ -4380,8 +4380,7 @@ async function checkAdminAccess() {
 
   adminAccessChecked = true;
   $('btnAdmin').classList.toggle('hidden', !adminEnabled);
-  $('tabBoard')?.classList.toggle('hidden', !adminEnabled);
-  if (!adminEnabled && activeTabName === 'BOARD') activeTabName = 'SKILL';
+  $('tabBoard')?.classList.remove('hidden');
   $('songCatalogMenuGroup').classList.remove('hidden');
   $('btnMenuTags')?.classList.remove('hidden');
   $('recordTagFilterField')?.classList.remove('hidden');
@@ -5006,19 +5005,24 @@ async function toggleBoardUserBlocked(userId, knownBlocked = null) {
 function renderMainBoardThreadPage() {
   const body = $('boardMainBody');
   if (!body) return;
-  const totalPages = Math.max(1, Math.ceil(mainBoardThreads.length / adminBoard.BOARD_THREAD_PAGE_SIZE));
+  const query = String($('boardThreadSearch')?.value || '').trim().toLocaleLowerCase('ja-JP');
+  const filtered = query
+    ? mainBoardThreads.filter(thread => String(thread?.title || '').toLocaleLowerCase('ja-JP').includes(query))
+    : mainBoardThreads;
+  const totalPages = Math.max(1, Math.ceil(filtered.length / adminBoard.BOARD_THREAD_PAGE_SIZE));
   mainBoardThreadPage = Math.min(Math.max(1, mainBoardThreadPage), totalPages);
   const start = (mainBoardThreadPage - 1) * adminBoard.BOARD_THREAD_PAGE_SIZE;
-  const rows = mainBoardThreads.slice(start, start + adminBoard.BOARD_THREAD_PAGE_SIZE);
+  const rows = filtered.slice(start, start + adminBoard.BOARD_THREAD_PAGE_SIZE);
   body.innerHTML = adminBoard.renderAdminBoardThreadList(rows, {
     page: mainBoardThreadPage,
-    totalPages
+    totalPages,
+    emptyMessage: query ? '一致するスレッドがありません。' : 'スレッドはまだありません。'
   });
 }
 
 async function loadMainBoard({ showLoading = true } = {}) {
   const body = $('boardMainBody');
-  if (!body || !adminEnabled) return;
+  if (!body || !currentUserId) return;
   if (showLoading) body.innerHTML = '<div class="empty-state">読み込み中...</div>';
   try {
     mainBoardThreads = await adminBoard.getAdminBoardThreads();
@@ -5115,7 +5119,8 @@ function renderCurrentAdminBoardThread() {
     replyTotalPages: totalPages,
     replyStart: start,
     replyEnd: end,
-    viewerUserId: currentUserId
+    viewerUserId: currentUserId,
+    viewerIsAdmin: adminEnabled
   });
   adminBoardReplyFiles = [];
 }
@@ -5865,7 +5870,10 @@ $('btnAdminBoardReports')?.addEventListener('click', async () => {
   await loadAdminBoard();
 });
 $('btnAdminBoardRefresh')?.addEventListener('click', loadAdminBoard);
-$('btnBoardRefresh')?.addEventListener('click', () => loadMainBoard());
+$('boardThreadSearch')?.addEventListener('input', () => {
+  mainBoardThreadPage = 1;
+  renderMainBoardThreadPage();
+});
 $('btnBoardNewThread')?.addEventListener('click', () => openAdminBoardEditor({ type:'thread' }));
 $('btnAdminBoardThreadBottom')?.addEventListener('click', () => {
   const body = $('adminBoardThreadBody');
