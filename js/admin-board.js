@@ -5,9 +5,7 @@ export const BOARD_TITLE_MAX = 30;
 export const BOARD_BODY_MAX = 1000;
 export const BOARD_IMAGE_MAX_COUNT = 1;
 export const BOARD_SOURCE_MAX_BYTES = 12 * 1024 * 1024;
-export const BOARD_IMAGE_TARGET_BYTES = 260 * 1024;
-export const BOARD_IMAGE_MAX_BYTES = 420 * 1024;
-export const BOARD_IMAGE_MAX_EDGE = 1100;
+export const BOARD_IMAGE_MAX_EDGE = 1280;
 export const BOARD_THREAD_PAGE_SIZE = 10;
 export const BOARD_REPLY_PAGE_SIZE = 10;
 
@@ -183,40 +181,45 @@ export async function compressBoardImage(file) {
   const sourceHeight = bitmap.height || bitmap.naturalHeight;
   if (!sourceWidth || !sourceHeight) throw new Error('画像サイズを取得できませんでした。');
 
-  const scale = Math.min(1, BOARD_IMAGE_MAX_EDGE / Math.max(sourceWidth, sourceHeight));
-  let width = Math.max(1, Math.round(sourceWidth * scale));
-  let height = Math.max(1, Math.round(sourceHeight * scale));
-  let quality = 0.72;
-  let blob = null;
+  const baseScale = Math.min(1, BOARD_IMAGE_MAX_EDGE / Math.max(sourceWidth, sourceHeight));
+  const candidates = [
+    { scale: baseScale, quality: 0.66 },
+    { scale: Math.min(baseScale, 0.92), quality: 0.60 },
+    { scale: Math.min(baseScale, 0.84), quality: 0.56 },
+    { scale: Math.min(baseScale, 0.76), quality: 0.52 },
+    { scale: Math.min(baseScale, 0.68), quality: 0.48 }
+  ];
+  let best = null;
+  let bestWidth = 0;
+  let bestHeight = 0;
 
-  for (let attempt = 0; attempt < 14; attempt += 1) {
-    const canvas = document.createElement('canvas');
-    canvas.width = width;
-    canvas.height = height;
-    const context = canvas.getContext('2d', { alpha: false });
-    context.imageSmoothingEnabled = true;
-    context.imageSmoothingQuality = 'high';
-    context.drawImage(bitmap, 0, 0, width, height);
-    blob = await canvasBlob(canvas, 'image/webp', quality);
-    if (!blob) blob = await canvasBlob(canvas, 'image/jpeg', quality);
-    if (blob && blob.size <= BOARD_IMAGE_TARGET_BYTES) break;
-    quality = Math.max(0.34, quality - 0.055);
-    if (attempt >= 2) {
-      const shrink = attempt >= 7 ? 0.82 : 0.88;
-      width = Math.max(560, Math.round(width * shrink));
-      height = Math.max(1, Math.round(sourceHeight * (width / sourceWidth)));
-      if (height > 1100) {
-        height = 1100;
-        width = Math.max(1, Math.round(sourceWidth * (height / sourceHeight)));
+  try {
+    for (const candidate of candidates) {
+      const width = Math.max(1, Math.round(sourceWidth * candidate.scale));
+      const height = Math.max(1, Math.round(sourceHeight * candidate.scale));
+      const canvas = document.createElement('canvas');
+      canvas.width = width;
+      canvas.height = height;
+      const context = canvas.getContext('2d', { alpha: false });
+      if (!context) continue;
+      context.imageSmoothingEnabled = true;
+      context.imageSmoothingQuality = 'high';
+      context.drawImage(bitmap, 0, 0, width, height);
+      let blob = await canvasBlob(canvas, 'image/webp', candidate.quality);
+      if (!blob) blob = await canvasBlob(canvas, 'image/jpeg', candidate.quality);
+      if (!blob) continue;
+      if (!best || blob.size < best.size) {
+        best = blob;
+        bestWidth = width;
+        bestHeight = height;
       }
     }
+  } finally {
+    bitmap.close?.();
   }
-  bitmap.close?.();
-  if (!blob) throw new Error('画像の圧縮に失敗しました。');
-  if (blob.size > BOARD_IMAGE_MAX_BYTES) {
-    throw new Error('画像の圧縮に失敗しました。別の画像を選択してください。');
-  }
-  return { blob, width, height, mimeType: blob.type || 'image/webp' };
+
+  if (!best) throw new Error('画像を圧縮できませんでした。別の画像を選択してください。');
+  return { blob: best, width: bestWidth, height: bestHeight, mimeType: best.type || 'image/webp' };
 }
 
 function storageExtension(mimeType) {
@@ -390,7 +393,7 @@ export function renderAdminBoardThreadDetail(data, { replyPage = 1, replyTotalPa
         <button type="button" class="danger" data-board-delete-thread="${thread.id}">削除</button>
       </div>
     </article>
-    <div class="admin-board-replies">${replyHtml || '<div class="empty-state">投稿はまだありません。</div>'}</div>
+    <div class="admin-board-replies">${replyHtml}</div>
     ${renderPager('replies', replyPage, replyTotalPages)}
     <div class="admin-board-reply-form">
       <label for="adminBoardReplyBody">投稿</label>
@@ -429,6 +432,18 @@ export function renderSelectedFilePreview(files) {
         <img data-board-local-preview="${index}" alt="添付予定画像 ${index + 1}">
         <span>${esc(file.name || `画像${index + 1}`)}</span>
       </div>`).join('')}</div>`;
+}
+
+export function renderAdminBoardBlockedUsers(users) {
+  const rows = Array.from(users || []).filter(user => user?.board_posting_blocked);
+  if (!rows.length) return '<div class="empty-state">投稿禁止ユーザーはいません。</div>';
+  return `<div class="admin-board-blocked-list">${rows.map(user => `
+    <article class="admin-card admin-board-blocked-card">
+      <div class="admin-card-meta">ユーザー</div>
+      <button type="button" class="admin-board-report-user" data-board-open-user="${user.id}" data-board-open-user-name="${esc(user.username || '')}">${esc(user.username || '不明')}</button>
+      <div class="admin-card-meta admin-board-blocked-reason-label">理由</div>
+      <div class="admin-board-blocked-reason">${esc(user.board_blocked_reason || '理由なし')}</div>
+    </article>`).join('')}</div>`;
 }
 
 export function renderAdminBoardReports(reports) {

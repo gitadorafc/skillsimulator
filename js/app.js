@@ -655,7 +655,7 @@ async function deleteMasterSongTitle(title) {
 }
 
 import * as adminApi from './admin.js?v=4_30_0';
-import * as adminBoard from './admin-board.js?v=4_30_0';
+import * as adminBoard from './admin-board.js?v=4_30_2';
 import { listUserSummaries, getUserSkillTargets, getSongRateComparison, getSongPersonalBestHistory, getSongOptionDistribution, getMyFavorites, removeFavorite } from './users.js?v=3_6_0';
 
 let activeInstrument = localStorage.getItem('gitadora_instrument') === 'DM' ? 'DM' : 'GF';
@@ -713,7 +713,7 @@ let ownRegisteredBatch = 1;
 let ownRegisteredViewKey = '';
 let viewedUserRegisteredBatch = 1;
 let adminPasswordUserId = null;
-let adminBoardMode = 'threads';
+let adminBoardMode = 'blocked';
 let adminBoardThreads = [];
 let adminBoardThreadPage = 1;
 let mainBoardThreads = [];
@@ -4994,6 +4994,9 @@ async function toggleBoardUserBlocked(userId, knownBlocked = null) {
   if (adminTab === 'users' && $('adminModal').style.display !== 'none') {
     await loadAdminUsers({ preserveScroll: true, showLoading: false });
   }
+  if (adminTab === 'board' && $('adminModal').style.display !== 'none') {
+    await loadAdminBoard();
+  }
   if (viewedUserId === userId) await refreshUserDetailBoardBan(userId);
 }
 
@@ -5024,7 +5027,7 @@ async function loadMainBoard({ showLoading = true } = {}) {
 }
 
 function updateAdminBoardToolbar() {
-  $('btnAdminBoardThreads')?.classList.toggle('active', adminBoardMode === 'threads');
+  $('btnAdminBoardBlockedUsers')?.classList.toggle('active', adminBoardMode === 'blocked');
   $('btnAdminBoardReports')?.classList.toggle('active', adminBoardMode === 'reports');
 }
 
@@ -5075,8 +5078,8 @@ async function loadAdminBoard() {
       const reports = await adminBoard.listAdminBoardReports();
       $('adminBody').innerHTML = adminBoard.renderAdminBoardReports(reports);
     } else {
-      adminBoardThreads = await adminBoard.getAdminBoardThreads();
-      renderAdminBoardThreadPage();
+      const users = await getAdminUsers('', activeVersionId);
+      $('adminBody').innerHTML = adminBoard.renderAdminBoardBlockedUsers(users);
     }
   } catch (error) {
     $('adminBody').innerHTML = `<div class="empty-state">取得失敗: ${esc(error?.message || error)}</div>`;
@@ -5850,8 +5853,8 @@ document.querySelectorAll('.admin-tab').forEach(btn => {
   btn.addEventListener('click', () => switchAdminTab(btn.dataset.adminTab));
 });
 
-$('btnAdminBoardThreads')?.addEventListener('click', async () => {
-  adminBoardMode = 'threads';
+$('btnAdminBoardBlockedUsers')?.addEventListener('click', async () => {
+  adminBoardMode = 'blocked';
   await loadAdminBoard();
 });
 $('btnAdminBoardReports')?.addEventListener('click', async () => {

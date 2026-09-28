@@ -6140,3 +6140,80 @@ body.light-mode .admin-board-report-card .admin-board-report-details.is-empty{co
 .admin-board-post-sort{display:none!important;}
 .admin-board-image-actions>span{display:none!important;}
 @media(max-width:560px){.admin-board-sheet-head-actions{gap:5px;}}
+
+/* === APP VERSION 4.30.2: 掲示板固定領域・管理表示・投稿UI調整 === */
+.board-main-view{
+  padding-top:0;
+}
+.board-main-fixed{
+  position:sticky;
+  top:0;
+  z-index:8;
+  margin:0 -10px 10px;
+  padding:8px 10px 10px;
+  background:#0f172a;
+  border-bottom:1px solid #334155;
+}
+.board-main-fixed .board-main-toolbar{
+  position:static!important;
+  margin:0 0 8px;
+  padding:0!important;
+  background:transparent!important;
+}
+.board-main-rule-note{
+  padding:8px 10px;
+  border:1px solid #92400e;
+  border-radius:8px;
+  background:#451a03;
+  color:#fed7aa;
+  font-size:10px;
+  line-height:1.5;
+  font-weight:800;
+}
+.admin-board-file-button,
+.admin-board-reply-bottom .btn-submit,
+.admin-board-editor-actions .btn-submit{
+  min-height:44px!important;
+  height:44px!important;
+  box-sizing:border-box;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  padding:0 16px!important;
+  font-size:11px!important;
+  font-weight:900!important;
+}
+.admin-board-file-button{min-width:112px;}
+.admin-board-reply-bottom .btn-submit{min-width:112px;}
+.admin-board-editor-actions .btn-submit{min-width:132px;}
+.admin-board-blocked-list{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+.admin-board-blocked-card{
+  display:grid;
+  grid-template-columns:auto minmax(0,1fr);
+  gap:4px 10px;
+  align-items:start;
+}
+.admin-board-blocked-card .admin-board-report-user{
+  justify-self:start;
+}
+.admin-board-blocked-reason-label{grid-column:1 / -1;margin-top:4px;}
+.admin-board-blocked-reason{grid-column:1 / -1;white-space:pre-wrap;overflow-wrap:anywhere;}
+body.light-mode .board-main-fixed{
+  background:var(--app-light-page-bg,#e5e7eb)!important;
+  border-bottom-color:#cbd5e1;
+}
+body.light-mode .board-main-rule-note{
+  background:#fff7ed;
+  color:#9a3412;
+  border-color:#fdba74;
+}
+@media(max-width:560px){
+  .board-main-fixed{margin:0 -7px 8px;padding:6px 7px 8px;}
+  .admin-board-file-button,
+  .admin-board-reply-bottom .btn-submit,
+  .admin-board-editor-actions .btn-submit{min-height:42px!important;height:42px!important;}
+}
