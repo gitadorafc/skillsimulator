@@ -7,6 +7,8 @@ export const BOARD_IMAGE_MAX_COUNT = 4;
 export const BOARD_SOURCE_MAX_BYTES = 12 * 1024 * 1024;
 export const BOARD_IMAGE_TARGET_BYTES = 900 * 1024;
 export const BOARD_IMAGE_MAX_EDGE = 1600;
+export const BOARD_THREAD_PAGE_SIZE = 10;
+export const BOARD_REPLY_PAGE_SIZE = 10;
 
 const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({
   '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'
@@ -101,6 +103,20 @@ export async function resolveAdminBoardReport(reportId, note = '') {
   const { error } = await supabase.rpc('admin_board_resolve_report', {
     p_report_id: reportId,
     p_note: String(note || '').trim()
+  });
+  if (error) throw error;
+}
+
+export async function createAdminBoardReport({ threadId = null, postId = null, reason, details = '' }) {
+  const cleanReason = String(reason || '').trim();
+  const cleanDetails = String(details || '').trim();
+  if (!cleanReason) throw new Error('通報理由を選択してください。');
+  if (cleanDetails.length > 500) throw new Error('通報の詳細は500文字以内です。');
+  const { error } = await supabase.rpc('admin_board_create_report', {
+    p_thread_id: threadId,
+    p_post_id: postId,
+    p_reason: cleanReason,
+    p_details: cleanDetails || null
   });
   if (error) throw error;
 }
@@ -266,66 +282,117 @@ export async function signedBoardImageUrls(images) {
   return rows.map((row, index) => ({ ...row, signed_url: data?.[index]?.signedUrl || '' }));
 }
 
-export function renderAdminBoardThreadList(threads) {
+export function renderAdminBoardThreadList(threads, { page = 1, totalPages = 1 } = {}) {
   if (!threads.length) return '<div class="empty-state">スレッドはまだありません。</div>';
-  return `<div class="admin-board-thread-list">${threads.map(thread => `
+  const rows = threads.map(thread => `
     <button type="button" class="admin-board-thread-card" data-board-open-thread="${thread.id}">
-      <div class="admin-board-thread-title">${esc(thread.title)}</div>
-      <div class="admin-board-thread-meta">
-        <span data-board-open-user="${thread.author_id}" data-board-open-user-name="${esc(thread.username)}">${esc(thread.username)}</span>
-        <span>${formatDate(thread.created_at)}</span>
-        ${thread.updated_at && thread.updated_at !== thread.created_at ? '<span>編集済み</span>' : ''}
+      <div class="admin-board-thread-title" title="${esc(thread.title)}">${esc(thread.title)}</div>
+      <div class="admin-board-thread-info">
+        <span class="admin-board-thread-author-label">投稿者</span>
+        <span class="admin-board-thread-author" data-board-open-user="${thread.author_id}" data-board-open-user-name="${esc(thread.username)}">${esc(thread.username)}</span>
+        <span class="admin-board-thread-counts">返信 ${Number(thread.reply_count) || 0}</span>
+        <span class="admin-board-thread-counts">画像 ${Number(thread.image_count) || 0}</span>
       </div>
-      <div class="admin-board-thread-excerpt">${esc(thread.body_excerpt)}</div>
-      <div class="admin-board-thread-counts">返信 ${Number(thread.reply_count) || 0} / 画像 ${Number(thread.image_count) || 0}</div>
-    </button>`).join('')}</div>`;
+    </button>`).join('');
+  return `<div class="admin-board-thread-list">${rows}</div>${renderPager('threads', page, totalPages)}`;
+}
+
+function renderPager(kind, page, totalPages) {
+  if (totalPages <= 1) return '';
+  return `<div class="admin-board-pager" data-board-pager="${kind}">
+    <button type="button" data-board-page-prev="${kind}" ${page <= 1 ? 'disabled' : ''}>◀</button>
+    <span>${page} / ${totalPages}</span>
+    <button type="button" data-board-page-next="${kind}" ${page >= totalPages ? 'disabled' : ''}>▶</button>
+  </div>`;
 }
 
 function renderImageGrid(images) {
   if (!images?.length) return '';
-  return `<div class="admin-board-image-grid">${images.map(image => `
-    <a href="${esc(image.signed_url)}" target="_blank" rel="noopener noreferrer">
-      <img src="${esc(image.signed_url)}" alt="投稿画像" loading="lazy">
-    </a>`).join('')}</div>`;
+  return `<div class="admin-board-image-grid">${images.map((image, index) => `
+    <button type="button" class="admin-board-image-thumb" data-board-image-url="${esc(image.signed_url)}" data-board-image-index="${index}">
+      <img src="${esc(image.signed_url)}" alt="投稿画像 ${index + 1}" loading="lazy">
+    </button>`).join('')}</div>`;
 }
 
-export function renderAdminBoardThreadDetail(data) {
+export function renderAdminBoardThreadDetail(data, { replyPage = 1, replyTotalPages = 1, replyStart = 0, replyEnd = null } = {}) {
   if (!data?.thread) return '<div class="empty-state">スレッドを取得できませんでした。</div>';
   const thread = data.thread;
-  const replies = data.replies || [];
+  const allReplies = data.replies || [];
+  const replies = allReplies.slice(replyStart, replyEnd ?? allReplies.length);
+  const allImages = [
+    ...(thread.images || []),
+    ...allReplies.flatMap(reply => reply.images || [])
+  ];
+  const imageIndex = image => allImages.findIndex(item => item.id === image.id);
+  const threadImageGrid = (thread.images?.length)
+    ? `<div class="admin-board-image-grid">${thread.images.map(image => `
+        <button type="button" class="admin-board-image-thumb" data-board-image-global-index="${imageIndex(image)}">
+          <img src="${esc(image.signed_url)}" alt="投稿画像" loading="lazy">
+        </button>`).join('')}</div>` : '';
+  const replyHtml = replies.map(reply => {
+    const replyImages = reply.images?.length ? `<div class="admin-board-image-grid">${reply.images.map(image => `
+      <button type="button" class="admin-board-image-thumb" data-board-image-global-index="${imageIndex(image)}">
+        <img src="${esc(image.signed_url)}" alt="返信画像" loading="lazy">
+      </button>`).join('')}</div>` : '';
+    return `
+      <article class="admin-board-reply ${reply.deleted_at ? 'is-deleted' : ''}">
+        <button type="button" class="admin-board-author" data-board-open-user="${reply.author_id}" data-board-open-user-name="${esc(reply.username)}">${esc(reply.username)}</button>
+        <div class="admin-board-post-date">${formatDate(reply.created_at)}${reply.updated_at !== reply.created_at ? ' ・ 編集済み ' + formatDate(reply.updated_at) : ''}</div>
+        <div class="admin-board-post-body">${esc(reply.body).replace(/\n/g, '<br>')}</div>
+        ${replyImages}
+        <div class="admin-board-post-actions">
+          <button type="button" data-board-report-post="${reply.id}">通報</button>
+          <button type="button" data-board-edit-reply="${reply.id}">編集</button>
+          <button type="button" class="danger" data-board-delete-reply="${reply.id}">削除</button>
+        </div>
+      </article>`;
+  }).join('');
   return `
     <article class="admin-board-main-post ${thread.deleted_at ? 'is-deleted' : ''}">
       <h3>${esc(thread.title)}</h3>
       <button type="button" class="admin-board-author" data-board-open-user="${thread.author_id}" data-board-open-user-name="${esc(thread.username)}">${esc(thread.username)}</button>
       <div class="admin-board-post-date">${formatDate(thread.created_at)}${thread.updated_at !== thread.created_at ? ' ・ 編集済み ' + formatDate(thread.updated_at) : ''}</div>
       <div class="admin-board-post-body">${esc(thread.body).replace(/\n/g, '<br>')}</div>
-      ${renderImageGrid(thread.images)}
+      ${threadImageGrid}
       <div class="admin-board-post-actions">
+        <button type="button" data-board-report-thread="${thread.id}">通報</button>
         <button type="button" data-board-edit-thread="${thread.id}">編集</button>
         <button type="button" class="danger" data-board-delete-thread="${thread.id}">削除</button>
       </div>
     </article>
-    <div class="admin-board-replies">${replies.map(reply => `
-      <article class="admin-board-reply ${reply.deleted_at ? 'is-deleted' : ''}">
-        <button type="button" class="admin-board-author" data-board-open-user="${reply.author_id}" data-board-open-user-name="${esc(reply.username)}">${esc(reply.username)}</button>
-        <div class="admin-board-post-date">${formatDate(reply.created_at)}${reply.updated_at !== reply.created_at ? ' ・ 編集済み ' + formatDate(reply.updated_at) : ''}</div>
-        <div class="admin-board-post-body">${esc(reply.body).replace(/\n/g, '<br>')}</div>
-        ${renderImageGrid(reply.images)}
-        <div class="admin-board-post-actions">
-          <button type="button" data-board-edit-reply="${reply.id}">編集</button>
-          <button type="button" class="danger" data-board-delete-reply="${reply.id}">削除</button>
-        </div>
-      </article>`).join('') || '<div class="empty-state">返信はまだありません。</div>'}</div>
+    <div class="admin-board-replies">${replyHtml || '<div class="empty-state">返信はまだありません。</div>'}</div>
+    ${renderPager('replies', replyPage, replyTotalPages)}
     <div class="admin-board-reply-form">
       <label for="adminBoardReplyBody">返信</label>
       <textarea id="adminBoardReplyBody" maxlength="${BOARD_BODY_MAX}" placeholder="返信を入力"></textarea>
-      <div class="admin-board-image-actions">
-        <label class="admin-board-file-button">画像を選択<input id="adminBoardReplyImages" type="file" accept="image/*" multiple></label>
-        <label class="admin-board-file-button">カメラ<input id="adminBoardReplyCamera" type="file" accept="image/*" capture="environment"></label>
-        <span>最大4枚・保存時に自動圧縮</span>
+      <div id="adminBoardReplySelectedImages" class="admin-board-selected-images"></div>
+      <div class="admin-board-reply-bottom">
+        <div class="admin-board-image-actions">
+          <label class="admin-board-file-button">画像を選択<input id="adminBoardReplyImages" type="file" accept="image/*" multiple></label>
+          <span>最大4枚・保存時に自動圧縮</span>
+        </div>
+        <button id="btnAdminBoardReply" type="button" class="btn-submit">返信する</button>
       </div>
-      <button id="btnAdminBoardReply" type="button" class="btn-submit">返信する</button>
     </div>`;
+}
+
+export function getThreadImageUrls(data) {
+  if (!data?.thread) return [];
+  return [
+    ...(data.thread.images || []),
+    ...(data.replies || []).flatMap(reply => reply.images || [])
+  ].map(image => image.signed_url).filter(Boolean);
+}
+
+export function renderSelectedFilePreview(files) {
+  const rows = Array.from(files || []);
+  if (!rows.length) return '';
+  return `<div class="admin-board-selected-title">添付中 ${rows.length}枚</div>
+    <div class="admin-board-selected-grid">${rows.map((file, index) => `
+      <div class="admin-board-selected-item">
+        <img data-board-local-preview="${index}" alt="添付予定画像 ${index + 1}">
+        <span>${esc(file.name || `画像${index + 1}`)}</span>
+      </div>`).join('')}</div>`;
 }
 
 export function renderAdminBoardReports(reports) {

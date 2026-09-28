@@ -25,7 +25,7 @@ import {
   renderAdminUserList,
   renderAdminVersionList as renderAdminVersionListMarkup,
   renderAdminVersionManagerLoading
-} from './admin-renderer.js?v=4_28_0';
+} from './admin-renderer.js?v=4_28_1';
 import {
   renderSkillRankingRangeOptions,
   renderSkillRankingRows,
@@ -654,8 +654,8 @@ async function deleteMasterSongTitle(title) {
   if (error) throw error;
 }
 
-import * as adminApi from './admin.js?v=4_28_0';
-import * as adminBoard from './admin-board.js?v=4_28_0';
+import * as adminApi from './admin.js?v=4_28_1';
+import * as adminBoard from './admin-board.js?v=4_28_1';
 import { listUserSummaries, getUserSkillTargets, getSongRateComparison, getSongPersonalBestHistory, getSongOptionDistribution, getMyFavorites, removeFavorite } from './users.js?v=3_6_0';
 
 let activeInstrument = localStorage.getItem('gitadora_instrument') === 'DM' ? 'DM' : 'GF';
@@ -715,9 +715,18 @@ let viewedUserRegisteredBatch = 1;
 let adminPasswordUserId = null;
 let adminBoardMode = 'threads';
 let adminBoardThreads = [];
+let adminBoardThreadPage = 1;
 let adminBoardCurrentThreadId = null;
 let adminBoardCurrentData = null;
+let adminBoardReplyPage = 1;
 let adminBoardEditorState = null;
+let adminBoardEditorFiles = [];
+let adminBoardReplyFiles = [];
+let adminBoardPreviewUrls = [];
+let adminBoardImageViewerUrls = [];
+let adminBoardImageViewerIndex = 0;
+let adminBoardImageViewerTouchX = null;
+let adminBoardReportTarget = null;
 
 const $ = id => document.getElementById(id);
 const siteDialog = createSiteDialogController($);
@@ -4982,6 +4991,17 @@ function updateAdminBoardToolbar() {
   $('btnAdminBoardNewThread')?.classList.toggle('hidden', adminBoardMode !== 'threads');
 }
 
+function renderAdminBoardThreadPage() {
+  const totalPages = Math.max(1, Math.ceil(adminBoardThreads.length / adminBoard.BOARD_THREAD_PAGE_SIZE));
+  adminBoardThreadPage = Math.min(Math.max(1, adminBoardThreadPage), totalPages);
+  const start = (adminBoardThreadPage - 1) * adminBoard.BOARD_THREAD_PAGE_SIZE;
+  const rows = adminBoardThreads.slice(start, start + adminBoard.BOARD_THREAD_PAGE_SIZE);
+  $('adminBody').innerHTML = adminBoard.renderAdminBoardThreadList(rows, {
+    page: adminBoardThreadPage,
+    totalPages
+  });
+}
+
 async function loadAdminBoard() {
   $('adminBody').classList.remove('admin-body-table');
   updateAdminBoardToolbar();
@@ -4992,7 +5012,7 @@ async function loadAdminBoard() {
       $('adminBody').innerHTML = adminBoard.renderAdminBoardReports(reports);
     } else {
       adminBoardThreads = await adminBoard.getAdminBoardThreads();
-      $('adminBody').innerHTML = adminBoard.renderAdminBoardThreadList(adminBoardThreads);
+      renderAdminBoardThreadPage();
     }
   } catch (error) {
     $('adminBody').innerHTML = `<div class="empty-state">取得失敗: ${esc(error?.message || error)}</div>`;
@@ -5008,13 +5028,30 @@ async function hydrateAdminBoardThreadImages(data) {
   return data;
 }
 
-async function openAdminBoardThread(threadId) {
+function renderCurrentAdminBoardThread() {
+  if (!adminBoardCurrentData?.thread) return;
+  const replies = adminBoardCurrentData.replies || [];
+  const totalPages = Math.max(1, Math.ceil(replies.length / adminBoard.BOARD_REPLY_PAGE_SIZE));
+  adminBoardReplyPage = Math.min(Math.max(1, adminBoardReplyPage), totalPages);
+  const start = (adminBoardReplyPage - 1) * adminBoard.BOARD_REPLY_PAGE_SIZE;
+  const end = start + adminBoard.BOARD_REPLY_PAGE_SIZE;
+  $('adminBoardThreadBody').innerHTML = adminBoard.renderAdminBoardThreadDetail(adminBoardCurrentData, {
+    replyPage: adminBoardReplyPage,
+    replyTotalPages: totalPages,
+    replyStart: start,
+    replyEnd: end
+  });
+  adminBoardReplyFiles = [];
+}
+
+async function openAdminBoardThread(threadId, { preserveReplyPage = false } = {}) {
   adminBoardCurrentThreadId = threadId;
+  if (!preserveReplyPage) adminBoardReplyPage = 1;
   $('adminBoardThreadBody').innerHTML = '<div class="empty-state">読み込み中...</div>';
   $('adminBoardThreadMask').style.display = 'flex';
   try {
     adminBoardCurrentData = await hydrateAdminBoardThreadImages(await adminBoard.getAdminBoardThread(threadId));
-    $('adminBoardThreadBody').innerHTML = adminBoard.renderAdminBoardThreadDetail(adminBoardCurrentData);
+    renderCurrentAdminBoardThread();
   } catch (error) {
     $('adminBoardThreadBody').innerHTML = `<div class="empty-state">取得失敗: ${esc(error?.message || error)}</div>`;
   }
@@ -5024,6 +5061,9 @@ function closeAdminBoardThread() {
   $('adminBoardThreadMask').style.display = 'none';
   adminBoardCurrentThreadId = null;
   adminBoardCurrentData = null;
+  adminBoardReplyPage = 1;
+  adminBoardReplyFiles = [];
+  closeAdminBoardImageViewer();
 }
 
 function renderBoardExistingImages(images) {
@@ -5040,8 +5080,28 @@ function renderBoardExistingImages(images) {
     </label>`).join('')}</div>`;
 }
 
+function clearAdminBoardPreviewUrls() {
+  adminBoardPreviewUrls.forEach(url => URL.revokeObjectURL(url));
+  adminBoardPreviewUrls = [];
+}
+
+function renderSelectedBoardFiles(containerId, files) {
+  const container = $(containerId);
+  if (!container) return;
+  clearAdminBoardPreviewUrls();
+  container.innerHTML = adminBoard.renderSelectedFilePreview(files);
+  Array.from(files || []).forEach((file, index) => {
+    const img = container.querySelector(`[data-board-local-preview="${index}"]`);
+    if (!img) return;
+    const url = URL.createObjectURL(file);
+    adminBoardPreviewUrls.push(url);
+    img.src = url;
+  });
+}
+
 function openAdminBoardEditor({ type = 'thread', item = null } = {}) {
   adminBoardEditorState = { type, item };
+  adminBoardEditorFiles = [];
   const isThread = type === 'thread';
   const editing = Boolean(item?.id);
   $('adminBoardEditorTitle').textContent = isThread
@@ -5052,22 +5112,22 @@ function openAdminBoardEditor({ type = 'thread', item = null } = {}) {
   $('adminBoardTitle').value = isThread ? (item?.title || '') : '';
   $('adminBoardBody').value = item?.body || '';
   $('adminBoardImages').value = '';
-  $('adminBoardCamera').value = '';
   $('adminBoardEditorStatus').textContent = '';
+  $('btnAdminBoardSave').textContent = isThread && !editing ? '投稿する' : '保存する';
   renderBoardExistingImages(item?.images || []);
+  renderSelectedBoardFiles('adminBoardSelectedImages', adminBoardEditorFiles);
   $('adminBoardEditorMask').style.display = 'flex';
 }
 
 function closeAdminBoardEditor() {
   $('adminBoardEditorMask').style.display = 'none';
   adminBoardEditorState = null;
+  adminBoardEditorFiles = [];
+  clearAdminBoardPreviewUrls();
 }
 
 function collectBoardEditorFiles() {
-  return [
-    ...Array.from($('adminBoardImages')?.files || []),
-    ...Array.from($('adminBoardCamera')?.files || [])
-  ];
+  return [...adminBoardEditorFiles];
 }
 
 function selectedBoardImageRemovals() {
@@ -5122,10 +5182,7 @@ async function submitAdminBoardReply() {
   if (!adminBoardCurrentThreadId) return;
   const button = $('btnAdminBoardReply');
   const body = $('adminBoardReplyBody')?.value || '';
-  const files = [
-    ...Array.from($('adminBoardReplyImages')?.files || []),
-    ...Array.from($('adminBoardReplyCamera')?.files || [])
-  ];
+  const files = [...adminBoardReplyFiles];
   if (files.length > adminBoard.BOARD_IMAGE_MAX_COUNT) {
     await showSiteDialog('画像は1投稿につき4枚までです。', '掲示板');
     return;
@@ -5135,7 +5192,8 @@ async function submitAdminBoardReply() {
   try {
     const postId = await adminBoard.createAdminBoardReply(adminBoardCurrentThreadId, body);
     if (files.length) await adminBoard.uploadBoardImages({ files, threadId: adminBoardCurrentThreadId, postId });
-    await openAdminBoardThread(adminBoardCurrentThreadId);
+    adminBoardReplyFiles = [];
+    await openAdminBoardThread(adminBoardCurrentThreadId, { preserveReplyPage: true });
     if (adminTab === 'board') await loadAdminBoard();
   } catch (error) {
     await showSiteDialog('返信に失敗しました: ' + (error?.message || error), '掲示板');
@@ -5167,10 +5225,78 @@ async function deleteAdminBoardReply(postId) {
   try {
     if (reply.images?.length) await adminBoard.removeBoardImages(reply.images);
     await adminBoard.softDeleteAdminBoardReply(postId);
-    await openAdminBoardThread(adminBoardCurrentThreadId);
+    await openAdminBoardThread(adminBoardCurrentThreadId, { preserveReplyPage: true });
     if (adminTab === 'board') await loadAdminBoard();
   } catch (error) {
     await showSiteDialog('削除に失敗しました: ' + (error?.message || error), '掲示板');
+  }
+}
+
+function updateAdminBoardImageViewer() {
+  const img = $('adminBoardImageViewerImage');
+  const count = adminBoardImageViewerUrls.length;
+  if (!img || !count) return;
+  adminBoardImageViewerIndex = (adminBoardImageViewerIndex + count) % count;
+  img.src = adminBoardImageViewerUrls[adminBoardImageViewerIndex];
+  $('adminBoardImageViewerCounter').textContent = `画像 ${adminBoardImageViewerIndex + 1} / ${count}`;
+  $('btnAdminBoardImagePrev').classList.toggle('hidden', count <= 1);
+  $('btnAdminBoardImageNext').classList.toggle('hidden', count <= 1);
+}
+
+function openAdminBoardImageViewer(index = 0) {
+  adminBoardImageViewerUrls = adminBoard.getThreadImageUrls(adminBoardCurrentData);
+  if (!adminBoardImageViewerUrls.length) return;
+  adminBoardImageViewerIndex = Math.min(Math.max(0, Number(index) || 0), adminBoardImageViewerUrls.length - 1);
+  updateAdminBoardImageViewer();
+  $('adminBoardImageViewerMask').style.display = 'flex';
+}
+
+function closeAdminBoardImageViewer() {
+  if ($('adminBoardImageViewerMask')) $('adminBoardImageViewerMask').style.display = 'none';
+  if ($('adminBoardImageViewerImage')) $('adminBoardImageViewerImage').removeAttribute('src');
+  adminBoardImageViewerUrls = [];
+  adminBoardImageViewerIndex = 0;
+  adminBoardImageViewerTouchX = null;
+}
+
+function stepAdminBoardImageViewer(delta) {
+  if (adminBoardImageViewerUrls.length <= 1) return;
+  adminBoardImageViewerIndex += delta;
+  updateAdminBoardImageViewer();
+}
+
+function openAdminBoardReport(target) {
+  adminBoardReportTarget = target;
+  $('adminBoardReportReason').value = '荒らし';
+  $('adminBoardReportDetails').value = '';
+  $('adminBoardReportMask').style.display = 'flex';
+}
+
+function closeAdminBoardReport() {
+  $('adminBoardReportMask').style.display = 'none';
+  adminBoardReportTarget = null;
+}
+
+async function submitAdminBoardReport() {
+  if (!adminBoardReportTarget) return;
+  const button = $('btnAdminBoardReportSubmit');
+  const original = button.textContent;
+  button.disabled = true;
+  button.textContent = '送信中...';
+  try {
+    await adminBoard.createAdminBoardReport({
+      ...adminBoardReportTarget,
+      reason: $('adminBoardReportReason').value,
+      details: $('adminBoardReportDetails').value
+    });
+    closeAdminBoardReport();
+    await showSiteDialog('通報を受け付けました。', '掲示板');
+    if (adminBoardMode === 'reports') await loadAdminBoard();
+  } catch (error) {
+    await showSiteDialog('通報に失敗しました: ' + (error?.message || error), '掲示板');
+  } finally {
+    button.disabled = false;
+    button.textContent = original;
   }
 }
 
@@ -5604,12 +5730,41 @@ $('btnAdminBoardNewThread')?.addEventListener('click', () => openAdminBoardEdito
 $('btnAdminBoardThreadClose')?.addEventListener('click', closeAdminBoardThread);
 $('btnAdminBoardEditorCancel')?.addEventListener('click', closeAdminBoardEditor);
 $('btnAdminBoardSave')?.addEventListener('click', saveAdminBoardEditor);
+$('btnAdminBoardEditorClose')?.addEventListener('click', closeAdminBoardEditor);
+$('adminBoardImages')?.addEventListener('change', event => {
+  adminBoardEditorFiles = Array.from(event.target.files || []).slice(0, adminBoard.BOARD_IMAGE_MAX_COUNT);
+  renderSelectedBoardFiles('adminBoardSelectedImages', adminBoardEditorFiles);
+});
+$('btnAdminBoardImageViewerClose')?.addEventListener('click', closeAdminBoardImageViewer);
+$('btnAdminBoardImagePrev')?.addEventListener('click', () => stepAdminBoardImageViewer(-1));
+$('btnAdminBoardImageNext')?.addEventListener('click', () => stepAdminBoardImageViewer(1));
+$('btnAdminBoardReportClose')?.addEventListener('click', closeAdminBoardReport);
+$('btnAdminBoardReportCancel')?.addEventListener('click', closeAdminBoardReport);
+$('btnAdminBoardReportSubmit')?.addEventListener('click', submitAdminBoardReport);
 $('adminBoardThreadMask')?.addEventListener('click', event => {
   if (event.target === $('adminBoardThreadMask')) closeAdminBoardThread();
 });
 $('adminBoardEditorMask')?.addEventListener('click', event => {
   if (event.target === $('adminBoardEditorMask')) closeAdminBoardEditor();
 });
+$('adminBoardImageViewerMask')?.addEventListener('click', event => {
+  if (event.target === $('adminBoardImageViewerMask')) closeAdminBoardImageViewer();
+});
+$('adminBoardReportMask')?.addEventListener('click', event => {
+  if (event.target === $('adminBoardReportMask')) closeAdminBoardReport();
+});
+$('adminBoardImageViewerStage')?.addEventListener('touchstart', event => {
+  adminBoardImageViewerTouchX = event.touches?.[0]?.clientX ?? null;
+}, { passive: true });
+$('adminBoardImageViewerStage')?.addEventListener('touchend', event => {
+  if (adminBoardImageViewerTouchX == null) return;
+  const endX = event.changedTouches?.[0]?.clientX;
+  if (endX == null) return;
+  const diff = endX - adminBoardImageViewerTouchX;
+  adminBoardImageViewerTouchX = null;
+  if (Math.abs(diff) < 40) return;
+  stepAdminBoardImageViewer(diff > 0 ? -1 : 1);
+}, { passive: true });
 $('btnUserDetailBoardBan')?.addEventListener('click', async () => {
   const userId = $('btnUserDetailBoardBan').dataset.userId;
   if (!userId) return;
@@ -5631,6 +5786,15 @@ $('adminBody')?.addEventListener('click', async event => {
     } catch (error) {
       await showSiteDialog('投稿禁止設定の変更に失敗しました: ' + (error?.message || error), '掲示板');
     }
+    return;
+  }
+
+  const threadPrev = event.target.closest('[data-board-page-prev="threads"]');
+  const threadNext = event.target.closest('[data-board-page-next="threads"]');
+  if (threadPrev || threadNext) {
+    adminBoardThreadPage += threadNext ? 1 : -1;
+    renderAdminBoardThreadPage();
+    $('adminBody').scrollTop = 0;
     return;
   }
 
@@ -5660,6 +5824,29 @@ $('adminBody')?.addEventListener('click', async event => {
 });
 
 $('adminBoardThreadBody')?.addEventListener('click', async event => {
+  const imageButton = event.target.closest('[data-board-image-global-index]');
+  if (imageButton) {
+    openAdminBoardImageViewer(Number(imageButton.dataset.boardImageGlobalIndex) || 0);
+    return;
+  }
+  const replyPrev = event.target.closest('[data-board-page-prev="replies"]');
+  const replyNext = event.target.closest('[data-board-page-next="replies"]');
+  if (replyPrev || replyNext) {
+    adminBoardReplyPage += replyNext ? 1 : -1;
+    renderCurrentAdminBoardThread();
+    $('adminBoardThreadBody').scrollTop = 0;
+    return;
+  }
+  const reportThread = event.target.closest('[data-board-report-thread]');
+  if (reportThread) {
+    openAdminBoardReport({ threadId: reportThread.dataset.boardReportThread, postId: null });
+    return;
+  }
+  const reportPost = event.target.closest('[data-board-report-post]');
+  if (reportPost) {
+    openAdminBoardReport({ threadId: null, postId: reportPost.dataset.boardReportPost });
+    return;
+  }
   const author = event.target.closest('[data-board-open-user]');
   if (author) {
     await openBoardAuthorUser(author.dataset.boardOpenUser, author.dataset.boardOpenUserName || '');
@@ -5689,6 +5876,12 @@ $('adminBoardThreadBody')?.addEventListener('click', async event => {
   if (event.target.closest('#btnAdminBoardReply')) {
     await submitAdminBoardReply();
   }
+});
+
+$('adminBoardThreadBody')?.addEventListener('change', event => {
+  if (event.target?.id !== 'adminBoardReplyImages') return;
+  adminBoardReplyFiles = Array.from(event.target.files || []).slice(0, adminBoard.BOARD_IMAGE_MAX_COUNT);
+  renderSelectedBoardFiles('adminBoardReplySelectedImages', adminBoardReplyFiles);
 });
 
 let adminSongSearchTimer = null;

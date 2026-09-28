@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>GITADORA Skill Simulator</title>
-<meta name="app-version" content="4.28.0">
+<meta name="app-version" content="4.28.1">
 <link rel="icon" type="image/svg+xml" href="./favicon.svg?v=21_7">
 <link rel="icon" type="image/png" sizes="48x48" href="./favicon-48x48.png?v=21_7">
 <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32x32.png?v=21_7">
@@ -39,7 +39,7 @@
 </script>
 
 <link rel="stylesheet" href="./css/app.css?v=4_17_0">
-<link rel="stylesheet" href="./css/app-overrides.css?v=4_28_0">
+<link rel="stylesheet" href="./css/app-overrides.css?v=4_28_1">
   <link rel="stylesheet" href="./css/layout-canonical.css?v=4_17_0">
   <link rel="preconnect" href="https://challenges.cloudflare.com">
   <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" defer></script>
@@ -420,7 +420,7 @@
     <div class="app-menu-version">
       <label>VERSION</label>
       <select id="versionSelect" class="version-select" aria-label="GITADORAバージョン"></select>
-      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 4.28.0</div>
+      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 4.28.1</div>
     </div>
   </div>
 </div>
@@ -1058,7 +1058,7 @@
 <div id="adminModal" class="admin-modal">
   <div class="admin-header">
     <div class="admin-title-row">
-      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 4.28.0</div></div>
+      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 4.28.1</div></div>
       <button id="btnCloseAdmin" class="admin-close">閉じる</button>
     </div>
     <div class="admin-tabs">
@@ -1188,33 +1188,78 @@
 
 
 <div id="adminBoardThreadMask" class="admin-form-mask admin-board-thread-mask">
-  <div class="admin-form-sheet admin-board-thread-sheet">
+  <div class="admin-form-sheet admin-board-thread-sheet" role="dialog" aria-modal="true" aria-label="スレッド詳細">
     <div class="admin-board-sheet-head">
-      <strong>掲示板スレッド</strong>
+      <strong>スレッド詳細</strong>
       <button id="btnAdminBoardThreadClose" type="button">閉じる</button>
     </div>
     <div id="adminBoardThreadBody" class="admin-board-thread-body"></div>
   </div>
 </div>
 
-<div id="adminBoardEditorMask" class="admin-form-mask">
-  <div class="admin-form-sheet admin-board-editor-sheet">
-    <h3 id="adminBoardEditorTitle">新規スレッド</h3>
-    <label for="adminBoardTitle">タイトル</label>
-    <input id="adminBoardTitle" type="text" maxlength="80" placeholder="タイトル（80文字まで）">
-    <div class="admin-board-rule-note">メールアドレス・電話番号・本名などの個人情報、誹謗中傷、公序良俗に反する内容の投稿は禁止です。管理者判断で削除・投稿禁止の対象になります。</div>
-    <label for="adminBoardBody">本文</label>
-    <textarea id="adminBoardBody" maxlength="2000" placeholder="本文（2000文字まで）"></textarea>
-    <div id="adminBoardExistingImages" class="admin-board-existing-images"></div>
-    <div class="admin-board-image-actions">
-      <label class="admin-board-file-button">画像を選択<input id="adminBoardImages" type="file" accept="image/*" multiple></label>
-      <label class="admin-board-file-button">カメラ<input id="adminBoardCamera" type="file" accept="image/*" capture="environment"></label>
-      <span>最大4枚・保存時に自動圧縮</span>
+<div id="adminBoardEditorMask" class="admin-form-mask admin-board-editor-mask">
+  <div class="admin-form-sheet admin-board-editor-sheet" role="dialog" aria-modal="true" aria-labelledby="adminBoardEditorTitle">
+    <div class="admin-board-sheet-head">
+      <strong id="adminBoardEditorTitle">新規スレッド</strong>
+      <button id="btnAdminBoardEditorClose" type="button">閉じる</button>
     </div>
-    <div id="adminBoardEditorStatus" class="admin-board-editor-status"></div>
-    <div class="btn-block">
-      <button id="btnAdminBoardSave" type="button" class="btn-submit">保存する</button>
-      <button id="btnAdminBoardEditorCancel" type="button" class="btn-cancel">戻る</button>
+    <div class="admin-board-editor-body">
+      <div class="admin-board-rule-note">メールアドレス・電話番号・本名などの個人情報、誹謗中傷、公序良俗に反する内容の投稿は禁止です。管理者判断で削除・投稿禁止の対象になります。</div>
+      <label for="adminBoardTitle">タイトル</label>
+      <input id="adminBoardTitle" type="text" maxlength="80" placeholder="タイトル（80文字まで）">
+      <label for="adminBoardBody">本文</label>
+      <textarea id="adminBoardBody" maxlength="2000" placeholder="本文（2000文字まで）"></textarea>
+      <div id="adminBoardExistingImages" class="admin-board-existing-images"></div>
+      <div id="adminBoardSelectedImages" class="admin-board-selected-images"></div>
+      <div class="admin-board-image-actions">
+        <label class="admin-board-file-button">画像を選択<input id="adminBoardImages" type="file" accept="image/*" multiple></label>
+        <span>最大4枚・保存時に自動圧縮</span>
+      </div>
+      <div id="adminBoardEditorStatus" class="admin-board-editor-status"></div>
+      <div class="admin-board-editor-actions">
+        <button id="btnAdminBoardEditorCancel" type="button" class="btn-cancel">戻る</button>
+        <button id="btnAdminBoardSave" type="button" class="btn-submit">投稿する</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="adminBoardImageViewerMask" class="admin-form-mask admin-board-image-viewer-mask">
+  <div class="admin-board-image-viewer" role="dialog" aria-modal="true" aria-label="添付画像">
+    <div class="admin-board-sheet-head">
+      <strong id="adminBoardImageViewerCounter">画像</strong>
+      <button id="btnAdminBoardImageViewerClose" type="button">閉じる</button>
+    </div>
+    <div id="adminBoardImageViewerStage" class="admin-board-image-viewer-stage">
+      <button id="btnAdminBoardImagePrev" class="admin-board-image-nav prev" type="button" aria-label="前の画像">‹</button>
+      <img id="adminBoardImageViewerImage" alt="添付画像">
+      <button id="btnAdminBoardImageNext" class="admin-board-image-nav next" type="button" aria-label="次の画像">›</button>
+    </div>
+  </div>
+</div>
+
+<div id="adminBoardReportMask" class="admin-form-mask admin-board-report-mask">
+  <div class="admin-form-sheet admin-board-report-sheet" role="dialog" aria-modal="true" aria-label="投稿を通報">
+    <div class="admin-board-sheet-head">
+      <strong>投稿を通報</strong>
+      <button id="btnAdminBoardReportClose" type="button">閉じる</button>
+    </div>
+    <div class="admin-board-report-body">
+      <label for="adminBoardReportReason">理由</label>
+      <select id="adminBoardReportReason">
+        <option value="荒らし">荒らし</option>
+        <option value="個人情報">個人情報</option>
+        <option value="不適切な画像">不適切な画像</option>
+        <option value="誹謗中傷">誹謗中傷</option>
+        <option value="公序良俗">公序良俗</option>
+        <option value="その他">その他</option>
+      </select>
+      <label for="adminBoardReportDetails">詳細（任意）</label>
+      <textarea id="adminBoardReportDetails" maxlength="500" placeholder="通報内容の補足"></textarea>
+      <div class="admin-board-report-actions">
+        <button id="btnAdminBoardReportCancel" type="button" class="btn-cancel">戻る</button>
+        <button id="btnAdminBoardReportSubmit" type="button" class="btn-submit">通報する</button>
+      </div>
     </div>
   </div>
 </div>
@@ -1231,7 +1276,7 @@
   </div>
 </div>
 
-<script type="module" src="./js/app.js?v=4_28_0"></script>
+<script type="module" src="./js/app.js?v=4_28_1"></script>
 <script src="./js/version-check.js?v=4_25_0" defer></script>
 </body>
 </html>
