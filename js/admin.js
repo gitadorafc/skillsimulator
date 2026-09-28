@@ -1,7 +1,7 @@
 // GD Pocket Board admin.js v14_2
 import { supabase } from './supabase.js';
 import { normalizeSongTitle } from './song-title.js?v=4_15_6';
-import { listBoardUserStates } from './admin-board.js?v=4_29_1';
+import { listBoardUserStates } from './admin-board.js?v=4_30_0';
 
 export async function isAdmin() {
   const { data, error } = await supabase.rpc('is_admin');

@@ -1,12 +1,13 @@
 import { supabase } from './supabase.js?v=21_57';
 
 export const BOARD_BUCKET = 'board-images';
-export const BOARD_TITLE_MAX = 80;
-export const BOARD_BODY_MAX = 2000;
-export const BOARD_IMAGE_MAX_COUNT = 4;
+export const BOARD_TITLE_MAX = 30;
+export const BOARD_BODY_MAX = 1000;
+export const BOARD_IMAGE_MAX_COUNT = 1;
 export const BOARD_SOURCE_MAX_BYTES = 12 * 1024 * 1024;
-export const BOARD_IMAGE_TARGET_BYTES = 300 * 1024;
-export const BOARD_IMAGE_MAX_EDGE = 1280;
+export const BOARD_IMAGE_TARGET_BYTES = 260 * 1024;
+export const BOARD_IMAGE_MAX_BYTES = 420 * 1024;
+export const BOARD_IMAGE_MAX_EDGE = 1100;
 export const BOARD_THREAD_PAGE_SIZE = 10;
 export const BOARD_REPLY_PAGE_SIZE = 10;
 
@@ -94,7 +95,7 @@ export async function softDeleteAdminBoardReply(postId) {
 }
 
 export async function listAdminBoardReports() {
-  const { data, error } = await supabase.rpc('admin_board_list_reports');
+  const { data, error } = await supabase.rpc('admin_board_list_reports_v2');
   if (error) throw error;
   return data ?? [];
 }
@@ -188,7 +189,7 @@ export async function compressBoardImage(file) {
   let quality = 0.72;
   let blob = null;
 
-  for (let attempt = 0; attempt < 8; attempt += 1) {
+  for (let attempt = 0; attempt < 14; attempt += 1) {
     const canvas = document.createElement('canvas');
     canvas.width = width;
     canvas.height = height;
@@ -199,15 +200,22 @@ export async function compressBoardImage(file) {
     blob = await canvasBlob(canvas, 'image/webp', quality);
     if (!blob) blob = await canvasBlob(canvas, 'image/jpeg', quality);
     if (blob && blob.size <= BOARD_IMAGE_TARGET_BYTES) break;
-    quality = Math.max(0.52, quality - 0.08);
+    quality = Math.max(0.34, quality - 0.055);
     if (attempt >= 2) {
-      width = Math.max(1, Math.round(width * 0.88));
-      height = Math.max(1, Math.round(height * 0.88));
+      const shrink = attempt >= 7 ? 0.82 : 0.88;
+      width = Math.max(560, Math.round(width * shrink));
+      height = Math.max(1, Math.round(sourceHeight * (width / sourceWidth)));
+      if (height > 1100) {
+        height = 1100;
+        width = Math.max(1, Math.round(sourceWidth * (height / sourceHeight)));
+      }
     }
   }
   bitmap.close?.();
   if (!blob) throw new Error('画像の圧縮に失敗しました。');
-  if (blob.size > 520 * 1024) throw new Error('画像を十分に圧縮できませんでした。別の画像を選択してください。');
+  if (blob.size > BOARD_IMAGE_MAX_BYTES) {
+    throw new Error('画像の圧縮に失敗しました。別の画像を選択してください。');
+  }
   return { blob, width, height, mimeType: blob.type || 'image/webp' };
 }
 
@@ -333,7 +341,7 @@ function renderPostBody(body) {
 function renderPostImages(images, imageIndex, altPrefix = '投稿画像') {
   if (!images?.length) return '';
   return `<div class="admin-board-image-grid">${images.map((image, index) => `
-    <button type="button" class="admin-board-image-thumb" data-board-image-global-index="${imageIndex(image)}">
+    <button type="button" class="admin-board-image-thumb" data-board-image-id="${image.id}">
       <img src="${esc(image.signed_url)}" alt="${altPrefix} ${index + 1}" loading="lazy" decoding="async" fetchpriority="low">
     </button>`).join('')}</div>`;
 }
@@ -351,7 +359,7 @@ export function renderAdminBoardThreadDetail(data, { replyPage = 1, replyTotalPa
   const threadImageGrid = renderPostImages(thread.images || [], imageIndex, '投稿画像');
   const threadIsOwn = String(thread.author_id || '') === String(viewerUserId || '');
   const replyHtml = replies.map((reply, localIndex) => {
-    const globalNumber = replyStart + localIndex + 2;
+    const globalNumber = Number(reply.post_number) || (replyStart + localIndex + 2);
     const replyImages = renderPostImages(reply.images || [], imageIndex, '投稿画像');
     const isOwn = String(reply.author_id || '') === String(viewerUserId || '');
     return `
@@ -382,6 +390,13 @@ export function renderAdminBoardThreadDetail(data, { replyPage = 1, replyTotalPa
         <button type="button" class="danger" data-board-delete-thread="${thread.id}">削除</button>
       </div>
     </article>
+    <div class="admin-board-post-sort">
+      <label for="adminBoardPostSort">投稿順</label>
+      <select id="adminBoardPostSort">
+        <option value="asc">古い順</option>
+        <option value="desc">新しい順</option>
+      </select>
+    </div>
     <div class="admin-board-replies">${replyHtml || '<div class="empty-state">投稿はまだありません。</div>'}</div>
     ${renderPager('replies', replyPage, replyTotalPages)}
     <div class="admin-board-reply-form">
@@ -390,20 +405,27 @@ export function renderAdminBoardThreadDetail(data, { replyPage = 1, replyTotalPa
       <div id="adminBoardReplySelectedImages" class="admin-board-selected-images"></div>
       <div class="admin-board-reply-bottom">
         <div class="admin-board-image-actions">
-          <label class="admin-board-file-button">画像を選択<input id="adminBoardReplyImages" type="file" accept="image/*" multiple></label>
-          <span>最大4枚・保存時に自動圧縮</span>
+          <label class="admin-board-file-button">画像を選択<input id="adminBoardReplyImages" type="file" accept="image/*"></label>
+          <span>1枚まで・保存時に自動圧縮</span>
         </div>
         <button id="btnAdminBoardReply" type="button" class="btn-submit">投稿する</button>
       </div>
     </div>`;
 }
 
-export function getThreadImageUrls(data) {
+export function getThreadImageItems(data) {
   if (!data?.thread) return [];
-  return [
-    ...(data.thread.images || []),
-    ...(data.replies || []).flatMap(reply => reply.images || [])
-  ].map(image => image.signed_url).filter(Boolean);
+  const items = [];
+  for (const image of data.thread.images || []) {
+    if (image.signed_url) items.push({ id:image.id, url:image.signed_url, postNumber:1 });
+  }
+  (data.replies || []).forEach((reply, index) => {
+    const postNumber = index + 2;
+    for (const image of reply.images || []) {
+      if (image.signed_url) items.push({ id:image.id, url:image.signed_url, postNumber });
+    }
+  });
+  return items;
 }
 
 export function renderSelectedFilePreview(files) {
@@ -420,13 +442,11 @@ export function renderSelectedFilePreview(files) {
 export function renderAdminBoardReports(reports) {
   if (!reports.length) return '<div class="empty-state">未対応の通報はありません。</div>';
   return `<div class="admin-board-report-list">${reports.map(report => `
-    <article class="admin-card admin-board-report-card">
-      <strong>${esc(report.reason)}</strong>
-      <div>${esc(report.target_text || '')}</div>
+    <article class="admin-card admin-board-report-card" data-board-report-open="1" data-board-report-thread-id="${report.target_thread_id || report.thread_id || ''}" data-board-report-post-id="${report.target_post_id || report.post_id || ''}">
       <div class="admin-card-meta">通報されたユーザー <button type="button" class="admin-board-report-user" data-board-open-user="${report.target_author_id || ''}" data-board-open-user-name="${esc(report.target_username || '')}">${esc(report.target_username || '不明')}</button></div>
+      <strong>${esc(report.reason)}</strong>
+      ${report.details ? `<div class="admin-board-report-details">${esc(report.details)}</div>` : '<div class="admin-board-report-details is-empty">詳細なし</div>'}
       <div class="admin-card-meta">通報者 ${esc(report.reporter_username)} / ${formatDate(report.created_at)}</div>
-      ${report.details ? `<div class="admin-board-report-details">${esc(report.details)}</div>` : ''}
       <button type="button" data-board-resolve-report="${report.id}">対応済みにする</button>
     </article>`).join('')}</div>`;
 }
-

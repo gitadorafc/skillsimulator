@@ -654,8 +654,8 @@ async function deleteMasterSongTitle(title) {
   if (error) throw error;
 }
 
-import * as adminApi from './admin.js?v=4_29_1';
-import * as adminBoard from './admin-board.js?v=4_29_1';
+import * as adminApi from './admin.js?v=4_30_0';
+import * as adminBoard from './admin-board.js?v=4_30_0';
 import { listUserSummaries, getUserSkillTargets, getSongRateComparison, getSongPersonalBestHistory, getSongOptionDistribution, getMyFavorites, removeFavorite } from './users.js?v=3_6_0';
 
 let activeInstrument = localStorage.getItem('gitadora_instrument') === 'DM' ? 'DM' : 'GF';
@@ -721,11 +721,12 @@ let mainBoardThreadPage = 1;
 let adminBoardCurrentThreadId = null;
 let adminBoardCurrentData = null;
 let adminBoardReplyPage = 1;
+let adminBoardPostSort = 'asc';
 let adminBoardEditorState = null;
 let adminBoardEditorFiles = [];
 let adminBoardReplyFiles = [];
 let adminBoardPreviewUrls = [];
-let adminBoardImageViewerUrls = [];
+let adminBoardImageViewerItems = [];
 let adminBoardImageViewerIndex = 0;
 let adminBoardImageViewerTouchX = null;
 let adminBoardReportTarget = null;
@@ -5092,26 +5093,35 @@ async function hydrateAdminBoardThreadImages(data) {
   return data;
 }
 
+function getSortedAdminBoardReplies() {
+  const replies = (adminBoardCurrentData?.replies || []).map((reply, index) => ({ ...reply, post_number:index + 2 }));
+  if (adminBoardPostSort === 'desc') replies.reverse();
+  return replies;
+}
+
 function renderCurrentAdminBoardThread() {
   if (!adminBoardCurrentData?.thread) return;
-  const replies = adminBoardCurrentData.replies || [];
+  const replies = getSortedAdminBoardReplies();
   const totalPages = Math.max(1, Math.ceil(replies.length / adminBoard.BOARD_REPLY_PAGE_SIZE));
   adminBoardReplyPage = Math.min(Math.max(1, adminBoardReplyPage), totalPages);
   const start = (adminBoardReplyPage - 1) * adminBoard.BOARD_REPLY_PAGE_SIZE;
   const end = start + adminBoard.BOARD_REPLY_PAGE_SIZE;
-  $('adminBoardThreadBody').innerHTML = adminBoard.renderAdminBoardThreadDetail(adminBoardCurrentData, {
+  const renderData = { ...adminBoardCurrentData, replies };
+  $('adminBoardThreadBody').innerHTML = adminBoard.renderAdminBoardThreadDetail(renderData, {
     replyPage: adminBoardReplyPage,
     replyTotalPages: totalPages,
     replyStart: start,
     replyEnd: end,
     viewerUserId: currentUserId
   });
+  const sort = $('adminBoardPostSort');
+  if (sort) sort.value = adminBoardPostSort;
   adminBoardReplyFiles = [];
 }
 
 async function openAdminBoardThread(threadId, { preserveReplyPage = false } = {}) {
   adminBoardCurrentThreadId = threadId;
-  if (!preserveReplyPage) adminBoardReplyPage = 1;
+  if (!preserveReplyPage) { adminBoardReplyPage = 1; adminBoardPostSort = 'asc'; }
   $('adminBoardThreadBody').innerHTML = '<div class="empty-state">読み込み中...</div>';
   $('adminBoardThreadMask').style.display = 'flex';
   try {
@@ -5127,6 +5137,7 @@ function closeAdminBoardThread() {
   adminBoardCurrentThreadId = null;
   adminBoardCurrentData = null;
   adminBoardReplyPage = 1;
+  adminBoardPostSort = 'asc';
   adminBoardReplyFiles = [];
   closeAdminBoardImageViewer();
 }
@@ -5214,7 +5225,7 @@ async function saveAdminBoardEditor() {
     const removeImages = selectedBoardImageRemovals();
     const remainingCount = (state.item?.images?.length || 0) - removeImages.length;
     const files = collectBoardEditorFiles();
-    if (remainingCount + files.length > adminBoard.BOARD_IMAGE_MAX_COUNT) {
+    if (files.length && remainingCount + files.length > adminBoard.BOARD_IMAGE_MAX_COUNT) {
       throw new Error(`画像は1投稿につき${adminBoard.BOARD_IMAGE_MAX_COUNT}枚までです。`);
     }
 
@@ -5252,7 +5263,7 @@ async function submitAdminBoardReply() {
   const body = $('adminBoardReplyBody')?.value || '';
   const files = [...adminBoardReplyFiles];
   if (files.length > adminBoard.BOARD_IMAGE_MAX_COUNT) {
-    await showSiteDialog('画像は1投稿につき4枚までです。', '掲示板');
+    await showSiteDialog(`画像は1投稿につき${adminBoard.BOARD_IMAGE_MAX_COUNT}枚までです。`, '掲示板');
     return;
   }
   const original = button?.textContent || '投稿する';
@@ -5262,6 +5273,8 @@ async function submitAdminBoardReply() {
     if (files.length) await adminBoard.uploadBoardImages({ files, threadId: adminBoardCurrentThreadId, postId });
     adminBoardReplyFiles = [];
     await openAdminBoardThread(adminBoardCurrentThreadId, { preserveReplyPage: true });
+    const newIndex = (adminBoardCurrentData?.replies || []).findIndex(row => String(row.id) === String(postId));
+    if (newIndex >= 0) jumpToBoardPost(newIndex + 2);
     if (adminTab === 'board' && $('adminModal').style.display !== 'none') await loadAdminBoard();
     if (activeTabName === 'BOARD') await loadMainBoard({ showLoading:false });
     refreshAdminBoardStorageUsage();
@@ -5308,19 +5321,34 @@ async function deleteAdminBoardReply(postId) {
 
 function updateAdminBoardImageViewer() {
   const img = $('adminBoardImageViewerImage');
-  const count = adminBoardImageViewerUrls.length;
+  const count = adminBoardImageViewerItems.length;
   if (!img || !count) return;
   adminBoardImageViewerIndex = (adminBoardImageViewerIndex + count) % count;
-  img.src = adminBoardImageViewerUrls[adminBoardImageViewerIndex];
+  const item = adminBoardImageViewerItems[adminBoardImageViewerIndex];
+  img.src = item.url;
   $('adminBoardImageViewerCounter').textContent = `画像 ${adminBoardImageViewerIndex + 1} / ${count}`;
   $('btnAdminBoardImagePrev').classList.toggle('hidden', count <= 1);
   $('btnAdminBoardImageNext').classList.toggle('hidden', count <= 1);
+  const jump = $('btnAdminBoardImageJump');
+  if (jump) {
+    jump.dataset.boardImageJumpPost = String(item.postNumber || 1);
+    jump.textContent = `${item.postNumber || 1}.の投稿へ`;
+  }
 }
 
 function openAdminBoardImageViewer(index = 0) {
-  adminBoardImageViewerUrls = adminBoard.getThreadImageUrls(adminBoardCurrentData);
-  if (!adminBoardImageViewerUrls.length) return;
-  adminBoardImageViewerIndex = Math.min(Math.max(0, Number(index) || 0), adminBoardImageViewerUrls.length - 1);
+  adminBoardImageViewerItems = adminBoard.getThreadImageItems(adminBoardCurrentData);
+  if (!adminBoardImageViewerItems.length) return;
+  adminBoardImageViewerIndex = Math.min(Math.max(0, Number(index) || 0), adminBoardImageViewerItems.length - 1);
+  updateAdminBoardImageViewer();
+  $('adminBoardImageViewerMask').style.display = 'flex';
+}
+
+function openAdminBoardImageViewerById(imageId) {
+  adminBoardImageViewerItems = adminBoard.getThreadImageItems(adminBoardCurrentData);
+  if (!adminBoardImageViewerItems.length) return;
+  const found = adminBoardImageViewerItems.findIndex(item => String(item.id) === String(imageId));
+  adminBoardImageViewerIndex = found >= 0 ? found : 0;
   updateAdminBoardImageViewer();
   $('adminBoardImageViewerMask').style.display = 'flex';
 }
@@ -5328,13 +5356,13 @@ function openAdminBoardImageViewer(index = 0) {
 function closeAdminBoardImageViewer() {
   if ($('adminBoardImageViewerMask')) $('adminBoardImageViewerMask').style.display = 'none';
   if ($('adminBoardImageViewerImage')) $('adminBoardImageViewerImage').removeAttribute('src');
-  adminBoardImageViewerUrls = [];
+  adminBoardImageViewerItems = [];
   adminBoardImageViewerIndex = 0;
   adminBoardImageViewerTouchX = null;
 }
 
 function stepAdminBoardImageViewer(delta) {
-  if (adminBoardImageViewerUrls.length <= 1) return;
+  if (adminBoardImageViewerItems.length <= 1) return;
   adminBoardImageViewerIndex += delta;
   updateAdminBoardImageViewer();
 }
@@ -5344,10 +5372,10 @@ function prepareBoardReplyTo(postNumber) {
   const textarea = $('adminBoardReplyBody');
   if (!textarea) return;
   const prefix = `>${postNumber}`;
-  const current = textarea.value.trimStart();
-  if (!current.startsWith(prefix)) {
-    textarea.value = `${prefix}\n${textarea.value}`;
-  }
+  const existing = textarea.value.trim();
+  textarea.value = existing ? `${prefix}
+${existing}` : `${prefix}
+`;
   textarea.focus();
   textarea.setSelectionRange(textarea.value.length, textarea.value.length);
   textarea.scrollIntoView({ behavior:'smooth', block:'center' });
@@ -5359,8 +5387,9 @@ function jumpToBoardPost(postNumber) {
   if (number === 1) {
     adminBoardReplyPage = 1;
   } else {
-    const replyIndex = number - 2;
-    if (replyIndex < 0 || replyIndex >= (adminBoardCurrentData.replies || []).length) return;
+    const sorted = getSortedAdminBoardReplies();
+    const replyIndex = sorted.findIndex(reply => Number(reply.post_number) === number);
+    if (replyIndex < 0) return;
     adminBoardReplyPage = Math.floor(replyIndex / adminBoard.BOARD_REPLY_PAGE_SIZE) + 1;
   }
   renderCurrentAdminBoardThread();
@@ -5848,6 +5877,11 @@ $('adminBoardImages')?.addEventListener('change', event => {
 $('btnAdminBoardImageViewerClose')?.addEventListener('click', closeAdminBoardImageViewer);
 $('btnAdminBoardImagePrev')?.addEventListener('click', () => stepAdminBoardImageViewer(-1));
 $('btnAdminBoardImageNext')?.addEventListener('click', () => stepAdminBoardImageViewer(1));
+$('btnAdminBoardImageJump')?.addEventListener('click', () => {
+  const postNumber = Number($('btnAdminBoardImageJump')?.dataset.boardImageJumpPost) || 1;
+  closeAdminBoardImageViewer();
+  jumpToBoardPost(postNumber);
+});
 $('btnAdminBoardReportClose')?.addEventListener('click', closeAdminBoardReport);
 $('btnAdminBoardReportCancel')?.addEventListener('click', closeAdminBoardReport);
 $('btnAdminBoardReportSubmit')?.addEventListener('click', submitAdminBoardReport);
@@ -5942,6 +5976,21 @@ $('adminBody')?.addEventListener('click', async event => {
     return;
   }
 
+  const reportCard = event.target.closest('[data-board-report-open]');
+  if (reportCard && !event.target.closest('[data-board-resolve-report]') && !event.target.closest('[data-board-open-user]')) {
+    const threadId = reportCard.dataset.boardReportThreadId;
+    const postId = reportCard.dataset.boardReportPostId;
+    if (threadId) {
+      await openAdminBoardThread(threadId);
+      if (postId) {
+        const idx = (adminBoardCurrentData?.replies || []).findIndex(row => String(row.id) === String(postId));
+        jumpToBoardPost(idx >= 0 ? idx + 2 : 1);
+      } else {
+        jumpToBoardPost(1);
+      }
+    }
+    return;
+  }
   const resolveReport = event.target.closest('[data-board-resolve-report]');
   if (resolveReport) {
     try {
@@ -5954,9 +6003,9 @@ $('adminBody')?.addEventListener('click', async event => {
 });
 
 $('adminBoardThreadBody')?.addEventListener('click', async event => {
-  const imageButton = event.target.closest('[data-board-image-global-index]');
+  const imageButton = event.target.closest('[data-board-image-id]');
   if (imageButton) {
-    openAdminBoardImageViewer(Number(imageButton.dataset.boardImageGlobalIndex) || 0);
+    openAdminBoardImageViewerById(imageButton.dataset.boardImageId);
     return;
   }
   const jumpPost = event.target.closest('[data-board-jump-post]');
@@ -6019,6 +6068,12 @@ $('adminBoardThreadBody')?.addEventListener('click', async event => {
 });
 
 $('adminBoardThreadBody')?.addEventListener('change', event => {
+  if (event.target?.id === 'adminBoardPostSort') {
+    adminBoardPostSort = event.target.value === 'desc' ? 'desc' : 'asc';
+    adminBoardReplyPage = 1;
+    renderCurrentAdminBoardThread();
+    return;
+  }
   if (event.target?.id !== 'adminBoardReplyImages') return;
   adminBoardReplyFiles = Array.from(event.target.files || []).slice(0, adminBoard.BOARD_IMAGE_MAX_COUNT);
   renderSelectedBoardFiles('adminBoardReplySelectedImages', adminBoardReplyFiles);

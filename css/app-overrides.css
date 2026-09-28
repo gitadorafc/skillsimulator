@@ -6081,3 +6081,55 @@ body.light-mode .admin-board-report-body textarea::placeholder{
   .admin-board-image-viewer-controls{gap:5px;}
   .admin-board-image-viewer-controls .admin-board-image-nav{width:38px;height:34px;min-height:34px;font-size:22px;}
 }
+
+/* === APP VERSION 4.30.0: 掲示板表示/投稿/通報UI調整 === */
+.admin-board-post-sort{
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  gap:8px;
+  margin:10px 0 6px;
+}
+.admin-board-post-sort label{
+  color:#94a3b8;
+  font-size:10px;
+  font-weight:900;
+}
+.admin-board-post-sort select{
+  min-width:112px;
+  height:34px;
+  border:1px solid #475569;
+  border-radius:7px;
+  background:#111827;
+  color:#f8fafc;
+  font-weight:900;
+  padding:0 28px 0 10px;
+}
+.admin-board-report-card[data-board-report-open]{cursor:pointer;}
+.admin-board-report-card .admin-board-report-details.is-empty{color:#94a3b8;}
+.admin-board-image-viewer-controls #btnAdminBoardImageJump{
+  min-width:84px;
+  white-space:nowrap;
+}
+.admin-board-thread-info-primary .admin-board-thread-author-label{font-weight:900;}
+.admin-board-image-grid:has(> .admin-board-image-thumb:only-child){grid-template-columns:minmax(0,1fr);}
+.admin-board-image-grid:has(> .admin-board-image-thumb:only-child) .admin-board-image-thumb{max-width:540px;}
+body.light-mode .board-main-toolbar{
+  background:#f8fafc!important;
+}
+body.light-mode .admin-board-thread-author-label{
+  color:#475569!important;
+  -webkit-text-fill-color:#475569!important;
+}
+body.light-mode .admin-board-post-sort label{color:#475569!important;}
+body.light-mode .admin-board-post-sort select{
+  background:#fff!important;
+  color:#111827!important;
+  -webkit-text-fill-color:#111827!important;
+  border-color:#94a3b8!important;
+}
+body.light-mode .admin-board-report-card .admin-board-report-details.is-empty{color:#64748b!important;}
+@media(max-width:560px){
+  .admin-board-post-sort{margin-top:8px;}
+  .admin-board-image-viewer-controls #btnAdminBoardImageJump{min-width:76px;padding:0 7px;font-size:10px;}
+}
