@@ -390,13 +390,6 @@ export function renderAdminBoardThreadDetail(data, { replyPage = 1, replyTotalPa
         <button type="button" class="danger" data-board-delete-thread="${thread.id}">削除</button>
       </div>
     </article>
-    <div class="admin-board-post-sort">
-      <label for="adminBoardPostSort">投稿順</label>
-      <select id="adminBoardPostSort">
-        <option value="asc">古い順</option>
-        <option value="desc">新しい順</option>
-      </select>
-    </div>
     <div class="admin-board-replies">${replyHtml || '<div class="empty-state">投稿はまだありません。</div>'}</div>
     ${renderPager('replies', replyPage, replyTotalPages)}
     <div class="admin-board-reply-form">
@@ -405,8 +398,7 @@ export function renderAdminBoardThreadDetail(data, { replyPage = 1, replyTotalPa
       <div id="adminBoardReplySelectedImages" class="admin-board-selected-images"></div>
       <div class="admin-board-reply-bottom">
         <div class="admin-board-image-actions">
-          <label class="admin-board-file-button">画像を選択<input id="adminBoardReplyImages" type="file" accept="image/*"></label>
-          <span>1枚まで・保存時に自動圧縮</span>
+          <label class="admin-board-file-button">画像添付<input id="adminBoardReplyImages" type="file" accept="image/*"></label>
         </div>
         <button id="btnAdminBoardReply" type="button" class="btn-submit">投稿する</button>
       </div>

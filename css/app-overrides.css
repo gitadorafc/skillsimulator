@@ -6133,3 +6133,10 @@ body.light-mode .admin-board-report-card .admin-board-report-details.is-empty{co
   .admin-board-post-sort{margin-top:8px;}
   .admin-board-image-viewer-controls #btnAdminBoardImageJump{min-width:76px;padding:0 7px;font-size:10px;}
 }
+
+/* === APP VERSION 4.30.1: 掲示板スレッド操作調整 === */
+.admin-board-sheet-head-actions{display:flex;align-items:center;gap:7px;margin-left:auto;}
+.admin-board-sheet-head-actions button{white-space:nowrap;}
+.admin-board-post-sort{display:none!important;}
+.admin-board-image-actions>span{display:none!important;}
+@media(max-width:560px){.admin-board-sheet-head-actions{gap:5px;}}

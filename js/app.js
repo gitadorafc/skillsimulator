@@ -721,7 +721,6 @@ let mainBoardThreadPage = 1;
 let adminBoardCurrentThreadId = null;
 let adminBoardCurrentData = null;
 let adminBoardReplyPage = 1;
-let adminBoardPostSort = 'asc';
 let adminBoardEditorState = null;
 let adminBoardEditorFiles = [];
 let adminBoardReplyFiles = [];
@@ -5095,7 +5094,6 @@ async function hydrateAdminBoardThreadImages(data) {
 
 function getSortedAdminBoardReplies() {
   const replies = (adminBoardCurrentData?.replies || []).map((reply, index) => ({ ...reply, post_number:index + 2 }));
-  if (adminBoardPostSort === 'desc') replies.reverse();
   return replies;
 }
 
@@ -5114,14 +5112,12 @@ function renderCurrentAdminBoardThread() {
     replyEnd: end,
     viewerUserId: currentUserId
   });
-  const sort = $('adminBoardPostSort');
-  if (sort) sort.value = adminBoardPostSort;
   adminBoardReplyFiles = [];
 }
 
 async function openAdminBoardThread(threadId, { preserveReplyPage = false } = {}) {
   adminBoardCurrentThreadId = threadId;
-  if (!preserveReplyPage) { adminBoardReplyPage = 1; adminBoardPostSort = 'asc'; }
+  if (!preserveReplyPage) adminBoardReplyPage = 1;
   $('adminBoardThreadBody').innerHTML = '<div class="empty-state">読み込み中...</div>';
   $('adminBoardThreadMask').style.display = 'flex';
   try {
@@ -5137,7 +5133,6 @@ function closeAdminBoardThread() {
   adminBoardCurrentThreadId = null;
   adminBoardCurrentData = null;
   adminBoardReplyPage = 1;
-  adminBoardPostSort = 'asc';
   adminBoardReplyFiles = [];
   closeAdminBoardImageViewer();
 }
@@ -5866,6 +5861,11 @@ $('btnAdminBoardReports')?.addEventListener('click', async () => {
 $('btnAdminBoardRefresh')?.addEventListener('click', loadAdminBoard);
 $('btnBoardRefresh')?.addEventListener('click', () => loadMainBoard());
 $('btnBoardNewThread')?.addEventListener('click', () => openAdminBoardEditor({ type:'thread' }));
+$('btnAdminBoardThreadBottom')?.addEventListener('click', () => {
+  const body = $('adminBoardThreadBody');
+  const form = body?.querySelector('.admin-board-reply-form');
+  if (body && form) body.scrollTo({ top: Math.max(0, form.offsetTop - 8), behavior: 'smooth' });
+});
 $('btnAdminBoardThreadClose')?.addEventListener('click', closeAdminBoardThread);
 $('btnAdminBoardEditorCancel')?.addEventListener('click', closeAdminBoardEditor);
 $('btnAdminBoardSave')?.addEventListener('click', saveAdminBoardEditor);
@@ -6068,12 +6068,6 @@ $('adminBoardThreadBody')?.addEventListener('click', async event => {
 });
 
 $('adminBoardThreadBody')?.addEventListener('change', event => {
-  if (event.target?.id === 'adminBoardPostSort') {
-    adminBoardPostSort = event.target.value === 'desc' ? 'desc' : 'asc';
-    adminBoardReplyPage = 1;
-    renderCurrentAdminBoardThread();
-    return;
-  }
   if (event.target?.id !== 'adminBoardReplyImages') return;
   adminBoardReplyFiles = Array.from(event.target.files || []).slice(0, adminBoard.BOARD_IMAGE_MAX_COUNT);
   renderSelectedBoardFiles('adminBoardReplySelectedImages', adminBoardReplyFiles);
