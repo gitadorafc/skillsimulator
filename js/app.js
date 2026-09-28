@@ -655,7 +655,7 @@ async function deleteMasterSongTitle(title) {
 }
 
 import * as adminApi from './admin.js?v=4_30_0';
-import * as adminBoard from './admin-board.js?v=4_30_2';
+import * as adminBoard from './admin-board.js?v=4_30_3';
 import { listUserSummaries, getUserSkillTargets, getSongRateComparison, getSongPersonalBestHistory, getSongOptionDistribution, getMyFavorites, removeFavorite } from './users.js?v=3_6_0';
 
 let activeInstrument = localStorage.getItem('gitadora_instrument') === 'DM' ? 'DM' : 'GF';
@@ -3344,6 +3344,7 @@ function render() {
   hide('viewAllManage');
   hide('viewUsers');
   hide('viewBoard');
+  hide('boardMainFixed');
 
   if (activeTabName === 'SKILL') {
     show('viewSkill');
@@ -3355,6 +3356,7 @@ function render() {
     show('viewUsers');
     loadUsers();
   } else if (activeTabName === 'BOARD' && adminEnabled) {
+    show('boardMainFixed');
     show('viewBoard');
     loadMainBoard();
   } else {
@@ -5215,8 +5217,9 @@ async function saveAdminBoardEditor() {
   const button = $('btnAdminBoardSave');
   const original = button.textContent;
   button.disabled = true;
-  button.textContent = '保存中...';
-  $('adminBoardEditorStatus').textContent = '画像は読み取れる範囲で自動圧縮して保存します。';
+  const isNewThread = state.type === 'thread' && !state.item?.id;
+  button.textContent = isNewThread ? '投稿中...' : '保存中...';
+  $('adminBoardEditorStatus').textContent = '';
   try {
     const body = $('adminBoardBody').value;
     const title = $('adminBoardTitle').value;
@@ -5265,7 +5268,7 @@ async function submitAdminBoardReply() {
     return;
   }
   const original = button?.textContent || '投稿する';
-  if (button) { button.disabled = true; button.textContent = '送信中...'; }
+  if (button) { button.disabled = true; button.textContent = '投稿中...'; }
   try {
     const postId = await adminBoard.createAdminBoardReply(adminBoardCurrentThreadId, body);
     if (files.length) await adminBoard.uploadBoardImages({ files, threadId: adminBoardCurrentThreadId, postId });
@@ -5952,6 +5955,18 @@ $('adminBody')?.addEventListener('click', async event => {
       await toggleBoardUserBlocked(user.id, user.board_posting_blocked);
     } catch (error) {
       await showSiteDialog('投稿禁止設定の変更に失敗しました: ' + (error?.message || error), '掲示板');
+    }
+    return;
+  }
+
+  const unblockBoardUser = event.target.closest('[data-board-unblock-user]');
+  if (unblockBoardUser) {
+    event.preventDefault();
+    event.stopPropagation();
+    try {
+      await toggleBoardUserBlocked(unblockBoardUser.dataset.boardUnblockUser, true);
+    } catch (error) {
+      await showSiteDialog('投稿禁止解除に失敗しました: ' + (error?.message || error), '掲示板');
     }
     return;
   }

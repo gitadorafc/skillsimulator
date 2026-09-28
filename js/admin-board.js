@@ -5,7 +5,7 @@ export const BOARD_TITLE_MAX = 30;
 export const BOARD_BODY_MAX = 1000;
 export const BOARD_IMAGE_MAX_COUNT = 1;
 export const BOARD_SOURCE_MAX_BYTES = 12 * 1024 * 1024;
-export const BOARD_IMAGE_MAX_EDGE = 1280;
+export const BOARD_IMAGE_MAX_EDGE = 960;
 export const BOARD_THREAD_PAGE_SIZE = 10;
 export const BOARD_REPLY_PAGE_SIZE = 10;
 
@@ -182,12 +182,14 @@ export async function compressBoardImage(file) {
   if (!sourceWidth || !sourceHeight) throw new Error('画像サイズを取得できませんでした。');
 
   const baseScale = Math.min(1, BOARD_IMAGE_MAX_EDGE / Math.max(sourceWidth, sourceHeight));
+  // 固定容量の達成可否では弾かず、読み取りやすさを残しながら段階的に強く圧縮し、
+  // 生成できた候補のうち最小サイズを採用する。
   const candidates = [
-    { scale: baseScale, quality: 0.66 },
-    { scale: Math.min(baseScale, 0.92), quality: 0.60 },
-    { scale: Math.min(baseScale, 0.84), quality: 0.56 },
-    { scale: Math.min(baseScale, 0.76), quality: 0.52 },
-    { scale: Math.min(baseScale, 0.68), quality: 0.48 }
+    { scale: baseScale, quality: 0.56 },
+    { scale: Math.min(baseScale, 0.88), quality: 0.50 },
+    { scale: Math.min(baseScale, 0.78), quality: 0.44 },
+    { scale: Math.min(baseScale, 0.68), quality: 0.40 },
+    { scale: Math.min(baseScale, 0.58), quality: 0.36 }
   ];
   let best = null;
   let bestWidth = 0;
@@ -205,13 +207,16 @@ export async function compressBoardImage(file) {
       context.imageSmoothingEnabled = true;
       context.imageSmoothingQuality = 'high';
       context.drawImage(bitmap, 0, 0, width, height);
-      let blob = await canvasBlob(canvas, 'image/webp', candidate.quality);
-      if (!blob) blob = await canvasBlob(canvas, 'image/jpeg', candidate.quality);
-      if (!blob) continue;
-      if (!best || blob.size < best.size) {
-        best = blob;
-        bestWidth = width;
-        bestHeight = height;
+      const blobs = [
+        await canvasBlob(canvas, 'image/webp', candidate.quality),
+        await canvasBlob(canvas, 'image/jpeg', candidate.quality)
+      ].filter(Boolean);
+      for (const blob of blobs) {
+        if (!best || blob.size < best.size) {
+          best = blob;
+          bestWidth = width;
+          bestHeight = height;
+        }
       }
     }
   } finally {
@@ -443,6 +448,7 @@ export function renderAdminBoardBlockedUsers(users) {
       <button type="button" class="admin-board-report-user" data-board-open-user="${user.id}" data-board-open-user-name="${esc(user.username || '')}">${esc(user.username || '不明')}</button>
       <div class="admin-card-meta admin-board-blocked-reason-label">理由</div>
       <div class="admin-board-blocked-reason">${esc(user.board_blocked_reason || '理由なし')}</div>
+      <button type="button" class="admin-board-unblock" data-board-unblock-user="${user.id}">解除</button>
     </article>`).join('')}</div>`;
 }
 

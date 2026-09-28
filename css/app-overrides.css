@@ -6217,3 +6217,123 @@ body.light-mode .board-main-rule-note{
   .admin-board-reply-bottom .btn-submit,
   .admin-board-editor-actions .btn-submit{min-height:42px!important;height:42px!important;}
 }
+
+
+/* === APP VERSION 4.30.3: 掲示板固定領域・画像圧縮・投稿UI微調整 === */
+/* 掲示板の固定領域はp-header内に置き、タブ直下に連結する。ボタン行そのものには面色を付けない。 */
+#boardMainFixed.board-main-fixed{
+  position:static!important;
+  z-index:auto;
+  margin:0!important;
+  padding:6px 8px 8px!important;
+  border-bottom:1px solid #334155;
+  background:#0f172a!important;
+}
+#boardMainFixed .board-main-toolbar{
+  margin:0 0 7px!important;
+  padding:0!important;
+  background:transparent!important;
+  border:0!important;
+  box-shadow:none!important;
+}
+#boardMainFixed .board-main-toolbar::before,
+#boardMainFixed .board-main-toolbar::after{display:none!important;}
+body.light-mode #boardMainFixed.board-main-fixed{
+  background:var(--app-light-page-bg,#e5e7eb)!important;
+  border-bottom-color:#cbd5e1;
+}
+body.light-mode #boardMainFixed .board-main-toolbar{background:transparent!important;}
+
+/* 画像ビューアの「○.の投稿へ」も矢印・閉じると同じ高さに揃える。 */
+.admin-board-image-viewer-controls #btnAdminBoardImageJump{
+  height:36px!important;
+  min-height:36px!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  padding:0 10px!important;
+}
+
+/* 投稿フォームの操作ボタンは投稿カード内の返信/編集/削除ボタンと同じ寸法感にする。 */
+.admin-board-file-button,
+.admin-board-reply-bottom .btn-submit,
+.admin-board-editor-actions .btn-submit{
+  min-height:36px!important;
+  height:36px!important;
+  min-width:0!important;
+  width:auto!important;
+  padding:0 12px!important;
+  border-radius:7px!important;
+  font-size:11px!important;
+  line-height:1!important;
+}
+.admin-board-file-button{
+  border:1px solid #475569!important;
+  background:#0f172a!important;
+  color:#e2e8f0!important;
+  -webkit-text-fill-color:#e2e8f0!important;
+}
+.admin-board-reply-bottom .btn-submit,
+.admin-board-editor-actions .btn-submit{
+  border:1px solid #3b82f6!important;
+  background:#3b82f6!important;
+  color:#fff!important;
+  -webkit-text-fill-color:#fff!important;
+}
+.admin-board-reply-form textarea{
+  min-height:78px!important;
+  height:78px!important;
+}
+body.light-mode .admin-board-file-button{
+  background:#fff!important;
+  color:#111827!important;
+  -webkit-text-fill-color:#111827!important;
+  border-color:#94a3b8!important;
+}
+
+/* 投稿禁止一覧の解除操作 */
+.admin-board-blocked-card{grid-template-columns:auto minmax(0,1fr) auto;}
+.admin-board-blocked-reason-label{grid-column:1 / -1;}
+.admin-board-blocked-reason{grid-column:1 / 3;}
+.admin-board-unblock{
+  grid-column:3;
+  grid-row:3;
+  align-self:end;
+  min-height:34px;
+  padding:0 12px;
+  border:1px solid #166534;
+  border-radius:7px;
+  background:#052e16;
+  color:#bbf7d0;
+  font-weight:900;
+}
+body.light-mode .admin-board-unblock{background:#dcfce7;color:#166534;border-color:#22c55e;}
+@media(max-width:560px){
+  #boardMainFixed.board-main-fixed{padding:5px 7px 7px!important;}
+  .admin-board-image-viewer-controls #btnAdminBoardImageJump{height:34px!important;min-height:34px!important;}
+  .admin-board-file-button,
+  .admin-board-reply-bottom .btn-submit,
+  .admin-board-editor-actions .btn-submit{min-height:34px!important;height:34px!important;padding:0 10px!important;}
+}
+
+/* 新規スレッドの下部操作も投稿フォームと同じコンパクトな操作ボタンに揃える。 */
+.admin-board-editor-actions{
+  display:flex!important;
+  align-items:center;
+  justify-content:flex-end;
+  gap:7px;
+  margin-top:12px;
+}
+.admin-board-editor-actions button{
+  width:auto!important;
+  min-width:0!important;
+  min-height:36px!important;
+  height:36px!important;
+  padding:0 12px!important;
+  border-radius:7px!important;
+  font-size:11px!important;
+  font-weight:900!important;
+}
+@media(max-width:560px){
+  .admin-board-editor-actions button{min-height:34px!important;height:34px!important;padding:0 10px!important;}
+}
