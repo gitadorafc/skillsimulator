@@ -5843,3 +5843,141 @@ body.light-mode .admin-board-file-button{background:#fff;color:#111827!important
   .admin-board-reply-bottom .admin-board-image-actions>span{flex-basis:100%;}
   .admin-board-image-nav{display:none;}
 }
+
+/* === APP VERSION 4.29.0: 掲示板 管理者実装タブ / 投稿番号 / 表示調整 === */
+.board-main-view{
+  width:100%;
+  box-sizing:border-box;
+  padding:10px;
+}
+.board-main-toolbar{
+  display:flex;
+  justify-content:flex-end;
+  align-items:center;
+  gap:8px;
+  margin-bottom:10px;
+}
+.board-main-toolbar button{
+  min-height:38px;
+  padding:0 12px;
+  border:1px solid #475569;
+  border-radius:8px;
+  background:#111827;
+  color:#e2e8f0;
+  font-weight:900;
+}
+.board-main-toolbar .btn-submit{
+  border-color:#3b82f6;
+  background:#3b82f6;
+  color:#fff;
+}
+.board-main-body{min-height:160px;}
+.admin-board-thread-dates{
+  display:flex;
+  flex-wrap:wrap;
+  gap:4px 12px;
+  margin-top:6px;
+  color:#64748b;
+  font-size:9px;
+  font-weight:800;
+}
+.admin-board-post-heading{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  min-width:0;
+}
+.admin-board-post-number{
+  flex:0 0 auto;
+  color:#cbd5e1;
+  font-size:11px;
+  font-weight:900;
+}
+.admin-board-quote-link{
+  display:inline!important;
+  margin:0 1px!important;
+  padding:0!important;
+  border:0!important;
+  background:transparent!important;
+  color:#60a5fa!important;
+  font:inherit!important;
+  font-weight:900!important;
+  text-decoration:underline;
+  text-underline-offset:2px;
+  cursor:pointer;
+}
+.admin-board-post-highlight{
+  box-shadow:0 0 0 2px #3b82f6 inset, 0 0 18px rgba(59,130,246,.28);
+}
+.admin-board-image-nav{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  opacity:1;
+  box-shadow:0 4px 18px rgba(0,0,0,.45);
+}
+.admin-board-image-nav.hidden{display:none!important;}
+.admin-board-image-nav:not(.hidden){display:flex!important;}
+.admin-board-editor-body input::placeholder,
+.admin-board-editor-body textarea::placeholder,
+.admin-board-reply-form textarea::placeholder{
+  color:#64748b!important;
+  -webkit-text-fill-color:#64748b!important;
+  opacity:1!important;
+}
+/* 投稿禁止理由入力を他の確認モーダルと同じ形に保つ */
+#siteDialogMask .site-dialog{
+  width:min(92vw,520px);
+  box-sizing:border-box;
+}
+#siteDialogMask .site-dialog-input:not(.hidden){
+  display:block;
+  width:calc(100% - 36px);
+  margin:10px 18px 14px;
+  min-height:44px;
+  box-sizing:border-box;
+}
+#siteDialogMask .site-dialog-message{
+  overflow-wrap:anywhere;
+}
+/* ライトモードで通報/編集が黒背景にならないよう統一 */
+body.light-mode .admin-board-post-actions button:not(.danger){
+  background:#fff!important;
+  color:#1e293b!important;
+  -webkit-text-fill-color:#1e293b!important;
+  border-color:#94a3b8!important;
+}
+body.light-mode .admin-board-post-actions button.danger{
+  background:#fee2e2!important;
+  color:#b91c1c!important;
+  -webkit-text-fill-color:#b91c1c!important;
+  border-color:#ef4444!important;
+}
+body.light-mode .board-main-toolbar button{
+  background:#fff!important;
+  color:#1e293b!important;
+  -webkit-text-fill-color:#1e293b!important;
+  border-color:#94a3b8!important;
+}
+body.light-mode .board-main-toolbar .btn-submit{
+  background:#3b82f6!important;
+  color:#fff!important;
+  -webkit-text-fill-color:#fff!important;
+  border-color:#3b82f6!important;
+}
+body.light-mode .admin-board-thread-dates{color:#64748b!important;}
+body.light-mode .admin-board-post-number{color:#475569!important;}
+body.light-mode .admin-board-quote-link{color:#2563eb!important;-webkit-text-fill-color:#2563eb!important;}
+body.light-mode .admin-board-editor-body input::placeholder,
+body.light-mode .admin-board-editor-body textarea::placeholder,
+body.light-mode .admin-board-reply-form textarea::placeholder{
+  color:#94a3b8!important;
+  -webkit-text-fill-color:#94a3b8!important;
+}
+@media(max-width:560px){
+  .board-main-view{padding:7px;}
+  .board-main-toolbar{position:sticky;top:0;z-index:3;padding:6px 0;background:var(--bg,#0f172a);}
+  .admin-board-post-actions{flex-wrap:wrap;}
+  .admin-board-image-nav{width:38px;height:54px;font-size:26px;}
+  .admin-board-thread-dates{display:grid;grid-template-columns:1fr;gap:2px;}
+}

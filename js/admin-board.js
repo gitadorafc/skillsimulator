@@ -5,8 +5,8 @@ export const BOARD_TITLE_MAX = 80;
 export const BOARD_BODY_MAX = 2000;
 export const BOARD_IMAGE_MAX_COUNT = 4;
 export const BOARD_SOURCE_MAX_BYTES = 12 * 1024 * 1024;
-export const BOARD_IMAGE_TARGET_BYTES = 900 * 1024;
-export const BOARD_IMAGE_MAX_EDGE = 1600;
+export const BOARD_IMAGE_TARGET_BYTES = 480 * 1024;
+export const BOARD_IMAGE_MAX_EDGE = 1440;
 export const BOARD_THREAD_PAGE_SIZE = 10;
 export const BOARD_REPLY_PAGE_SIZE = 10;
 
@@ -19,7 +19,7 @@ function formatDate(value) {
 }
 
 export async function getAdminBoardThreads() {
-  const { data, error } = await supabase.rpc('admin_board_list_threads');
+  const { data, error } = await supabase.rpc('admin_board_list_threads_v2');
   if (error) throw error;
   return data ?? [];
 }
@@ -62,8 +62,8 @@ export async function updateAdminBoardThread(threadId, title, body) {
 
 export async function createAdminBoardReply(threadId, body) {
   const cleanBody = String(body || '').trim();
-  if (!cleanBody) throw new Error('返信本文を入力してください。');
-  if (cleanBody.length > BOARD_BODY_MAX) throw new Error(`返信は${BOARD_BODY_MAX}文字以内です。`);
+  if (!cleanBody) throw new Error('本文を入力してください。');
+  if (cleanBody.length > BOARD_BODY_MAX) throw new Error(`本文は${BOARD_BODY_MAX}文字以内です。`);
   const { data, error } = await supabase.rpc('admin_board_create_reply', {
     p_thread_id: threadId,
     p_body: cleanBody
@@ -74,8 +74,8 @@ export async function createAdminBoardReply(threadId, body) {
 
 export async function updateAdminBoardReply(postId, body) {
   const cleanBody = String(body || '').trim();
-  if (!cleanBody) throw new Error('返信本文を入力してください。');
-  if (cleanBody.length > BOARD_BODY_MAX) throw new Error(`返信は${BOARD_BODY_MAX}文字以内です。`);
+  if (!cleanBody) throw new Error('本文を入力してください。');
+  if (cleanBody.length > BOARD_BODY_MAX) throw new Error(`本文は${BOARD_BODY_MAX}文字以内です。`);
   const { error } = await supabase.rpc('admin_board_update_reply', {
     p_post_id: postId,
     p_body: cleanBody
@@ -178,7 +178,7 @@ export async function compressBoardImage(file) {
   const scale = Math.min(1, BOARD_IMAGE_MAX_EDGE / Math.max(sourceWidth, sourceHeight));
   let width = Math.max(1, Math.round(sourceWidth * scale));
   let height = Math.max(1, Math.round(sourceHeight * scale));
-  let quality = 0.78;
+  let quality = 0.72;
   let blob = null;
 
   for (let attempt = 0; attempt < 8; attempt += 1) {
@@ -200,7 +200,7 @@ export async function compressBoardImage(file) {
   }
   bitmap.close?.();
   if (!blob) throw new Error('画像の圧縮に失敗しました。');
-  if (blob.size > 1200 * 1024) throw new Error('画像を十分に圧縮できませんでした。別の画像を選択してください。');
+  if (blob.size > 800 * 1024) throw new Error('画像を十分に圧縮できませんでした。別の画像を選択してください。');
   return { blob, width, height, mimeType: blob.type || 'image/webp' };
 }
 
@@ -287,11 +287,15 @@ export function renderAdminBoardThreadList(threads, { page = 1, totalPages = 1 }
   const rows = threads.map(thread => `
     <button type="button" class="admin-board-thread-card" data-board-open-thread="${thread.id}">
       <div class="admin-board-thread-title" title="${esc(thread.title)}">${esc(thread.title)}</div>
-      <div class="admin-board-thread-info">
+      <div class="admin-board-thread-info admin-board-thread-info-primary">
         <span class="admin-board-thread-author-label">投稿者</span>
         <span class="admin-board-thread-author" data-board-open-user="${thread.author_id}" data-board-open-user-name="${esc(thread.username)}">${esc(thread.username)}</span>
-        <span class="admin-board-thread-counts">返信 ${Number(thread.reply_count) || 0}</span>
+        <span class="admin-board-thread-counts">投稿 ${Math.max(1, (Number(thread.reply_count) || 0) + 1)}</span>
         <span class="admin-board-thread-counts">画像 ${Number(thread.image_count) || 0}</span>
+      </div>
+      <div class="admin-board-thread-dates">
+        <span>作成 ${formatDate(thread.created_at)}</span>
+        <span>更新 ${formatDate(thread.activity_at || thread.created_at)}</span>
       </div>
     </button>`).join('');
   return `<div class="admin-board-thread-list">${rows}</div>${renderPager('threads', page, totalPages)}`;
@@ -314,6 +318,19 @@ function renderImageGrid(images) {
     </button>`).join('')}</div>`;
 }
 
+function renderPostBody(body) {
+  const safe = esc(body).replace(/\n/g, '<br>');
+  return safe.replace(/&gt;(\d+)/g, '<button type="button" class="admin-board-quote-link" data-board-jump-post="$1">&gt;$1</button>');
+}
+
+function renderPostImages(images, imageIndex, altPrefix = '投稿画像') {
+  if (!images?.length) return '';
+  return `<div class="admin-board-image-grid">${images.map((image, index) => `
+    <button type="button" class="admin-board-image-thumb" data-board-image-global-index="${imageIndex(image)}">
+      <img src="${esc(image.signed_url)}" alt="${altPrefix} ${index + 1}" loading="lazy" decoding="async" fetchpriority="low">
+    </button>`).join('')}</div>`;
+}
+
 export function renderAdminBoardThreadDetail(data, { replyPage = 1, replyTotalPages = 1, replyStart = 0, replyEnd = null } = {}) {
   if (!data?.thread) return '<div class="empty-state">スレッドを取得できませんでした。</div>';
   const thread = data.thread;
@@ -324,23 +341,18 @@ export function renderAdminBoardThreadDetail(data, { replyPage = 1, replyTotalPa
     ...allReplies.flatMap(reply => reply.images || [])
   ];
   const imageIndex = image => allImages.findIndex(item => item.id === image.id);
-  const threadImageGrid = (thread.images?.length)
-    ? `<div class="admin-board-image-grid">${thread.images.map(image => `
-        <button type="button" class="admin-board-image-thumb" data-board-image-global-index="${imageIndex(image)}">
-          <img src="${esc(image.signed_url)}" alt="投稿画像" loading="lazy">
-        </button>`).join('')}</div>` : '';
-  const replyHtml = replies.map(reply => {
-    const replyImages = reply.images?.length ? `<div class="admin-board-image-grid">${reply.images.map(image => `
-      <button type="button" class="admin-board-image-thumb" data-board-image-global-index="${imageIndex(image)}">
-        <img src="${esc(image.signed_url)}" alt="返信画像" loading="lazy">
-      </button>`).join('')}</div>` : '';
+  const threadImageGrid = renderPostImages(thread.images || [], imageIndex, '投稿画像');
+  const replyHtml = replies.map((reply, localIndex) => {
+    const globalNumber = replyStart + localIndex + 2;
+    const replyImages = renderPostImages(reply.images || [], imageIndex, '投稿画像');
     return `
-      <article class="admin-board-reply ${reply.deleted_at ? 'is-deleted' : ''}">
-        <button type="button" class="admin-board-author" data-board-open-user="${reply.author_id}" data-board-open-user-name="${esc(reply.username)}">${esc(reply.username)}</button>
+      <article class="admin-board-reply ${reply.deleted_at ? 'is-deleted' : ''}" data-board-post-number="${globalNumber}">
+        <div class="admin-board-post-heading"><span class="admin-board-post-number">${globalNumber}.</span><button type="button" class="admin-board-author" data-board-open-user="${reply.author_id}" data-board-open-user-name="${esc(reply.username)}">${esc(reply.username)}</button></div>
         <div class="admin-board-post-date">${formatDate(reply.created_at)}${reply.updated_at !== reply.created_at ? ' ・ 編集済み ' + formatDate(reply.updated_at) : ''}</div>
-        <div class="admin-board-post-body">${esc(reply.body).replace(/\n/g, '<br>')}</div>
+        <div class="admin-board-post-body">${renderPostBody(reply.body)}</div>
         ${replyImages}
         <div class="admin-board-post-actions">
+          <button type="button" data-board-reply-to="${globalNumber}">返信</button>
           <button type="button" data-board-report-post="${reply.id}">通報</button>
           <button type="button" data-board-edit-reply="${reply.id}">編集</button>
           <button type="button" class="danger" data-board-delete-reply="${reply.id}">削除</button>
@@ -348,30 +360,31 @@ export function renderAdminBoardThreadDetail(data, { replyPage = 1, replyTotalPa
       </article>`;
   }).join('');
   return `
-    <article class="admin-board-main-post ${thread.deleted_at ? 'is-deleted' : ''}">
+    <article class="admin-board-main-post ${thread.deleted_at ? 'is-deleted' : ''}" data-board-post-number="1">
       <h3>${esc(thread.title)}</h3>
-      <button type="button" class="admin-board-author" data-board-open-user="${thread.author_id}" data-board-open-user-name="${esc(thread.username)}">${esc(thread.username)}</button>
+      <div class="admin-board-post-heading"><span class="admin-board-post-number">1.</span><button type="button" class="admin-board-author" data-board-open-user="${thread.author_id}" data-board-open-user-name="${esc(thread.username)}">${esc(thread.username)}</button></div>
       <div class="admin-board-post-date">${formatDate(thread.created_at)}${thread.updated_at !== thread.created_at ? ' ・ 編集済み ' + formatDate(thread.updated_at) : ''}</div>
-      <div class="admin-board-post-body">${esc(thread.body).replace(/\n/g, '<br>')}</div>
+      <div class="admin-board-post-body">${renderPostBody(thread.body)}</div>
       ${threadImageGrid}
       <div class="admin-board-post-actions">
+        <button type="button" data-board-reply-to="1">返信</button>
         <button type="button" data-board-report-thread="${thread.id}">通報</button>
         <button type="button" data-board-edit-thread="${thread.id}">編集</button>
         <button type="button" class="danger" data-board-delete-thread="${thread.id}">削除</button>
       </div>
     </article>
-    <div class="admin-board-replies">${replyHtml || '<div class="empty-state">返信はまだありません。</div>'}</div>
+    <div class="admin-board-replies">${replyHtml || '<div class="empty-state">投稿はまだありません。</div>'}</div>
     ${renderPager('replies', replyPage, replyTotalPages)}
     <div class="admin-board-reply-form">
-      <label for="adminBoardReplyBody">返信</label>
-      <textarea id="adminBoardReplyBody" maxlength="${BOARD_BODY_MAX}" placeholder="返信を入力"></textarea>
+      <label for="adminBoardReplyBody">投稿</label>
+      <textarea id="adminBoardReplyBody" maxlength="${BOARD_BODY_MAX}" placeholder="本文（${BOARD_BODY_MAX}文字まで）"></textarea>
       <div id="adminBoardReplySelectedImages" class="admin-board-selected-images"></div>
       <div class="admin-board-reply-bottom">
         <div class="admin-board-image-actions">
           <label class="admin-board-file-button">画像を選択<input id="adminBoardReplyImages" type="file" accept="image/*" multiple></label>
           <span>最大4枚・保存時に自動圧縮</span>
         </div>
-        <button id="btnAdminBoardReply" type="button" class="btn-submit">返信する</button>
+        <button id="btnAdminBoardReply" type="button" class="btn-submit">投稿する</button>
       </div>
     </div>`;
 }
