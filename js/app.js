@@ -655,7 +655,7 @@ async function deleteMasterSongTitle(title) {
 }
 
 import * as adminApi from './admin.js?v=4_30_0';
-import * as adminBoard from './admin-board.js?v=4_31_1';
+import * as adminBoard from './admin-board.js?v=4_31_2';
 import { listUserSummaries, getUserSkillTargets, getSongRateComparison, getSongPersonalBestHistory, getSongOptionDistribution, getMyFavorites, removeFavorite } from './users.js?v=3_6_0';
 
 let activeInstrument = localStorage.getItem('gitadora_instrument') === 'DM' ? 'DM' : 'GF';
@@ -718,6 +718,10 @@ let adminBoardThreads = [];
 let adminBoardThreadPage = 1;
 let mainBoardThreads = [];
 let mainBoardThreadPage = 1;
+let mainBoardThreadsLoadedAt = 0;
+const BOARD_LIST_CACHE_MS = 60 * 1000;
+const boardThreadCache = new Map();
+const BOARD_THREAD_CACHE_MS = 60 * 1000;
 let adminBoardCurrentThreadId = null;
 let adminBoardCurrentData = null;
 let adminBoardReplyPage = 1;
@@ -5048,16 +5052,27 @@ function renderMainBoardThreadPage() {
   });
 }
 
-async function loadMainBoard({ showLoading = true } = {}) {
+async function loadMainBoard({ showLoading = true, force = false } = {}) {
   const body = $('boardMainBody');
   if (!body || !currentUserId) return;
+  const cacheFresh = mainBoardThreads.length > 0 && (Date.now() - mainBoardThreadsLoadedAt) < BOARD_LIST_CACHE_MS;
+  if (!force && cacheFresh) {
+    renderMainBoardThreadPage();
+    return;
+  }
   if (showLoading) body.innerHTML = '<div class="empty-state">読み込み中...</div>';
   try {
     mainBoardThreads = await adminBoard.getAdminBoardThreads();
+    mainBoardThreadsLoadedAt = Date.now();
     renderMainBoardThreadPage();
   } catch (error) {
     body.innerHTML = `<div class="empty-state">取得失敗: ${esc(error?.message || error)}</div>`;
   }
+}
+
+function invalidateMainBoardCache(threadId = null) {
+  mainBoardThreadsLoadedAt = 0;
+  if (threadId) boardThreadCache.delete(String(threadId));
 }
 
 function updateAdminBoardToolbar() {
@@ -5153,13 +5168,20 @@ function renderCurrentAdminBoardThread() {
   adminBoardReplyFiles = [];
 }
 
-async function openAdminBoardThread(threadId, { preserveReplyPage = false } = {}) {
+async function openAdminBoardThread(threadId, { preserveReplyPage = false, force = false } = {}) {
   adminBoardCurrentThreadId = threadId;
   if (!preserveReplyPage) adminBoardReplyPage = 1;
   $('adminBoardThreadBody').innerHTML = '<div class="empty-state">読み込み中...</div>';
   $('adminBoardThreadMask').style.display = 'flex';
   try {
-    adminBoardCurrentData = await hydrateAdminBoardThreadImages(await adminBoard.getAdminBoardThread(threadId));
+    const key = String(threadId);
+    const cached = boardThreadCache.get(key);
+    if (!force && cached && (Date.now() - cached.loadedAt) < BOARD_THREAD_CACHE_MS) {
+      adminBoardCurrentData = cached.data;
+    } else {
+      adminBoardCurrentData = await hydrateAdminBoardThreadImages(await adminBoard.getAdminBoardThread(threadId));
+      boardThreadCache.set(key, { loadedAt: Date.now(), data: adminBoardCurrentData });
+    }
     renderCurrentAdminBoardThread();
   } catch (error) {
     $('adminBoardThreadBody').innerHTML = `<div class="empty-state">取得失敗: ${esc(error?.message || error)}</div>`;
@@ -5271,16 +5293,18 @@ async function saveAdminBoardEditor() {
       if (files.length) await adminBoard.uploadBoardImages({ files, threadId, existingCount: remainingCount });
       closeAdminBoardEditor();
       if (adminTab === 'board' && $('adminModal').style.display !== 'none') await loadAdminBoard();
-      if (activeTabName === 'BOARD') await loadMainBoard({ showLoading:false });
-      await openAdminBoardThread(threadId);
+      invalidateMainBoardCache(threadId);
+      if (activeTabName === 'BOARD') await loadMainBoard({ showLoading:false, force:true });
+      await openAdminBoardThread(threadId, { force:true });
     } else {
       const postId = state.item?.id;
       await adminBoard.updateAdminBoardReply(postId, body);
       if (removeImages.length) await adminBoard.removeBoardImages(removeImages);
       if (files.length) await adminBoard.uploadBoardImages({ files, threadId: adminBoardCurrentThreadId, postId, existingCount: remainingCount });
       closeAdminBoardEditor();
-      await openAdminBoardThread(adminBoardCurrentThreadId);
-      if (activeTabName === 'BOARD') await loadMainBoard({ showLoading:false });
+      invalidateMainBoardCache(adminBoardCurrentThreadId);
+      await openAdminBoardThread(adminBoardCurrentThreadId, { force:true });
+      if (activeTabName === 'BOARD') await loadMainBoard({ showLoading:false, force:true });
       if (adminTab === 'board' && $('adminModal').style.display !== 'none') await loadAdminBoard();
     }
   } catch (error) {
@@ -5306,11 +5330,12 @@ async function submitAdminBoardReply() {
     const postId = await adminBoard.createAdminBoardReply(adminBoardCurrentThreadId, body);
     if (files.length) await adminBoard.uploadBoardImages({ files, threadId: adminBoardCurrentThreadId, postId });
     adminBoardReplyFiles = [];
-    await openAdminBoardThread(adminBoardCurrentThreadId, { preserveReplyPage: true });
+    invalidateMainBoardCache(adminBoardCurrentThreadId);
+    await openAdminBoardThread(adminBoardCurrentThreadId, { preserveReplyPage: true, force:true });
     const newIndex = (adminBoardCurrentData?.replies || []).findIndex(row => String(row.id) === String(postId));
     if (newIndex >= 0) jumpToBoardPost(newIndex + 2);
     if (adminTab === 'board' && $('adminModal').style.display !== 'none') await loadAdminBoard();
-    if (activeTabName === 'BOARD') await loadMainBoard({ showLoading:false });
+    if (activeTabName === 'BOARD') await loadMainBoard({ showLoading:false, force:true });
     refreshAdminBoardStorageUsage();
   } catch (error) {
     await showSiteDialog('投稿に失敗しました: ' + (error?.message || error), '掲示板');
@@ -5328,9 +5353,10 @@ async function deleteAdminBoardThread(threadId) {
   try {
     if (images.length) await adminBoard.removeBoardImages(images);
     await adminBoard.softDeleteAdminBoardThread(threadId);
+    invalidateMainBoardCache(threadId);
     closeAdminBoardThread();
     if (adminTab === 'board' && $('adminModal').style.display !== 'none') await loadAdminBoard();
-    if (activeTabName === 'BOARD') await loadMainBoard({ showLoading:false });
+    if (activeTabName === 'BOARD') await loadMainBoard({ showLoading:false, force:true });
     refreshAdminBoardStorageUsage();
   } catch (error) {
     await showSiteDialog('削除に失敗しました: ' + (error?.message || error), '掲示板');
@@ -5344,9 +5370,10 @@ async function deleteAdminBoardReply(postId) {
   try {
     if (reply.images?.length) await adminBoard.removeBoardImages(reply.images);
     await adminBoard.softDeleteAdminBoardReply(postId);
-    await openAdminBoardThread(adminBoardCurrentThreadId, { preserveReplyPage: true });
+    invalidateMainBoardCache(adminBoardCurrentThreadId);
+    await openAdminBoardThread(adminBoardCurrentThreadId, { preserveReplyPage: true, force:true });
     if (adminTab === 'board' && $('adminModal').style.display !== 'none') await loadAdminBoard();
-    if (activeTabName === 'BOARD') await loadMainBoard({ showLoading:false });
+    if (activeTabName === 'BOARD') await loadMainBoard({ showLoading:false, force:true });
     refreshAdminBoardStorageUsage();
   } catch (error) {
     await showSiteDialog('削除に失敗しました: ' + (error?.message || error), '掲示板');

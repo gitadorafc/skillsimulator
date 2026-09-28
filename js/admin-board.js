@@ -195,14 +195,13 @@ export async function compressBoardImage(file) {
   if (!sourceWidth || !sourceHeight) throw new Error('画像サイズを取得できませんでした。');
 
   const baseScale = Math.min(1, BOARD_IMAGE_MAX_EDGE / Math.max(sourceWidth, sourceHeight));
-  // 固定容量の達成可否では弾かず、読み取りやすさを残しながら段階的に強く圧縮し、
-  // 生成できた候補のうち最小サイズを採用する。
+  // 画像の長辺を段階的に縮小しつつ画質も下げ、読み取りやすさを残せる範囲で
+  // 生成できた候補のうち最小サイズを採用する。大きいスマホ画像でも実際に解像度を落とす。
   const candidates = [
     { scale: baseScale, quality: 0.56 },
-    { scale: Math.min(baseScale, 0.88), quality: 0.50 },
-    { scale: Math.min(baseScale, 0.78), quality: 0.44 },
-    { scale: Math.min(baseScale, 0.68), quality: 0.40 },
-    { scale: Math.min(baseScale, 0.58), quality: 0.36 }
+    { scale: baseScale * 0.88, quality: 0.48 },
+    { scale: baseScale * 0.80, quality: 0.43 },
+    { scale: baseScale * 0.75, quality: 0.38 }
   ];
   let best = null;
   let bestWidth = 0;
@@ -265,7 +264,11 @@ export async function uploadBoardImages({ files, threadId, postId = null, existi
       const path = `${userId}/${threadId}/${itemKey}/${Date.now()}-${crypto.randomUUID()}.${extension}`;
       const { error: uploadError } = await supabase.storage
         .from(BOARD_BUCKET)
-        .upload(path, converted.blob, { contentType: converted.mimeType, upsert: false });
+        .upload(path, converted.blob, {
+          contentType: converted.mimeType,
+          cacheControl: '31536000',
+          upsert: false
+        });
       if (uploadError) throw uploadError;
 
       const { data: imageId, error: rowError } = await supabase.rpc('admin_board_add_image', {
@@ -312,10 +315,13 @@ export async function removeBoardImages(images) {
 export async function signedBoardImageUrls(images) {
   const rows = Array.from(images || []);
   if (!rows.length) return [];
-  const paths = rows.map(row => row.storage_path);
-  const { data, error } = await supabase.storage.from(BOARD_BUCKET).createSignedUrls(paths, 3600);
-  if (error) throw error;
-  return rows.map((row, index) => ({ ...row, signed_url: data?.[index]?.signedUrl || '' }));
+  // 掲示板画像は不変のUUIDパスで保存するため、公開CDN URLを利用する。
+  // signed URLをユーザーごとに発行するとCDNキャッシュが共有されにくく、
+  // uncached egressが増えるため、表示側のキー名は互換性のため signed_url のまま維持する。
+  return rows.map(row => {
+    const { data } = supabase.storage.from(BOARD_BUCKET).getPublicUrl(row.storage_path);
+    return { ...row, signed_url: data?.publicUrl || '' };
+  });
 }
 
 export function renderAdminBoardThreadList(threads, { page = 1, totalPages = 1, emptyMessage = 'スレッドはまだありません。' } = {}) {
