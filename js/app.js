@@ -654,8 +654,8 @@ async function deleteMasterSongTitle(title) {
   if (error) throw error;
 }
 
-import * as adminApi from './admin.js?v=4_29_0';
-import * as adminBoard from './admin-board.js?v=4_29_0';
+import * as adminApi from './admin.js?v=4_29_1';
+import * as adminBoard from './admin-board.js?v=4_29_1';
 import { listUserSummaries, getUserSkillTargets, getSongRateComparison, getSongPersonalBestHistory, getSongOptionDistribution, getMyFavorites, removeFavorite } from './users.js?v=3_6_0';
 
 let activeInstrument = localStorage.getItem('gitadora_instrument') === 'DM' ? 'DM' : 'GF';
@@ -5039,9 +5039,36 @@ function renderAdminBoardThreadPage() {
   });
 }
 
+function formatBoardStorageBytes(bytes) {
+  const value = Math.max(0, Number(bytes) || 0);
+  if (value >= 1024 ** 3) return `${(value / (1024 ** 3)).toFixed(2)}GB`;
+  if (value >= 1024 ** 2) return `${(value / (1024 ** 2)).toFixed(1)}MB`;
+  if (value >= 1024) return `${(value / 1024).toFixed(1)}KB`;
+  return `${value}B`;
+}
+
+async function refreshAdminBoardStorageUsage() {
+  const target = $('adminBoardStorageUsage');
+  if (!target || !adminEnabled) return;
+  try {
+    const usage = await adminBoard.getAdminBoardStorageUsage();
+    const bytes = Number(usage?.used_bytes) || 0;
+    const count = Number(usage?.image_count) || 0;
+    const quota = 1024 ** 3;
+    const percent = Math.min(999, (bytes / quota) * 100);
+    target.textContent = `掲示板画像 ${formatBoardStorageBytes(bytes)} / 1GB目安 ・ ${count}枚`;
+    target.classList.toggle('warning', percent >= 80 && percent < 95);
+    target.classList.toggle('danger', percent >= 95);
+  } catch (error) {
+    target.textContent = '掲示板画像 使用量取得失敗';
+    target.classList.remove('warning', 'danger');
+  }
+}
+
 async function loadAdminBoard() {
   $('adminBody').classList.remove('admin-body-table');
   updateAdminBoardToolbar();
+  refreshAdminBoardStorageUsage();
   $('adminBody').innerHTML = '<div class="empty-state">読み込み中...</div>';
   try {
     if (adminBoardMode === 'reports') {
@@ -5076,7 +5103,8 @@ function renderCurrentAdminBoardThread() {
     replyPage: adminBoardReplyPage,
     replyTotalPages: totalPages,
     replyStart: start,
-    replyEnd: end
+    replyEnd: end,
+    viewerUserId: currentUserId
   });
   adminBoardReplyFiles = [];
 }
@@ -5236,6 +5264,7 @@ async function submitAdminBoardReply() {
     await openAdminBoardThread(adminBoardCurrentThreadId, { preserveReplyPage: true });
     if (adminTab === 'board' && $('adminModal').style.display !== 'none') await loadAdminBoard();
     if (activeTabName === 'BOARD') await loadMainBoard({ showLoading:false });
+    refreshAdminBoardStorageUsage();
   } catch (error) {
     await showSiteDialog('投稿に失敗しました: ' + (error?.message || error), '掲示板');
   } finally {
@@ -5255,6 +5284,7 @@ async function deleteAdminBoardThread(threadId) {
     closeAdminBoardThread();
     if (adminTab === 'board' && $('adminModal').style.display !== 'none') await loadAdminBoard();
     if (activeTabName === 'BOARD') await loadMainBoard({ showLoading:false });
+    refreshAdminBoardStorageUsage();
   } catch (error) {
     await showSiteDialog('削除に失敗しました: ' + (error?.message || error), '掲示板');
   }
@@ -5270,6 +5300,7 @@ async function deleteAdminBoardReply(postId) {
     await openAdminBoardThread(adminBoardCurrentThreadId, { preserveReplyPage: true });
     if (adminTab === 'board' && $('adminModal').style.display !== 'none') await loadAdminBoard();
     if (activeTabName === 'BOARD') await loadMainBoard({ showLoading:false });
+    refreshAdminBoardStorageUsage();
   } catch (error) {
     await showSiteDialog('削除に失敗しました: ' + (error?.message || error), '掲示板');
   }
@@ -5315,7 +5346,7 @@ function prepareBoardReplyTo(postNumber) {
   const prefix = `>${postNumber}`;
   const current = textarea.value.trimStart();
   if (!current.startsWith(prefix)) {
-    textarea.value = `${prefix}\n${textarea.value}`.trimEnd();
+    textarea.value = `${prefix}\n${textarea.value}`;
   }
   textarea.focus();
   textarea.setSelectionRange(textarea.value.length, textarea.value.length);

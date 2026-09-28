@@ -5,8 +5,8 @@ export const BOARD_TITLE_MAX = 80;
 export const BOARD_BODY_MAX = 2000;
 export const BOARD_IMAGE_MAX_COUNT = 4;
 export const BOARD_SOURCE_MAX_BYTES = 12 * 1024 * 1024;
-export const BOARD_IMAGE_TARGET_BYTES = 480 * 1024;
-export const BOARD_IMAGE_MAX_EDGE = 1440;
+export const BOARD_IMAGE_TARGET_BYTES = 300 * 1024;
+export const BOARD_IMAGE_MAX_EDGE = 1280;
 export const BOARD_THREAD_PAGE_SIZE = 10;
 export const BOARD_REPLY_PAGE_SIZE = 10;
 
@@ -97,6 +97,13 @@ export async function listAdminBoardReports() {
   const { data, error } = await supabase.rpc('admin_board_list_reports');
   if (error) throw error;
   return data ?? [];
+}
+
+export async function getAdminBoardStorageUsage() {
+  const { data, error } = await supabase.rpc('admin_board_storage_usage');
+  if (error) throw error;
+  const row = Array.isArray(data) ? (data[0] ?? null) : data;
+  return row || { used_bytes: 0, image_count: 0 };
 }
 
 export async function resolveAdminBoardReport(reportId, note = '') {
@@ -200,7 +207,7 @@ export async function compressBoardImage(file) {
   }
   bitmap.close?.();
   if (!blob) throw new Error('画像の圧縮に失敗しました。');
-  if (blob.size > 800 * 1024) throw new Error('画像を十分に圧縮できませんでした。別の画像を選択してください。');
+  if (blob.size > 520 * 1024) throw new Error('画像を十分に圧縮できませんでした。別の画像を選択してください。');
   return { blob, width, height, mimeType: blob.type || 'image/webp' };
 }
 
@@ -331,7 +338,7 @@ function renderPostImages(images, imageIndex, altPrefix = '投稿画像') {
     </button>`).join('')}</div>`;
 }
 
-export function renderAdminBoardThreadDetail(data, { replyPage = 1, replyTotalPages = 1, replyStart = 0, replyEnd = null } = {}) {
+export function renderAdminBoardThreadDetail(data, { replyPage = 1, replyTotalPages = 1, replyStart = 0, replyEnd = null, viewerUserId = null } = {}) {
   if (!data?.thread) return '<div class="empty-state">スレッドを取得できませんでした。</div>';
   const thread = data.thread;
   const allReplies = data.replies || [];
@@ -342,25 +349,28 @@ export function renderAdminBoardThreadDetail(data, { replyPage = 1, replyTotalPa
   ];
   const imageIndex = image => allImages.findIndex(item => item.id === image.id);
   const threadImageGrid = renderPostImages(thread.images || [], imageIndex, '投稿画像');
+  const threadIsOwn = String(thread.author_id || '') === String(viewerUserId || '');
   const replyHtml = replies.map((reply, localIndex) => {
     const globalNumber = replyStart + localIndex + 2;
     const replyImages = renderPostImages(reply.images || [], imageIndex, '投稿画像');
+    const isOwn = String(reply.author_id || '') === String(viewerUserId || '');
     return `
       <article class="admin-board-reply ${reply.deleted_at ? 'is-deleted' : ''}" data-board-post-number="${globalNumber}">
+        ${!isOwn ? `<button type="button" class="admin-board-report-top" data-board-report-post="${reply.id}">通報</button>` : ''}
         <div class="admin-board-post-heading"><span class="admin-board-post-number">${globalNumber}.</span><button type="button" class="admin-board-author" data-board-open-user="${reply.author_id}" data-board-open-user-name="${esc(reply.username)}">${esc(reply.username)}</button></div>
         <div class="admin-board-post-date">${formatDate(reply.created_at)}${reply.updated_at !== reply.created_at ? ' ・ 編集済み ' + formatDate(reply.updated_at) : ''}</div>
         <div class="admin-board-post-body">${renderPostBody(reply.body)}</div>
         ${replyImages}
         <div class="admin-board-post-actions">
           <button type="button" data-board-reply-to="${globalNumber}">返信</button>
-          <button type="button" data-board-report-post="${reply.id}">通報</button>
-          <button type="button" data-board-edit-reply="${reply.id}">編集</button>
+          ${isOwn ? `<button type="button" data-board-edit-reply="${reply.id}">編集</button>` : ''}
           <button type="button" class="danger" data-board-delete-reply="${reply.id}">削除</button>
         </div>
       </article>`;
   }).join('');
   return `
     <article class="admin-board-main-post ${thread.deleted_at ? 'is-deleted' : ''}" data-board-post-number="1">
+      ${!threadIsOwn ? `<button type="button" class="admin-board-report-top" data-board-report-thread="${thread.id}">通報</button>` : ''}
       <h3>${esc(thread.title)}</h3>
       <div class="admin-board-post-heading"><span class="admin-board-post-number">1.</span><button type="button" class="admin-board-author" data-board-open-user="${thread.author_id}" data-board-open-user-name="${esc(thread.username)}">${esc(thread.username)}</button></div>
       <div class="admin-board-post-date">${formatDate(thread.created_at)}${thread.updated_at !== thread.created_at ? ' ・ 編集済み ' + formatDate(thread.updated_at) : ''}</div>
@@ -368,8 +378,7 @@ export function renderAdminBoardThreadDetail(data, { replyPage = 1, replyTotalPa
       ${threadImageGrid}
       <div class="admin-board-post-actions">
         <button type="button" data-board-reply-to="1">返信</button>
-        <button type="button" data-board-report-thread="${thread.id}">通報</button>
-        <button type="button" data-board-edit-thread="${thread.id}">編集</button>
+        ${threadIsOwn ? `<button type="button" data-board-edit-thread="${thread.id}">編集</button>` : ''}
         <button type="button" class="danger" data-board-delete-thread="${thread.id}">削除</button>
       </div>
     </article>
@@ -414,8 +423,10 @@ export function renderAdminBoardReports(reports) {
     <article class="admin-card admin-board-report-card">
       <strong>${esc(report.reason)}</strong>
       <div>${esc(report.target_text || '')}</div>
+      <div class="admin-card-meta">通報されたユーザー <button type="button" class="admin-board-report-user" data-board-open-user="${report.target_author_id || ''}" data-board-open-user-name="${esc(report.target_username || '')}">${esc(report.target_username || '不明')}</button></div>
       <div class="admin-card-meta">通報者 ${esc(report.reporter_username)} / ${formatDate(report.created_at)}</div>
       ${report.details ? `<div class="admin-board-report-details">${esc(report.details)}</div>` : ''}
       <button type="button" data-board-resolve-report="${report.id}">対応済みにする</button>
     </article>`).join('')}</div>`;
 }
+
