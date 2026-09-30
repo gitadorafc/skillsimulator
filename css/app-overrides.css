@@ -6460,3 +6460,24 @@ body.light-mode .admin-board-thread-summary{color:#64748b!important;}
 @media(max-width:560px){
   .admin-board-thread-summary{gap:6px!important;font-size:8px!important;}
 }
+
+/* === APP VERSION 4.31.3: ユーザー詳細ヘッダーの長い登録名対策 === */
+.user-detail-header{
+  min-width:0;
+}
+.user-detail-back{
+  flex:0 0 auto !important;
+  min-width:62px;
+  white-space:nowrap;
+  writing-mode:horizontal-tb;
+}
+.user-detail-instrument-switch{
+  flex:0 0 auto !important;
+}
+.user-detail-name{
+  flex:1 1 auto;
+  min-width:0;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
