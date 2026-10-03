@@ -6409,7 +6409,25 @@ body.light-mode .board-thread-search::placeholder{color:#94a3b8;-webkit-text-fil
 .admin-board-report-top,
 .admin-board-file-button,
 .admin-board-reply-bottom .btn-submit,
-.admin-board-editor-actions button,
+.admin-board-editor-actions button{
+  appearance:none!important;
+  -webkit-appearance:none!important;
+  box-sizing:border-box!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  min-height:30px!important;
+  height:30px!important;
+  padding:0 9px!important;
+  margin:0!important;
+  border-radius:7px!important;
+  font:inherit!important;
+  font-size:10px!important;
+  font-weight:900!important;
+  line-height:1!important;
+  white-space:nowrap!important;
+  vertical-align:middle!important;
+}
 .admin-board-image-viewer-controls button{
   appearance:none!important;
   -webkit-appearance:none!important;
@@ -6480,4 +6498,18 @@ body.light-mode .admin-board-thread-summary{color:#64748b!important;}
   overflow:hidden;
   text-overflow:ellipsis;
   white-space:nowrap;
+}
+
+/* === APP VERSION 4.31.4: 掲示板操作ボタンの縦幅をコンパクト化 === */
+@media(max-width:560px){
+  .admin-board-post-actions button,
+  .admin-board-report-top,
+  .admin-board-file-button,
+  .admin-board-reply-bottom .btn-submit,
+  .admin-board-editor-actions button{
+    min-height:30px!important;
+    height:30px!important;
+    padding:0 9px!important;
+    font-size:10px!important;
+  }
 }
