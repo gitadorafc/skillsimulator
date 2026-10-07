@@ -25,7 +25,7 @@ import {
   renderAdminUserList,
   renderAdminVersionList as renderAdminVersionListMarkup,
   renderAdminVersionManagerLoading
-} from './admin-renderer.js?v=4_29_0';
+} from './admin-renderer.js?v=4_31_6';
 import {
   renderSkillRankingRangeOptions,
   renderSkillRankingRows,
