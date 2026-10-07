@@ -6539,3 +6539,146 @@ body.light-mode .admin-board-thread-summary{color:#64748b!important;}
   #adminModal[data-admin-tab="songs"] .admin-master-summary{padding:7px 10px 0;}
   #adminModal[data-admin-tab="songs"] .admin-master-pager{padding:8px 10px 12px;}
 }
+
+
+/* === APP VERSION 4.31.7: 曲マスター編集モーダルのデザイン統一 === */
+.admin-master-mobile-sheet{
+  width:min(94vw,620px)!important;
+  max-height:calc(100dvh - 32px)!important;
+  overflow-y:auto!important;
+  border:1px solid #334155!important;
+  border-radius:12px!important;
+  padding:16px!important;
+  background:#0f172a!important;
+  color:#f8fafc!important;
+  box-shadow:0 24px 60px rgba(0,0,0,.55)!important;
+}
+.admin-master-mobile-head{
+  position:sticky;
+  top:-16px;
+  z-index:2;
+  margin:-16px -16px 12px!important;
+  padding:14px 16px!important;
+  border-bottom:1px solid #334155;
+  background:#0f172a;
+}
+.admin-master-mobile-head h3{
+  color:#f8fafc;
+  font-size:16px!important;
+  font-weight:900;
+}
+.admin-master-mobile-head button{
+  appearance:none;
+  -webkit-appearance:none;
+  min-height:36px;
+  padding:0 11px;
+  border:1px solid #475569;
+  border-radius:7px;
+  background:#111827;
+  color:#f8fafc;
+  font-size:11px;
+  font-weight:900;
+}
+.admin-master-mobile-sheet>label:not(.admin-master-mobile-hot),
+.admin-master-mobile-two label,
+.admin-master-mobile-levels label{
+  color:#cbd5e1!important;
+}
+.admin-master-mobile-sheet :is(input[type="text"],input[type="number"],select){
+  width:100%;
+  min-height:42px!important;
+  padding:7px 10px!important;
+  border:1px solid #475569!important;
+  border-radius:7px!important;
+  background:#111827!important;
+  color:#f8fafc!important;
+  -webkit-text-fill-color:#f8fafc!important;
+  caret-color:#f8fafc!important;
+  box-sizing:border-box!important;
+  font-size:12px!important;
+}
+.admin-master-mobile-sheet input::placeholder{
+  color:#64748b!important;
+  -webkit-text-fill-color:#64748b!important;
+  opacity:1!important;
+}
+.admin-master-mobile-hot{
+  color:#e2e8f0!important;
+}
+.admin-master-mobile-hot input{
+  accent-color:#3b82f6;
+}
+.admin-master-mobile-actions{
+  position:sticky;
+  bottom:-16px;
+  z-index:2;
+  margin:14px -16px -16px!important;
+  padding:10px 16px 14px;
+  border-top:1px solid #334155;
+  background:#0f172a;
+}
+.admin-master-mobile-actions button{
+  appearance:none;
+  -webkit-appearance:none;
+  min-height:38px;
+  padding:0 14px;
+  border:1px solid #475569;
+  border-radius:7px;
+  font-size:11px;
+  font-weight:900;
+}
+#btnAdminMasterMobileSave{
+  background:#3b82f6;
+  border-color:#3b82f6;
+  color:#fff;
+}
+#btnAdminMasterMobileDelete{
+  background:#7f1d1d!important;
+  border-color:#dc2626!important;
+  color:#fff!important;
+}
+body.light-mode .admin-master-mobile-sheet{
+  border-color:#cbd5e1!important;
+  background:#f8fafc!important;
+  color:#111827!important;
+  box-shadow:0 18px 48px rgba(15,23,42,.22)!important;
+}
+body.light-mode .admin-master-mobile-head,
+body.light-mode .admin-master-mobile-actions{
+  border-color:#cbd5e1;
+  background:#f8fafc;
+}
+body.light-mode .admin-master-mobile-head h3{color:#111827;}
+body.light-mode .admin-master-mobile-head button{
+  border-color:#94a3b8;
+  background:#fff;
+  color:#111827;
+}
+body.light-mode .admin-master-mobile-sheet>label:not(.admin-master-mobile-hot),
+body.light-mode .admin-master-mobile-two label,
+body.light-mode .admin-master-mobile-levels label,
+body.light-mode .admin-master-mobile-hot{
+  color:#475569!important;
+}
+body.light-mode .admin-master-mobile-sheet :is(input[type="text"],input[type="number"],select){
+  border-color:#94a3b8!important;
+  background:#fff!important;
+  color:#111827!important;
+  -webkit-text-fill-color:#111827!important;
+  caret-color:#111827!important;
+}
+body.light-mode .admin-master-mobile-sheet input::placeholder{
+  color:#64748b!important;
+  -webkit-text-fill-color:#64748b!important;
+}
+@media(max-width:620px){
+  .admin-form-mask:has(.admin-master-mobile-sheet){
+    align-items:center!important;
+    justify-content:center!important;
+    padding:12px!important;
+  }
+  .admin-master-mobile-sheet{
+    width:100%!important;
+    max-height:calc(100dvh - 24px)!important;
+  }
+}
