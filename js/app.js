@@ -4653,14 +4653,27 @@ function openAdminMasterMobile(row = null, index = null) {
   $('adminMasterMobileInitial').value = row?.initial_group || '';
   $('adminMasterMobileOrder').value = row?.official_order == null ? '' : row.official_order;
   $('adminMasterMobileHot').checked = Boolean(row?.is_hot);
-  $('adminMasterMobileLevels').innerHTML = MASTER_PARTS.map(part => `
-    <label>
-      <span>${esc(part)}</span>
-      <input type="text" inputmode="decimal" autocomplete="off"
-        data-mobile-master-level="${esc(part)}"
-        value="${row?.levels?.[part] != null ? esc(formatLevel(row.levels[part])) : ''}"
-        placeholder="-">
-    </label>`).join('');
+  const levelValue = part => row?.levels?.[part] != null ? esc(formatLevel(row.levels[part])) : '';
+  const levelInput = part => `
+    <input type="text" inputmode="decimal" autocomplete="off"
+      aria-label="${esc(part)}" data-mobile-master-level="${esc(part)}"
+      value="${levelValue(part)}" placeholder="-">`;
+  $('adminMasterMobileLevels').innerHTML = `
+    <div class="admin-master-level-corner"></div>
+    <div class="admin-master-level-head bsc">BSC</div>
+    <div class="admin-master-level-head adv">ADV</div>
+    <div class="admin-master-level-head ext">EXT</div>
+    <div class="admin-master-level-head mas">MAS</div>
+
+    <div class="admin-master-level-row-label dm">DM</div>
+    ${levelInput('BSC-D')}${levelInput('ADV-D')}${levelInput('EXT-D')}${levelInput('MAS-D')}
+
+    <div class="admin-master-level-row-label gf-g">GF Guitar</div>
+    ${levelInput('BSC-G')}${levelInput('ADV-G')}${levelInput('EXT-G')}${levelInput('MAS-G')}
+
+    <div class="admin-master-level-row-label gf-b">GF Bass</div>
+    ${levelInput('BSC-B')}${levelInput('ADV-B')}${levelInput('EXT-B')}${levelInput('MAS-B')}
+  `;
   $('btnAdminMasterMobileDelete').classList.toggle('hidden', !row);
   mask.style.display = 'flex';
   setTimeout(() => $('adminMasterMobileTitle')?.focus(), 0);

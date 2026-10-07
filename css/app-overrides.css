@@ -6682,3 +6682,61 @@ body.light-mode .admin-master-mobile-sheet input::placeholder{
     max-height:calc(100dvh - 24px)!important;
   }
 }
+
+/* === APP VERSION 4.31.8: 曲マスター難易度を曲データ一覧型のコンパクト表に変更 === */
+.admin-master-mobile-levels{
+  display:grid!important;
+  grid-template-columns:88px repeat(4,minmax(0,1fr))!important;
+  gap:5px!important;
+  align-items:center;
+  margin-top:8px;
+}
+.admin-master-level-corner{height:28px;}
+.admin-master-level-head{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  height:28px;
+  border-radius:6px;
+  color:#fff;
+  font-size:10px;
+  font-weight:900;
+  line-height:1;
+}
+.admin-master-level-head.bsc{background:#60a5fa;}
+.admin-master-level-head.adv{background:#facc15;color:#111827;}
+.admin-master-level-head.ext{background:#ef4444;}
+.admin-master-level-head.mas{background:#c026d3;}
+.admin-master-level-row-label{
+  min-width:0;
+  padding-right:4px;
+  font-size:10px;
+  font-weight:900;
+  white-space:nowrap;
+}
+.admin-master-level-row-label.dm{color:#4ade80;}
+.admin-master-level-row-label.gf-g{color:#fb3f75;}
+.admin-master-level-row-label.gf-b{color:#fb3f75;}
+.admin-master-mobile-levels input[type="text"]{
+  min-width:0!important;
+  width:100%!important;
+  height:36px!important;
+  min-height:36px!important;
+  padding:4px 5px!important;
+  text-align:center;
+  font-size:11px!important;
+  font-weight:900;
+}
+@media(max-width:420px){
+  .admin-master-mobile-levels{
+    grid-template-columns:72px repeat(4,minmax(0,1fr))!important;
+    gap:4px!important;
+  }
+  .admin-master-level-row-label{font-size:9px;}
+  .admin-master-mobile-levels input[type="text"]{
+    height:34px!important;
+    min-height:34px!important;
+    padding:3px!important;
+    font-size:10px!important;
+  }
+}
