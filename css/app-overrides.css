@@ -6740,3 +6740,88 @@ body.light-mode .admin-master-mobile-sheet input::placeholder{
     font-size:10px!important;
   }
 }
+
+
+/* === APP VERSION 4.31.9: 管理画面スマホ上部をコンパクト化 === */
+.admin-song-toolbar-actions{display:contents;}
+@media(max-width:768px){
+  .admin-header{
+    padding:7px 8px 6px!important;
+  }
+  .admin-title-row{
+    min-height:34px;
+    gap:6px!important;
+  }
+  .admin-title{font-size:16px!important;}
+  .admin-code-version{font-size:9px!important;}
+  .admin-close{
+    min-height:34px!important;
+    padding:0 10px!important;
+  }
+  .admin-tabs{
+    display:flex!important;
+    flex-wrap:nowrap!important;
+    gap:5px!important;
+    margin-top:6px!important;
+    overflow-x:auto!important;
+    overscroll-behavior-x:contain;
+    -webkit-overflow-scrolling:touch;
+    scrollbar-width:none;
+    padding-bottom:1px;
+  }
+  .admin-tabs::-webkit-scrollbar{display:none;}
+  .admin-tab{
+    flex:0 0 auto!important;
+    min-width:98px!important;
+    min-height:34px!important;
+    height:34px!important;
+    padding:0 10px!important;
+    white-space:nowrap;
+    font-size:11px!important;
+  }
+  #adminSongToolbar{
+    display:flex!important;
+    flex-direction:column!important;
+    gap:5px!important;
+    margin-top:6px!important;
+    min-width:0;
+  }
+  #adminSongToolbar>input{
+    width:100%!important;
+    min-height:36px!important;
+    height:36px!important;
+    flex:0 0 36px!important;
+    box-sizing:border-box;
+  }
+  #adminSongToolbar .admin-song-toolbar-actions{
+    display:flex!important;
+    flex-wrap:nowrap!important;
+    gap:5px!important;
+    width:100%;
+    overflow-x:auto;
+    overscroll-behavior-x:contain;
+    -webkit-overflow-scrolling:touch;
+    scrollbar-width:none;
+    padding:0 0 1px;
+  }
+  #adminSongToolbar .admin-song-toolbar-actions::-webkit-scrollbar{display:none;}
+  #adminSongToolbar .admin-song-toolbar-actions :is(button,select){
+    flex:0 0 auto!important;
+    width:auto!important;
+    min-width:112px!important;
+    min-height:34px!important;
+    height:34px!important;
+    padding-top:0!important;
+    padding-bottom:0!important;
+    white-space:nowrap;
+    font-size:11px!important;
+  }
+  #adminSongToolbar .admin-song-toolbar-actions select{min-width:118px!important;}
+  #adminModal[data-admin-tab="songs"] .admin-master-summary{
+    padding-top:4px!important;
+  }
+  #adminModal[data-admin-tab="songs"] .admin-master-pager{
+    padding-top:5px!important;
+    padding-bottom:7px!important;
+  }
+}
