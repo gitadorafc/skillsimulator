@@ -1,0 +1,346 @@
+<div id="appLoadingScreen" class="app-loading-screen" role="status" aria-live="polite">
+  <div class="app-loading-backdrop" aria-hidden="true">
+    <div class="app-loading-top-pills"><i></i><i></i></div>
+    <div class="app-loading-stat-row"><i></i><i></i><i></i></div>
+    <div class="app-loading-card-grid"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+  </div>
+  <div class="app-loading-content">
+    <div class="app-loading-ring" aria-hidden="true">
+      <div class="app-loading-symbol"><svg viewBox="0 0 100 100" aria-hidden="true" focusable="false">
+        <path fill="currentColor" d="M50 17a3 3 0 0 1 3 3v41c0 10-9 17-21 17-9 0-15-4-15-11 0-8 8-14 18-14 4 0 8 1 11 2V20a3 3 0 0 1 4-3Z"/>
+        <path fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" d="M59 61 81 39M69 39h12v12"/>
+      </svg></div>
+    </div>
+    <strong>データを読み込んでいます</strong>
+    <span id="appLoadingStatus">ログイン情報を確認中...</span>
+    <div class="app-loading-dots" aria-hidden="true"><i></i><i></i><i></i></div>
+  </div>
+</div>
+
+<div id="introScreen" class="intro-screen hidden">
+  <div class="intro-hero">
+    <div class="intro-logo">GITADORA</div>
+    <h1>Skill Simulator</h1>
+    <p>GITADORA GuitarFreaks / DrumMania<br>スキルの登録・管理・比較・共有ができる<br>非公式スキルシミュレーター</p>
+    <div class="intro-actions">
+      <button id="btnIntroRegister" type="button" class="intro-primary">新規登録</button>
+      <button id="btnIntroLogin" type="button" class="intro-secondary">ログイン</button>
+    </div>
+  </div>
+  <div class="intro-features">
+    <div><strong>SYNC</strong><span>e-amusementのスキル対象をまとめて同期</span></div>
+    <div><strong>SKILL</strong><span>スキル対象外も手動で登録可能</span></div>
+    <div><strong>RIVAL</strong><span>ライバル登録・達成率比較・ユーザー検索</span></div>
+    <div><strong>SHARE</strong><span>スキル対象を画像にしてSNSへ共有</span></div>
+  </div>
+  <div class="intro-note">GITADORA公式サービスではありません。</div>
+</div>
+
+<div id="authScreen" class="auth-screen hidden">
+  <div class="auth-card">
+    <h1 id="authTitle">ログイン</h1>
+    <form id="authForm">
+      <label>ユーザー名</label>
+      <input id="authUsername" autocomplete="username" required maxlength="32" placeholder="日本語可・32文字まで">
+      <div id="authUsernamePrivacyNotice" class="auth-register-notice hidden" role="note">
+        <strong>ユーザー名に個人情報を入力しないでください</strong>
+        メールアドレス・電話番号・本名など、個人を特定できる情報をユーザー名に使用しないでください。<br>
+        管理者が個人情報に該当すると判断したアカウントは、削除対象となる場合があります。
+      </div>
+      <label>パスワード</label>
+      <input id="authPassword" type="password" autocomplete="current-password" required placeholder="パスワードを入力">
+      <div id="authPasswordConfirmGroup" class="hidden">
+        <label>パスワード（確認）</label>
+        <input id="authPasswordConfirm" type="password" autocomplete="new-password" placeholder="もう一度入力">
+      </div>
+      <div id="authRegisterNotice" class="auth-register-notice hidden">
+        <strong>パスワードについての重要なお知らせ</strong>
+        このサイトではメールアドレスなどの個人情報を取得していないため、通常のパスワード再発行はできません。<br>
+        パスワードは忘れないように保管してください。原則、パスワードを忘れた場合は再登録が必要です。<br>
+        どうしてもパスワードの再発行が必要な場合は、管理者の <a href="https://x.com/fizz_rky" target="_blank" rel="noopener noreferrer">X（旧Twitter）</a> へ直接ご連絡ください。
+      </div>
+      <div id="authCaptchaHome">
+        <div id="authCaptchaWrap" class="auth-captcha-wrap">
+          <div id="authTurnstile"></div>
+          <div id="authCaptchaStatus" class="auth-captcha-status" aria-live="polite"></div>
+        </div>
+      </div>
+      <button id="authSubmit" type="submit">ログイン</button>
+    </form>
+    <div id="authSwitch" class="auth-switch" data-mode="register">新規登録はこちら</div>
+  </div>
+</div>
+
+<div id="appScreen" class="hidden">
+  <div class="p-header">
+    <div class="user-header-row">
+      <div class="header-mode-controls">
+        <div class="instrument-switch" aria-label="ゲーム切替"><button class="instrument-btn active" data-instrument="GF">GF</button><button class="instrument-btn" data-instrument="DM">DM</button></div>
+        <span id="headerActiveVersion" class="header-active-version" aria-label="参照中のバージョン" aria-live="polite"></span>
+      </div>
+      <div class="header-account-controls">
+        <button id="btnAdmin" class="admin-entry hidden">管理</button>
+        <span id="headerUsername" class="header-user hidden" aria-hidden="true"></span>
+        <button id="btnRefreshApp" type="button" class="menu-entry header-refresh-button" aria-label="更新" title="更新">↻</button>
+        <button id="btnMenu" type="button" class="menu-entry" aria-label="メニュー">☰</button>
+      </div>
+    </div>
+    <div class="score-row">
+      <div class="score-cell border-r"><span class="score-lbl">TOTAL</span><span id="txtGrandTotal" class="score-val">0.00</span></div>
+      <div class="score-cell border-r"><span class="score-lbl">HOT</span><span id="txtHotTotal" class="score-val">0.00</span></div>
+      <div class="score-cell"><span class="score-lbl">OTHER</span><span id="txtOtherTotal" class="score-val">0.00</span></div>
+    </div>
+    <div class="p-tabs">
+      <div class="p-tab-btn active" data-tab="SKILL">スキル対象</div>
+      <div class="p-tab-btn" data-tab="RECORDS">登録</div>
+      <div class="p-tab-btn" data-tab="USERS">ユーザーリスト</div>
+      <div id="tabBoard" class="p-tab-btn hidden" data-tab="BOARD">掲示板</div>
+    </div>
+    <div id="boardMainFixed" class="board-main-fixed hidden">
+      <div class="board-main-toolbar">
+        <input id="boardThreadSearch" class="board-thread-search" type="search" maxlength="30" placeholder="スレッドタイトルを検索..." aria-label="スレッドタイトル検索">
+        <button id="btnBoardNewThread" type="button" class="btn-submit">＋新規スレッド</button>
+      </div>
+      <div class="board-main-rule-note">メールアドレス・電話番号・本名などの個人情報、誹謗中傷、公序良俗に反する内容、別サイト・サービスなど全ての勧誘行為は禁止です。管理者判断で削除・投稿禁止の対象になります。</div>
+    </div>
+    <div id="searchArea" class="search-bar-container hidden">
+      <div class="record-search-row">
+        <input id="domSearch" class="search-input" placeholder="登録済みの曲を検索...">
+        <button id="btnHeaderAdd" class="btn-add-inline">＋ 登録</button>
+      </div>
+      <div id="adminBulkDeleteArea" class="admin-bulk-delete-area hidden">
+        <button id="btnAdminBulkDeleteScores" type="button" class="admin-bulk-delete-btn">
+          登録曲を一括削除
+        </button>
+      </div>
+      <div class="record-filter-row">
+        <label id="recordTypeFilterField" class="record-type-filter-field">
+          <span>種別</span>
+          <select id="recordTypeFilter" aria-label="種別フィルタ">
+            <option value="">すべて</option>
+            <option value="HOT">HOT</option>
+            <option value="OTHER">OTHER</option>
+          </select>
+        </label>
+        <div class="record-rank-filter-group" role="group" aria-label="クリアランク・FCフィルタ">
+          <label class="record-rank-filter-field">
+            <span>クリアランク</span>
+            <select id="recordClearRankFilter" aria-label="クリアランクフィルタ">
+              <option value="">すべて</option>
+              <option value="SS">SS</option>
+              <option value="S">S</option>
+              <option value="BELOW_S">S未満</option>
+            </select>
+          </label>
+          <label class="record-rank-filter-field">
+            <span>FC</span>
+            <select id="recordFcFilter" aria-label="FCフィルタ">
+              <option value="">すべて</option>
+              <option value="EXC">EXC</option>
+              <option value="FC">FC</option>
+              <option value="NONE">未FC</option>
+            </select>
+          </label>
+        </div>
+        <label id="recordTagFilterField" class="record-type-filter-field hidden">
+          <span>タグ</span>
+          <select id="recordTagFilter" aria-label="タグフィルタ">
+            <option value="">すべて</option>
+          </select>
+        </label>
+      </div>
+    </div>
+    <div id="userListHeaderSlot" class="user-list-header-slot hidden">
+      <div class="user-list-sticky">
+        <div class="users-toolbar">
+          <input id="userSearch" placeholder="ユーザー名を検索...">
+        </div>
+        <div class="user-list-sort-controls" aria-label="ユーザーリストの並び替え">
+          <label class="user-list-sort-field">
+            <span>項目</span>
+            <select id="userListSortKey" aria-label="並び替える項目">
+              <option value="name">ユーザー名</option>
+              <option value="gf">GFスキル</option>
+              <option value="dm">DMスキル</option>
+              <option value="total">TOTALスキル</option>
+            </select>
+          </label>
+          <label class="user-list-sort-field">
+            <span>並び順</span>
+            <select id="userListSortDirection" aria-label="並び順">
+              <option value="desc">降順</option>
+              <option value="asc">昇順</option>
+            </select>
+          </label>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="p-container">
+    <div id="viewSkill"></div>
+    <div id="viewAllManage" class="list-container hidden"></div>
+    <div id="viewUsers" class="hidden">
+      <div id="userList"></div>
+      <div id="userListPager" class="user-list-pager"></div>
+    </div>
+    <div id="viewBoard" class="hidden board-main-view">
+      <div id="boardMainBody" class="board-main-body"></div>
+    </div>
+  </div>
+</div>
+
+<div id="domModal" class="mdl-mask">
+  <div class="mdl-sheet">
+    <h3 id="domModalTitle" style="font-size:16px;margin-bottom:12px;font-weight:900;">スコア登録</h3>
+
+    <div class="f-group">
+      <label>曲名</label>
+      <input id="formTitle" autocomplete="off" placeholder="曲名を入力して候補から選択">
+      <div id="songSuggestions" class="suggestion-list"></div>
+      <div id="adminSongPicker" class="admin-song-picker hidden">
+        <div class="admin-song-picker-field">
+          <label for="adminSongInitialFilter">頭文字</label>
+          <div class="select-arrow-wrap">
+            <select id="adminSongInitialFilter" aria-label="曲名の頭文字分類">
+              <option value="">すべて</option>
+              <option value="new">新曲</option>
+              <option value="symbol">記号・数字</option>
+              <option value="A">A</option><option value="B">B</option>
+              <option value="C">C</option><option value="D">D</option>
+              <option value="E">E</option><option value="F">F</option>
+              <option value="G">G</option><option value="H">H</option>
+              <option value="I">I</option><option value="J">J</option>
+              <option value="K">K</option><option value="L">L</option>
+              <option value="M">M</option><option value="N">N</option>
+              <option value="O">O</option><option value="P">P</option>
+              <option value="Q">Q</option><option value="R">R</option>
+              <option value="S">S</option><option value="T">T</option>
+              <option value="U">U</option><option value="V">V</option>
+              <option value="W">W</option><option value="X">X</option>
+              <option value="Y">Y</option><option value="Z">Z</option>
+              <option value="あ">あ行</option><option value="か">か行</option>
+              <option value="さ">さ行</option><option value="た">た行</option>
+              <option value="な">な行</option><option value="は">は行</option>
+              <option value="ま">ま行</option><option value="や">や行</option>
+              <option value="ら">ら行</option><option value="わ">わ行</option>
+            </select>
+          </div>
+        </div>
+        <div class="admin-song-picker-field">
+          <label for="adminSongCandidate">曲名</label>
+          <div class="select-arrow-wrap">
+            <select id="adminSongCandidate" aria-label="曲名候補" disabled>
+              <option value="">頭文字を選択してください</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-grid-two">
+      <div class="f-group">
+        <label>パート</label>
+        <div class="select-arrow-wrap">
+          <select id="partSelect"></select>
+        </div>
+      </div>
+      <div class="f-group">
+        <label>Level</label>
+        <input id="formLevel" readonly type="number" step="0.01" inputmode="decimal" placeholder="自動">
+      </div>
+    </div>
+
+    <div id="masterRequestArea" class="master-request-area hidden">
+      <div class="master-request-title">この曲名・Partは曲マスターにありません</div>
+      <div class="master-request-note">
+        難易度を入力して保存すると、スコアを保存すると同時に管理者へ曲マスター登録依頼を送信します。
+        承認時に難易度が修正された場合、保存済みスコアも自動で修正後の難易度に切り替わります。
+      </div>
+    </div>
+    <div id="levelCorrectionArea" class="level-correction-area hidden">
+      <div class="level-correction-head">
+        <div>
+          <div class="level-correction-title">表示されている難易度が違いますか？</div>
+          <div class="level-correction-note">正しい難易度を管理者へ報告できます。</div>
+        </div>
+        <button id="btnOpenLevelCorrection" type="button">難易度を報告</button>
+      </div>
+      <div id="levelCorrectionForm" class="level-correction-form hidden">
+        <label>正しい難易度</label>
+        <div class="level-correction-input-row">
+          <input id="correctionLevel" type="number" min="0.01" max="9.99" step="0.01" inputmode="decimal" placeholder="例 9.30">
+          <button id="btnSendLevelCorrection" type="button">修正依頼を送信</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="rateSkillFields" class="form-grid-two">
+      <div class="f-group">
+        <label>達成率 (%)</label>
+        <input id="formRate" type="number" min="0" max="100" step="0.01" inputmode="decimal" placeholder="例 95.50">
+      </div>
+      <div class="f-group">
+        <label>Skill</label>
+        <div id="formSkill" class="skill-preview">-</div>
+      </div>
+    </div>
+
+    <div id="scoreExtraFields" class="form-grid-two">
+      <div class="f-group">
+        <label>フルコン</label>
+        <div class="select-arrow-wrap">
+          <select id="formFc">
+            <option value="">なし</option>
+            <option value="FC">FC</option>
+          </select>
+        </div>
+      </div>
+      <div id="optionFieldGroup" class="f-group">
+        <label>オプション</label>
+        <div class="select-arrow-wrap">
+          <select id="formOption">
+            <option value="NORMAL">正規</option>
+            <option value="RAN">RAN</option>
+            <option value="SRA">SRA</option>
+            <option value="RAN+">RAN+</option>
+            <option value="SRA+">SRA+</option>
+          </select>
+        </div>
+      </div>
+      <div id="dmOptionFieldGroup" class="f-group hidden">
+        <label>オプション</label>
+        <div class="select-arrow-wrap">
+          <select id="formDmOption">
+            <option value="NORMAL">なし</option>
+            <option value="BASS_MIRROR">バスミラー</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div id="scorePrivateCommentGroup" class="f-group hidden">
+      <label>コメント</label>
+      <textarea id="formPrivateComment"
+                maxlength="100"
+                rows="1"
+                placeholder="例：ミス2 / ラス切り"></textarea>
+      <div class="score-private-comment-note">自分だけに表示されます（100文字まで）</div>
+    </div>
+
+    <div id="scoreTagGroup" class="f-group hidden">
+      <label>タグ（複数選択可）</label>
+      <div id="scoreTagChoices" class="score-tag-choices"></div>
+      <div class="score-private-comment-note">タグの追加・名前変更はメニューの「タグ設定」から行えます。</div>
+    </div>
+
+    <div id="editDeleteArea" class="edit-delete-area hidden">
+      <button id="btnDeleteEditingScore" type="button" class="btn-delete-editing-score">この登録データを削除</button>
+    </div>
+
+    <div class="btn-block">
+      <button id="btnCancelForm" class="btn-cancel">戻る</button>
+      <button id="btnSubmitForm" class="btn-submit">保存する</button>
+    </div>
+  </div>
+</div>

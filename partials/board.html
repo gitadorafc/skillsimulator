@@ -1,0 +1,80 @@
+<div id="adminBoardThreadMask" class="admin-form-mask admin-board-thread-mask">
+  <div class="admin-form-sheet admin-board-thread-sheet" role="dialog" aria-modal="true" aria-label="スレッド詳細">
+    <div class="admin-board-sheet-head">
+      <strong>スレッド詳細</strong>
+      <div class="admin-board-sheet-head-actions">
+        <button id="btnAdminBoardThreadBottom" type="button">下へ</button>
+        <button id="btnAdminBoardThreadClose" type="button">閉じる</button>
+      </div>
+    </div>
+    <div id="adminBoardThreadBody" class="admin-board-thread-body"></div>
+  </div>
+</div>
+
+<div id="adminBoardEditorMask" class="admin-form-mask admin-board-editor-mask">
+  <div class="admin-form-sheet admin-board-editor-sheet" role="dialog" aria-modal="true" aria-labelledby="adminBoardEditorTitle">
+    <div class="admin-board-sheet-head">
+      <strong id="adminBoardEditorTitle">新規スレッド</strong>
+      <button id="btnAdminBoardEditorClose" type="button">閉じる</button>
+    </div>
+    <div class="admin-board-editor-body">
+      <label for="adminBoardTitle">タイトル</label>
+      <input id="adminBoardTitle" type="text" maxlength="30" placeholder="タイトル（30文字まで）">
+      <label for="adminBoardBody">本文</label>
+      <textarea id="adminBoardBody" maxlength="1000" placeholder="本文（1000文字まで）"></textarea>
+      <div id="adminBoardExistingImages" class="admin-board-existing-images"></div>
+      <div id="adminBoardSelectedImages" class="admin-board-selected-images"></div>
+      <div class="admin-board-image-actions">
+        <label class="admin-board-file-button">画像添付<input id="adminBoardImages" type="file" accept="image/*"></label>
+      </div>
+      <div id="adminBoardEditorStatus" class="admin-board-editor-status"></div>
+      <div class="admin-board-editor-actions">
+        <button id="btnAdminBoardEditorCancel" type="button" class="btn-cancel">戻る</button>
+        <button id="btnAdminBoardSave" type="button" class="btn-submit">投稿する</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="adminBoardImageViewerMask" class="admin-form-mask admin-board-image-viewer-mask">
+  <div class="admin-board-image-viewer" role="dialog" aria-modal="true" aria-label="添付画像">
+    <div class="admin-board-sheet-head admin-board-image-viewer-head">
+      <strong id="adminBoardImageViewerCounter">画像</strong>
+      <div class="admin-board-image-viewer-controls">
+        <button id="btnAdminBoardImagePrev" class="admin-board-image-nav prev" type="button" aria-label="前の画像">‹</button>
+        <button id="btnAdminBoardImageNext" class="admin-board-image-nav next" type="button" aria-label="次の画像">›</button>
+        <button id="btnAdminBoardImageJump" type="button">1.の投稿へ</button>
+        <button id="btnAdminBoardImageViewerClose" type="button">閉じる</button>
+      </div>
+    </div>
+    <div id="adminBoardImageViewerStage" class="admin-board-image-viewer-stage">
+      <img id="adminBoardImageViewerImage" alt="添付画像">
+    </div>
+  </div>
+</div>
+
+<div id="adminBoardReportMask" class="admin-form-mask admin-board-report-mask">
+  <div class="admin-form-sheet admin-board-report-sheet" role="dialog" aria-modal="true" aria-label="投稿を通報">
+    <div class="admin-board-sheet-head">
+      <strong>投稿を通報</strong>
+      <button id="btnAdminBoardReportClose" type="button">閉じる</button>
+    </div>
+    <div class="admin-board-report-body">
+      <label for="adminBoardReportReason">理由</label>
+      <select id="adminBoardReportReason">
+        <option value="荒らし">荒らし</option>
+        <option value="個人情報">個人情報</option>
+        <option value="不適切な画像">不適切な画像</option>
+        <option value="誹謗中傷">誹謗中傷</option>
+        <option value="公序良俗">公序良俗</option>
+        <option value="その他">その他</option>
+      </select>
+      <label for="adminBoardReportDetails">詳細（任意）</label>
+      <textarea id="adminBoardReportDetails" maxlength="500" placeholder="通報内容の補足"></textarea>
+      <div class="admin-board-report-actions">
+        <button id="btnAdminBoardReportCancel" type="button" class="btn-cancel">戻る</button>
+        <button id="btnAdminBoardReportSubmit" type="button" class="btn-submit">通報する</button>
+      </div>
+    </div>
+  </div>
+</div>
