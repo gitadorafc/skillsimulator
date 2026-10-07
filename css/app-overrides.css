@@ -6836,7 +6836,7 @@ body.light-mode .admin-master-mobile-sheet input::placeholder{
 }
 
 
-/* === APP VERSION 4.32.1: 管理画面ヘッダー / スキル履歴ボタン調整 === */
+/* === APP VERSION 4.32.3: 管理画面ヘッダー / スキル履歴高さ統一 === */
 .admin-title-wrap{
   flex:1 1 auto;
   min-width:0;
@@ -6848,21 +6848,32 @@ body.light-mode .admin-master-mobile-sheet input::placeholder{
 .skill-history-row{
   align-items:center;
 }
+.skill-history-summary,
+.skill-history-display,
+.skill-history-compare,
+.skill-history-delete{
+  box-sizing:border-box;
+  height:32px;
+  min-height:32px;
+}
+.skill-history-summary{
+  padding-top:1px;
+  padding-bottom:1px;
+}
 .skill-history-display,
 .skill-history-compare,
 .skill-history-delete{
   align-self:center;
-  height:30px;
-  min-height:30px;
   padding-top:0;
   padding-bottom:0;
   line-height:1;
 }
 @media(max-width:430px){
+  .skill-history-summary,
   .skill-history-display,
   .skill-history-compare,
   .skill-history-delete{
-    height:28px;
-    min-height:28px;
+    height:30px;
+    min-height:30px;
   }
 }
