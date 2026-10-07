@@ -69,6 +69,13 @@ export function renderAdminMasterTable({
       <span>${totalCount.toLocaleString('ja-JP')}曲</span>
       <span>${currentPage + 1} / ${totalPages}ページ</span>
     </div>
+    <div class="admin-master-mobile-list" id="adminMasterMobileList">
+      ${rows.map((row, index) => `
+        <button type="button" class="admin-master-mobile-row" data-admin-master-mobile-open="${index}">
+          <span class="admin-master-mobile-title">${escapeHtml(row.title)}</span>
+          <span class="admin-master-mobile-chevron">›</span>
+        </button>`).join('')}
+    </div>
     <div class="master-sheet-wrap">
       <table class="master-sheet" id="adminMasterTable">
         <thead>

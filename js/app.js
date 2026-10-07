@@ -693,6 +693,9 @@ let adminRequests = [];
 let adminFeedback = [];
 let adminEditingSongId = null;
 let adminNewSongRowVisible = false;
+let adminMasterRows = [];
+let adminMasterMobileIndex = null;
+let adminMasterMobileIsNew = false;
 let adminSongPickerChoices = [];
 let adminSongPickerKey = '';
 let publicUsers = [];
@@ -4526,6 +4529,7 @@ async function openAdmin() {
 
 function closeAdmin() {
   $('adminModal').style.display = 'none';
+  closeAdminMasterMobile();
   $('adminSongFormMask').style.display = 'none';
   $('adminPasswordMask').style.display = 'none';
   $('adminCsvMask').style.display = 'none';
@@ -4533,6 +4537,7 @@ function closeAdmin() {
 
 async function switchAdminTab(tab) {
   adminTab = tab;
+  $('adminModal')?.setAttribute('data-admin-tab', tab);
   document.querySelectorAll('.admin-tab').forEach(
     b => b.classList.toggle('active', b.dataset.adminTab === tab)
   );
@@ -4565,6 +4570,7 @@ async function loadAdminSongs() {
     );
 
     const rows = result.rows;
+    adminMasterRows = rows;
     const totalPages = Math.max(1, Math.ceil(result.total / result.pageSize));
 
     // 検索結果が減って現在ページが範囲外になった場合は先頭へ戻す
@@ -4613,6 +4619,114 @@ async function loadAdminSongs() {
     });
   } catch (e) {
     $('adminBody').innerHTML = `<div class="empty-state">取得失敗: ${esc(e.message)}</div>`;
+  }
+}
+
+
+const ADMIN_MASTER_INITIAL_GROUPS = [
+  '記号・数字', ...'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+  'あ行','か行','さ行','た行','な行','は行','ま行','や行','ら行','わ行'
+];
+
+function isMobileAdminMaster() {
+  return window.matchMedia('(max-width: 768px)').matches;
+}
+
+function closeAdminMasterMobile() {
+  const mask = $('adminMasterMobileMask');
+  if (mask) mask.style.display = 'none';
+  adminMasterMobileIndex = null;
+  adminMasterMobileIsNew = false;
+}
+
+function openAdminMasterMobile(row = null, index = null) {
+  const mask = $('adminMasterMobileMask');
+  if (!mask) return;
+  adminMasterMobileIndex = index;
+  adminMasterMobileIsNew = !row;
+  $('adminMasterMobileHeading').textContent = row ? '曲マスター編集' : '曲マスター追加';
+  $('adminMasterMobileTitle').value = row?.title || '';
+  $('adminMasterMobileInitial').innerHTML = [
+    '<option value="">選択</option>',
+    ...ADMIN_MASTER_INITIAL_GROUPS.map(value => `<option value="${esc(value)}">${esc(value)}</option>`)
+  ].join('');
+  $('adminMasterMobileInitial').value = row?.initial_group || '';
+  $('adminMasterMobileOrder').value = row?.official_order == null ? '' : row.official_order;
+  $('adminMasterMobileHot').checked = Boolean(row?.is_hot);
+  $('adminMasterMobileLevels').innerHTML = MASTER_PARTS.map(part => `
+    <label>
+      <span>${esc(part)}</span>
+      <input type="text" inputmode="decimal" autocomplete="off"
+        data-mobile-master-level="${esc(part)}"
+        value="${row?.levels?.[part] != null ? esc(formatLevel(row.levels[part])) : ''}"
+        placeholder="-">
+    </label>`).join('');
+  $('btnAdminMasterMobileDelete').classList.toggle('hidden', !row);
+  mask.style.display = 'flex';
+  setTimeout(() => $('adminMasterMobileTitle')?.focus(), 0);
+}
+
+function collectAdminMasterMobileRow() {
+  const levels = {};
+  MASTER_PARTS.forEach(part => {
+    levels[part] = document.querySelector(`[data-mobile-master-level="${part}"]`)?.value ?? '';
+  });
+  const initialGroup = $('adminMasterMobileInitial').value || '';
+  const orderRaw = $('adminMasterMobileOrder').value ?? '';
+  const officialOrder = String(orderRaw).trim() === '' ? null : Number(String(orderRaw).replace(/,/g, ''));
+  if (!initialGroup) throw new Error('頭文字を選択してください。');
+  if (officialOrder == null || !Number.isFinite(officialOrder) || officialOrder < 0) {
+    throw new Error('並び順は0以上の数値で入力してください。');
+  }
+  return {
+    originalTitle: adminMasterMobileIsNew ? '' : (adminMasterRows[adminMasterMobileIndex]?.title || ''),
+    title: $('adminMasterMobileTitle').value || '',
+    initialGroup,
+    officialOrder,
+    isHot: Boolean($('adminMasterMobileHot').checked),
+    levels
+  };
+}
+
+async function saveAdminMasterMobile() {
+  const button = $('btnAdminMasterMobileSave');
+  const original = button.textContent;
+  const wasNew = adminMasterMobileIsNew;
+  try {
+    button.disabled = true;
+    button.textContent = '保存中...';
+    await saveMasterSongRow(collectAdminMasterMobileRow());
+    adminSongPickerKey = '';
+    adminSongPickerChoices = [];
+    closeAdminMasterMobile();
+    await loadAdminSongs();
+    await showSiteDialog(wasNew ? '新規曲を登録しました。' : '曲マスターを保存しました。', '保存完了');
+  } catch (e) {
+    await showSiteDialog('曲マスター保存に失敗しました: ' + e.message, 'エラー');
+  } finally {
+    button.disabled = false;
+    button.textContent = original;
+  }
+}
+
+async function deleteAdminMasterMobile() {
+  const row = adminMasterRows[adminMasterMobileIndex];
+  if (!row) return;
+  if (!await showSiteConfirm(
+    `「${row.title}」の全パートを曲マスターから削除しますか？\n登録済みユーザー記録も影響を受けるため注意してください。`,
+    '曲マスター削除',
+    '削除する'
+  )) return;
+  const button = $('btnAdminMasterMobileDelete');
+  try {
+    button.disabled = true;
+    await deleteMasterSongTitle(row.title);
+    closeAdminMasterMobile();
+    await loadAdminSongs();
+  } catch (e) {
+    await showSiteDialog('曲マスター削除に失敗しました: ' + e.message, 'エラー');
+  } finally {
+    button.disabled = false;
   }
 }
 
@@ -6231,12 +6345,22 @@ $('adminBody').addEventListener('change', event => {
 });
 
 $('btnAdminAddSong').addEventListener('click', async () => {
+  if (isMobileAdminMaster()) {
+    openAdminMasterMobile();
+    return;
+  }
   adminNewSongRowVisible = true;
   adminSongPage = 0;
   $('adminSongSearch').value = '';
   await loadAdminSongs();
   const titleInput = $('adminBody').querySelector('[data-master-new-row] [data-master-title]');
   titleInput?.focus();
+});
+$('btnAdminMasterMobileClose')?.addEventListener('click', closeAdminMasterMobile);
+$('btnAdminMasterMobileSave')?.addEventListener('click', saveAdminMasterMobile);
+$('btnAdminMasterMobileDelete')?.addEventListener('click', deleteAdminMasterMobile);
+$('adminMasterMobileMask')?.addEventListener('click', event => {
+  if (event.target === $('adminMasterMobileMask')) closeAdminMasterMobile();
 });
 $('btnAdminCsvDownload')?.addEventListener('click', downloadAdminMasterCsv);
 $('btnAdminCsvUpload')?.addEventListener('click', openAdminCsvUpload);
@@ -6498,6 +6622,14 @@ document.addEventListener('click', async e => {
   const adminCancelMasterRow = e.target.closest('[data-admin-cancel-master-row]');
   const adminSaveMasterRow = e.target.closest('[data-admin-save-master-row]');
   const adminDeleteMasterRow = e.target.closest('[data-admin-delete-master-row]');
+  const adminMasterMobileOpen = e.target.closest('[data-admin-master-mobile-open]');
+
+  if (adminMasterMobileOpen) {
+    const index = Number(adminMasterMobileOpen.dataset.adminMasterMobileOpen);
+    const row = adminMasterRows[index];
+    if (row) openAdminMasterMobile(row, index);
+    return;
+  }
 
   if (instrumentButton) { await switchInstrument(instrumentButton.dataset.instrument); return; }
 

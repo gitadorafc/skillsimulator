@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>GITADORA Skill Simulator</title>
-<meta name="app-version" content="4.31.4">
+<meta name="app-version" content="4.31.5">
 <link rel="icon" type="image/svg+xml" href="./favicon.svg?v=21_7">
 <link rel="icon" type="image/png" sizes="48x48" href="./favicon-48x48.png?v=21_7">
 <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32x32.png?v=21_7">
@@ -39,7 +39,7 @@
 </script>
 
 <link rel="stylesheet" href="./css/app.css?v=4_17_0">
-<link rel="stylesheet" href="./css/app-overrides.css?v=4_31_4">
+<link rel="stylesheet" href="./css/app-overrides.css?v=4_31_5">
   <link rel="stylesheet" href="./css/layout-canonical.css?v=4_17_0">
   <link rel="preconnect" href="https://challenges.cloudflare.com">
   <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" defer></script>
@@ -431,7 +431,7 @@
     <div class="app-menu-version">
       <label>VERSION</label>
       <select id="versionSelect" class="version-select" aria-label="GITADORAバージョン"></select>
-      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 4.31.4</div>
+      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 4.31.5</div>
     </div>
   </div>
 </div>
@@ -1075,7 +1075,7 @@
 <div id="adminModal" class="admin-modal">
   <div class="admin-header">
     <div class="admin-title-row">
-      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 4.31.4</div></div>
+      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 4.31.5</div></div>
       <button id="btnCloseAdmin" class="admin-close">閉じる</button>
     </div>
     <div class="admin-tabs">
@@ -1126,6 +1126,34 @@
     </div>
   </div>
   <div id="adminBody" class="admin-body"></div>
+</div>
+
+
+<div id="adminMasterMobileMask" class="admin-form-mask">
+  <div class="admin-form-sheet admin-master-mobile-sheet">
+    <div class="admin-master-mobile-head">
+      <h3 id="adminMasterMobileHeading">曲マスター編集</h3>
+      <button id="btnAdminMasterMobileClose" type="button">閉じる</button>
+    </div>
+    <label for="adminMasterMobileTitle">曲名</label>
+    <input id="adminMasterMobileTitle" type="text" placeholder="曲名">
+    <div class="admin-master-mobile-two">
+      <label>
+        <span>頭文字</span>
+        <select id="adminMasterMobileInitial"></select>
+      </label>
+      <label>
+        <span>並び順</span>
+        <input id="adminMasterMobileOrder" type="number" min="0" step="0.0001" inputmode="decimal" placeholder="0">
+      </label>
+    </div>
+    <label class="hot-switch admin-master-mobile-hot"><input id="adminMasterMobileHot" type="checkbox"> HOT曲として扱う</label>
+    <div id="adminMasterMobileLevels" class="admin-master-mobile-levels"></div>
+    <div class="admin-master-mobile-actions">
+      <button id="btnAdminMasterMobileDelete" type="button" class="danger">削除</button>
+      <button id="btnAdminMasterMobileSave" type="button">保存</button>
+    </div>
+  </div>
 </div>
 
 <div id="adminCsvMask" class="admin-form-mask">
@@ -1297,7 +1325,7 @@
   </div>
 </div>
 
-<script type="module" src="./js/app.js?v=4_31_3"></script>
+<script type="module" src="./js/app.js?v=4_31_5"></script>
 <script src="./js/version-check.js?v=4_25_0" defer></script>
 </body>
 </html>
