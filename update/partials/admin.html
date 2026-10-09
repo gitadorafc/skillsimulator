@@ -1,0 +1,160 @@
+<div id="adminModal" class="admin-modal">
+  <div class="admin-header">
+    <div class="admin-title-row">
+      <div class="admin-title-wrap"><div class="admin-title">管理者画面</div><div class="admin-code-version">CODE VER: 4.32.9</div></div>
+      <button id="btnCloseAdmin" class="admin-close">閉じる</button>
+    </div>
+    <div class="admin-tabs">
+      <button class="admin-tab active" data-admin-tab="songs">曲マスター</button>
+      <button class="admin-tab" data-admin-tab="requests">登録依頼</button>
+      <button class="admin-tab" data-admin-tab="users">ユーザー</button>
+      <button class="admin-tab" data-admin-tab="board">掲示板</button>
+      <button class="admin-tab" data-admin-tab="feedback">要望・不具合</button>
+      <button class="admin-tab" data-admin-tab="settings">設定利用率</button>
+      <button class="admin-tab" data-admin-tab="versions">バージョン管理</button>
+    </div>
+    <div id="adminSongToolbar" class="admin-toolbar">
+      <input id="adminSongSearch" placeholder="曲名・頭文字を検索...">
+      <div class="admin-song-toolbar-actions">
+        <select id="adminSongTypeFilter" class="admin-toolbar-select" aria-label="曲種別">
+          <option value="">種別：すべて</option>
+          <option value="HOT">HOT</option>
+          <option value="OTHER">OTHER</option>
+        </select>
+        <button id="btnAdminAddSong">＋新規曲</button>
+        <button id="btnAdminSaveAllSongs" type="button">まとめて保存</button>
+        <button id="btnAdminCsvDownload" type="button">CSVダウンロード</button>
+        <button id="btnAdminCsvUpload" type="button">CSVアップロード</button>
+      </div>
+    </div>
+    <div id="adminRequestToolbar" class="admin-toolbar hidden">
+      <input id="adminRequestSearch" placeholder="依頼された曲名を検索...">
+    </div>
+    <div id="adminUserToolbar" class="admin-toolbar hidden">
+      <input id="adminUserSearch" placeholder="ユーザー名を検索...">
+      <select id="adminUserSortKey" aria-label="ユーザーの並び順項目">
+        <option value="username">ユーザー名</option>
+        <option value="activity_level">アクティブ度</option>
+        <option value="last_open_at">最終アクセス</option>
+        <option value="last_update_at">最終更新</option>
+        <option value="created_at" selected>登録日時</option>
+        <option value="last_sign_in_at">最終ログイン日時</option>
+      </select>
+      <select id="adminUserSortDir" aria-label="ユーザーの並び順">
+        <option value="desc">降順</option>
+        <option value="asc">昇順</option>
+      </select>
+      <button id="btnAdminDeleteSelectedUsers" type="button" class="admin-delete-selected" disabled>選択を削除 <span id="adminSelectedUserCount">0</span></button>
+    </div>
+    <div id="adminBoardToolbar" class="admin-toolbar admin-board-toolbar hidden">
+      <button id="btnAdminBoardBlockedUsers" type="button" class="active">投稿禁止ユーザー</button>
+      <button id="btnAdminBoardReports" type="button">通報</button>
+      <button id="btnAdminBoardRefresh" type="button">再読み込み</button>
+      <span id="adminBoardStorageUsage" class="admin-board-storage-usage">掲示板画像 使用量確認中...</span>
+    </div>
+  </div>
+  <div id="adminBody" class="admin-body"></div>
+</div>
+
+
+<div id="adminMasterMobileMask" class="admin-form-mask">
+  <div class="admin-form-sheet admin-master-mobile-sheet">
+    <div class="admin-master-mobile-head">
+      <h3 id="adminMasterMobileHeading">曲マスター編集</h3>
+      <button id="btnAdminMasterMobileClose" type="button">閉じる</button>
+    </div>
+    <label for="adminMasterMobileTitle">曲名</label>
+    <input id="adminMasterMobileTitle" type="text" placeholder="曲名">
+    <div class="admin-master-mobile-two">
+      <label>
+        <span>頭文字</span>
+        <select id="adminMasterMobileInitial"></select>
+      </label>
+      <label>
+        <span>並び順</span>
+        <input id="adminMasterMobileOrder" type="number" min="0" step="0.0001" inputmode="decimal" placeholder="0">
+      </label>
+    </div>
+    <label class="hot-switch admin-master-mobile-hot"><input id="adminMasterMobileHot" type="checkbox"> HOT曲として扱う</label>
+    <div id="adminMasterMobileLevels" class="admin-master-mobile-levels"></div>
+    <div class="admin-master-mobile-actions">
+      <button id="btnAdminMasterMobileDelete" type="button" class="danger">削除</button>
+      <button id="btnAdminMasterMobileSave" type="button">保存</button>
+    </div>
+  </div>
+</div>
+
+<div id="adminCsvMask" class="admin-form-mask">
+  <div class="admin-form-sheet admin-csv-sheet">
+    <h3>曲マスターCSVアップロード</h3>
+    <div class="admin-csv-note">
+      全件CSVと差分CSVの両方に対応しています。CSVにない曲は変更しません。<br>
+      曲IDあり：空欄の項目は既存値を維持します。難易度を削除する場合は「削除」と入力します。<br>
+      曲IDなし：新規曲として登録します。HOTは「1」でON、「0」でOFFです。
+    </div>
+    <label for="adminCsvVersion">登録先バージョン</label>
+    <select id="adminCsvVersion"></select>
+
+    <div id="adminCsvNewVersionFields" class="admin-csv-new-version hidden">
+      <label for="adminCsvCode">バージョンコード</label>
+      <input id="adminCsvCode" type="text" placeholder="例：GALAXY_WAVE_NEXT">
+      <label for="adminCsvName">表示名</label>
+      <input id="adminCsvName" type="text" placeholder="例：GALAXY WAVE NEXT">
+      <label for="adminCsvSlug">e-amusementスラッグ</label>
+      <input id="adminCsvSlug" type="text" placeholder="例：gitadora_galaxywave_next">
+      <label class="admin-csv-current">
+        <input id="adminCsvMakeCurrent" type="checkbox" checked>
+        このバージョンを最新版に設定する
+      </label>
+    </div>
+
+    <label for="adminCsvFile">CSVファイル</label>
+    <input id="adminCsvFile" type="file" accept=".csv,text/csv">
+    <div id="adminCsvStatus" class="admin-csv-status" aria-live="polite"></div>
+    <div class="admin-csv-actions">
+      <button id="btnAdminCsvImport" type="button">アップロード</button>
+      <button id="btnAdminCsvCancel" type="button">キャンセル</button>
+    </div>
+  </div>
+</div>
+
+<div id="adminSongFormMask" class="admin-form-mask">
+  <div class="admin-form-sheet">
+    <h3 id="adminSongFormTitle" style="font-size:16px;margin-bottom:10px;">曲マスター追加</h3>
+    <label>曲名</label>
+    <input id="adminFormTitle" placeholder="曲名">
+    <div class="form-grid-two">
+      <div>
+        <label>パート</label>
+        <select id="adminFormPart">
+          <option>MAS-G</option><option>MAS-B</option><option>MAS-D</option>
+          <option>EXT-G</option><option>EXT-B</option><option>EXT-D</option>
+          <option>ADV-G</option><option>ADV-B</option><option>ADV-D</option>
+          <option>BSC-G</option><option>BSC-B</option><option>BSC-D</option>
+        </select>
+      </div>
+      <div>
+        <label>難易度</label>
+        <input id="adminFormLevel" type="text" inputmode="decimal" autocomplete="off" placeholder="例 8.20">
+      </div>
+    </div>
+    <label class="hot-switch"><input id="adminFormHot" type="checkbox"> HOT曲として扱う</label>
+    <div class="btn-block">
+      <button id="btnAdminSaveSong" class="btn-submit">保存する</button>
+      <button id="btnAdminCancelSong" class="btn-cancel">戻る</button>
+    </div>
+  </div>
+</div>
+
+<div id="adminPasswordMask" class="admin-form-mask">
+  <div class="admin-form-sheet">
+    <h3 style="font-size:16px;margin-bottom:10px;">ユーザーパスワード変更</h3>
+    <div id="adminPasswordUsername" style="font-weight:900;margin-bottom:10px;"></div>
+    <label>新しいパスワード</label>
+    <input id="adminPasswordValue" type="password" minlength="8" autocomplete="new-password" placeholder="8文字以上">
+    <div class="btn-block">
+      <button id="btnAdminPasswordSave" class="btn-submit">変更する</button>
+      <button id="btnAdminPasswordCancel" class="btn-cancel">戻る</button>
+    </div>
+  </div>
+</div>
