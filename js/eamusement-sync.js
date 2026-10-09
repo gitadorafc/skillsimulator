@@ -274,19 +274,7 @@
     await loadAllScoreHelper();
   }
 
-  // 管理者用タブは Skill Simulator から名前付きで開く。
-  // URLハッシュはページ遷移で消えるため、window.name も併用して判定する。
-  // これにより公式TOP、曲別成績、スキルページなどへ移動した後でも
-  // 同じブックマークレットで同期対象選択画面を表示できる。
-  const isAdminOfficialSync =
-    location.hash.includes('official-sync-admin=1') ||
-    window.name === 'gitadora-official-sync-admin';
-
-  if (isAdminOfficialSync) {
-    showPicker();
-  } else {
-    runSkillTargetSync().catch(error => {
-      alert(`同期に失敗しました: ${error?.message || error}`);
-    });
-  }
+  // 全ユーザー共通で同期対象を選択する。
+  // ブックマークレットは従来の eamusement-sync.js 読み込みコードをそのまま使う。
+  showPicker();
 })();

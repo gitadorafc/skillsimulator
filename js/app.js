@@ -234,7 +234,6 @@ async function handleOfficialSyncRequest(event) {
 
   const syncId = String(data.syncId || '');
   try {
-    if (!adminEnabled) throw new Error('全曲同期は管理者アカウントでのみ利用できます。');
     if (!/^[0-9a-f-]{36}$/i.test(syncId)) throw new Error('同期IDが不正です。');
     if (!['highest','all','range'].includes(data.mode)) throw new Error('同期モードが不正です。');
     if (String(data.slug || '') !== getEamusementSlug()) {
@@ -267,11 +266,6 @@ async function handleAllScoreSyncMessage(event) {
   if (!String(data.type || '').startsWith('GITADORA_ALL_SCORE_SYNC_')) return;
   if (!allScoreSyncId || data.syncId !== allScoreSyncId) return;
   if (allScoreSyncPopup && event.source !== allScoreSyncPopup) return;
-
-  if (!adminEnabled) {
-    event.source?.postMessage({ type:'GITADORA_ALL_SCORE_SYNC_ACK', syncId:allScoreSyncId, seq:data.seq, error:'管理者アカウントで実行してください。' }, EAMUSEMENT_ORIGIN);
-    return;
-  }
 
   const payloadSlug = String(data.slug || '');
   if (payloadSlug && payloadSlug !== getEamusementSlug()) {
@@ -377,7 +371,6 @@ async function processOfficialSyncBridgeRequest() {
   try {
     payload = JSON.parse(raw);
     if (!window.opener) throw new Error('公式サイトとの接続が切れました。公式サイトから再実行してください。');
-    if (!adminEnabled) throw new Error('全曲同期は管理者アカウントでのみ利用できます。');
     if (String(payload.slug || '') !== getEamusementSlug()) {
       throw new Error('選択中のGITADORAバージョンと公式サイトのバージョンが一致しません。');
     }
@@ -4683,9 +4676,7 @@ async function checkAdminAccess() {
   $('btnAdmin').classList.toggle('hidden', !adminEnabled);
   const skillSyncButton = $('btnMenuSkillSync');
   if (skillSyncButton) {
-    skillSyncButton.innerHTML = adminEnabled
-      ? '公式サイト同期 <span>›</span>'
-      : 'スキル対象同期 <span>›</span>';
+    skillSyncButton.innerHTML = '公式サイト同期 <span>›</span>';
   }
   $('tabBoard')?.classList.remove('hidden');
   $('songCatalogMenuGroup').classList.remove('hidden');
@@ -6153,17 +6144,13 @@ function openSkillSyncDialog() {
   setSkillSyncStatus('待機中');
   const title = $('skillSyncDialogTitle');
   const note = $('skillSyncDialogNote');
-  if (title) title.textContent = adminEnabled ? '公式サイト同期' : 'スキル対象を同期する';
+  if (title) title.textContent = '公式サイト同期';
   if (note) {
-    note.innerHTML = adminEnabled
-      ? '<strong>実行前にe-amusementへログインしてください。</strong><br>同期用ブックマークを公式サイトで実行すると、同期するデータを選択できます。'
-      : '<strong>実行前にe-amusementへログインしてください。</strong><br>「同期用ブックマーク」を使ってスキル対象を取得します。2回目以降も同じブックマークを使えます。';
+    note.innerHTML = '<strong>実行前にe-amusementへログインしてください。</strong><br>同期用ブックマークを公式サイトで実行すると、同期するデータを選択できます。2回目以降も同じブックマークを使えます。';
   }
   const step3Note = $('skillSyncStep3Note');
   if (step3Note) {
-    step3Note.textContent = adminEnabled
-      ? '公式サイト上でGF / DMの対象を選び、「スキル対象のみ / 全曲（最高難易度のみ） / 全曲（全パート） / 全曲（難易度幅指定）」から同期内容を選択します。難易度幅はGF / DM別に指定できます。'
-      : 'スキル対象を取得し、当サイトに戻ってきます。FCマークやオプションは手動入力です。';
+    step3Note.textContent = '公式サイト上でGF / DMの対象を選び、「スキル対象のみ / 全曲（最高難易度のみ） / 全曲（全パート） / 全曲（難易度幅指定）」から同期内容を選択します。難易度幅はGF / DM別に指定できます。';
   }
   $('skillSyncMask').style.display = 'flex';
   const dialog = document.querySelector('#skillSyncMask .skill-sync-dialog');
@@ -6201,22 +6188,16 @@ async function copySkillSyncCode() {
 }
 
 function openEamusementForSkillSync() {
-  const entry = adminEnabled
-    ? `${getEamusementSyncEntry()}#official-sync-admin=1`
-    : getEamusementSyncEntry();
-  // 管理者用の公式サイトタブは名前を付けて開く。
-  // window.name は公式サイト内を移動しても維持されるため、TOP/曲別成績など
-  // どのページでブックマークレットを実行しても管理者用選択画面を判定できる。
-  const targetName = adminEnabled ? 'gitadora-official-sync-admin' : '_blank';
-  const popup = window.open(entry, targetName);
+  const entry = getEamusementSyncEntry();
+  // 全ユーザーで名前付きタブを使う。公式サイト内を移動しても opener / window.name が維持され、
+  // TOP・曲別成績・スキル対象ページのどこからでも同じ同期選択画面を利用できる。
+  const popup = window.open(entry, 'gitadora-official-sync');
   if (!popup) {
     setSkillSyncStatus('ポップアップがブロックされました。ブラウザのポップアップ許可を確認してください。', 'error');
     return;
   }
   setSkillSyncStatus(
-    adminEnabled
-      ? 'e-amusementを開きました。同期用ブックマークを実行すると、同期するデータを選択できます。'
-      : 'e-amusementを開きました。ログイン状態を確認後、コードを設定した同期用ブックマークを実行してください。',
+    'e-amusementを開きました。同期用ブックマークを実行すると、同期するデータを選択できます。',
     'running'
   );
 }
