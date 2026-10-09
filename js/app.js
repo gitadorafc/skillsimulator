@@ -296,6 +296,52 @@ function captureSkillSyncHash() {
   }
 }
 
+function captureOfficialSyncBridgeRequest() {
+  if (!location.hash.startsWith('#official-sync-bridge=')) return;
+  try {
+    const raw = decodeURIComponent(location.hash.slice('#official-sync-bridge='.length));
+    const payload = JSON.parse(raw);
+    if (/^gitadora_[a-z0-9_]+$/i.test(payload?.slug || '')
+      && /^[0-9a-f-]{36}$/i.test(payload?.syncId || '')
+      && ['highest','all','range'].includes(payload?.mode)) {
+      sessionStorage.setItem('gitadora_pending_official_sync_bridge', JSON.stringify(payload));
+    }
+  } catch (error) {
+    console.error('official sync bridge parse failed:', error);
+  } finally {
+    history.replaceState(null, '', location.pathname + location.search);
+  }
+}
+
+async function processOfficialSyncBridgeRequest() {
+  const raw = sessionStorage.getItem('gitadora_pending_official_sync_bridge');
+  if (!raw) return;
+  sessionStorage.removeItem('gitadora_pending_official_sync_bridge');
+  let payload;
+  try {
+    payload = JSON.parse(raw);
+    if (!window.opener) throw new Error('公式サイトとの接続が切れました。公式サイトから再実行してください。');
+    if (!adminEnabled) throw new Error('全曲同期は管理者アカウントでのみ利用できます。');
+    if (String(payload.slug || '') !== getEamusementSlug()) {
+      throw new Error('選択中のGITADORAバージョンと公式サイトのバージョンが一致しません。');
+    }
+    allScoreSyncId = payload.syncId;
+    allScoreSyncMode = payload.mode;
+    allScoreSyncPopup = window.opener;
+    allScoreSyncTotals = { received: 0, saved: 0, requested: 0, skipped: 0 };
+    window.opener.postMessage({
+      type:'GITADORA_OFFICIAL_SYNC_READY',
+      syncId:payload.syncId
+    }, EAMUSEMENT_ORIGIN);
+  } catch (error) {
+    window.opener?.postMessage({
+      type:'GITADORA_OFFICIAL_SYNC_READY',
+      syncId:payload?.syncId || '',
+      error:error?.message || String(error)
+    }, EAMUSEMENT_ORIGIN);
+  }
+}
+
 function captureOfficialRankingTokenRequest() {
   if (!location.hash.startsWith('#official-ranking-token=')) return;
   try {
@@ -1685,6 +1731,7 @@ async function switchInstrument(instrument) {
 async function init() {
   setAppLoading('ログイン情報を確認中...');
   captureOfficialRankingTokenRequest();
+  captureOfficialSyncBridgeRequest();
   captureSkillSyncHash();
   applyInstrumentUI();
   await initAuthCaptcha();
@@ -1692,6 +1739,7 @@ async function init() {
   if (session) {
     await showApp(session);
     await processOfficialRankingTokenRequest();
+    await processOfficialSyncBridgeRequest();
     await processPendingSkillSync();
   } else {
     applyLightMode(false);
@@ -1709,6 +1757,7 @@ async function init() {
       if (currentUserId === session.user.id && !$('appScreen').classList.contains('hidden')) return;
       await showApp(session);
       await processOfficialRankingTokenRequest();
+      await processOfficialSyncBridgeRequest();
       await processPendingSkillSync();
       return;
     }
@@ -4576,11 +4625,11 @@ async function checkAdminAccess() {
 
   adminAccessChecked = true;
   $('btnAdmin').classList.toggle('hidden', !adminEnabled);
-  $('adminSyncMenuGroup')?.classList.toggle('hidden', !adminEnabled);
   const skillSyncButton = $('btnMenuSkillSync');
-  const targetSyncSlot = adminEnabled ? $('adminSkillSyncMenuSlot') : $('skillSyncMenuSlot');
-  if (skillSyncButton && targetSyncSlot && skillSyncButton.parentElement !== targetSyncSlot) {
-    targetSyncSlot.appendChild(skillSyncButton);
+  if (skillSyncButton) {
+    skillSyncButton.innerHTML = adminEnabled
+      ? '公式サイト同期 <span>›</span>'
+      : 'スキル対象同期 <span>›</span>';
   }
   $('tabBoard')?.classList.remove('hidden');
   $('songCatalogMenuGroup').classList.remove('hidden');
@@ -6046,8 +6095,22 @@ function openSkillSyncDialog() {
   closeMenu();
   renderSkillSyncBrowserGuide();
   setSkillSyncStatus('待機中');
+  const title = $('skillSyncDialogTitle');
+  const note = $('skillSyncDialogNote');
+  if (title) title.textContent = adminEnabled ? '公式サイト同期' : 'スキル対象を同期する';
+  if (note) {
+    note.innerHTML = adminEnabled
+      ? '<strong>実行前にe-amusementへログインしてください。</strong><br>同期用ブックマークを公式サイトで実行すると、同期するデータを選択できます。'
+      : '<strong>実行前にe-amusementへログインしてください。</strong><br>「同期用ブックマーク」を使ってスキル対象を取得します。2回目以降も同じブックマークを使えます。';
+  }
+  const step3Note = $('skillSyncStep3Note');
+  if (step3Note) {
+    step3Note.textContent = adminEnabled
+      ? '公式サイト上で「スキル対象のみ / 全曲（最高難易度のみ） / 全曲（全パート） / 全曲（難易度幅指定）」から同期内容を選択します。'
+      : 'スキル対象を取得し、当サイトに戻ってきます。FCマークやオプションは手動入力です。';
+  }
   $('skillSyncMask').style.display = 'flex';
-  const dialog = document.querySelector('.skill-sync-dialog');
+  const dialog = document.querySelector('#skillSyncMask .skill-sync-dialog');
   if (dialog) dialog.scrollTop = 0;
 }
 
@@ -6082,12 +6145,20 @@ async function copySkillSyncCode() {
 }
 
 function openEamusementForSkillSync() {
-  const popup = window.open(getEamusementSyncEntry(), '_blank');
+  const entry = adminEnabled
+    ? `${getEamusementSyncEntry()}#official-sync-admin=1`
+    : getEamusementSyncEntry();
+  const popup = window.open(entry, '_blank');
   if (!popup) {
     setSkillSyncStatus('ポップアップがブロックされました。ブラウザのポップアップ許可を確認してください。', 'error');
     return;
   }
-  setSkillSyncStatus('e-amusementを開きました。ログイン状態を確認後、コードを設定した同期用ブックマークを実行してください。', 'running');
+  setSkillSyncStatus(
+    adminEnabled
+      ? 'e-amusementを開きました。同期用ブックマークを実行すると、同期するデータを選択できます。'
+      : 'e-amusementを開きました。ログイン状態を確認後、コードを設定した同期用ブックマークを実行してください。',
+    'running'
+  );
 }
 
 $('btnCopySkillSync').addEventListener('click', copySkillSyncCode);
@@ -7170,8 +7241,6 @@ $('accountSwitchList')?.addEventListener('click', async event => {
 });
 
 $('btnMenuSkillSync').addEventListener('click', openSkillSyncDialog);
-$('btnMenuAllScoreSyncHighest')?.addEventListener('click', () => openAllScoreSyncDialog('highest'));
-$('btnMenuAllScoreSyncAll')?.addEventListener('click', () => openAllScoreSyncDialog('all'));
 $('btnCopyAllScoreSync')?.addEventListener('click', copyAllScoreSyncCode);
 $('btnOpenAllScoreSyncEamusement')?.addEventListener('click', openEamusementForAllScoreSync);
 $('btnCloseAllScoreSync')?.addEventListener('click', () => closeAllScoreSyncDialog(true));

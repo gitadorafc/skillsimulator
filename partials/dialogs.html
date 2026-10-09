@@ -374,7 +374,7 @@
       </section>
       <section id="howto-sync">
         <b>スキル対象を同期する</b>
-        <p>MENU →「スキル対象同期」の手順に従い、公式ページで同期用ブックマークを実行します。スキル対象をまとめて登録できます。</p>
+        <p>MENU →「スキル対象同期」（管理者は「公式サイト同期」）の手順に従い、公式ページで同期用ブックマークを実行します。スキル対象をまとめて登録できます。</p>
         <p>FCマークやオプションは手動で登録します。</p>
       </section>
       <section id="howto-scores">
@@ -528,12 +528,12 @@
     <div class="skill-sync-head">
       <div>
         <div class="skill-sync-kicker">e-amusement連携</div>
-        <h3>スキル対象を同期する</h3>
+        <h3 id="skillSyncDialogTitle">スキル対象を同期する</h3>
       </div>
       <button id="btnCloseSkillSync" type="button" class="skill-sync-close menu-back-btn">戻る</button>
     </div>
 
-    <div class="skill-sync-note">
+    <div id="skillSyncDialogNote" class="skill-sync-note">
       <strong>実行前にe-amusementへログインしてください。</strong><br>
       「同期用ブックマーク」を使ってスキル対象を取得します。2回目以降も同じブックマークを使えます。
     </div>
@@ -579,7 +579,7 @@
       <span class="skill-sync-step-no">3</span>
       <div>
         <strong>自動取得・登録</strong>
-        <div class="section-note">スキル対象を取得し、当サイトに戻ってきます。FCマークやオプションは手動入力です。</div>
+        <div id="skillSyncStep3Note" class="section-note">スキル対象を取得し、当サイトに戻ってきます。FCマークやオプションは手動入力です。</div>
       </div>
     </div>
     </div>

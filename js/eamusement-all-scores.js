@@ -21,6 +21,8 @@
   }
 
   function readLaunchPayload() {
+    const direct = window.__GITADORA_OFFICIAL_SYNC_LAUNCH__;
+    if (direct?.syncId) return direct;
     if (!location.hash.startsWith('#gitadora-all-score-sync=')) return null;
     try {
       return JSON.parse(decodeURIComponent(location.hash.slice('#gitadora-all-score-sync='.length)));
@@ -30,9 +32,18 @@
   }
 
   const launch = readLaunchPayload();
-  if (!launch?.syncId || !['highest','all'].includes(launch?.mode) || launch?.slug !== slug || !window.opener) {
-    alert('Skill Simulatorの管理者メニューから「全曲同期」を開き、公式サイトを開いた後にこのブックマークレットを実行してください。');
+  const targetWindow = launch?.targetWindow || window.opener;
+  if (!launch?.syncId || !['highest','all','range'].includes(launch?.mode) || launch?.slug !== slug || !targetWindow) {
+    alert('Skill Simulatorの「公式サイト同期」から実行してください。');
     return;
+  }
+  if (launch.mode === 'range') {
+    const minLevel = Number(launch.minLevel);
+    const maxLevel = Number(launch.maxLevel);
+    if (!Number.isFinite(minLevel) || !Number.isFinite(maxLevel) || minLevel <= 0 || minLevel > maxLevel) {
+      alert('難易度幅の指定が正しくありません。');
+      return;
+    }
   }
 
   window[RUNNING_KEY] = true;
@@ -70,7 +81,7 @@
     root.id = PROGRESS_ID;
     root.innerHTML = `
       <div class="gas-card" role="status" aria-live="polite">
-        <div class="gas-head">${launch.mode === 'all' ? '全曲同期（全難易度）' : '全曲同期（最高難易度）'}</div>
+        <div class="gas-head">${launch.mode === 'all' ? '全曲同期（全パート）' : launch.mode === 'range' ? '全曲同期（難易度幅指定）' : '全曲同期（最高難易度）'}</div>
         <div class="gas-body">
           <div class="gas-status">準備中...</div>
           <div class="gas-meta">
@@ -274,7 +285,13 @@
       ...(dmDoc ? playedChartsDM(dmDoc) : [])
     ];
     let selected = allRows;
-    if (launch.mode === 'highest') selected = [...chooseHighest(allRows,'GF'), ...chooseHighest(allRows,'DM')];
+    if (launch.mode === 'highest') {
+      selected = [...chooseHighest(allRows,'GF'), ...chooseHighest(allRows,'DM')];
+    } else if (launch.mode === 'range') {
+      const minLevel = Number(launch.minLevel);
+      const maxLevel = Number(launch.maxLevel);
+      selected = allRows.filter(row => row.level >= minLevel && row.level <= maxLevel);
+    }
     return selected.map(row => ({ title, part:row.part, rate:row.rate, level:row.level, category:'OTHER' }));
   }
 
@@ -283,7 +300,7 @@
       const timer = setTimeout(() => { cleanup(); reject(new Error('Skill Simulatorからの応答がありません。')); }, 120000);
       function cleanup() { clearTimeout(timer); window.removeEventListener('message', onMessage); }
       function onMessage(event) {
-        if (event.origin !== APP_ORIGIN || event.source !== window.opener) return;
+        if (event.origin !== APP_ORIGIN || event.source !== targetWindow) return;
         const data = event.data || {};
         if (data.type !== 'GITADORA_ALL_SCORE_SYNC_ACK' || data.syncId !== launch.syncId || data.seq !== currentSeq) return;
         cleanup();
@@ -295,7 +312,7 @@
   async function sendChunk(records) {
     if (!records.length) return;
     const currentSeq = ++seq;
-    window.opener.postMessage({ type:'GITADORA_ALL_SCORE_SYNC_CHUNK', syncId:launch.syncId, seq:currentSeq, slug, mode:launch.mode, records }, APP_ORIGIN);
+    targetWindow.postMessage({ type:'GITADORA_ALL_SCORE_SYNC_CHUNK', syncId:launch.syncId, seq:currentSeq, slug, mode:launch.mode, records }, APP_ORIGIN);
     await waitForAck(currentSeq);
     sentRecords += records.length;
   }
@@ -307,9 +324,17 @@
 
   try {
     ensureProgressUi();
-    const context = getCategoryContext();
-    if (!context?.options?.length) throw new Error('曲名カテゴリを取得できませんでした。曲別成績の一覧ページで実行してください。');
-    window.opener.postMessage({ type:'GITADORA_ALL_SCORE_SYNC_START', syncId:launch.syncId, slug, mode:launch.mode }, APP_ORIGIN);
+    let context = getCategoryContext();
+    if (!context?.options?.length) {
+      updateProgress({ status:'曲別成績の一覧情報を取得しています…', percent:0 });
+      const listUrl = new URL(`/game/gfdm/${slug}/p/playdata/music.html`, location.origin);
+      const response = await fetch(listUrl.href, { credentials:'include', cache:'no-store', redirect:'follow' });
+      const doc = toDocument(await response.text());
+      if (!response.ok || isOfficialErrorPage(doc)) throw new Error('曲別成績の一覧ページを取得できませんでした。');
+      context = getCategoryContext(doc);
+    }
+    if (!context?.options?.length) throw new Error('曲名カテゴリを取得できませんでした。');
+    targetWindow.postMessage({ type:'GITADORA_ALL_SCORE_SYNC_START', syncId:launch.syncId, slug, mode:launch.mode }, APP_ORIGIN);
 
     for (let categoryIndex=0; categoryIndex<context.options.length; categoryIndex++) {
       const option = context.options[categoryIndex];
@@ -346,12 +371,14 @@
       updateProgress({ status:`「${label}」完了（${categoryRecords.length}件）`, catText:`${categoryIndex+1} / ${context.options.length}（${label}）`, percent:((categoryIndex+1)/context.options.length)*100 });
     }
 
-    window.opener.postMessage({ type:'GITADORA_ALL_SCORE_SYNC_DONE', syncId:launch.syncId, slug, mode:launch.mode, totalSongs, totalRecords }, APP_ORIGIN);
+    targetWindow.postMessage({ type:'GITADORA_ALL_SCORE_SYNC_DONE', syncId:launch.syncId, slug, mode:launch.mode, totalSongs, totalRecords }, APP_ORIGIN);
     updateProgress({ status:`取得完了：${totalSongs}曲 / ${totalRecords}件。Skill Simulatorへの登録も完了しました。`, percent:100, state:'done' });
   } catch (error) {
     console.error(error);
     updateProgress({ status:`同期に失敗しました：${error?.message || error}`, state:'error' });
   } finally {
     window[RUNNING_KEY] = false;
+    window.__GITADORA_SKILL_SIMULATOR_SYNC_RUNNING__ = false;
+    delete window.__GITADORA_OFFICIAL_SYNC_LAUNCH__;
   }
 })();
