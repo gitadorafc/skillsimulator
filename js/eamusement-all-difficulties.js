@@ -98,194 +98,154 @@
     return root;
   }
 
-  function detectCategories() {
+  function getCategoryContext(doc = document) {
     const selectors = [
-      'select[name="cat"] option',
-      '#cat option',
-      'select.music_category option'
+      'select[name="cat"]',
+      '#cat',
+      'select.music_category'
     ];
-    const found = new Set();
+
+    let select = null;
     for (const selector of selectors) {
-      for (const option of document.querySelectorAll(selector)) {
-        const value = Number.parseInt(option.value, 10);
-        if (Number.isInteger(value) && value >= 0) found.add(value);
+      select = doc.querySelector(selector);
+      if (select) break;
+    }
+    if (!select) return null;
+
+    const form = select.closest('form');
+    const options = [...select.options]
+      .map(option => ({
+        value: String(option.value ?? ''),
+        label: String(option.textContent || '').trim()
+      }))
+      .filter(option => option.value !== '');
+
+    return {
+      selectName: select.name || 'cat',
+      formAction: form?.getAttribute('action') || location.href,
+      formMethod: String(form?.method || 'get').toLowerCase(),
+      form,
+      options
+    };
+  }
+
+  function collectFormParams(form, selectedName, selectedValue) {
+    const params = new URLSearchParams();
+    if (form) {
+      for (const el of form.elements || []) {
+        if (!el?.name || el.disabled) continue;
+        const type = String(el.type || '').toLowerCase();
+        if ((type === 'checkbox' || type === 'radio') && !el.checked) continue;
+        if (el.name === selectedName) continue;
+        if (type === 'submit' || type === 'button' || type === 'image' || type === 'file') continue;
+        params.append(el.name, el.value ?? '');
       }
     }
-    if (found.size) return [...found].sort((a, b) => a - b);
-    return Array.from(
-      { length: CONFIG.END_CAT - CONFIG.START_CAT + 1 },
-      (_, i) => CONFIG.START_CAT + i
-    );
+    params.set(selectedName, selectedValue);
+    return params;
   }
 
-  function makeUrl(gtype, cat, index) {
-    const url = new URL(DETAIL_TEMPLATE_URL.href);
-    // 現行公式サイトではGFは gtype=（空欄）、DMは gtype=dm。
-    url.searchParams.set('gtype', gtype === 'dm' ? 'dm' : '');
-    url.searchParams.set('sid', url.searchParams.get('sid') || '2');
-    url.searchParams.set('index', String(index));
-    url.searchParams.set('cat', String(cat));
-    url.searchParams.set('page', url.searchParams.get('page') || '1');
-    return url.href;
+  async function fetchCategoryDocument(context, option) {
+    const actionUrl = new URL(context.formAction, location.href);
+    const params = collectFormParams(context.form, context.selectName, option.value);
+    let fetchUrl = actionUrl.href;
+    const init = {
+      method: context.formMethod === 'post' ? 'POST' : 'GET',
+      credentials: 'include',
+      cache: 'no-store',
+      redirect: 'follow'
+    };
+
+    if (init.method === 'POST') {
+      init.headers = { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' };
+      init.body = params.toString();
+    } else {
+      for (const [key, value] of params) actionUrl.searchParams.set(key, value);
+      fetchUrl = actionUrl.href;
+    }
+
+    const response = await fetch(fetchUrl, init);
+    const html = await response.text();
+    const doc = toDocument(html);
+    if (!response.ok || isOfficialErrorPage(doc)) {
+      throw new Error(`カテゴリ一覧の取得に失敗しました: ${option.label || option.value}`);
+    }
+    return { doc, responseUrl: response.url || fetchUrl };
   }
 
-  async function fetchHtml(gtype, cat, index) {
-    const url = makeUrl(gtype, cat, index);
+  function extractDetailUrls(doc, baseUrl) {
+    const seen = new Set();
+    const urls = [];
+    for (const anchor of doc.querySelectorAll('a[href*="music_detail.html"]')) {
+      const href = anchor.getAttribute('href');
+      if (!href) continue;
+      const url = new URL(href, baseUrl);
+      const key = url.href;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      urls.push(url);
+    }
+    return urls;
+  }
+
+  function makeDmUrl(gfUrl) {
+    const url = new URL(gfUrl.href);
+    url.searchParams.set('gtype', 'dm');
+    return url;
+  }
+
+  async function fetchUrlHtml(url) {
     let lastError = null;
-
     for (let attempt = 1; attempt <= CONFIG.RETRY_COUNT; attempt++) {
       try {
-        const response = await fetch(url, {
+        const response = await fetch(url.href, {
           method: 'GET',
           credentials: 'include',
           cache: 'no-store',
           redirect: 'follow'
         });
-
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
-        if (
-          response.url.includes('/gate/p/login') ||
-          response.url.includes('login.html')
-        ) {
+        if (response.url.includes('/gate/p/login') || response.url.includes('login.html')) {
           throw new Error('ログアウトされています');
         }
-
-        return { ok: true, html: await response.text(), error: null };
+        const html = await response.text();
+        const doc = toDocument(html);
+        if (isOfficialErrorPage(doc)) {
+          throw new Error(`公式サイトがエラーを返しました: ${url.href}`);
+        }
+        return { ok: true, doc, error: null };
       } catch (error) {
         lastError = error;
-        if (attempt < CONFIG.RETRY_COUNT) {
-          await sleep(CONFIG.RETRY_WAIT_MS * attempt);
-        }
+        if (attempt < CONFIG.RETRY_COUNT) await sleep(CONFIG.RETRY_WAIT_MS * attempt);
       }
     }
-
-    return { ok: false, html: '', error: lastError };
+    return { ok: false, doc: null, error: lastError };
   }
 
-  function toDocument(html) {
-    return new DOMParser().parseFromString(html, 'text/html');
-  }
-
-  function isOfficialErrorPage(doc) {
-    const text = String(doc?.body?.innerText || '').replace(/\s+/g, ' ');
-    return /エラーが発生しました|時間をおいてもう一度お試しください/.test(text);
-  }
-
-  function getTitle(doc) {
-    const selectors = [
-      '.live_title',
-      '.music_title',
-      '.music_name',
-      '.title_name'
-    ];
-
-    for (const selector of selectors) {
-      const el = doc.querySelector(selector);
-      const title = String(el?.textContent || '').trim();
-      if (title) return title;
-    }
-    return null;
-  }
-
-  function getDifficulty(table, type) {
-    const selectors = [
-      `.diff_${type} .diff_area`,
-      `.diff_${type.toLowerCase()} .diff_area`,
-      `[class*="diff_${type}"] .diff_area`,
-      `[class*="diff_${type.toLowerCase()}"] .diff_area`
-    ];
-
-    for (const selector of selectors) {
-      const el = table.querySelector(selector);
-      const value = String(el?.textContent || '').trim();
-      if (/^\d+\.\d{2}$/.test(value)) return value;
-    }
-    return '-';
-  }
-
-  function parseGF(doc) {
-    const guitar = { BASIC: '-', ADVANCED: '-', EXTREME: '-', MASTER: '-' };
-    const bass = { BASIC: '-', ADVANCED: '-', EXTREME: '-', MASTER: '-' };
-    let currentPart = null;
-
-    const elements = doc.querySelectorAll(`
-      .md_part_GUITAR,
-      .md_part_BASS,
-      table.md.music_detail
-    `);
-
-    for (const el of elements) {
-      if (el.classList.contains('md_part_GUITAR')) {
-        currentPart = 'GUITAR';
-        continue;
-      }
-      if (el.classList.contains('md_part_BASS')) {
-        currentPart = 'BASS';
-        continue;
-      }
-      if (el.tagName !== 'TABLE' || !currentPart) continue;
-
-      for (const type of ['BASIC', 'ADVANCED', 'EXTREME', 'MASTER']) {
-        const value = getDifficulty(el, type);
-        if (value === '-') continue;
-        (currentPart === 'GUITAR' ? guitar : bass)[type] = value;
-      }
-    }
-
-    return { guitar, bass };
-  }
-
-  function parseDM(doc) {
-    const drum = { BASIC: '-', ADVANCED: '-', EXTREME: '-', MASTER: '-' };
-    const tables = doc.querySelectorAll('table.md.music_detail');
-
-    for (const table of tables) {
-      for (const type of ['BASIC', 'ADVANCED', 'EXTREME', 'MASTER']) {
-        const value = getDifficulty(table, type);
-        if (value !== '-') drum[type] = value;
-      }
-    }
-    return drum;
-  }
-
-  async function fetchSong(cat, index) {
+  async function fetchSongByUrl(gfUrl) {
+    const dmUrl = makeDmUrl(gfUrl);
     const [gfResponse, dmResponse] = await Promise.all([
-      fetchHtml('gf', cat, index),
-      fetchHtml('dm', cat, index)
+      fetchUrlHtml(gfUrl),
+      fetchUrlHtml(dmUrl)
     ]);
 
     if (!gfResponse.ok) {
-      return { status: 'error', cat, index, error: gfResponse.error };
+      return { status: 'error', url: gfUrl.href, error: gfResponse.error };
     }
 
-    const gfDoc = toDocument(gfResponse.html);
-    if (isOfficialErrorPage(gfDoc)) {
-      return {
-        status: 'error',
-        cat,
-        index,
-        error: new Error(`公式サイトがエラーを返しました: ${makeUrl('gf', cat, index)}`)
-      };
-    }
-    const title = getTitle(gfDoc);
-    if (!title) return { status: 'empty', cat, index };
+    const title = getTitle(gfResponse.doc);
+    if (!title) return { status: 'empty', url: gfUrl.href };
 
-    const gf = parseGF(gfDoc);
+    const gf = parseGF(gfResponse.doc);
     let drum = { BASIC: '-', ADVANCED: '-', EXTREME: '-', MASTER: '-' };
     let dmTitle = null;
-
     if (dmResponse.ok) {
-      const dmDoc = toDocument(dmResponse.html);
-      if (!isOfficialErrorPage(dmDoc)) {
-        dmTitle = getTitle(dmDoc);
-        drum = parseDM(dmDoc);
-      }
+      dmTitle = getTitle(dmResponse.doc);
+      drum = parseDM(dmResponse.doc);
     }
 
     return {
       status: 'success',
-      cat,
-      index,
       song: {
         title: String(title),
         guitar: gf.guitar,
@@ -297,84 +257,70 @@
   }
 
   function addSong(song) {
-    if (titleSet.has(song.title)) return;
+    if (titleSet.has(song.title)) return false;
     titleSet.add(song.title);
     songs.push(song);
+    return true;
   }
 
-  async function scanCategory(cat, categoryIndex, categoryTotal) {
+  async function scanCategory(context, option, categoryIndex, categoryTotal) {
     const startTime = performance.now();
-    let index = 0;
-    let count = 0;
+    const label = option.label || option.value;
 
     updateProgress({
-      status: `カテゴリ ${cat} を取得中...`,
-      catText: `${categoryIndex + 1} / ${categoryTotal}（CAT ${cat}）`,
+      status: `カテゴリ「${label}」の一覧を取得中...`,
+      catText: `${categoryIndex + 1} / ${categoryTotal}（${label}）`,
       count: songs.length,
       percent: (categoryIndex / categoryTotal) * 100
     });
 
-    while (index <= CONFIG.MAX_INDEX) {
-      const indexes = Array.from({ length: CONFIG.CONCURRENCY }, (_, i) => index + i);
-      const results = await Promise.all(indexes.map(currentIndex => fetchSong(cat, currentIndex)));
-      let categoryFinished = false;
-
+    const { doc, responseUrl } = await fetchCategoryDocument(context, option);
+    const detailUrls = extractDetailUrls(doc, responseUrl);
+    if (!detailUrls.length) {
+      console.warn(`カテゴリ「${label}」で曲詳細リンクが見つかりませんでした。`);
       updateProgress({
-        status: `CAT ${cat} / INDEX ${index}〜${index + CONFIG.CONCURRENCY - 1} を確認中...`,
-        catText: `${categoryIndex + 1} / ${categoryTotal}（CAT ${cat}）`,
+        status: `カテゴリ「${label}」：0曲`,
+        catText: `${categoryIndex + 1} / ${categoryTotal}（${label}）`,
         count: songs.length,
-        percent: (categoryIndex / categoryTotal) * 100
+        percent: ((categoryIndex + 1) / categoryTotal) * 100
+      });
+      return 0;
+    }
+
+    let added = 0;
+    for (let offset = 0; offset < detailUrls.length; offset += CONFIG.CONCURRENCY) {
+      const batch = detailUrls.slice(offset, offset + CONFIG.CONCURRENCY);
+      updateProgress({
+        status: `「${label}」 ${Math.min(offset + 1, detailUrls.length)}〜${Math.min(offset + batch.length, detailUrls.length)} / ${detailUrls.length}曲を取得中...`,
+        catText: `${categoryIndex + 1} / ${categoryTotal}（${label}）`,
+        count: songs.length,
+        percent: ((categoryIndex + (offset / Math.max(1, detailUrls.length))) / categoryTotal) * 100
       });
 
+      const results = await Promise.all(batch.map(fetchSongByUrl));
       for (const result of results) {
-        if (result.status === 'empty') {
-          categoryFinished = true;
-          break;
-        }
-
         if (result.status === 'error') {
-          console.warn(`CAT ${cat} INDEX ${result.index} の取得に失敗`);
-          const retry = await fetchSong(cat, result.index);
-          if (retry.status === 'success') {
-            addSong(retry.song);
-            count++;
-            continue;
-          }
-          if (retry.status === 'empty') {
-            categoryFinished = true;
-            break;
-          }
-          console.warn(`CAT ${cat} INDEX ${result.index} は再取得にも失敗。CAT ${cat} を終了します。`);
-          categoryFinished = true;
-          break;
+          console.warn('曲詳細の取得に失敗:', result.url, result.error);
+          continue;
         }
-
+        if (result.status !== 'success') continue;
         const song = result.song;
         if (song.dmTitle && song.dmTitle !== song.title) {
-          console.warn(
-            `GF/DM曲名不一致 CAT=${cat} INDEX=${result.index}`,
-            song.title,
-            '/',
-            song.dmTitle
-          );
+          console.warn('GF/DM曲名不一致', song.title, '/', song.dmTitle);
         }
-        addSong(song);
-        count++;
+        if (addSong(song)) added++;
       }
-
-      if (categoryFinished) break;
-      index += CONFIG.CONCURRENCY;
     }
 
     const seconds = ((performance.now() - startTime) / 1000).toFixed(1);
-    console.log(`CAT ${String(cat).padStart(2, '0')} 完了 | ${count}曲 | ${seconds}秒 | 累計 ${songs.length}曲`);
+    console.log(`カテゴリ ${label} 完了 | 一覧 ${detailUrls.length}曲 | 新規 ${added}曲 | ${seconds}秒 | 累計 ${songs.length}曲`);
     updateProgress({
-      status: `CAT ${cat} 完了（${count}曲）`,
-      catText: `${categoryIndex + 1} / ${categoryTotal}（CAT ${cat}）`,
+      status: `「${label}」完了（${added}曲追加）`,
+      catText: `${categoryIndex + 1} / ${categoryTotal}（${label}）`,
       count: songs.length,
       percent: ((categoryIndex + 1) / categoryTotal) * 100
     });
-    return count;
+    return added;
   }
 
   function escapeHtml(value) {
@@ -457,31 +403,20 @@ th { font-weight:normal; text-align:left; }
   try {
     console.clear();
     const totalStart = performance.now();
-    const categories = detectCategories();
+    const categoryContext = getCategoryContext(document);
+    if (!categoryContext || !categoryContext.options.length) {
+      throw new Error('曲名カテゴリの選択欄を検出できませんでした。曲別成績の一覧ページで実行してください。');
+    }
+    const categories = categoryContext.options;
 
     ensureProgressUi();
     updateProgress({ status: '取得を開始します...', catText: `0 / ${categories.length}`, count: 0, percent: 0 });
 
     console.log(`GITADORA 全曲難易度取得開始 / ${slug}`);
-    console.log(`詳細URLテンプレート: ${DETAIL_TEMPLATE_URL.href}`);
-    console.log(`CAT ${categories[0]}～${categories[categories.length - 1]} / ${CONFIG.CONCURRENCY}曲同時処理 / 最大${CONFIG.CONCURRENCY * 2}リクエスト並列`);
-
-    updateProgress({ status: '詳細ページのURLを確認しています...', catText: `0 / ${categories.length}`, count: 0, percent: 0 });
-    const probeUrl = new URL(DETAIL_TEMPLATE_URL.href);
-    const probeResponse = await fetch(probeUrl.href, {
-      method: 'GET',
-      credentials: 'include',
-      cache: 'no-store',
-      redirect: 'follow'
-    });
-    const probeHtml = await probeResponse.text();
-    const probeDoc = toDocument(probeHtml);
-    if (!probeResponse.ok || isOfficialErrorPage(probeDoc) || !getTitle(probeDoc)) {
-      throw new Error(`現在のページ内にある曲詳細リンクを開けませんでした。曲別成績の一覧ページで実行してください。URL: ${probeUrl.href}`);
-    }
+    console.log(`カテゴリ数: ${categories.length} / ${CONFIG.CONCURRENCY}曲同時処理`);
 
     for (let i = 0; i < categories.length; i++) {
-      await scanCategory(categories[i], i, categories.length);
+      await scanCategory(categoryContext, categories[i], i, categories.length);
     }
 
     const totalSeconds = ((performance.now() - totalStart) / 1000).toFixed(1);
