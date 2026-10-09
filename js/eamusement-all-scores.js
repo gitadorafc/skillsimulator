@@ -59,6 +59,9 @@
       #${PROGRESS_ID} .gas-fill{width:0%;height:100%;background:#3b82f6;transition:width .18s ease}
       #${PROGRESS_ID} .gas-percent{text-align:right;margin-top:7px;color:#cbd5e1;font-size:13px;font-weight:700}
       #${PROGRESS_ID} .gas-note{margin-top:12px;color:#94a3b8;font-size:11px;line-height:1.5}
+      #${PROGRESS_ID} .gas-actions{display:none;justify-content:flex-end;margin-top:14px}
+      #${PROGRESS_ID} .gas-close{min-width:96px;height:36px;padding:0 18px;border:1px solid #64748b;border-radius:10px;background:#1e293b;color:#fff;font:inherit;font-weight:800;cursor:pointer}
+      #${PROGRESS_ID} .gas-close:active{transform:translateY(1px)}
       #${PROGRESS_ID} .gas-error{color:#fecaca}
       #${PROGRESS_ID} .gas-done{color:#bbf7d0}
     `;
@@ -78,8 +81,10 @@
           <div class="gas-bar"><div class="gas-fill"></div></div>
           <div class="gas-percent">0%</div>
           <div class="gas-note">公式サイトから達成率を取得し、Skill Simulatorへ順次登録しています。この画面を閉じずにお待ちください。</div>
+          <div class="gas-actions"><button type="button" class="gas-close">閉じる</button></div>
         </div>
       </div>`;
+    root.querySelector('.gas-close').addEventListener('click', () => root.remove());
     document.body.appendChild(root);
     return root;
   }
@@ -98,6 +103,8 @@
       root.querySelector('.gas-fill').style.width = `${value}%`;
       root.querySelector('.gas-percent').textContent = `${Math.floor(value)}%`;
     }
+    const actionsEl = root.querySelector('.gas-actions');
+    if (actionsEl) actionsEl.style.display = (state === 'done' || state === 'error') ? 'flex' : 'none';
   }
 
   function toDocument(html) { return new DOMParser().parseFromString(html, 'text/html'); }
