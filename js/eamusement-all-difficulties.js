@@ -29,7 +29,10 @@
     RETRY_WAIT_MS: 300
   };
 
-  const BASE_URL = `${ORIGIN}/game/gfdm/${encodeURIComponent(slug)}/p/playdata/music_detail.html`;
+  const detailAnchor = document.querySelector('a[href*="music_detail.html"]');
+  const DETAIL_TEMPLATE_URL = detailAnchor
+    ? new URL(detailAnchor.getAttribute('href'), location.href)
+    : new URL(`${ORIGIN}/game/gfdm/${encodeURIComponent(slug)}/p/music_detail.html`);
   const songs = [];
   const titleSet = new Set();
   const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
@@ -116,12 +119,13 @@
   }
 
   function makeUrl(gtype, cat, index) {
-    const url = new URL(BASE_URL);
-    url.searchParams.set('gtype', gtype);
-    url.searchParams.set('sid', '2');
+    const url = new URL(DETAIL_TEMPLATE_URL.href);
+    // 現行公式サイトではGFは gtype=（空欄）、DMは gtype=dm。
+    url.searchParams.set('gtype', gtype === 'dm' ? 'dm' : '');
+    url.searchParams.set('sid', url.searchParams.get('sid') || '2');
     url.searchParams.set('index', String(index));
     url.searchParams.set('cat', String(cat));
-    url.searchParams.set('page', '1');
+    url.searchParams.set('page', url.searchParams.get('page') || '1');
     return url.href;
   }
 
@@ -160,6 +164,11 @@
 
   function toDocument(html) {
     return new DOMParser().parseFromString(html, 'text/html');
+  }
+
+  function isOfficialErrorPage(doc) {
+    const text = String(doc?.body?.innerText || '').replace(/\s+/g, ' ');
+    return /エラーが発生しました|時間をおいてもう一度お試しください/.test(text);
   }
 
   function getTitle(doc) {
@@ -250,6 +259,14 @@
     }
 
     const gfDoc = toDocument(gfResponse.html);
+    if (isOfficialErrorPage(gfDoc)) {
+      return {
+        status: 'error',
+        cat,
+        index,
+        error: new Error(`公式サイトがエラーを返しました: ${makeUrl('gf', cat, index)}`)
+      };
+    }
     const title = getTitle(gfDoc);
     if (!title) return { status: 'empty', cat, index };
 
@@ -259,8 +276,10 @@
 
     if (dmResponse.ok) {
       const dmDoc = toDocument(dmResponse.html);
-      dmTitle = getTitle(dmDoc);
-      drum = parseDM(dmDoc);
+      if (!isOfficialErrorPage(dmDoc)) {
+        dmTitle = getTitle(dmDoc);
+        drum = parseDM(dmDoc);
+      }
     }
 
     return {
@@ -444,7 +463,22 @@ th { font-weight:normal; text-align:left; }
     updateProgress({ status: '取得を開始します...', catText: `0 / ${categories.length}`, count: 0, percent: 0 });
 
     console.log(`GITADORA 全曲難易度取得開始 / ${slug}`);
+    console.log(`詳細URLテンプレート: ${DETAIL_TEMPLATE_URL.href}`);
     console.log(`CAT ${categories[0]}～${categories[categories.length - 1]} / ${CONFIG.CONCURRENCY}曲同時処理 / 最大${CONFIG.CONCURRENCY * 2}リクエスト並列`);
+
+    updateProgress({ status: '詳細ページのURLを確認しています...', catText: `0 / ${categories.length}`, count: 0, percent: 0 });
+    const probeUrl = new URL(DETAIL_TEMPLATE_URL.href);
+    const probeResponse = await fetch(probeUrl.href, {
+      method: 'GET',
+      credentials: 'include',
+      cache: 'no-store',
+      redirect: 'follow'
+    });
+    const probeHtml = await probeResponse.text();
+    const probeDoc = toDocument(probeHtml);
+    if (!probeResponse.ok || isOfficialErrorPage(probeDoc) || !getTitle(probeDoc)) {
+      throw new Error(`現在のページ内にある曲詳細リンクを開けませんでした。曲別成績の一覧ページで実行してください。URL: ${probeUrl.href}`);
+    }
 
     for (let i = 0; i < categories.length; i++) {
       await scanCategory(categories[i], i, categories.length);
