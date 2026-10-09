@@ -6204,7 +6204,11 @@ function openEamusementForSkillSync() {
   const entry = adminEnabled
     ? `${getEamusementSyncEntry()}#official-sync-admin=1`
     : getEamusementSyncEntry();
-  const popup = window.open(entry, '_blank');
+  // 管理者用の公式サイトタブは名前を付けて開く。
+  // window.name は公式サイト内を移動しても維持されるため、TOP/曲別成績など
+  // どのページでブックマークレットを実行しても管理者用選択画面を判定できる。
+  const targetName = adminEnabled ? 'gitadora-official-sync-admin' : '_blank';
+  const popup = window.open(entry, targetName);
   if (!popup) {
     setSkillSyncStatus('ポップアップがブロックされました。ブラウザのポップアップ許可を確認してください。', 'error');
     return;
