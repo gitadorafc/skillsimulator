@@ -98,6 +98,92 @@
     return root;
   }
 
+  function toDocument(html) {
+    return new DOMParser().parseFromString(html, 'text/html');
+  }
+
+  function isOfficialErrorPage(doc) {
+    const text = String(doc?.body?.innerText || '').replace(/\s+/g, ' ');
+    return /エラーが発生しました|時間をおいてもう一度お試しください/.test(text);
+  }
+
+  function getTitle(doc) {
+    const selectors = [
+      '.live_title',
+      '.music_title',
+      '.music_name',
+      '.title_name'
+    ];
+
+    for (const selector of selectors) {
+      const el = doc.querySelector(selector);
+      const title = String(el?.textContent || '').trim();
+      if (title) return title;
+    }
+    return null;
+  }
+
+  function getDifficulty(table, type) {
+    const selectors = [
+      `.diff_${type} .diff_area`,
+      `.diff_${type.toLowerCase()} .diff_area`,
+      `[class*="diff_${type}"] .diff_area`,
+      `[class*="diff_${type.toLowerCase()}"] .diff_area`
+    ];
+
+    for (const selector of selectors) {
+      const el = table.querySelector(selector);
+      const value = String(el?.textContent || '').trim();
+      if (/^\d+\.\d{2}$/.test(value)) return value;
+    }
+    return '-';
+  }
+
+  function parseGF(doc) {
+    const guitar = { BASIC: '-', ADVANCED: '-', EXTREME: '-', MASTER: '-' };
+    const bass = { BASIC: '-', ADVANCED: '-', EXTREME: '-', MASTER: '-' };
+    let currentPart = null;
+
+    const elements = doc.querySelectorAll(`
+      .md_part_GUITAR,
+      .md_part_BASS,
+      table.md.music_detail
+    `);
+
+    for (const el of elements) {
+      if (el.classList.contains('md_part_GUITAR')) {
+        currentPart = 'GUITAR';
+        continue;
+      }
+      if (el.classList.contains('md_part_BASS')) {
+        currentPart = 'BASS';
+        continue;
+      }
+      if (el.tagName !== 'TABLE' || !currentPart) continue;
+
+      for (const type of ['BASIC', 'ADVANCED', 'EXTREME', 'MASTER']) {
+        const value = getDifficulty(el, type);
+        if (value === '-') continue;
+        (currentPart === 'GUITAR' ? guitar : bass)[type] = value;
+      }
+    }
+
+    return { guitar, bass };
+  }
+
+  function parseDM(doc) {
+    const drum = { BASIC: '-', ADVANCED: '-', EXTREME: '-', MASTER: '-' };
+    const tables = doc.querySelectorAll('table.md.music_detail');
+
+    for (const table of tables) {
+      for (const type of ['BASIC', 'ADVANCED', 'EXTREME', 'MASTER']) {
+        const value = getDifficulty(table, type);
+        if (value !== '-') drum[type] = value;
+      }
+    }
+    return drum;
+  }
+
   function getCategoryContext(doc = document) {
     const selectors = [
       'select[name="cat"]',
@@ -118,7 +204,11 @@
         value: String(option.value ?? ''),
         label: String(option.textContent || '').trim()
       }))
-      .filter(option => option.value !== '');
+      .filter(option =>
+        option.value !== '' &&
+        option.label !== '' &&
+        !/曲名カテゴリ.*選択|選択.*曲名カテゴリ/.test(option.label)
+      );
 
     return {
       selectName: select.name || 'cat',
