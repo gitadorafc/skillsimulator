@@ -587,6 +587,53 @@
   </div>
 </div>
 
+<div id="allScoreSyncMask" class="site-dialog-mask">
+  <div class="skill-sync-dialog">
+    <div class="skill-sync-head">
+      <div>
+        <div class="skill-sync-kicker">e-amusement連携</div>
+        <h3 id="allScoreSyncTitle">全曲同期</h3>
+      </div>
+      <button id="btnCloseAllScoreSync" type="button" class="skill-sync-close menu-back-btn">戻る</button>
+    </div>
+
+    <div class="skill-sync-note">
+      <strong>管理者向け試験機能です。</strong><br>
+      GITADORA公式サイトの曲別成績から、達成率がある譜面を取得して登録します。
+    </div>
+
+    <div id="allScoreSyncStatus" class="skill-sync-status skill-sync-status-top">待機中</div>
+
+    <div class="skill-sync-step">
+      <span class="skill-sync-step-no">1</span>
+      <div>
+        <strong>全曲同期用ブックマークを作成</strong>
+        <div class="section-note">一度作成すれば「最高難易度」「全難易度」の両方で同じブックマークを使えます。</div>
+        <div class="skill-sync-actions">
+          <button id="btnCopyAllScoreSync" type="button">コードをコピー</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="skill-sync-step">
+      <span class="skill-sync-step-no">2</span>
+      <div>
+        <strong>GITADORA公式サイトを開く</strong>
+        <div class="section-note">このボタンから開いた曲別成績ページで、全曲同期用ブックマークを実行してください。</div>
+        <button id="btnOpenAllScoreSyncEamusement" type="button" class="btn-open-eamusement">GITADORA公式サイトを開く</button>
+      </div>
+    </div>
+
+    <div class="skill-sync-step">
+      <span class="skill-sync-step-no">3</span>
+      <div>
+        <strong>取得・登録</strong>
+        <div id="allScoreSyncModeNote" class="section-note"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div id="userDetailPage" class="user-detail-page">
   <div class="user-detail-sticky">
     <div class="user-detail-header">

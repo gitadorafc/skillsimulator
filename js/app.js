@@ -116,6 +116,166 @@ function getEamusementSyncEntry() {
 let skillSyncInProgress = false;
 const SKILL_SYNC_CHUNK_SIZE = 25;
 
+let allScoreSyncMode = 'highest';
+let allScoreSyncPopup = null;
+let allScoreSyncId = '';
+let allScoreSyncInProgress = false;
+let allScoreSyncTotals = { received: 0, saved: 0, requested: 0, skipped: 0 };
+
+function buildAllScoreSyncBookmarklet() {
+  return "javascript:void(!function(d){var s=d.createElement('script');s.src='https://gitadorafc.github.io/skillsimulator/js/eamusement-all-scores.js?t='+Date.now();d.head.appendChild(s)}(document))";
+}
+
+function setAllScoreSyncStatus(message, state = '') {
+  const el = $('allScoreSyncStatus');
+  if (!el) return;
+  el.textContent = String(message || '');
+  el.className = `skill-sync-status skill-sync-status-top ${state}`.trim();
+}
+
+function getAllScoreSyncEntry(mode = allScoreSyncMode) {
+  const slug = getEamusementSlug();
+  const payload = encodeURIComponent(JSON.stringify({
+    mode: mode === 'all' ? 'all' : 'highest',
+    syncId: allScoreSyncId,
+    slug
+  }));
+  return `https://p.eagate.573.jp/game/gfdm/${slug}/p/playdata/music.html#gitadora-all-score-sync=${payload}`;
+}
+
+function openAllScoreSyncDialog(mode) {
+  if (!adminEnabled) return;
+  allScoreSyncMode = mode === 'all' ? 'all' : 'highest';
+  closeMenu();
+  $('allScoreSyncTitle').textContent = allScoreSyncMode === 'all'
+    ? '全曲同期（全難易度）'
+    : '全曲同期（最高難易度）';
+  $('allScoreSyncModeNote').textContent = allScoreSyncMode === 'all'
+    ? '達成率があるGF/DMの全譜面を登録・更新します。'
+    : '各曲について、達成率がある譜面のうちGFとDMそれぞれ難易度レベルが最も高い1譜面だけを登録・更新します。';
+  setAllScoreSyncStatus('待機中');
+  $('allScoreSyncMask').style.display = 'flex';
+  const dialog = $('allScoreSyncMask').querySelector('.skill-sync-dialog');
+  if (dialog) dialog.scrollTop = 0;
+}
+
+function closeAllScoreSyncDialog(returnToMenu = false) {
+  if (allScoreSyncInProgress) return;
+  $('allScoreSyncMask').style.display = 'none';
+  if (returnToMenu) openMenu();
+}
+
+async function copyAllScoreSyncCode() {
+  try {
+    await navigator.clipboard.writeText(buildAllScoreSyncBookmarklet());
+    setAllScoreSyncStatus('全曲同期用コードをコピーしました。ブックマークのURL欄へ貼り付けてください。', 'success');
+  } catch (error) {
+    setAllScoreSyncStatus('コードのコピーに失敗しました。ブラウザのクリップボード権限を確認してください。', 'error');
+  }
+}
+
+function openEamusementForAllScoreSync() {
+  if (!adminEnabled) return;
+  allScoreSyncId = crypto.randomUUID();
+  allScoreSyncTotals = { received: 0, saved: 0, requested: 0, skipped: 0 };
+  const popup = window.open(getAllScoreSyncEntry(), '_blank');
+  if (!popup) {
+    setAllScoreSyncStatus('ポップアップがブロックされました。ブラウザのポップアップ許可を確認してください。', 'error');
+    return;
+  }
+  allScoreSyncPopup = popup;
+  setAllScoreSyncStatus('公式サイトを開きました。開いた曲別成績ページで全曲同期用ブックマークを実行してください。', 'running');
+}
+
+async function saveAllScoreSyncChunk(records) {
+  const rows = normalizeSkillSyncRecords(records, PARTS, normalizeSongTitleForMatch);
+  if (!rows.length) return { saved: 0, requested: 0, skipped: records.length || 0 };
+
+  let saved = 0;
+  let requested = 0;
+  let skipped = 0;
+  for (let offset = 0; offset < rows.length; offset += SKILL_SYNC_CHUNK_SIZE) {
+    const chunk = rows.slice(offset, offset + SKILL_SYNC_CHUNK_SIZE);
+    const { data, error } = await supabase.rpc('sync_skill_records', {
+      p_records: chunk,
+      p_version_id: activeVersionId,
+      p_default_gf_option: getGfDefaultOption()
+    });
+    if (error) throw error;
+    const result = Array.isArray(data) ? data[0] : data;
+    saved += Number(result?.saved_count) || 0;
+    requested += Number(result?.requested_count) || 0;
+    skipped += Number(result?.skipped_count) || 0;
+  }
+  return { saved, requested, skipped };
+}
+
+async function handleAllScoreSyncMessage(event) {
+  if (event.origin !== EAMUSEMENT_ORIGIN) return;
+  const data = event.data || {};
+  if (!String(data.type || '').startsWith('GITADORA_ALL_SCORE_SYNC_')) return;
+  if (!allScoreSyncId || data.syncId !== allScoreSyncId) return;
+  if (allScoreSyncPopup && event.source !== allScoreSyncPopup) return;
+
+  if (!adminEnabled) {
+    event.source?.postMessage({ type:'GITADORA_ALL_SCORE_SYNC_ACK', syncId:allScoreSyncId, seq:data.seq, error:'管理者アカウントで実行してください。' }, EAMUSEMENT_ORIGIN);
+    return;
+  }
+
+  const payloadSlug = String(data.slug || '');
+  if (payloadSlug && payloadSlug !== getEamusementSlug()) {
+    event.source?.postMessage({ type:'GITADORA_ALL_SCORE_SYNC_ACK', syncId:allScoreSyncId, seq:data.seq, error:'選択中のGITADORAバージョンと公式サイトのバージョンが一致しません。' }, EAMUSEMENT_ORIGIN);
+    return;
+  }
+
+  if (data.type === 'GITADORA_ALL_SCORE_SYNC_START') {
+    allScoreSyncInProgress = true;
+    $('allScoreSyncMask').style.display = 'flex';
+    setAllScoreSyncStatus('公式サイトから全曲の達成率を取得しています…', 'running');
+    return;
+  }
+
+  if (data.type === 'GITADORA_ALL_SCORE_SYNC_CHUNK') {
+    try {
+      const records = Array.isArray(data.records) ? data.records : [];
+      const result = await saveAllScoreSyncChunk(records);
+      allScoreSyncTotals.received += records.length;
+      allScoreSyncTotals.saved += result.saved;
+      allScoreSyncTotals.requested += result.requested;
+      allScoreSyncTotals.skipped += result.skipped;
+      setAllScoreSyncStatus(
+        `登録中… 取得 ${allScoreSyncTotals.received}件 / 登録・更新 ${allScoreSyncTotals.saved}件` +
+        (allScoreSyncTotals.requested ? ` / 登録依頼 ${allScoreSyncTotals.requested}件` : ''),
+        'running'
+      );
+      event.source?.postMessage({ type:'GITADORA_ALL_SCORE_SYNC_ACK', syncId:allScoreSyncId, seq:data.seq }, EAMUSEMENT_ORIGIN);
+    } catch (error) {
+      const message = error?.message || String(error);
+      setAllScoreSyncStatus(`同期に失敗しました: ${message}`, 'error');
+      event.source?.postMessage({ type:'GITADORA_ALL_SCORE_SYNC_ACK', syncId:allScoreSyncId, seq:data.seq, error:message }, EAMUSEMENT_ORIGIN);
+      allScoreSyncInProgress = false;
+    }
+    return;
+  }
+
+  if (data.type === 'GITADORA_ALL_SCORE_SYNC_DONE') {
+    try {
+      await recordMyActivity('SYNC');
+      await loadScores();
+      const summary = `同期完了：取得 ${allScoreSyncTotals.received}件 / 登録・更新 ${allScoreSyncTotals.saved}件` +
+        (allScoreSyncTotals.requested ? ` / 登録依頼 ${allScoreSyncTotals.requested}件` : '') +
+        (allScoreSyncTotals.skipped ? ` / スキップ ${allScoreSyncTotals.skipped}件` : '');
+      setAllScoreSyncStatus(summary, 'success');
+      await showSiteDialog(summary, '全曲同期完了');
+    } finally {
+      allScoreSyncInProgress = false;
+      allScoreSyncPopup = null;
+    }
+  }
+}
+
+window.addEventListener('message', handleAllScoreSyncMessage);
+
 function setSkillSyncStatus(message, state = '') {
   const el = $('skillSyncStatus');
   if (!el) return;
@@ -823,6 +983,7 @@ const GLOBAL_SCROLL_LOCK_OVERLAYS = [
   '#rivalManageMask',
   '#mypageModal',
   '#skillSyncMask',
+  '#allScoreSyncMask',
   '#skillShareMask',
   '#skillHistoryMask',
   '#officialSkillRankingMask',
@@ -4415,6 +4576,12 @@ async function checkAdminAccess() {
 
   adminAccessChecked = true;
   $('btnAdmin').classList.toggle('hidden', !adminEnabled);
+  $('adminSyncMenuGroup')?.classList.toggle('hidden', !adminEnabled);
+  const skillSyncButton = $('btnMenuSkillSync');
+  const targetSyncSlot = adminEnabled ? $('adminSkillSyncMenuSlot') : $('skillSyncMenuSlot');
+  if (skillSyncButton && targetSyncSlot && skillSyncButton.parentElement !== targetSyncSlot) {
+    targetSyncSlot.appendChild(skillSyncButton);
+  }
   $('tabBoard')?.classList.remove('hidden');
   $('songCatalogMenuGroup').classList.remove('hidden');
   $('btnMenuTags')?.classList.remove('hidden');
@@ -7003,6 +7170,14 @@ $('accountSwitchList')?.addEventListener('click', async event => {
 });
 
 $('btnMenuSkillSync').addEventListener('click', openSkillSyncDialog);
+$('btnMenuAllScoreSyncHighest')?.addEventListener('click', () => openAllScoreSyncDialog('highest'));
+$('btnMenuAllScoreSyncAll')?.addEventListener('click', () => openAllScoreSyncDialog('all'));
+$('btnCopyAllScoreSync')?.addEventListener('click', copyAllScoreSyncCode);
+$('btnOpenAllScoreSyncEamusement')?.addEventListener('click', openEamusementForAllScoreSync);
+$('btnCloseAllScoreSync')?.addEventListener('click', () => closeAllScoreSyncDialog(true));
+$('allScoreSyncMask')?.addEventListener('click', event => {
+  if (event.target === $('allScoreSyncMask') && !allScoreSyncInProgress) closeAllScoreSyncDialog();
+});
 $('btnMenuShareSkill').addEventListener('click', openSkillShareDialog);
 $('btnMenuSkillShareHistory').addEventListener('click', openSkillHistory);
 $('btnCloseSkillShare').addEventListener('click', () => closeSkillShareDialog(true));

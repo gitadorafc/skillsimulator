@@ -1,9 +1,9 @@
 const PARTIAL_URLS = [
-  '../partials/app.html?v=4_32_9',
-  '../partials/menu.html?v=4_32_9',
-  '../partials/dialogs.html?v=4_32_9',
-  '../partials/admin.html?v=4_32_9',
-  '../partials/board.html?v=4_32_9'
+  '../partials/app.html?v=4_33_0',
+  '../partials/menu.html?v=4_33_0',
+  '../partials/dialogs.html?v=4_33_0',
+  '../partials/admin.html?v=4_33_0',
+  '../partials/board.html?v=4_33_0'
 ];
 
 async function fetchPartial(url) {
@@ -32,8 +32,8 @@ async function bootstrap() {
   const parts = await Promise.all(PARTIAL_URLS.map(fetchPartial));
   root.innerHTML = parts.join('\n');
 
-  await import('./app.js?v=4_32_9');
-  await loadClassicScript('./js/version-check.js?v=4_32_9');
+  await import('./app.js?v=4_33_0');
+  await loadClassicScript('./js/version-check.js?v=4_33_0');
 }
 
 bootstrap().catch(error => {

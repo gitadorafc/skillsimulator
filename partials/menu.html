@@ -6,8 +6,15 @@
     <button id="btnMenuFeatureSettings" type="button" class="app-menu-item">機能設定 <span>›</span></button>
     <button id="btnMenuTags" type="button" class="app-menu-item hidden">タグ設定 <span>›</span></button>
 
+    <div id="adminSyncMenuGroup" class="hidden">
+      <div class="app-menu-group-label">同期</div>
+      <div id="adminSkillSyncMenuSlot"></div>
+      <button id="btnMenuAllScoreSyncHighest" type="button" class="app-menu-item">全曲同期（最高難易度） <span>›</span></button>
+      <button id="btnMenuAllScoreSyncAll" type="button" class="app-menu-item">全曲同期（全難易度） <span>›</span></button>
+    </div>
+
     <div class="app-menu-group-label">スキル機能</div>
-    <button id="btnMenuSkillSync" type="button" class="app-menu-item">スキル対象同期 <span>›</span></button>
+    <div id="skillSyncMenuSlot"><button id="btnMenuSkillSync" type="button" class="app-menu-item">スキル対象同期 <span>›</span></button></div>
     <button id="btnMenuSkillShareHistory" type="button" class="app-menu-item">現在のスキル対象を共有・保存 <span>›</span></button>
     <button id="btnMenuSkillHistory" type="button" class="app-menu-item hidden">現在のスキル対象を保存 <span>›</span></button>
     <button id="btnMenuShareSkill" type="button" class="app-menu-item hidden">スキル対象の画像共有 <span>›</span></button>
@@ -31,7 +38,7 @@
     <div class="app-menu-version">
       <label>VERSION</label>
       <select id="versionSelect" class="version-select" aria-label="GITADORAバージョン"></select>
-      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 4.32.9</div>
+      <div class="app-code-version" aria-label="アプリバージョン">APP VERSION 4.33.0</div>
     </div>
   </div>
 </div>
