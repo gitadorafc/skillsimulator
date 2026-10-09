@@ -3,7 +3,9 @@
 
   const RUNNING_KEY = '__gitadoraAllDifficultiesRunning';
   if (window[RUNNING_KEY]) {
-    alert('全曲難易度を取得中です。');
+    const existing = document.getElementById('__gitadoraAllDifficultiesProgress');
+    if (existing) existing.scrollIntoView({ block: 'center' });
+    else alert('全曲難易度を取得中です。');
     return;
   }
 
@@ -31,6 +33,67 @@
   const songs = [];
   const titleSet = new Set();
   const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+  const PROGRESS_ID = '__gitadoraAllDifficultiesProgress';
+
+  function ensureProgressUi() {
+    let root = document.getElementById(PROGRESS_ID);
+    if (root) return root;
+
+    const style = document.createElement('style');
+    style.id = `${PROGRESS_ID}-style`;
+    style.textContent = `
+      #${PROGRESS_ID}{position:fixed;inset:0;z-index:2147483647;display:flex;align-items:center;justify-content:center;background:rgba(2,6,23,.62);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Yu Gothic",Meiryo,sans-serif;color:#f8fafc}
+      #${PROGRESS_ID} .gad-card{width:min(92vw,460px);border:2px solid #3b82f6;border-radius:18px;background:#0f172a;box-shadow:0 24px 80px rgba(0,0,0,.45);overflow:hidden}
+      #${PROGRESS_ID} .gad-head{padding:18px 20px 10px;font-size:21px;font-weight:800}
+      #${PROGRESS_ID} .gad-body{padding:0 20px 20px}
+      #${PROGRESS_ID} .gad-status{font-size:14px;line-height:1.65;color:#e2e8f0;min-height:46px}
+      #${PROGRESS_ID} .gad-meta{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0;color:#94a3b8;font-size:12px}
+      #${PROGRESS_ID} .gad-meta strong{display:block;color:#f8fafc;font-size:16px;margin-top:2px}
+      #${PROGRESS_ID} .gad-bar{height:12px;border-radius:999px;background:#334155;overflow:hidden}
+      #${PROGRESS_ID} .gad-fill{width:0%;height:100%;background:#3b82f6;transition:width .18s ease}
+      #${PROGRESS_ID} .gad-percent{text-align:right;margin-top:7px;color:#cbd5e1;font-size:13px;font-weight:700}
+      #${PROGRESS_ID} .gad-note{margin-top:12px;color:#94a3b8;font-size:11px;line-height:1.5}
+      #${PROGRESS_ID} .gad-error{color:#fecaca}
+      #${PROGRESS_ID} .gad-done{color:#bbf7d0}
+    `;
+    document.head.appendChild(style);
+
+    root = document.createElement('div');
+    root.id = PROGRESS_ID;
+    root.innerHTML = `
+      <div class="gad-card" role="status" aria-live="polite">
+        <div class="gad-head">全曲難易度取得</div>
+        <div class="gad-body">
+          <div class="gad-status">準備中...</div>
+          <div class="gad-meta">
+            <div>カテゴリ<strong class="gad-cat">-</strong></div>
+            <div>取得曲数<strong class="gad-count">0曲</strong></div>
+          </div>
+          <div class="gad-bar"><div class="gad-fill"></div></div>
+          <div class="gad-percent">0%</div>
+          <div class="gad-note">公式サイトからGF/DMの難易度を取得しています。この画面を閉じずにお待ちください。</div>
+        </div>
+      </div>`;
+    document.body.appendChild(root);
+    return root;
+  }
+
+  function updateProgress({ status, catText, count, percent, state } = {}) {
+    const root = ensureProgressUi();
+    const statusEl = root.querySelector('.gad-status');
+    if (status != null) statusEl.textContent = status;
+    statusEl.classList.toggle('gad-error', state === 'error');
+    statusEl.classList.toggle('gad-done', state === 'done');
+    if (catText != null) root.querySelector('.gad-cat').textContent = catText;
+    if (count != null) root.querySelector('.gad-count').textContent = `${count}曲`;
+    if (percent != null) {
+      const value = Math.max(0, Math.min(100, Number(percent) || 0));
+      root.querySelector('.gad-fill').style.width = `${value}%`;
+      root.querySelector('.gad-percent').textContent = `${Math.floor(value)}%`;
+    }
+    return root;
+  }
 
   function detectCategories() {
     const selectors = [
@@ -220,15 +283,29 @@
     songs.push(song);
   }
 
-  async function scanCategory(cat) {
+  async function scanCategory(cat, categoryIndex, categoryTotal) {
     const startTime = performance.now();
     let index = 0;
     let count = 0;
+
+    updateProgress({
+      status: `カテゴリ ${cat} を取得中...`,
+      catText: `${categoryIndex + 1} / ${categoryTotal}（CAT ${cat}）`,
+      count: songs.length,
+      percent: (categoryIndex / categoryTotal) * 100
+    });
 
     while (index <= CONFIG.MAX_INDEX) {
       const indexes = Array.from({ length: CONFIG.CONCURRENCY }, (_, i) => index + i);
       const results = await Promise.all(indexes.map(currentIndex => fetchSong(cat, currentIndex)));
       let categoryFinished = false;
+
+      updateProgress({
+        status: `CAT ${cat} / INDEX ${index}〜${index + CONFIG.CONCURRENCY - 1} を確認中...`,
+        catText: `${categoryIndex + 1} / ${categoryTotal}（CAT ${cat}）`,
+        count: songs.length,
+        percent: (categoryIndex / categoryTotal) * 100
+      });
 
       for (const result of results) {
         if (result.status === 'empty') {
@@ -272,6 +349,12 @@
 
     const seconds = ((performance.now() - startTime) / 1000).toFixed(1);
     console.log(`CAT ${String(cat).padStart(2, '0')} 完了 | ${count}曲 | ${seconds}秒 | 累計 ${songs.length}曲`);
+    updateProgress({
+      status: `CAT ${cat} 完了（${count}曲）`,
+      catText: `${categoryIndex + 1} / ${categoryTotal}（CAT ${cat}）`,
+      count: songs.length,
+      percent: ((categoryIndex + 1) / categoryTotal) * 100
+    });
     return count;
   }
 
@@ -357,11 +440,14 @@ th { font-weight:normal; text-align:left; }
     const totalStart = performance.now();
     const categories = detectCategories();
 
+    ensureProgressUi();
+    updateProgress({ status: '取得を開始します...', catText: `0 / ${categories.length}`, count: 0, percent: 0 });
+
     console.log(`GITADORA 全曲難易度取得開始 / ${slug}`);
     console.log(`CAT ${categories[0]}～${categories[categories.length - 1]} / ${CONFIG.CONCURRENCY}曲同時処理 / 最大${CONFIG.CONCURRENCY * 2}リクエスト並列`);
 
-    for (const cat of categories) {
-      await scanCategory(cat);
+    for (let i = 0; i < categories.length; i++) {
+      await scanCategory(categories[i], i, categories.length);
     }
 
     const totalSeconds = ((performance.now() - totalStart) / 1000).toFixed(1);
@@ -373,14 +459,20 @@ th { font-weight:normal; text-align:left; }
       throw new Error(`1曲も取得できませんでした。公式ページの構造が変更された可能性があります。検出バージョン: ${slug}`);
     }
 
+    updateProgress({ status: 'Excelファイルを生成しています...', count: songs.length, percent: 100 });
     console.log('Excelファイルを生成します...');
     await sleep(50);
     downloadExcel();
     console.log('Excelファイル生成完了');
+    updateProgress({ status: `取得完了：${songs.length}曲 / Excelをダウンロードしました。`, count: songs.length, percent: 100, state: 'done' });
+    await sleep(1800);
   } catch (error) {
     console.error('全曲難易度取得に失敗しました。', error);
-    alert(`全曲難易度取得に失敗しました。\n${error?.message || error}`);
+    updateProgress({ status: `取得に失敗しました：${error?.message || error}`, count: songs.length, state: 'error' });
+    await sleep(3500);
   } finally {
+    document.getElementById(PROGRESS_ID)?.remove();
+    document.getElementById(`${PROGRESS_ID}-style`)?.remove();
     delete window[RUNNING_KEY];
   }
 })();
