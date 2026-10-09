@@ -42,9 +42,14 @@
       #${PICKER_ID} .gos-close{width:34px;height:34px;border:0;background:transparent;font-size:22px;cursor:pointer}
       #${PICKER_ID} .gos-body{padding:16px}
       #${PICKER_ID} label.gos-option{display:flex;align-items:center;gap:8px;min-height:36px;font-size:16px;cursor:pointer}
-      #${PICKER_ID} input[type="radio"]{width:18px;height:18px;margin:0}
-      #${PICKER_ID} .gos-range{display:flex;align-items:center;gap:10px;margin:0 0 8px 28px}
-      #${PICKER_ID} .gos-range input{width:90px;height:36px;box-sizing:border-box;border:1px solid #94a3b8;border-radius:6px;padding:0 8px;font-size:16px;text-align:center}
+      #${PICKER_ID} input[type="radio"],#${PICKER_ID} input[type="checkbox"]{width:18px;height:18px;margin:0}
+      #${PICKER_ID} .gos-device{display:flex;align-items:center;gap:18px;padding:0 0 12px;margin-bottom:8px;border-bottom:1px solid #e2e8f0}
+      #${PICKER_ID} .gos-device strong{font-size:14px;color:#475569;margin-right:2px}
+      #${PICKER_ID} .gos-device label{display:flex;align-items:center;gap:6px;font-weight:700;cursor:pointer}
+      #${PICKER_ID} .gos-range-wrap{margin:4px 0 8px 28px}
+      #${PICKER_ID} .gos-range-row{display:grid;grid-template-columns:34px 90px 18px 90px;align-items:center;gap:8px;margin-top:7px}
+      #${PICKER_ID} .gos-range-row b{font-size:13px;color:#475569}
+      #${PICKER_ID} .gos-range-row input{width:90px;height:36px;box-sizing:border-box;border:1px solid #94a3b8;border-radius:6px;padding:0 8px;font-size:16px;text-align:center}
       #${PICKER_ID} .gos-actions{display:flex;justify-content:flex-end;margin-top:16px}
       #${PICKER_ID} .gos-submit{height:38px;padding:0 20px;border:1px solid #334155;border-radius:7px;background:#fff;color:#0f172a;font-weight:700;font-size:15px;cursor:pointer}
       #${PICKER_ID} .gos-submit:disabled{opacity:.5;cursor:not-allowed}
@@ -58,14 +63,14 @@
       <div class="gos-card" role="dialog" aria-modal="true" aria-labelledby="gosTitle">
         <div class="gos-head"><strong id="gosTitle">同期するデータを選択</strong><button type="button" class="gos-close" aria-label="閉じる">×</button></div>
         <div class="gos-body">
+          <div class="gos-device"><strong>対象</strong><label><input type="checkbox" name="gosInstrument" value="GF" checked>GF</label><label><input type="checkbox" name="gosInstrument" value="DM" checked>DM</label></div>
           <label class="gos-option"><input type="radio" name="gosMode" value="skill" checked>スキル対象のみ</label>
           <label class="gos-option"><input type="radio" name="gosMode" value="highest">全曲（最高難易度のみ）</label>
           <label class="gos-option"><input type="radio" name="gosMode" value="all">全曲（全パート）</label>
           <label class="gos-option"><input type="radio" name="gosMode" value="range">全曲（難易度幅指定）</label>
-          <div class="gos-range">
-            <input class="gos-min" type="number" min="0.01" max="9.99" step="0.01" placeholder="下限" disabled>
-            <span>～</span>
-            <input class="gos-max" type="number" min="0.01" max="9.99" step="0.01" placeholder="上限" disabled>
+          <div class="gos-range-wrap">
+            <div class="gos-range-row"><b>GF</b><input class="gos-gf-min" type="number" min="0.01" max="9.99" step="0.01" placeholder="下限" disabled><span>～</span><input class="gos-gf-max" type="number" min="0.01" max="9.99" step="0.01" placeholder="上限" disabled></div>
+            <div class="gos-range-row"><b>DM</b><input class="gos-dm-min" type="number" min="0.01" max="9.99" step="0.01" placeholder="下限" disabled><span>～</span><input class="gos-dm-max" type="number" min="0.01" max="9.99" step="0.01" placeholder="上限" disabled></div>
           </div>
           <div class="gos-error"></div>
           <div class="gos-actions"><button type="button" class="gos-submit">同期する</button></div>
@@ -73,21 +78,29 @@
       </div>`;
     document.documentElement.appendChild(root);
 
-    const minInput = root.querySelector('.gos-min');
-    const maxInput = root.querySelector('.gos-max');
+    const gfMinInput = root.querySelector('.gos-gf-min');
+    const gfMaxInput = root.querySelector('.gos-gf-max');
+    const dmMinInput = root.querySelector('.gos-dm-min');
+    const dmMaxInput = root.querySelector('.gos-dm-max');
     const errorEl = root.querySelector('.gos-error');
     const submit = root.querySelector('.gos-submit');
 
     function selectedMode() {
       return root.querySelector('input[name="gosMode"]:checked')?.value || 'skill';
     }
+    function selectedInstruments() {
+      return [...root.querySelectorAll('input[name="gosInstrument"]:checked')].map(input => input.value);
+    }
     function refreshRange() {
       const enabled = selectedMode() === 'range';
-      minInput.disabled = !enabled;
-      maxInput.disabled = !enabled;
+      const instruments = selectedInstruments();
+      gfMinInput.disabled = !enabled || !instruments.includes('GF');
+      gfMaxInput.disabled = !enabled || !instruments.includes('GF');
+      dmMinInput.disabled = !enabled || !instruments.includes('DM');
+      dmMaxInput.disabled = !enabled || !instruments.includes('DM');
       errorEl.textContent = '';
     }
-    root.querySelectorAll('input[name="gosMode"]').forEach(input => input.addEventListener('change', refreshRange));
+    root.querySelectorAll('input[name="gosMode"],input[name="gosInstrument"]').forEach(input => input.addEventListener('change', refreshRange));
     root.querySelector('.gos-close').addEventListener('click', () => {
       cleanupPicker();
       window[RUNNING_KEY] = false;
@@ -101,13 +114,29 @@
     submit.addEventListener('click', async () => {
       errorEl.textContent = '';
       const mode = selectedMode();
-      let minLevel = null;
-      let maxLevel = null;
+      const instruments = selectedInstruments();
+      if (!instruments.length) {
+        errorEl.textContent = 'GF / DM のどちらかを選択してください。';
+        return;
+      }
+      let gfMinLevel = null;
+      let gfMaxLevel = null;
+      let dmMinLevel = null;
+      let dmMaxLevel = null;
       if (mode === 'range') {
-        minLevel = Number(minInput.value);
-        maxLevel = Number(maxInput.value);
-        if (!Number.isFinite(minLevel) || !Number.isFinite(maxLevel) || minLevel <= 0 || maxLevel <= 0 || minLevel > maxLevel) {
-          errorEl.textContent = '難易度の下限・上限を正しく入力してください。';
+        const validateRange = (label, minInput, maxInput) => {
+          const min = Number(minInput.value);
+          const max = Number(maxInput.value);
+          if (!Number.isFinite(min) || !Number.isFinite(max) || min <= 0 || max <= 0 || min > max) {
+            throw new Error(`${label}の難易度下限・上限を正しく入力してください。`);
+          }
+          return [min, max];
+        };
+        try {
+          if (instruments.includes('GF')) [gfMinLevel, gfMaxLevel] = validateRange('GF', gfMinInput, gfMaxInput);
+          if (instruments.includes('DM')) [dmMinLevel, dmMaxLevel] = validateRange('DM', dmMinInput, dmMaxInput);
+        } catch (error) {
+          errorEl.textContent = error.message;
           return;
         }
       }
@@ -116,9 +145,9 @@
       try {
         if (mode === 'skill') {
           cleanupPicker();
-          await runSkillTargetSync();
+          await runSkillTargetSync(instruments);
         } else {
-          await startFullSync(mode, minLevel, maxLevel);
+          await startFullSync(mode, instruments, { gfMinLevel, gfMaxLevel, dmMinLevel, dmMaxLevel });
           cleanupPicker();
         }
       } catch (error) {
@@ -145,10 +174,10 @@
     return box;
   }
 
-  async function runSkillTargetSync() {
+  async function runSkillTargetSync(instruments = ['GF','DM']) {
     const targets = [
       ['GF','HOT','gf',1], ['GF','OTHER','gf',0], ['DM','HOT','dm',1], ['DM','OTHER','dm',0]
-    ];
+    ].filter(([instrument]) => instruments.includes(instrument));
     const records = [];
     const counts = {};
     const box = ensureSimpleProgress('GITADORA スキル同期を開始します…');
@@ -156,7 +185,7 @@
     try {
       for (let i=0; i<targets.length; i++) {
         const [instrument, category, gtype, stype] = targets[i];
-        box.textContent = `取得中… ${instrument} ${category} (${i+1}/4)`;
+        box.textContent = `取得中… ${instrument} ${category} (${i+1}/${targets.length})`;
         const url = `/game/gfdm/${VERSION_SLUG}/p/playdata/skill.html?gtype=${gtype}&stype=${stype}`;
         const response = await fetch(url, { credentials:'include', cache:'no-store' });
         if (!response.ok) throw new Error(`${instrument} ${category} の取得に失敗しました。`);
@@ -186,7 +215,7 @@
         }
       }
       box.textContent = `取得完了：${records.length}件。Skill Simulatorへ戻ります…`;
-      const payload = { type:'GITADORA_SKILL_SYNC', version:2, eamusement_slug:VERSION_SLUG, records, counts };
+      const payload = { type:'GITADORA_SKILL_SYNC', version:2, eamusement_slug:VERSION_SLUG, records, counts, instruments };
       location.href = RETURN_URL + '#skill-sync=' + encodeURIComponent(JSON.stringify(payload));
     } catch (error) {
       window[RUNNING_KEY] = false;
@@ -195,9 +224,9 @@
     }
   }
 
-  function waitForBridgeReady(appWindow, syncId) {
+  function waitForBridgeReady(appWindow, syncId, timeoutMs = 120000) {
     return new Promise((resolve, reject) => {
-      const timer = setTimeout(() => { cleanup(); reject(new Error('Skill Simulatorとの接続が時間切れになりました。')); }, 120000);
+      const timer = setTimeout(() => { cleanup(); reject(new Error('Skill Simulatorとの接続が時間切れになりました。')); }, timeoutMs);
       function cleanup() { clearTimeout(timer); window.removeEventListener('message', onMessage); }
       function onMessage(event) {
         if (event.origin !== APP_ORIGIN || event.source !== appWindow) return;
@@ -220,9 +249,24 @@
     });
   }
 
-  async function startFullSync(mode, minLevel, maxLevel) {
+  async function startFullSync(mode, instruments, ranges = {}) {
     const syncId = crypto.randomUUID();
-    const payload = { syncId, slug:VERSION_SLUG, mode, minLevel, maxLevel };
+    const payload = { syncId, slug:VERSION_SLUG, mode, instruments, ...ranges };
+
+    // Skill Simulatorの「公式サイトを開く」から来た場合は、元タブをそのまま登録先に使う。
+    // 新しいSkill Simulatorタブを開かないため、公式サイト側の進捗表示を継続できる。
+    if (window.opener && !window.opener.closed) {
+      try {
+        window.opener.postMessage({ type:'GITADORA_OFFICIAL_SYNC_REQUEST', ...payload }, APP_ORIGIN);
+        await waitForBridgeReady(window.opener, syncId, 5000);
+        window.__GITADORA_OFFICIAL_SYNC_LAUNCH__ = { ...payload, targetWindow:window.opener };
+        await loadAllScoreHelper();
+        return;
+      } catch (_) {
+        // 手動で開いた公式タブなど、openerがSkill Simulatorでない場合は従来のブリッジへフォールバック。
+      }
+    }
+
     const appWindow = window.open(RETURN_URL + '#official-sync-bridge=' + encodeURIComponent(JSON.stringify(payload)), '_blank');
     if (!appWindow) throw new Error('ポップアップを許可して再実行してください。');
     await waitForBridgeReady(appWindow, syncId);

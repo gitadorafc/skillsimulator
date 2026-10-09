@@ -210,6 +210,57 @@ async function saveAllScoreSyncChunk(records) {
   return { saved, requested, skipped };
 }
 
+function normalizeOfficialSyncInstruments(value) {
+  const source = Array.isArray(value) ? value : ['GF','DM'];
+  return [...new Set(source.filter(item => item === 'GF' || item === 'DM'))];
+}
+
+function validateOfficialSyncRanges(payload, instruments) {
+  if (payload?.mode !== 'range') return true;
+  const validRange = (minValue, maxValue) => {
+    const min = Number(minValue);
+    const max = Number(maxValue);
+    return Number.isFinite(min) && Number.isFinite(max) && min > 0 && max > 0 && min <= max;
+  };
+  if (instruments.includes('GF') && !validRange(payload.gfMinLevel, payload.gfMaxLevel)) return false;
+  if (instruments.includes('DM') && !validRange(payload.dmMinLevel, payload.dmMaxLevel)) return false;
+  return true;
+}
+
+async function handleOfficialSyncRequest(event) {
+  if (event.origin !== EAMUSEMENT_ORIGIN) return;
+  const data = event.data || {};
+  if (data.type !== 'GITADORA_OFFICIAL_SYNC_REQUEST') return;
+
+  const syncId = String(data.syncId || '');
+  try {
+    if (!adminEnabled) throw new Error('全曲同期は管理者アカウントでのみ利用できます。');
+    if (!/^[0-9a-f-]{36}$/i.test(syncId)) throw new Error('同期IDが不正です。');
+    if (!['highest','all','range'].includes(data.mode)) throw new Error('同期モードが不正です。');
+    if (String(data.slug || '') !== getEamusementSlug()) {
+      throw new Error('選択中のGITADORAバージョンと公式サイトのバージョンが一致しません。');
+    }
+    const instruments = normalizeOfficialSyncInstruments(data.instruments);
+    if (!instruments.length) throw new Error('GF / DM のどちらかを選択してください。');
+    if (!validateOfficialSyncRanges(data, instruments)) throw new Error('難易度幅の指定が正しくありません。');
+
+    allScoreSyncId = syncId;
+    allScoreSyncMode = data.mode;
+    allScoreSyncPopup = event.source;
+    allScoreSyncTotals = { received: 0, saved: 0, requested: 0, skipped: 0 };
+    setSkillSyncStatus('公式サイト側で全曲同期を開始しました。完了まで公式サイトの進捗画面を閉じないでください。', 'running');
+    event.source?.postMessage({ type:'GITADORA_OFFICIAL_SYNC_READY', syncId }, EAMUSEMENT_ORIGIN);
+  } catch (error) {
+    event.source?.postMessage({
+      type:'GITADORA_OFFICIAL_SYNC_READY',
+      syncId,
+      error:error?.message || String(error)
+    }, EAMUSEMENT_ORIGIN);
+  }
+}
+
+window.addEventListener('message', handleOfficialSyncRequest);
+
 async function handleAllScoreSyncMessage(event) {
   if (event.origin !== EAMUSEMENT_ORIGIN) return;
   const data = event.data || {};
@@ -230,8 +281,8 @@ async function handleAllScoreSyncMessage(event) {
 
   if (data.type === 'GITADORA_ALL_SCORE_SYNC_START') {
     allScoreSyncInProgress = true;
-    $('allScoreSyncMask').style.display = 'flex';
-    setAllScoreSyncStatus('公式サイトから全曲の達成率を取得しています…', 'running');
+    skillSyncInProgress = true;
+    setSkillSyncStatus('公式サイトから全曲の達成率を取得しています…', 'running');
     return;
   }
 
@@ -243,7 +294,7 @@ async function handleAllScoreSyncMessage(event) {
       allScoreSyncTotals.saved += result.saved;
       allScoreSyncTotals.requested += result.requested;
       allScoreSyncTotals.skipped += result.skipped;
-      setAllScoreSyncStatus(
+      setSkillSyncStatus(
         `登録中… 取得 ${allScoreSyncTotals.received}件 / 登録・更新 ${allScoreSyncTotals.saved}件` +
         (allScoreSyncTotals.requested ? ` / 登録依頼 ${allScoreSyncTotals.requested}件` : ''),
         'running'
@@ -251,9 +302,10 @@ async function handleAllScoreSyncMessage(event) {
       event.source?.postMessage({ type:'GITADORA_ALL_SCORE_SYNC_ACK', syncId:allScoreSyncId, seq:data.seq }, EAMUSEMENT_ORIGIN);
     } catch (error) {
       const message = error?.message || String(error);
-      setAllScoreSyncStatus(`同期に失敗しました: ${message}`, 'error');
+      setSkillSyncStatus(`同期に失敗しました: ${message}`, 'error');
       event.source?.postMessage({ type:'GITADORA_ALL_SCORE_SYNC_ACK', syncId:allScoreSyncId, seq:data.seq, error:message }, EAMUSEMENT_ORIGIN);
       allScoreSyncInProgress = false;
+      skillSyncInProgress = false;
     }
     return;
   }
@@ -265,10 +317,11 @@ async function handleAllScoreSyncMessage(event) {
       const summary = `同期完了：取得 ${allScoreSyncTotals.received}件 / 登録・更新 ${allScoreSyncTotals.saved}件` +
         (allScoreSyncTotals.requested ? ` / 登録依頼 ${allScoreSyncTotals.requested}件` : '') +
         (allScoreSyncTotals.skipped ? ` / スキップ ${allScoreSyncTotals.skipped}件` : '');
-      setAllScoreSyncStatus(summary, 'success');
+      setSkillSyncStatus(summary, 'success');
       await showSiteDialog(summary, '全曲同期完了');
     } finally {
       allScoreSyncInProgress = false;
+      skillSyncInProgress = false;
       allScoreSyncPopup = null;
     }
   }
@@ -301,10 +354,13 @@ function captureOfficialSyncBridgeRequest() {
   try {
     const raw = decodeURIComponent(location.hash.slice('#official-sync-bridge='.length));
     const payload = JSON.parse(raw);
+    const instruments = normalizeOfficialSyncInstruments(payload?.instruments);
     if (/^gitadora_[a-z0-9_]+$/i.test(payload?.slug || '')
       && /^[0-9a-f-]{36}$/i.test(payload?.syncId || '')
-      && ['highest','all','range'].includes(payload?.mode)) {
-      sessionStorage.setItem('gitadora_pending_official_sync_bridge', JSON.stringify(payload));
+      && ['highest','all','range'].includes(payload?.mode)
+      && instruments.length
+      && validateOfficialSyncRanges(payload, instruments)) {
+      sessionStorage.setItem('gitadora_pending_official_sync_bridge', JSON.stringify({ ...payload, instruments }));
     }
   } catch (error) {
     console.error('official sync bridge parse failed:', error);
@@ -6106,7 +6162,7 @@ function openSkillSyncDialog() {
   const step3Note = $('skillSyncStep3Note');
   if (step3Note) {
     step3Note.textContent = adminEnabled
-      ? '公式サイト上で「スキル対象のみ / 全曲（最高難易度のみ） / 全曲（全パート） / 全曲（難易度幅指定）」から同期内容を選択します。'
+      ? '公式サイト上でGF / DMの対象を選び、「スキル対象のみ / 全曲（最高難易度のみ） / 全曲（全パート） / 全曲（難易度幅指定）」から同期内容を選択します。難易度幅はGF / DM別に指定できます。'
       : 'スキル対象を取得し、当サイトに戻ってきます。FCマークやオプションは手動入力です。';
   }
   $('skillSyncMask').style.display = 'flex';

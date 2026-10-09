@@ -33,15 +33,25 @@
 
   const launch = readLaunchPayload();
   const targetWindow = launch?.targetWindow || window.opener;
-  if (!launch?.syncId || !['highest','all','range'].includes(launch?.mode) || launch?.slug !== slug || !targetWindow) {
+  const instruments = Array.isArray(launch?.instruments)
+    ? launch.instruments.filter(value => value === 'GF' || value === 'DM')
+    : ['GF','DM'];
+  if (!launch?.syncId || !['highest','all','range'].includes(launch?.mode) || launch?.slug !== slug || !targetWindow || !instruments.length) {
     alert('Skill Simulatorの「公式サイト同期」から実行してください。');
     return;
   }
   if (launch.mode === 'range') {
-    const minLevel = Number(launch.minLevel);
-    const maxLevel = Number(launch.maxLevel);
-    if (!Number.isFinite(minLevel) || !Number.isFinite(maxLevel) || minLevel <= 0 || minLevel > maxLevel) {
-      alert('難易度幅の指定が正しくありません。');
+    const validateRange = (minValue, maxValue) => {
+      const min = Number(minValue);
+      const max = Number(maxValue);
+      return Number.isFinite(min) && Number.isFinite(max) && min > 0 && max > 0 && min <= max;
+    };
+    if (instruments.includes('GF') && !validateRange(launch.gfMinLevel, launch.gfMaxLevel)) {
+      alert('GFの難易度幅の指定が正しくありません。');
+      return;
+    }
+    if (instruments.includes('DM') && !validateRange(launch.dmMinLevel, launch.dmMaxLevel)) {
+      alert('DMの難易度幅の指定が正しくありません。');
       return;
     }
   }
@@ -274,23 +284,34 @@
   }
 
   async function fetchSong(gfUrl) {
+    const needGF = instruments.includes('GF');
+    const needDM = instruments.includes('DM');
     const [gfDoc, dmDoc] = await Promise.all([
-      fetchDoc(gfUrl),
-      fetchDoc(makeDmUrl(gfUrl)).catch(() => null)
+      needGF ? fetchDoc(gfUrl) : Promise.resolve(null),
+      needDM ? fetchDoc(makeDmUrl(gfUrl)).catch(() => null) : Promise.resolve(null)
     ]);
-    const title = getTitle(gfDoc);
+    const title = getTitle(gfDoc || dmDoc);
     if (!title) return null;
     const allRows = [
-      ...playedChartsGF(gfDoc),
+      ...(gfDoc ? playedChartsGF(gfDoc) : []),
       ...(dmDoc ? playedChartsDM(dmDoc) : [])
     ];
     let selected = allRows;
     if (launch.mode === 'highest') {
-      selected = [...chooseHighest(allRows,'GF'), ...chooseHighest(allRows,'DM')];
+      selected = [
+        ...(needGF ? chooseHighest(allRows,'GF') : []),
+        ...(needDM ? chooseHighest(allRows,'DM') : [])
+      ];
     } else if (launch.mode === 'range') {
-      const minLevel = Number(launch.minLevel);
-      const maxLevel = Number(launch.maxLevel);
-      selected = allRows.filter(row => row.level >= minLevel && row.level <= maxLevel);
+      const gfMin = Number(launch.gfMinLevel);
+      const gfMax = Number(launch.gfMaxLevel);
+      const dmMin = Number(launch.dmMinLevel);
+      const dmMax = Number(launch.dmMaxLevel);
+      selected = allRows.filter(row => {
+        if (row.instrument === 'GF') return needGF && row.level >= gfMin && row.level <= gfMax;
+        if (row.instrument === 'DM') return needDM && row.level >= dmMin && row.level <= dmMax;
+        return false;
+      });
     }
     return selected.map(row => ({ title, part:row.part, rate:row.rate, level:row.level, category:'OTHER' }));
   }
@@ -312,7 +333,7 @@
   async function sendChunk(records) {
     if (!records.length) return;
     const currentSeq = ++seq;
-    targetWindow.postMessage({ type:'GITADORA_ALL_SCORE_SYNC_CHUNK', syncId:launch.syncId, seq:currentSeq, slug, mode:launch.mode, records }, APP_ORIGIN);
+    targetWindow.postMessage({ type:'GITADORA_ALL_SCORE_SYNC_CHUNK', syncId:launch.syncId, seq:currentSeq, slug, mode:launch.mode, instruments, records }, APP_ORIGIN);
     await waitForAck(currentSeq);
     sentRecords += records.length;
   }
@@ -334,7 +355,7 @@
       context = getCategoryContext(doc);
     }
     if (!context?.options?.length) throw new Error('曲名カテゴリを取得できませんでした。');
-    targetWindow.postMessage({ type:'GITADORA_ALL_SCORE_SYNC_START', syncId:launch.syncId, slug, mode:launch.mode }, APP_ORIGIN);
+    targetWindow.postMessage({ type:'GITADORA_ALL_SCORE_SYNC_START', syncId:launch.syncId, slug, mode:launch.mode, instruments }, APP_ORIGIN);
 
     for (let categoryIndex=0; categoryIndex<context.options.length; categoryIndex++) {
       const option = context.options[categoryIndex];
