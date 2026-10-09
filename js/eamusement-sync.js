@@ -36,24 +36,40 @@
     const style = document.createElement('style');
     style.id = `${PICKER_ID}-style`;
     style.textContent = `
-      #${PICKER_ID}{position:fixed;inset:0;z-index:2147483647;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(2,6,23,.55);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Yu Gothic",Meiryo,sans-serif;color:#0f172a}
-      #${PICKER_ID} .gos-card{width:min(92vw,470px);background:#fff;border:1px solid #94a3b8;border-radius:14px;box-shadow:0 20px 70px rgba(0,0,0,.35);overflow:hidden}
-      #${PICKER_ID} .gos-head{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid #cbd5e1;font-size:18px}
-      #${PICKER_ID} .gos-close{width:34px;height:34px;border:0;background:transparent;font-size:22px;cursor:pointer}
-      #${PICKER_ID} .gos-body{padding:16px}
-      #${PICKER_ID} label.gos-option{display:flex;align-items:center;gap:8px;min-height:36px;font-size:16px;cursor:pointer}
-      #${PICKER_ID} input[type="radio"],#${PICKER_ID} input[type="checkbox"]{width:18px;height:18px;margin:0}
-      #${PICKER_ID} .gos-device{display:flex;align-items:center;gap:18px;padding:0 0 12px;margin-bottom:8px;border-bottom:1px solid #e2e8f0}
-      #${PICKER_ID} .gos-device strong{font-size:14px;color:#475569;margin-right:2px}
-      #${PICKER_ID} .gos-device label{display:flex;align-items:center;gap:6px;font-weight:700;cursor:pointer}
-      #${PICKER_ID} .gos-range-wrap{margin:4px 0 8px 28px}
-      #${PICKER_ID} .gos-range-row{display:grid;grid-template-columns:34px 90px 18px 90px;align-items:center;gap:8px;margin-top:7px}
-      #${PICKER_ID} .gos-range-row b{font-size:13px;color:#475569}
-      #${PICKER_ID} .gos-range-row input{width:90px;height:36px;box-sizing:border-box;border:1px solid #94a3b8;border-radius:6px;padding:0 8px;font-size:16px;text-align:center}
-      #${PICKER_ID} .gos-actions{display:flex;justify-content:flex-end;margin-top:16px}
-      #${PICKER_ID} .gos-submit{height:38px;padding:0 20px;border:1px solid #334155;border-radius:7px;background:#fff;color:#0f172a;font-weight:700;font-size:15px;cursor:pointer}
-      #${PICKER_ID} .gos-submit:disabled{opacity:.5;cursor:not-allowed}
-      #${PICKER_ID} .gos-error{min-height:20px;margin-top:8px;color:#b91c1c;font-size:13px}
+      #${PICKER_ID}{position:fixed;inset:0;z-index:2147483647;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(2,6,23,.62);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Yu Gothic",Meiryo,sans-serif;color:#f8fafc}
+      #${PICKER_ID} .gos-card{width:min(92vw,500px);border:2px solid #3b82f6;border-radius:18px;background:#0f172a;box-shadow:0 24px 80px rgba(0,0,0,.45);overflow:hidden}
+      #${PICKER_ID} .gos-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 18px 12px;border-bottom:1px solid #334155}
+      #${PICKER_ID} .gos-head strong{font-size:21px;font-weight:800;line-height:1.3;color:#f8fafc}
+      #${PICKER_ID} .gos-close{flex:0 0 auto;min-width:86px;height:36px;padding:0 16px;border:1px solid #64748b;border-radius:10px;background:#1e293b;color:#fff;font:inherit;font-size:14px;font-weight:800;cursor:pointer}
+      #${PICKER_ID} .gos-close:active{transform:translateY(1px)}
+      #${PICKER_ID} .gos-body{padding:16px 18px 18px}
+      #${PICKER_ID} label.gos-option{display:flex;align-items:center;gap:10px;min-height:40px;padding:2px 0;font-size:16px;font-weight:700;color:#f8fafc;cursor:pointer}
+      #${PICKER_ID} input[type="radio"],#${PICKER_ID} input[type="checkbox"]{width:20px;height:20px;margin:0;accent-color:#3b82f6}
+      #${PICKER_ID} .gos-device{display:flex;align-items:center;gap:18px;padding:0 0 12px;margin-bottom:8px;border-bottom:1px solid #334155}
+      #${PICKER_ID} .gos-device strong{font-size:13px;color:#94a3b8;margin-right:2px}
+      #${PICKER_ID} .gos-device label{display:flex;align-items:center;gap:7px;font-size:16px;font-weight:800;color:#f8fafc;cursor:pointer}
+      #${PICKER_ID} .gos-range-wrap{margin:4px 0 8px 30px}
+      #${PICKER_ID} .gos-range-row{display:grid;grid-template-columns:34px minmax(0,1fr) 18px minmax(0,1fr);align-items:center;gap:8px;margin-top:8px}
+      #${PICKER_ID} .gos-range-row b{font-size:13px;color:#cbd5e1}
+      #${PICKER_ID} .gos-range-row input{width:100%;height:38px;box-sizing:border-box;border:1px solid #64748b;border-radius:8px;padding:0 9px;background:#111827;color:#f8fafc;font-size:16px;text-align:center;outline:none}
+      #${PICKER_ID} .gos-range-row input:focus{border-color:#3b82f6;box-shadow:0 0 0 2px rgba(59,130,246,.18)}
+      #${PICKER_ID} .gos-range-row input:disabled{opacity:.45;color:#94a3b8;background:#0b1220}
+      #${PICKER_ID} .gos-range-row input::placeholder{color:#64748b;opacity:1}
+      #${PICKER_ID} .gos-actions{display:flex;justify-content:flex-end;margin-top:16px;padding-top:14px;border-top:1px solid #334155}
+      #${PICKER_ID} .gos-submit{min-width:112px;height:38px;padding:0 20px;border:1px solid #3b82f6;border-radius:10px;background:#3b82f6;color:#fff;font:inherit;font-weight:800;font-size:15px;cursor:pointer}
+      #${PICKER_ID} .gos-submit:active{transform:translateY(1px)}
+      #${PICKER_ID} .gos-submit:disabled{opacity:.5;cursor:not-allowed;transform:none}
+      #${PICKER_ID} .gos-error{min-height:20px;margin-top:8px;color:#fecaca;font-size:13px;line-height:1.5}
+      @media(max-width:520px){
+        #${PICKER_ID}{padding:12px}
+        #${PICKER_ID} .gos-card{width:min(94vw,500px)}
+        #${PICKER_ID} .gos-head{padding:14px 14px 11px}
+        #${PICKER_ID} .gos-head strong{font-size:19px}
+        #${PICKER_ID} .gos-close{min-width:76px;height:34px;padding:0 13px}
+        #${PICKER_ID} .gos-body{padding:14px}
+        #${PICKER_ID} .gos-device{gap:14px}
+        #${PICKER_ID} .gos-range-wrap{margin-left:28px}
+      }
     `;
     document.head.appendChild(style);
 
@@ -61,7 +77,7 @@
     root.id = PICKER_ID;
     root.innerHTML = `
       <div class="gos-card" role="dialog" aria-modal="true" aria-labelledby="gosTitle">
-        <div class="gos-head"><strong id="gosTitle">同期するデータを選択</strong><button type="button" class="gos-close" aria-label="閉じる">×</button></div>
+        <div class="gos-head"><strong id="gosTitle">同期するデータを選択</strong><button type="button" class="gos-close">閉じる</button></div>
         <div class="gos-body">
           <div class="gos-device"><strong>対象</strong><label><input type="checkbox" name="gosInstrument" value="GF" checked>GF</label><label><input type="checkbox" name="gosInstrument" value="DM" checked>DM</label></div>
           <label class="gos-option"><input type="radio" name="gosMode" value="skill" checked>スキル対象のみ</label>
