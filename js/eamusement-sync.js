@@ -38,9 +38,9 @@
     style.textContent = `
       #${PICKER_ID}{position:fixed;inset:0;z-index:2147483647;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(2,6,23,.62);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Yu Gothic",Meiryo,sans-serif;color:#f8fafc}
       #${PICKER_ID} .gos-card{width:min(92vw,500px);border:2px solid #3b82f6;border-radius:18px;background:#0f172a;box-shadow:0 24px 80px rgba(0,0,0,.45);overflow:hidden}
-      #${PICKER_ID} .gos-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 18px 12px;border-bottom:1px solid #334155}
-      #${PICKER_ID} .gos-head strong{font-size:21px;font-weight:800;line-height:1.3;color:#f8fafc}
-      #${PICKER_ID} .gos-close{flex:0 0 auto;min-width:86px;height:36px;padding:0 16px;border:1px solid #64748b;border-radius:10px;background:#1e293b;color:#fff;font:inherit;font-size:14px;font-weight:800;cursor:pointer}
+      #${PICKER_ID} .gos-head{position:relative;min-height:36px;padding:16px 122px 12px 18px;border-bottom:1px solid #334155}
+      #${PICKER_ID} .gos-head strong{display:block;font-size:21px;font-weight:800;line-height:1.3;color:#f8fafc}
+      #${PICKER_ID} .gos-close{position:absolute;top:12px;right:14px;min-width:86px;height:36px;padding:0 16px;border:1px solid #64748b;border-radius:10px;background:#1e293b;color:#fff;font:inherit;font-size:14px;font-weight:800;cursor:pointer}
       #${PICKER_ID} .gos-close:active{transform:translateY(1px)}
       #${PICKER_ID} .gos-body{padding:16px 18px 18px}
       #${PICKER_ID} label.gos-option{display:flex;align-items:center;gap:10px;min-height:40px;padding:2px 0;font-size:16px;font-weight:700;color:#f8fafc;cursor:pointer}
@@ -63,9 +63,9 @@
       @media(max-width:520px){
         #${PICKER_ID}{padding:12px}
         #${PICKER_ID} .gos-card{width:min(94vw,500px)}
-        #${PICKER_ID} .gos-head{padding:14px 14px 11px}
+        #${PICKER_ID} .gos-head{min-height:34px;padding:14px 104px 11px 14px}
         #${PICKER_ID} .gos-head strong{font-size:19px}
-        #${PICKER_ID} .gos-close{min-width:76px;height:34px;padding:0 13px}
+        #${PICKER_ID} .gos-close{top:10px;right:12px;min-width:76px;height:34px;padding:0 13px}
         #${PICKER_ID} .gos-body{padding:14px}
         #${PICKER_ID} .gos-device{gap:14px}
         #${PICKER_ID} .gos-range-wrap{margin-left:28px}
