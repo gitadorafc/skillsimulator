@@ -55,6 +55,7 @@ import {
   renderRateComparisonRows
 } from './score-detail-renderer.js?v=4_27_26';
 import { createSiteDialogController } from './site-dialog.js?v=4_15_3';
+import { createTutorialController } from './tutorial.js?v=4_35_0';
 import { selectSkillTargetRows, calcTargetTotals } from './skill-targets.js?v=4_15_7';
 import { renderPartOptions, renderSongSuggestions } from './score-form-renderer.js?v=4_15_8';
 import { getMyPrivateScoreComments, savePrivateScoreComment } from './score-comments.js?v=4_19_1';
@@ -1478,6 +1479,17 @@ async function getPublicUserRegisteredScores(userId, instrument = activeInstrume
   return rows;
 }
 
+async function getMyTutorialCompleted() {
+  const { data, error } = await supabase.rpc('get_my_tutorial_status');
+  if (error) throw error;
+  return Boolean(data);
+}
+
+async function markMyTutorialCompleted() {
+  const { error } = await supabase.rpc('complete_my_tutorial');
+  if (error) throw error;
+}
+
 function normalizeXIdInput(value) {
   let text = String(value || '').trim();
   if (!text) return '';
@@ -1674,6 +1686,9 @@ async function showApp(session) {
   setAppLoading('画面を準備中...');
   await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
   finishAppLoading();
+  requestAnimationFrame(() => {
+    void tutorialController?.start();
+  });
 }
 
 document.addEventListener('visibilitychange', () => {
@@ -5894,6 +5909,15 @@ async function openBoardAuthorUser(userId, username) {
   await openUserDetail(userId, username, origin);
 }
 
+const tutorialController = createTutorialController({
+  openMenu,
+  closeMenu,
+  switchTab,
+  getCompleted: getMyTutorialCompleted,
+  markCompleted: markMyTutorialCompleted,
+  onError: (...args) => console.warn(...args)
+});
+
 /* ---------- イベント ---------- */
 $('authForm').addEventListener('submit', async e => {
   e.preventDefault();
@@ -7475,6 +7499,10 @@ $('btnCopyOfficialRankingScript').addEventListener('click', () => copyOfficialRa
 }));
 $('btnMenuRivals').addEventListener('click', openRivalManage);
 $('btnMenuHowTo').addEventListener('click', openHowTo);
+$('btnMenuTutorial').addEventListener('click', () => {
+  closeMenu();
+  void tutorialController.start({ force: true });
+});
 $('btnCloseHowTo').addEventListener('click', () => closeHowTo(true));
 $('howToMask').addEventListener('click', e => { if (e.target === $('howToMask')) closeHowTo(); });
 $('btnCloseRivalManage').addEventListener('click', () => closeRivalManage(true));
