@@ -55,7 +55,7 @@ import {
   renderRateComparisonRows
 } from './score-detail-renderer.js?v=4_27_26';
 import { createSiteDialogController } from './site-dialog.js?v=4_15_3';
-import { createTutorialController } from './tutorial.js?v=4_35_0';
+import { createTutorialController } from './tutorial.js?v=4_35_1';
 import { selectSkillTargetRows, calcTargetTotals } from './skill-targets.js?v=4_15_7';
 import { renderPartOptions, renderSongSuggestions } from './score-form-renderer.js?v=4_15_8';
 import { getMyPrivateScoreComments, savePrivateScoreComment } from './score-comments.js?v=4_19_1';
