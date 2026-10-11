@@ -55,7 +55,7 @@ import {
   renderRateComparisonRows
 } from './score-detail-renderer.js?v=4_27_26';
 import { createSiteDialogController } from './site-dialog.js?v=4_15_3';
-import { createTutorialController } from './tutorial.js?v=4_35_1';
+import { createTutorialController } from './tutorial.js?v=4_36_0';
 import { selectSkillTargetRows, calcTargetTotals } from './skill-targets.js?v=4_15_7';
 import { renderPartOptions, renderSongSuggestions } from './score-form-renderer.js?v=4_15_8';
 import { getMyPrivateScoreComments, savePrivateScoreComment } from './score-comments.js?v=4_19_1';
@@ -1479,6 +1479,45 @@ async function getPublicUserRegisteredScores(userId, instrument = activeInstrume
   return rows;
 }
 
+// 公開確認は移行時点で対象になった既存ユーザーにだけ表示する。
+let registrationNoticeChecking = false;
+let registrationNoticeDisplayedFor = null;
+async function showRegistrationNoticeIfNeeded(userId) {
+  if (!userId || registrationNoticeChecking || registrationNoticeDisplayedFor === userId) return;
+  registrationNoticeChecking = true;
+  try {
+    const { data, error } = await supabase.rpc('get_my_registration_notice_status');
+    if (error) throw error;
+    if (currentUserId !== userId || data !== true) return;
+    registrationNoticeDisplayedFor = userId;
+    $('registrationNoticeStatus').textContent = '';
+    $('registrationNoticeMask').style.display = 'flex';
+  } catch (error) {
+    console.warn('登録曲公開確認の取得に失敗しました:', error);
+  } finally {
+    registrationNoticeChecking = false;
+  }
+}
+
+async function completeRegistrationNotice(makePublic) {
+  const yes = $('btnRegistrationNoticePublic');
+  const no = $('btnRegistrationNoticePrivate');
+  yes.disabled = no.disabled = true;
+  $('registrationNoticeStatus').textContent = '保存中...';
+  try {
+    const { data, error } = await supabase.rpc('complete_my_registration_notice', { p_make_public: makePublic });
+    if (error) throw error;
+    if (data !== true) throw new Error('保存できませんでした。');
+    $('registrationNoticeMask').style.display = 'none';
+    $('registrationNoticeStatus').textContent = '';
+  } catch (error) {
+    $('registrationNoticeStatus').textContent = '保存に失敗しました。通信状態を確認して再度お試しください。';
+    console.warn('登録曲公開確認の保存に失敗しました:', error);
+  } finally {
+    yes.disabled = no.disabled = false;
+  }
+}
+
 async function getMyTutorialCompleted() {
   const { data, error } = await supabase.rpc('get_my_tutorial_status');
   if (error) throw error;
@@ -1688,6 +1727,8 @@ async function showApp(session) {
   finishAppLoading();
   requestAnimationFrame(() => {
     void tutorialController?.start();
+    // 新規登録ユーザーはDB上で対象外。チュートリアル中の重複表示も防止する。
+    void showRegistrationNoticeIfNeeded(currentUserId);
   });
 }
 
@@ -1835,6 +1876,8 @@ async function init() {
     }
 
     if (event === 'SIGNED_OUT' || !session) {
+      $('registrationNoticeMask').style.display = 'none';
+      registrationNoticeDisplayedFor = null;
       finishAppLoading();
       adminEnabled = false;
       adminAccessChecked = false;
@@ -5919,6 +5962,9 @@ const tutorialController = createTutorialController({
 });
 
 /* ---------- イベント ---------- */
+$('btnRegistrationNoticePublic').addEventListener('click', () => void completeRegistrationNotice(true));
+$('btnRegistrationNoticePrivate').addEventListener('click', () => void completeRegistrationNotice(false));
+
 $('authForm').addEventListener('submit', async e => {
   e.preventDefault();
 

@@ -697,3 +697,19 @@
     </div>
   </div>
 </div>
+
+<!-- v4.36.0: 移行時点で非公開だった既存ユーザーのみ、一度だけ表示 -->
+<div id="registrationNoticeMask" class="site-dialog-mask" role="dialog" aria-modal="true" aria-labelledby="registrationNoticeTitle">
+  <div class="registration-notice-dialog">
+    <h2 id="registrationNoticeTitle">登録曲を公開しますか？</h2>
+    <p>登録曲は現在「非公開」に設定されています。</p>
+    <p>公開すると、他のユーザーがあなたの登録曲を確認でき、ライバル比較でもスキル対象外の曲まで比較できるようになります。</p>
+    <p class="registration-notice-info">非公開のままでも、スキル対象曲はライバル比較に使用されます。</p>
+    <div class="registration-notice-actions">
+      <button id="btnRegistrationNoticePublic" type="button" class="registration-notice-primary">公開する</button>
+      <button id="btnRegistrationNoticePrivate" type="button" class="registration-notice-secondary">非公開のまま</button>
+    </div>
+    <p class="registration-notice-footnote">あとからMENU → 機能設定で変更できます。</p>
+    <div id="registrationNoticeStatus" class="registration-notice-status" role="status" aria-live="polite"></div>
+  </div>
+</div>
