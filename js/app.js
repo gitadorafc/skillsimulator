@@ -55,7 +55,7 @@ import {
   renderRateComparisonRows
 } from './score-detail-renderer.js?v=4_27_26';
 import { createSiteDialogController } from './site-dialog.js?v=4_15_3';
-import { createTutorialController } from './tutorial.js?v=4_36_0';
+import { createTutorialController } from './tutorial.js?v=4_36_1';
 import { selectSkillTargetRows, calcTargetTotals } from './skill-targets.js?v=4_15_7';
 import { renderPartOptions, renderSongSuggestions } from './score-form-renderer.js?v=4_15_8';
 import { getMyPrivateScoreComments, savePrivateScoreComment } from './score-comments.js?v=4_19_1';
@@ -122,6 +122,8 @@ let allScoreSyncPopup = null;
 let allScoreSyncId = '';
 let allScoreSyncInProgress = false;
 let allScoreSyncTotals = { received: 0, saved: 0, requested: 0, skipped: 0 };
+// 同一同期ID・送信番号は一度だけ保存し、再送には同じ結果を返す。
+let allScoreChunkResults = new Map();
 
 function buildAllScoreSyncBookmarklet() {
   return "javascript:void(!function(d){var s=d.createElement('script');s.src='https://gitadorafc.github.io/skillsimulator/js/eamusement-all-scores.js?t='+Date.now();d.head.appendChild(s)}(document))";
@@ -248,6 +250,7 @@ async function handleOfficialSyncRequest(event) {
     allScoreSyncMode = data.mode;
     allScoreSyncPopup = event.source;
     allScoreSyncTotals = { received: 0, saved: 0, requested: 0, skipped: 0 };
+    allScoreChunkResults = new Map();
     setSkillSyncStatus('公式サイト側で全曲同期を開始しました。完了まで公式サイトの進捗画面を閉じないでください。', 'running');
     event.source?.postMessage({ type:'GITADORA_OFFICIAL_SYNC_READY', syncId }, EAMUSEMENT_ORIGIN);
   } catch (error) {
@@ -282,26 +285,41 @@ async function handleAllScoreSyncMessage(event) {
   }
 
   if (data.type === 'GITADORA_ALL_SCORE_SYNC_CHUNK') {
-    try {
+    const seq = data.seq;
+    if (!Number.isSafeInteger(seq) || seq < 1) return;
+    // postMessageによる再送は保存中にも到着する。Promiseを共有して二重保存を避ける。
+    if (!allScoreChunkResults.has(seq)) {
       const records = Array.isArray(data.records) ? data.records : [];
-      const result = await saveAllScoreSyncChunk(records);
-      allScoreSyncTotals.received += records.length;
-      allScoreSyncTotals.saved += result.saved;
-      allScoreSyncTotals.requested += result.requested;
-      allScoreSyncTotals.skipped += result.skipped;
-      setSkillSyncStatus(
-        `登録中… 取得 ${allScoreSyncTotals.received}件 / 登録・更新 ${allScoreSyncTotals.saved}件` +
-        (allScoreSyncTotals.requested ? ` / 登録依頼 ${allScoreSyncTotals.requested}件` : ''),
-        'running'
-      );
-      event.source?.postMessage({ type:'GITADORA_ALL_SCORE_SYNC_ACK', syncId:allScoreSyncId, seq:data.seq }, EAMUSEMENT_ORIGIN);
-    } catch (error) {
-      const message = error?.message || String(error);
-      setSkillSyncStatus(`同期に失敗しました: ${message}`, 'error');
-      event.source?.postMessage({ type:'GITADORA_ALL_SCORE_SYNC_ACK', syncId:allScoreSyncId, seq:data.seq, error:message }, EAMUSEMENT_ORIGIN);
-      allScoreSyncInProgress = false;
-      skillSyncInProgress = false;
+      const task = (async () => {
+        try {
+          const result = await saveAllScoreSyncChunk(records);
+          allScoreSyncTotals.received += records.length;
+          allScoreSyncTotals.saved += result.saved;
+          allScoreSyncTotals.requested += result.requested;
+          allScoreSyncTotals.skipped += result.skipped;
+          setSkillSyncStatus(
+            `登録中… 取得 ${allScoreSyncTotals.received}件 / 登録・更新 ${allScoreSyncTotals.saved}件` +
+            (allScoreSyncTotals.requested ? ` / 登録依頼 ${allScoreSyncTotals.requested}件` : ''),
+            'running'
+          );
+          return { error: null };
+        } catch (error) {
+          const message = error?.message || String(error);
+          setSkillSyncStatus(`同期に失敗しました: ${message}`, 'error');
+          allScoreSyncInProgress = false;
+          skillSyncInProgress = false;
+          return { error: message };
+        }
+      })();
+      allScoreChunkResults.set(seq, task);
     }
+    const result = await allScoreChunkResults.get(seq);
+    // 間に別の同期が始まっていた場合、古い同期へ応答しない。
+    if (data.syncId !== allScoreSyncId) return;
+    event.source?.postMessage({
+      type:'GITADORA_ALL_SCORE_SYNC_ACK', syncId:allScoreSyncId, seq,
+      ...(result.error ? { error:result.error } : {})
+    }, EAMUSEMENT_ORIGIN);
     return;
   }
 

@@ -316,9 +316,9 @@
     return selected.map(row => ({ title, part:row.part, rate:row.rate, level:row.level, category:'OTHER' }));
   }
 
-  function waitForAck(currentSeq) {
+  function waitForAck(currentSeq, timeoutMs = 60000) {
     return new Promise((resolve, reject) => {
-      const timer = setTimeout(() => { cleanup(); reject(new Error('Skill Simulatorからの応答がありません。')); }, 120000);
+      const timer = setTimeout(() => { cleanup(); reject(new Error('応答待ちタイムアウト')); }, timeoutMs);
       function cleanup() { clearTimeout(timer); window.removeEventListener('message', onMessage); }
       function onMessage(event) {
         if (event.origin !== APP_ORIGIN || event.source !== targetWindow) return;
@@ -333,9 +333,22 @@
   async function sendChunk(records) {
     if (!records.length) return;
     const currentSeq = ++seq;
-    targetWindow.postMessage({ type:'GITADORA_ALL_SCORE_SYNC_CHUNK', syncId:launch.syncId, seq:currentSeq, slug, mode:launch.mode, instruments, records }, APP_ORIGIN);
-    await waitForAck(currentSeq);
-    sentRecords += records.length;
+    const payload = { type:'GITADORA_ALL_SCORE_SYNC_CHUNK', syncId:launch.syncId, seq:currentSeq, slug, mode:launch.mode, instruments, records };
+    for (let attempt=1; attempt<=3; attempt++) {
+      if (targetWindow.closed) throw new Error('Skill Simulatorの同期先タブが閉じられました。');
+      // 再送でも同じsyncId/seqを送る。受信側は保存済み結果を再応答する。
+      const response = waitForAck(currentSeq);
+      targetWindow.postMessage(payload, APP_ORIGIN);
+      try {
+        await response;
+        sentRecords += records.length;
+        return;
+      } catch (error) {
+        if (error?.message !== '応答待ちタイムアウト') throw error;
+        if (attempt === 3) throw new Error(`Skill Simulatorから保存結果の応答がありません（送信 ${currentSeq}、3回確認）。同期先タブを確認してください。`);
+        updateProgress({ status:`Skill Simulatorの応答を再確認しています…（送信 ${currentSeq}、${attempt}/2回目）` });
+      }
+    }
   }
   async function flushRecords(records) {
     for (let offset=0; offset<records.length; offset+=CONFIG.SEND_CHUNK_SIZE) {
