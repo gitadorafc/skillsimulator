@@ -1,83 +1,21 @@
-/* v4.36.7 管理者限定・登録画面PC試験。旧4.36.5/6の中央寄せ制限は削除。
-   管理者判定はapp.jsの既存is_adminに依存し、他タブ・モーダルには影響させない。 */
+/* v4.36.8 管理者限定・登録一覧の画面幅適応テスト。
+   4.36.5～4.36.7のカード内部強制配置は撤去する。
+   既存のカード自体のCSS（layout-canonical.css）をそのまま使用。 */
 @media (min-width: 901px) {
-  /* 一覧と検索/絞り込みの横幅を揃え、使えるPCの横幅を活用する。 */
-  body.admin-responsive-preview #searchArea:not(.hidden),
-  body.admin-responsive-preview #viewAllManage:not(.hidden) {
-    width: 100% !important;
-    max-width: none !important;
-    margin-inline: 0 !important;
-    box-sizing: border-box;
+  /* 通常表示: カードに適切な横幅を与えるため、幅に応じて列数を増やす。
+     登録順・検索/フィルタ・カード内部のUIを変更しない。 */
+  body.admin-responsive-preview:not(.skill-target-columns) #viewAllManage:not(.hidden) {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 390px), 1fr));
+    gap: 8px;
+    align-items: start;
   }
-  body.admin-responsive-preview #viewAllManage .dc-card-manage {
-    min-width: 0;
-    box-sizing: border-box;
-  }
-
-  /* 通常表示: 2段のまま、レベル・達成率・FC・オプションを近接させる。
-     曲名は広い中央列を使い、スキルと編集だけを右側にまとめる。 */
   body.admin-responsive-preview:not(.skill-target-columns) #viewAllManage .dc-card-manage {
-    grid-template-columns: 76px 75px minmax(0,1fr) 90px 92px !important;
-    column-gap: 10px !important;
-    min-height: 64px !important;
-    padding: 7px 12px !important;
+    min-width: 0;
   }
-  body.admin-responsive-preview:not(.skill-target-columns) #viewAllManage .dc-card-manage > .dc-title {
-    grid-column: 2 / 5 !important;
+  body.admin-responsive-preview:not(.skill-target-columns) #viewAllManage .own-registered-records-more,
+  body.admin-responsive-preview:not(.skill-target-columns) #viewAllManage .empty-state {
+    grid-column: 1 / -1;
   }
-  body.admin-responsive-preview:not(.skill-target-columns) #viewAllManage .dc-card-manage > .dc-rate {
-    justify-self: start !important;
-  }
-  body.admin-responsive-preview:not(.skill-target-columns) #viewAllManage .dc-card-manage > .dc-edit {
-    justify-self: end !important;
-  }
-
-  /* 横並びON: 2列をページ幅で利用。編集行を廃止し、最下段に
-     レベル / 達成率 / スキル値 / 編集を並べてカードの高さを圧縮する。 */
-  body.admin-responsive-preview.skill-target-columns #viewAllManage:not(.hidden) {
-    display: grid !important;
-    grid-template-columns: repeat(2,minmax(0,1fr)) !important;
-    gap: 6px !important;
-  }
-  body.admin-responsive-preview.skill-target-columns #viewAllManage .dc-card-manage {
-    grid-template-columns: minmax(62px, .8fr) minmax(75px, 1fr) 86px 84px !important;
-    grid-template-rows: 19px minmax(23px,auto) 30px !important;
-    column-gap: 6px !important;
-    row-gap: 2px !important;
-    min-height: 0 !important;
-    padding: 5px 7px !important;
-  }
-  body.admin-responsive-preview.skill-target-columns #viewAllManage .dc-card-manage > .dc-part {
-    grid-column: 1 !important;grid-row: 1 !important;
-  }
-  body.admin-responsive-preview.skill-target-columns #viewAllManage .dc-card-manage > .dc-fc {
-    grid-column: 2 !important;grid-row: 1 !important;
-  }
-  body.admin-responsive-preview.skill-target-columns #viewAllManage .dc-card-manage > .dc-option {
-    grid-column: 3 / 5 !important;grid-row: 1 !important;
-    justify-content: center !important;
-  }
-  body.admin-responsive-preview.skill-target-columns #viewAllManage .dc-card-manage > .dc-title {
-    grid-column: 1 / 5 !important;grid-row: 2 !important;
-    height: auto !important;min-height: 23px !important;max-height: none !important;
-  }
-  body.admin-responsive-preview.skill-target-columns #viewAllManage .dc-card-manage > .dc-lv {
-    grid-column: 1 !important;grid-row: 3 !important;
-  }
-  body.admin-responsive-preview.skill-target-columns #viewAllManage .dc-card-manage > .dc-rate {
-    grid-column: 2 !important;grid-row: 3 !important;
-  }
-  body.admin-responsive-preview.skill-target-columns #viewAllManage .dc-card-manage > .dc-skill {
-    grid-column: 3 !important;grid-row: 3 !important;
-    justify-self: end !important;max-width: 86px !important;
-  }
-  body.admin-responsive-preview.skill-target-columns #viewAllManage .dc-card-manage > .dc-edit {
-    grid-column: 4 !important;grid-row: 3 !important;
-    width: 100% !important;height: 30px !important;min-height: 0 !important;
-    border-top: 0 !important;padding: 0 !important;margin: 0 !important;
-    align-self: center !important;
-  }
-  body.admin-responsive-preview.skill-target-columns #viewAllManage .dc-card-manage > .dc-edit .m-action-btn.btn-e {
-    width: 100% !important;height: 26px !important;min-height: 26px !important;
-  }
+  /* 横並びON: 既存のHOT/OTHER左右固定とカード配置を優先して維持。 */
 }
