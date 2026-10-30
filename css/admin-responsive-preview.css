@@ -1,24 +1,35 @@
-/* v4.36.5 管理者アカウント限定のレイアウト試験。
-   JS側のis_admin()で付与されたクラスがあるときだけ作用する。
-   狭いスマートフォンでは既存レイアウトを変更しない。 */
-@media (min-width: 701px) {
-  body.admin-responsive-preview #viewSkill:not(.hidden) {
-    width: min(100%, 1000px) !important;
-    max-width: 1000px !important;
-    margin-inline: auto !important;
+/* v4.36.6: 管理者のみ・登録画面に限定したPC表示試験。
+ * 前版のスキル対象への幅制限は撤回。モーダル、他タブ、一般ユーザーには非適用。
+ * モバイル・狭幅タブレットの既存表示を保つ。 */
+@media (min-width: 901px) {
+  /* 検索・フィルタをカード一覧と同じ幅で中央揃えにする。 */
+  body.admin-responsive-preview:not(.skill-target-columns) #searchArea:not(.hidden),
+  body.admin-responsive-preview:not(.skill-target-columns) #viewAllManage:not(.hidden) {
+    width: min(100%, 920px) !important;
+    max-width: 920px !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
     box-sizing: border-box;
   }
-
-  /* 2カラムの既存グリッドを保持し、内部のカードが最小幅を
-     押し広げて横スクロールを発生させないようにする。 */
-  body.admin-responsive-preview.skill-target-columns #viewSkill > .sk-section {
-    min-width: 0;
-    max-width: 100%;
+  /* 横並びONはHOT/OTHERの2列が窮屈にならない幅を使用。 */
+  body.admin-responsive-preview.skill-target-columns #searchArea:not(.hidden),
+  body.admin-responsive-preview.skill-target-columns #viewAllManage:not(.hidden) {
+    width: min(100%, 1180px) !important;
+    max-width: 1180px !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    box-sizing: border-box;
   }
-
-  body.admin-responsive-preview #viewSkill .dc-card {
+  body.admin-responsive-preview #viewAllManage .dc-card {
     min-width: 0;
     max-width: 100%;
     box-sizing: border-box;
+  }
+  body.admin-responsive-preview.skill-target-columns #viewAllManage {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 7px !important;
+  }
+  body.admin-responsive-preview.skill-target-columns #viewAllManage > * {
+    min-width: 0;
   }
 }
