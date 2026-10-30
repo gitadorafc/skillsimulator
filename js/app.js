@@ -73,7 +73,7 @@ let adminEnabled = false;
 import { supabase } from './supabase.js?v=21_57';
 import { register, login, loginForAccountSwitch, logout, changePassword, getSession, validateUsername, isEmailLikeUsername } from './auth.js?v=4_36_9';
 import { initAuthCaptcha, prepareAuthCaptcha, getAuthCaptchaToken, resetAuthCaptcha } from './captcha.js?v=21_84';
-import { PARTS, partsForInstrument, normalizeSongTitleForMatch, searchSongTitles, getSongByTitleAndPart, requestSongMaster, requestSongLevelCorrection } from './songs.js?v=4_36_13';
+import { PARTS, partsForInstrument, normalizeSongTitleForMatch, searchSongTitles, getSongByTitleAndPart, requestSongMaster, requestSongLevelCorrection } from './songs.js?v=4_37_0';
 import { calcSkill, formatLevel, formatRate, formatSkill, getMyScores, saveScore, deleteScore } from './scores.js?v=4_19_1';
 import { getGameVersions } from './versions.js?v=21_57';
 const {
@@ -930,7 +930,7 @@ async function deleteMasterSongTitle(title) {
 
 import * as adminApi from './admin.js?v=4_36_9';
 import * as adminBoard from './admin-board.js?v=4_36_3';
-import { listUserSummaries, getUserSkillTargets, getSongRateComparison, getSongPersonalBestHistory, getSongOptionDistribution, getMyFavorites, removeFavorite } from './users.js?v=3_6_0';
+import { listUserSummaries, getUserSkillTargets, getSongRateComparison, getSongPersonalBestHistory, getSongOptionDistribution, getMyFavorites, removeFavorite } from './users.js?v=4_37_0';
 
 let activeInstrument = localStorage.getItem('gitadora_instrument') === 'DM' ? 'DM' : 'GF';
 let userListSort = { key: activeInstrument === 'DM' ? 'dm' : 'gf', dir: 'desc' };

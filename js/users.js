@@ -29,7 +29,7 @@ export async function getSongRateComparison(songId) {
 }
 
 export async function getSongPersonalBestHistory(songId) {
-  const { data, error } = await supabase.rpc('get_song_personal_best_history', {
+  const { data, error } = await supabase.rpc('get_song_personal_best_history_v2', {
     p_song_id: songId
   });
   if (error) throw error;

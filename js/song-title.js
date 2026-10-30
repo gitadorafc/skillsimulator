@@ -10,8 +10,7 @@ export function normalizeSongTitle(value) {
 // ASCIIの ~ や大小文字は変換しない。
 export function normalizeSongTitleForMatch(value) {
   const title = normalizeSongTitle(value);
-  // 個別に確認済みの公式曲名変更のみ共通の照合名へ寄せる。
-  // 他の「(GITADORA ver.)」や大文字小文字、CLASSICには適用しない。
-  if (title === 'Shooting Star (GITADORA ver.)') return 'Shooting Star';
+  // 同一バージョン内の曲照合では公式曲名を維持する。
+  // バージョン間の別名紐付けはDBのcommon_song_idで処理する。
   return title;
 }
