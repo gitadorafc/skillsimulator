@@ -9,5 +9,9 @@ export function normalizeSongTitle(value) {
 // 曲の照合専用。保存名も波ダッシュを統一し、波ダッシュ2種だけを同一視する。
 // ASCIIの ~ や大小文字は変換しない。
 export function normalizeSongTitleForMatch(value) {
-  return normalizeSongTitle(value);
+  const title = normalizeSongTitle(value);
+  // 個別に確認済みの公式曲名変更のみ共通の照合名へ寄せる。
+  // 他の「(GITADORA ver.)」や大文字小文字、CLASSICには適用しない。
+  if (title === 'Shooting Star (GITADORA ver.)') return 'Shooting Star';
+  return title;
 }

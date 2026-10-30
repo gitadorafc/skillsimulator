@@ -1,5 +1,5 @@
 import { supabase } from './supabase.js';
-import { normalizeSongTitle, normalizeSongTitleForMatch } from './song-title.js?v=4_36_12';
+import { normalizeSongTitle, normalizeSongTitleForMatch } from './song-title.js?v=4_36_13';
 
 // 上から選びやすい順
 export const GF_PARTS = ['MAS-G','EXT-G','ADV-G','BSC-G','MAS-B','EXT-B','ADV-B','BSC-B'];
