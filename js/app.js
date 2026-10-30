@@ -1758,7 +1758,8 @@ async function showApp(session) {
   }
 
   $('headerUsername').textContent = username;
-  document.body.classList.remove('admin-responsive-preview');
+  document.body.classList.remove('admin-responsive-preview', 'admin-new-ui');
+      updateAdminUiVersion(false);
   setAppLoading('表示設定を読み込み中...');
   await syncMyDisplaySettings();
   setAppLoading('バージョン情報を取得中...');
@@ -1924,7 +1925,8 @@ async function init() {
       finishAppLoading();
       adminEnabled = false;
       adminAccessChecked = false;
-      document.body.classList.remove('admin-responsive-preview');
+      document.body.classList.remove('admin-responsive-preview', 'admin-new-ui');
+      updateAdminUiVersion(false);
       applyAppScrollLayout(false);
       updateDmBassMirrorFieldVisibility();
       applyDisplayCustomization(false, false);
@@ -3562,13 +3564,14 @@ function tintHeaderValues(hot, other, total) {
 }
 
 function renderSkill() {
+  const heading = document.body.classList.contains('admin-new-ui') ? (document.getElementById('adminSkillColumns')?.innerHTML || '') : '';
   const target = calcTargetTotals(getOwnSkillTargetRows());
 
   $('viewSkill').innerHTML = `
-    <div class="sk-section skill-hot-section"><h2>HOT Top25</h2><div class="list-container">
+    <div class="sk-section skill-hot-section"><h2>HOT Top25</h2>${heading}<div class="list-container">
       ${target.hotRows.map((r,i) => createCard(r,i+1,'SKILL')).join('') || '<div class="empty-state">まだ登録がありません</div>'}
     </div></div>
-    <div class="sk-section skill-other-section"><h2>OTHER Top25</h2><div class="list-container">
+    <div class="sk-section skill-other-section"><h2>OTHER Top25</h2>${heading}<div class="list-container">
       ${target.otherRows.map((r,i) => createCard(r,i+1,'SKILL')).join('') || '<div class="empty-state">まだ登録がありません</div>'}
     </div></div>`;
 }
@@ -4765,6 +4768,14 @@ async function deleteOwnAccount() {
   }
 }
 
+/* admin専用UIの表示版番号。共通配信バージョンは変更しない。 */
+function updateAdminUiVersion(enabled) {
+  const label = document.querySelector('.app-code-version');
+  if (!label) return;
+  const adminVersion = document.querySelector('meta[name="admin-ui-version"]')?.content || '4.38.0';
+  label.textContent = `APP VERSION ${enabled ? adminVersion : '4.37.1'}`;
+}
+
 /* ---------- 管理者 ---------- */
 async function checkAdminAccess() {
   try {
@@ -4776,7 +4787,10 @@ async function checkAdminAccess() {
 
   adminAccessChecked = true;
   // 管理者専用レスポンシブプレビュー。一般ユーザーには適用しない。
-  document.body.classList.toggle('admin-responsive-preview', adminEnabled && $('headerUsername')?.textContent?.trim() === 'admin');
+  const adminNewUi = adminEnabled && $('headerUsername')?.textContent?.trim() === 'admin';
+  document.body.classList.remove('admin-responsive-preview');
+  document.body.classList.toggle('admin-new-ui', adminNewUi);
+  updateAdminUiVersion(adminNewUi);
   $('btnAdmin').classList.toggle('hidden', !adminEnabled);
   const skillSyncButton = $('btnMenuSkillSync');
   if (skillSyncButton) {

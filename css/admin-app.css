@@ -1,0 +1,53 @@
+/* admin-only UI prototype 4.38.0. No shared styles or handlers modified. */
+body.admin-new-ui { --ui-panel:#071c33; --ui-stroke:#1c547e; --ui-cyan:#2dd4f1; background:#031326 !important; color:#eaf6ff; }
+body.admin-new-ui #appScreen,body.admin-new-ui #appScreen>.p-container { background:#031326 !important; }
+body.admin-new-ui #appScreen>.p-header {background:#071c33 !important;border-bottom:1px solid #23769e !important;}
+body.admin-new-ui .user-header-row {padding:10px 14px !important; border-bottom:1px solid #153f64;}
+body.admin-new-ui .p-tabs {background:#071c33 !important; padding:7px 14px !important;gap:7px !important;}
+body.admin-new-ui .p-tab-btn {border:1px solid #225679 !important;background:#0b2a49 !important;color:#cde9fa !important;border-radius:6px !important;}
+body.admin-new-ui .p-tab-btn.active {background:#1478cf !important;color:#fff !important;border-color:#26ace5 !important;}
+body.admin-new-ui .score-row {background:#071b35 !important; border:1px solid #1f5a7f;border-radius:8px;margin:8px 14px !important;}
+body.admin-new-ui .score-cell {background:transparent !important;}
+/* Do not force the skill number to white: existing rank colors remain authoritative. */
+body.admin-new-ui .sk-section {min-width:0; margin-bottom:14px !important;}
+body.admin-new-ui #viewSkill .sk-section h2 {font-size:15px !important;color:#35d6f5 !important;padding:5px 10px;border-left:3px solid #25cce5;}
+body.admin-new-ui #viewSkill .list-container {display:flex !important;flex-direction:column !important;gap:3px !important;min-width:0;}
+body.admin-new-ui #viewSkill .dc-card {margin:0 !important;border:1px solid #215479 !important;border-radius:5px !important;background-color:#091e37 !important;min-width:0;box-shadow:none !important;}
+body.admin-new-ui #viewSkill .dc-card::before {display:none !important;}
+body.admin-new-ui #viewSkill .dc-title {min-width:0 !important;text-align:left !important;}
+body.admin-new-ui #viewSkill .dc-song-title {color:#f5fbff !important;font-weight:750 !important;}
+body.admin-new-ui #viewSkill .dc-skill {border:2px solid #207dc6 !important;border-radius:5px !important; min-width:0 !important;}
+body.admin-new-ui #viewSkill .dc-card:hover {border-color:#3ed4ee !important;background-color:#0d2b49 !important;}
+body.admin-new-ui .admin-skill-columns {display:none;}
+@media (min-width:1200px){
+ body.admin-new-ui #appScreen>.p-container {width:100% !important;max-width:none !important;padding:12px 18px !important;box-sizing:border-box;}
+ body.admin-new-ui #viewSkill {width:100%;max-width:none !important;}
+ body.admin-new-ui #viewSkill .sk-section {width:100%;}
+ body.admin-new-ui .admin-skill-columns,body.admin-new-ui #viewSkill .dc-card-skill {
+   display:grid !important;grid-template-columns:100px minmax(180px,1fr) 118px 66px 72px 92px 95px !important;
+   grid-template-rows:1fr !important;grid-template-areas:none !important;
+   gap:0 !important;align-items:center !important; width:100% !important;box-sizing:border-box;
+ }
+ body.admin-new-ui .admin-skill-columns {background:#0c3152;color:#8dddf3;border:1px solid #235d83;border-radius:5px 5px 0 0;min-height:30px;font-size:11px;font-weight:800;}
+ body.admin-new-ui .admin-skill-columns>span {padding:0 10px;}
+ body.admin-new-ui #viewSkill .dc-card-skill {min-height:55px !important;padding:5px 0 !important;}
+ body.admin-new-ui #viewSkill .dc-card-skill>.dc-part,
+ body.admin-new-ui #viewSkill .dc-card-skill>.dc-title,
+ body.admin-new-ui #viewSkill .dc-card-skill>.dc-skill,
+ body.admin-new-ui #viewSkill .dc-card-skill>.dc-fc,
+ body.admin-new-ui #viewSkill .dc-card-skill>.dc-lv,
+ body.admin-new-ui #viewSkill .dc-card-skill>.dc-rate,
+ body.admin-new-ui #viewSkill .dc-card-skill>.dc-option {grid-area:auto !important;grid-column:auto !important;grid-row:auto !important;position:static !important;width:auto !important;max-width:none !important;margin:0 !important;align-self:center !important;justify-self:stretch !important;padding:0 10px !important;box-sizing:border-box !important;}
+ body.admin-new-ui #viewSkill .dc-card-skill .dc-field-label {display:none !important;}
+ body.admin-new-ui #viewSkill .dc-card-skill>.dc-skill {min-height:35px !important;display:flex !important;align-items:center;justify-content:center;}
+}
+@media (min-width:768px) and (max-width:1199px){
+ body.admin-new-ui #appScreen>.p-container {padding:10px !important;max-width:none !important;}
+ body.admin-new-ui #viewSkill .dc-card-skill {min-height:72px !important;}
+}
+@media (max-width:767px){
+ body.admin-new-ui #appScreen>.p-container {padding:6px !important;}
+ body.admin-new-ui #viewSkill .dc-card-skill {border-radius:9px !important;margin-bottom:6px !important;min-height:82px !important;padding:6px !important;}
+ body.admin-new-ui .p-tabs {padding:5px !important;gap:3px !important;}
+ body.admin-new-ui .p-tab-btn {font-size:11px !important;}
+}

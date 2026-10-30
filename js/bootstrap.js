@@ -4,7 +4,8 @@ const PARTIAL_URLS = [
   '../partials/dialogs.html?v=4_37_1',
   '../partials/admin.html?v=4_37_1',
   '../partials/board.html?v=4_37_1',
-  '../partials/tutorial.html?v=4_37_1'
+  '../partials/tutorial.html?v=4_37_1',
+  '../partials/admin-app.html?v=4_38_0'
 ];
 
 async function fetchPartial(url) {
