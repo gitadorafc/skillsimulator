@@ -21,6 +21,11 @@
           <option value="HOT">HOT</option>
           <option value="OTHER">OTHER</option>
         </select>
+        <select id="adminSongImageFilter" class="admin-toolbar-select" aria-label="ジャケット画像の有無">
+          <option value="">画像：すべて</option>
+          <option value="WITH">画像あり</option>
+          <option value="WITHOUT">画像なし</option>
+        </select>
         <button id="btnAdminAddSong">＋新規曲</button>
         <button id="btnAdminSaveAllSongs" type="button">まとめて保存</button>
         <button id="btnAdminCsvDownload" type="button">CSVダウンロード</button>
@@ -57,6 +62,23 @@
 </div>
 
 
+<div id="adminJacketMask" class="admin-form-mask" style="display:none;z-index:12000">
+  <div class="admin-form-sheet" role="dialog" aria-modal="true" aria-labelledby="adminJacketHeading" style="max-width:480px;width:min(94vw,480px);padding:18px">
+    <h3 id="adminJacketHeading">ジャケット画像</h3>
+    <p id="adminJacketTitle" style="overflow-wrap:anywhere"></p>
+    <img id="adminJacketPreview" alt="ジャケットプレビュー" style="width:100px;height:100px;object-fit:contain;display:none;margin:10px auto" />
+    <label for="adminJacketUrl">画像URL（https://）</label>
+    <input id="adminJacketUrl" type="url" placeholder="https://..." style="width:100%">
+    <label for="adminJacketFile">または画像ファイルを登録（JPEG/PNG/WebP、1MBまで）</label>
+    <input id="adminJacketFile" type="file" accept="image/jpeg,image/png,image/webp" style="width:100%">
+    <p id="adminJacketError" role="status" style="color:#ffaaaa"></p>
+    <div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-end;margin-top:12px">
+      <button type="button" id="adminJacketCancel">閉じる</button>
+      <button type="button" id="adminJacketClear">画像を削除</button>
+      <button type="button" id="adminJacketSave">保存</button>
+    </div>
+  </div>
+</div>
 <div id="adminMasterMobileMask" class="admin-form-mask">
   <div class="admin-form-sheet admin-master-mobile-sheet">
     <div class="admin-master-mobile-head">

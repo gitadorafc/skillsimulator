@@ -30,17 +30,19 @@ export async function getAdminSongMasterPage(
   page = 0,
   pageSize = 100,
   versionId = null,
-  typeFilter = ''
+  typeFilter = '',
+  imageFilter = ''
 ) {
   const safePage = Math.max(0, Number(page) || 0);
   const safeSize = Math.min(200, Math.max(25, Number(pageSize) || 100));
 
-  const { data, error } = await supabase.rpc('admin_list_song_master_ordered', {
+  const { data, error } = await supabase.rpc('admin_list_song_master_jackets', {
     p_search: String(keyword || '').trim(),
     p_limit: safeSize,
     p_offset: safePage * safeSize,
     p_version_id: versionId,
-    p_type_filter: String(typeFilter || '').trim().toUpperCase()
+    p_type_filter: String(typeFilter || '').trim().toUpperCase(),
+    p_image_filter: String(imageFilter || '').trim().toUpperCase()
   });
 
   if (error) throw error;
@@ -51,6 +53,8 @@ export async function getAdminSongMasterPage(
     official_order: row.official_order == null ? null : Number(row.official_order),
     is_hot: Boolean(row.is_hot),
     levels: row.levels ?? {},
+    jacket_image_url: row.jacket_image_url || '',
+    jacket_storage_path: row.jacket_storage_path || '',
     total_count: Number(row.total_count) || 0
   }));
 

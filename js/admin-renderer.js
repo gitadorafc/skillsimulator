@@ -73,6 +73,7 @@ export function renderAdminMasterTable({
       ${rows.map((row, index) => `
         <button type="button" class="admin-master-mobile-row" data-admin-master-mobile-open="${index}">
           <span class="admin-master-mobile-title">${escapeHtml(row.title)}</span>
+          <span>${row.jacket_image_url || row.jacket_storage_path ? "🖼️" : "画像なし"}</span>
           <span class="admin-master-mobile-chevron">›</span>
         </button>`).join('')}
     </div>
@@ -81,7 +82,7 @@ export function renderAdminMasterTable({
         <thead>
           <tr>
             <th class="master-hot-cell">HOT</th>
-            <th class="master-title-cell">曲名</th>
+            <th class="master-title-cell">曲名・画像</th>
             <th class="master-initial-cell">頭文字</th>
             <th class="master-order-cell">並び順</th>
             ${parts.map(part => `<th class="master-level-cell">${part}</th>`).join('')}
@@ -129,6 +130,7 @@ export function renderAdminMasterTable({
               </td>
               <td class="master-title-cell">
                 <input type="text" data-master-title value="${escapeHtml(row.title)}">
+                <button type="button" data-admin-jacket-open="${index}" style="margin-top:4px">${row.jacket_image_url || row.jacket_storage_path ? '🖼️ 画像編集' : '＋ 画像登録'}</button>
               </td>
               <td class="master-initial-cell">
                 <select data-master-initial>${renderInitialOptions(row.initial_group || '')}</select>

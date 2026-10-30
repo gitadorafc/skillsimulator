@@ -25,7 +25,7 @@ import {
   renderAdminUserList,
   renderAdminVersionList as renderAdminVersionListMarkup,
   renderAdminVersionManagerLoading
-} from './admin-renderer.js?v=4_31_6';
+} from './admin-renderer.js?v=4_36_9';
 import {
   renderSkillRankingRangeOptions,
   renderSkillRankingRows,
@@ -71,7 +71,7 @@ import {
 
 let adminEnabled = false;
 import { supabase } from './supabase.js?v=21_57';
-import { register, login, loginForAccountSwitch, logout, changePassword, getSession, validateUsername, isEmailLikeUsername } from './auth.js?v=4_36_8';
+import { register, login, loginForAccountSwitch, logout, changePassword, getSession, validateUsername, isEmailLikeUsername } from './auth.js?v=4_36_9';
 import { initAuthCaptcha, prepareAuthCaptcha, getAuthCaptchaToken, resetAuthCaptcha } from './captcha.js?v=21_84';
 import { PARTS, partsForInstrument, normalizeSongTitleForMatch, searchSongTitles, getSongByTitleAndPart, requestSongMaster, requestSongLevelCorrection } from './songs.js?v=4_18_0';
 import { calcSkill, formatLevel, formatRate, formatSkill, getMyScores, saveScore, deleteScore } from './scores.js?v=4_19_1';
@@ -928,7 +928,7 @@ async function deleteMasterSongTitle(title) {
   if (error) throw error;
 }
 
-import * as adminApi from './admin.js?v=4_30_0';
+import * as adminApi from './admin.js?v=4_36_9';
 import * as adminBoard from './admin-board.js?v=4_36_3';
 import { listUserSummaries, getUserSkillTargets, getSongRateComparison, getSongPersonalBestHistory, getSongOptionDistribution, getMyFavorites, removeFavorite } from './users.js?v=3_6_0';
 
@@ -4932,7 +4932,8 @@ async function loadAdminSongs() {
       adminSongPage,
       ADMIN_SONG_PAGE_SIZE,
       activeVersionId,
-      $('adminSongTypeFilter')?.value || ''
+      $('adminSongTypeFilter')?.value || '',
+      $('adminSongImageFilter')?.value || ''
     );
 
     const rows = result.rows;
@@ -4998,6 +4999,60 @@ function isMobileAdminMaster() {
   return window.matchMedia('(max-width: 768px)').matches;
 }
 
+let editingJacketTitle = '';
+function jacketPreview() {
+  const preview = $('adminJacketPreview');
+  const url = $('adminJacketUrl').value.trim();
+  preview.style.display = /^https:\/\//i.test(url) ? 'block' : 'none';
+  if (preview.style.display !== 'none') preview.src = url;
+}
+function openAdminJacket(row) {
+  if (!row) return;
+  editingJacketTitle = row.title;
+  $('adminJacketTitle').textContent = row.title;
+  $('adminJacketUrl').value = row.jacket_image_url || '';
+  $('adminJacketFile').value = '';
+  $('adminJacketError').textContent = '';
+  const preview = $('adminJacketPreview');
+  const path = row.jacket_storage_path;
+  const url = path ? supabase.storage.from('song-jackets').getPublicUrl(path).data.publicUrl : row.jacket_image_url;
+  preview.style.display = url ? 'block' : 'none';
+  if (url) preview.src = url;
+  $('adminJacketMask').style.display = 'flex';
+}
+function closeAdminJacket() { $('adminJacketMask').style.display = 'none'; editingJacketTitle = ''; }
+async function persistAdminJacket(clear = false) {
+  const save = $('adminJacketSave');
+  const clearButton = $('adminJacketClear');
+  const title = editingJacketTitle;
+  const file = $('adminJacketFile').files?.[0];
+  const url = $('adminJacketUrl').value.trim();
+  if (!title) return;
+  if (!clear && url && !/^https:\/\//i.test(url)) { $('adminJacketError').textContent = 'https:// で始まるURLを入力してください。'; return; }
+  if (!clear && file && (!['image/jpeg','image/png','image/webp'].includes(file.type) || file.size > 1024*1024)) { $('adminJacketError').textContent = 'JPEG/PNG/WebPの画像を1MB以内で指定してください。'; return; }
+  save.disabled = true; clearButton.disabled = true;
+  $('adminJacketError').textContent = '保存中...';
+  try {
+    let storagePath = null;
+    if (!clear && file) {
+      const ext = file.type === 'image/png' ? 'png' : file.type === 'image/webp' ? 'webp' : 'jpg';
+      storagePath = `master/${crypto.randomUUID()}.${ext}`;
+      const uploaded = await supabase.storage.from('song-jackets').upload(storagePath, file, {contentType:file.type,upsert:false,cacheControl:'31536000'});
+      if (uploaded.error) throw uploaded.error;
+    }
+    const {error} = await supabase.rpc('admin_save_song_jacket', {p_title:title,p_image_url:clear || file ? null : (url || null),p_storage_path:storagePath,p_clear:clear});
+    if (error) throw error;
+    closeAdminJacket();
+    await loadAdminSongs();
+  } catch(e) { $('adminJacketError').textContent = '保存失敗: ' + (e.message || e); }
+  finally { save.disabled = false; clearButton.disabled = false; }
+}
+$('adminJacketCancel')?.addEventListener('click', closeAdminJacket);
+$('adminJacketSave')?.addEventListener('click', () => persistAdminJacket(false));
+$('adminJacketClear')?.addEventListener('click', () => persistAdminJacket(true));
+$('adminJacketUrl')?.addEventListener('change', jacketPreview);
+$('adminJacketMask')?.addEventListener('click', e => {if(e.target === $('adminJacketMask'))closeAdminJacket()});
+
 function closeAdminMasterMobile() {
   const mask = $('adminMasterMobileMask');
   if (mask) mask.style.display = 'none';
@@ -5019,6 +5074,9 @@ function openAdminMasterMobile(row = null, index = null) {
   $('adminMasterMobileInitial').value = row?.initial_group || '';
   $('adminMasterMobileOrder').value = row?.official_order == null ? '' : row.official_order;
   $('adminMasterMobileHot').checked = Boolean(row?.is_hot);
+  let jacketBtn = $('adminMasterMobileJacketButton');
+  if (!jacketBtn) { jacketBtn = document.createElement('button'); jacketBtn.id = 'adminMasterMobileJacketButton'; jacketBtn.type = 'button'; jacketBtn.textContent = 'ジャケット画像を編集'; jacketBtn.addEventListener('click', () => openAdminJacket(adminMasterRows[adminMasterMobileIndex])); $('adminMasterMobileLevels').before(jacketBtn); }
+  jacketBtn.style.display = row ? '' : 'none';
   const levelValue = part => row?.levels?.[part] != null ? esc(formatLevel(row.levels[part])) : '';
   const levelInput = part => `
     <input type="text" inputmode="decimal" autocomplete="off"
@@ -6687,6 +6745,7 @@ $('adminSongSearch').addEventListener('input', () => {
   adminSongPage = 0;
   adminSongSearchTimer = setTimeout(loadAdminSongs,250);
 });
+$('adminSongImageFilter')?.addEventListener('change', () => { adminSongPage = 0; loadAdminSongs(); });
 $('adminSongTypeFilter')?.addEventListener('change', () => {
   adminSongPage = 0;
   loadAdminSongs();
@@ -7036,6 +7095,8 @@ document.addEventListener('click', async e => {
   const adminSaveMasterRow = e.target.closest('[data-admin-save-master-row]');
   const adminDeleteMasterRow = e.target.closest('[data-admin-delete-master-row]');
   const adminMasterMobileOpen = e.target.closest('[data-admin-master-mobile-open]');
+  const adminJacketOpen = e.target.closest('[data-admin-jacket-open]');
+  if (adminJacketOpen) { openAdminJacket(adminMasterRows[Number(adminJacketOpen.dataset.adminJacketOpen)]); return; }
 
   if (adminMasterMobileOpen) {
     const index = Number(adminMasterMobileOpen.dataset.adminMasterMobileOpen);
