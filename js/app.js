@@ -1758,6 +1758,7 @@ async function showApp(session) {
   }
 
   $('headerUsername').textContent = username;
+  document.body.classList.remove('admin-responsive-preview');
   setAppLoading('表示設定を読み込み中...');
   await syncMyDisplaySettings();
   setAppLoading('バージョン情報を取得中...');
@@ -4775,7 +4776,7 @@ async function checkAdminAccess() {
 
   adminAccessChecked = true;
   // 管理者専用レスポンシブプレビュー。一般ユーザーには適用しない。
-  document.body.classList.toggle('admin-responsive-preview', adminEnabled);
+  document.body.classList.toggle('admin-responsive-preview', adminEnabled && $('headerUsername')?.textContent?.trim() === 'admin');
   $('btnAdmin').classList.toggle('hidden', !adminEnabled);
   const skillSyncButton = $('btnMenuSkillSync');
   if (skillSyncButton) {
