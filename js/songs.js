@@ -1,5 +1,5 @@
 import { supabase } from './supabase.js';
-import { normalizeSongTitle } from './song-title.js?v=4_15_6';
+import { normalizeSongTitle, normalizeSongTitleForMatch } from './song-title.js?v=4_36_11';
 
 // 上から選びやすい順
 export const GF_PARTS = ['MAS-G','EXT-G','ADV-G','BSC-G','MAS-B','EXT-B','ADV-B','BSC-B'];
@@ -9,9 +9,9 @@ export const partsForInstrument = instrument => instrument === 'DM' ? DM_PARTS :
 
 // 曲マスター照合専用。
 // 保存済みの正式曲名は変更せず、空白の幅・連続・前後だけを補正する。
-// 大文字小文字・全角英数字・記号は別の文字として扱う。
+// 大文字小文字・全角英数字は区別するが、波ダッシュ2種のみ同一視する。
 // ユーザー名など他の文字列には使用しない。
-export const normalizeSongTitleForMatch = normalizeSongTitle;
+export { normalizeSongTitleForMatch };
 
 async function findNormalizedSong(title, part, versionId = null) {
   const normalized = normalizeSongTitleForMatch(title);
