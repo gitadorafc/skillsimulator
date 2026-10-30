@@ -71,7 +71,7 @@ import {
 
 let adminEnabled = false;
 import { supabase } from './supabase.js?v=21_57';
-import { register, login, loginForAccountSwitch, logout, changePassword, getSession, validateUsername } from './auth.js?v=4_1_2';
+import { register, login, loginForAccountSwitch, logout, changePassword, getSession, validateUsername, isEmailLikeUsername } from './auth.js?v=4_36_4';
 import { initAuthCaptcha, prepareAuthCaptcha, getAuthCaptchaToken, resetAuthCaptcha } from './captcha.js?v=21_84';
 import { PARTS, partsForInstrument, normalizeSongTitleForMatch, searchSongTitles, getSongByTitleAndPart, requestSongMaster, requestSongLevelCorrection } from './songs.js?v=4_18_0';
 import { calcSkill, formatLevel, formatRate, formatSkill, getMyScores, saveScore, deleteScore } from './scores.js?v=4_19_1';
@@ -6027,6 +6027,7 @@ $('authForm').addEventListener('submit', async e => {
       if (!validateUsername(username)) {
         throw new Error('ユーザー名は1〜32文字で入力してください。日本語も使用できます。');
       }
+      if (isEmailLikeUsername(username)) throw new Error('メールアドレス形式のユーザー名は登録できません。');
       if (password.length < 8) throw new Error('パスワードは8文字以上で設定してください。');
       if (password !== $('authPasswordConfirm').value) {
         throw new Error('確認用パスワードが一致していません。');
@@ -6050,7 +6051,9 @@ $('authForm').addEventListener('submit', async e => {
     const message = e?.message || String(e);
     const lower = message.toLowerCase();
 
-    if (
+    if (mode === 'register' && message.includes('メールアドレス形式のユーザー名')) {
+      await showSiteDialog(message, '新規登録できません');
+    } else if (
       message.includes('User already registered') ||
       message.includes('already registered') ||
       message.includes('already been registered') ||

@@ -64,6 +64,12 @@ export function normalizeUsername(username) {
   return String(username ?? '').trim();
 }
 
+// 新規登録時のみ使用。ログイン・既存のユーザー名変更には適用しない。
+export function isEmailLikeUsername(username) {
+  const normalized = normalizeUsername(username).normalize('NFKC').replace(/。/g, '.');
+  return /^[^\s@]+@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z]{2,}$/i.test(normalized);
+}
+
 export function validateUsername(username) {
   const clean = normalizeUsername(username);
   const length = Array.from(clean).length;
@@ -91,6 +97,10 @@ export async function register(username, password, captchaToken) {
   const clean = normalizeUsername(username);
   if (!validateUsername(clean)) {
     throw new Error('ユーザー名は1〜32文字で入力してください。日本語も使用できます。');
+  }
+
+  if (isEmailLikeUsername(clean)) {
+    throw new Error('メールアドレス形式のユーザー名は登録できません。');
   }
 
   const email = await hashedUsernameToEmail(clean);
