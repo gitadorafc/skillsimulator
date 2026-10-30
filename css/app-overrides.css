@@ -6897,3 +6897,35 @@ body.light-mode .registration-notice-secondary{color:#1e293b;background:#f8fafc}
 body.light-mode .registration-notice-dialog .registration-notice-footnote{color:#64748b}
 body.light-mode .registration-notice-status{color:#b45309}
 @media(max-width:480px){.registration-notice-dialog{padding:19px 16px 15px}}
+
+
+/* v4.36.10: 曲マスター画像編集・レスポンシブ配置の修正 */
+#adminMasterTable .master-title-cell { min-width:310px; width:310px !important; }
+#adminMasterTable .admin-master-title-controls {display:flex;align-items:center;gap:6px;min-width:0;width:100%;}
+#adminMasterTable .admin-master-title-controls [data-master-title] {min-width:0;flex:1 1 auto;width:0;box-sizing:border-box;}
+#adminMasterTable .admin-master-jacket-button {flex:0 0 auto;white-space:nowrap;min-width:60px;min-height:32px;padding:5px 7px;background:#e2e8f0;border:1px solid #94a3b8;border-radius:6px;color:#334155;font-size:11px;font-weight:700;cursor:pointer;}
+#adminMasterTable .admin-master-jacket-button.has-image {color:#155e75;background:#cffafe;border-color:#67e8f9;}
+.admin-master-mobile-row .admin-master-mobile-title {flex:1 1 auto;}
+.admin-master-mobile-image-status {flex:0 0 auto;font-size:10px;color:#94a3b8;border:1px solid #475569;border-radius:5px;padding:3px 6px;white-space:nowrap;}
+.admin-master-mobile-image-status.has-image {color:#67e8f9;border-color:#155e75;background:#083344;}
+#adminJacketMask {align-items:center;justify-content:center;padding:12px;box-sizing:border-box;}
+#adminJacketMask .admin-jacket-sheet {width:min(100%,480px);max-width:480px;max-height:min(90dvh,720px);overflow:auto;box-sizing:border-box;border-radius:14px;padding:20px;background:#141f32;color:#f1f5f9;border:1px solid #4567a3;box-shadow:0 15px 50px rgba(0,0,0,.5);}
+#adminJacketMask .admin-jacket-sheet h3 {margin:0 0 8px;color:#fff;font-size:18px;}
+#adminJacketMask #adminJacketTitle {margin:0 0 10px;font-weight:700;overflow-wrap:anywhere;color:#cbd5e1;}
+#adminJacketMask #adminJacketPreview {height:116px;width:116px;object-fit:contain;margin:12px auto;border-radius:6px;background:#0a1222;}
+#adminJacketMask .admin-jacket-sheet label {display:block;margin:14px 0 5px;font-size:12px;color:#cbd5e1;}
+#adminJacketMask .admin-jacket-sheet input {width:100%;box-sizing:border-box;min-height:42px;color:#f8fafc;background:#0d1729;border:1px solid #53647e;border-radius:7px;padding:8px;max-width:100%;}
+#adminJacketMask .admin-jacket-sheet input[type=file] {height:auto;min-height:44px;font-size:12px;}
+#adminJacketMask .admin-jacket-actions {display:flex;justify-content:flex-end;flex-wrap:wrap;gap:8px;margin-top:14px;}
+#adminJacketMask .admin-jacket-actions button {border-radius:7px;min-height:36px;padding:7px 12px;background:#26354c;color:#fff;border:1px solid #50627b;font-weight:700;cursor:pointer;}
+#adminJacketMask #adminJacketClear {background:#49242b;border-color:#9f4350;}
+#adminJacketMask #adminJacketSave {background:#2f76ed;border-color:#4285f4;}
+#adminJacketMask #adminJacketError {min-height:0;margin:7px 0;font-size:12px;color:#fca5a5;overflow-wrap:anywhere;}
+body.light-mode #adminJacketMask .admin-jacket-sheet {background:#fff;color:#111827;border-color:#94a3b8;}
+body.light-mode #adminJacketMask .admin-jacket-sheet h3,body.light-mode #adminJacketMask #adminJacketTitle {color:#111827;}
+body.light-mode #adminJacketMask .admin-jacket-sheet label {color:#475569;}
+body.light-mode #adminJacketMask .admin-jacket-sheet input {background:#fff;color:#111827;border-color:#94a3b8;}
+body.light-mode #adminJacketMask .admin-jacket-actions button {background:#e2e8f0;color:#111827;}
+body.light-mode #adminJacketMask #adminJacketSave {background:#2f76ed;color:#fff;}
+body.light-mode #adminJacketMask #adminJacketClear {background:#fee2e2;color:#9f1239;}
+@media(max-width:480px){#adminJacketMask .admin-jacket-sheet {padding:16px;}#adminJacketMask .admin-jacket-actions button{flex:1 1 auto;}}

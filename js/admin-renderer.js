@@ -73,7 +73,7 @@ export function renderAdminMasterTable({
       ${rows.map((row, index) => `
         <button type="button" class="admin-master-mobile-row" data-admin-master-mobile-open="${index}">
           <span class="admin-master-mobile-title">${escapeHtml(row.title)}</span>
-          <span>${row.jacket_image_url || row.jacket_storage_path ? "🖼️" : "画像なし"}</span>
+          <span class="admin-master-mobile-image-status ${row.jacket_image_url || row.jacket_storage_path ? "has-image" : ""}">${row.jacket_image_url || row.jacket_storage_path ? "画像あり" : "画像なし"}</span>
           <span class="admin-master-mobile-chevron">›</span>
         </button>`).join('')}
     </div>
@@ -129,8 +129,10 @@ export function renderAdminMasterTable({
                 <input type="checkbox" data-master-hot ${row.is_hot ? 'checked' : ''}>
               </td>
               <td class="master-title-cell">
-                <input type="text" data-master-title value="${escapeHtml(row.title)}">
-                <button type="button" data-admin-jacket-open="${index}" style="margin-top:4px">${row.jacket_image_url || row.jacket_storage_path ? '🖼️ 画像編集' : '＋ 画像登録'}</button>
+                <div class="admin-master-title-controls">
+                  <input type="text" data-master-title value="${escapeHtml(row.title)}">
+                  <button type="button" class="admin-master-jacket-button ${row.jacket_image_url || row.jacket_storage_path ? 'has-image' : ''}" data-admin-jacket-open="${index}" aria-label="${escapeHtml(row.title)}のジャケット画像を編集" title="ジャケット画像を編集">${row.jacket_image_url || row.jacket_storage_path ? '画像あり' : '画像登録'}</button>
+                </div>
               </td>
               <td class="master-initial-cell">
                 <select data-master-initial>${renderInitialOptions(row.initial_group || '')}</select>

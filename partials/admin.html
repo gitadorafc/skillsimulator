@@ -63,16 +63,16 @@
 
 
 <div id="adminJacketMask" class="admin-form-mask" style="display:none;z-index:12000">
-  <div class="admin-form-sheet" role="dialog" aria-modal="true" aria-labelledby="adminJacketHeading" style="max-width:480px;width:min(94vw,480px);padding:18px">
+  <div class="admin-form-sheet admin-jacket-sheet" role="dialog" aria-modal="true" aria-labelledby="adminJacketHeading">
     <h3 id="adminJacketHeading">ジャケット画像</h3>
     <p id="adminJacketTitle" style="overflow-wrap:anywhere"></p>
-    <img id="adminJacketPreview" alt="ジャケットプレビュー" style="width:100px;height:100px;object-fit:contain;display:none;margin:10px auto" />
+    <img id="adminJacketPreview" alt="ジャケットプレビュー" style="display:none" />
     <label for="adminJacketUrl">画像URL（https://）</label>
     <input id="adminJacketUrl" type="url" placeholder="https://..." style="width:100%">
     <label for="adminJacketFile">または画像ファイルを登録（JPEG/PNG/WebP、1MBまで）</label>
     <input id="adminJacketFile" type="file" accept="image/jpeg,image/png,image/webp" style="width:100%">
     <p id="adminJacketError" role="status" style="color:#ffaaaa"></p>
-    <div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-end;margin-top:12px">
+    <div class="admin-jacket-actions">
       <button type="button" id="adminJacketCancel">閉じる</button>
       <button type="button" id="adminJacketClear">画像を削除</button>
       <button type="button" id="adminJacketSave">保存</button>
