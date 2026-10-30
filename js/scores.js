@@ -1,3 +1,4 @@
+import { compareSkillRows } from './skill-targets.js?v=4_36_2';
 import { supabase, getSessionUserWithRetry } from './supabase.js?v=4_19_1';
 
 export function calcSkill(level, achievementRate) {
@@ -21,7 +22,7 @@ export async function getMyScores(versionId = null) {
   while (true) {
     let query = supabase
       .from('my_score_details')
-      .select('score_id,user_id,song_id,song_request_id,is_hot,title,part,level,achievement_rate,fc,play_option,skill,pending_master,request_status,created_at,updated_at,version_id')
+      .select('score_id,user_id,song_id,song_request_id,is_hot,title,part,level,achievement_rate,fc,play_option,skill,pending_master,request_status,created_at,updated_at,version_id,official_order')
       .order('updated_at', { ascending: false })
       .range(from, from + pageSize - 1);
 
@@ -62,11 +63,12 @@ export async function getMyScores(versionId = null) {
       request_status: row.request_status ?? null,
       created_at: row.created_at,
       updated_at: row.updated_at,
+      official_order: row.official_order == null ? null : Number(row.official_order),
       version_id: row.version_id ?? null
     });
   }
 
-  return result.sort((a, b) => Number(b.skill) - Number(a.skill));
+  return result.sort(compareSkillRows);
 }
 
 export async function saveScore({

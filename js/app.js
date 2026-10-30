@@ -56,7 +56,7 @@ import {
 } from './score-detail-renderer.js?v=4_27_26';
 import { createSiteDialogController } from './site-dialog.js?v=4_15_3';
 import { createTutorialController } from './tutorial.js?v=4_36_1';
-import { selectSkillTargetRows, calcTargetTotals } from './skill-targets.js?v=4_15_7';
+import { selectSkillTargetRows, calcTargetTotals, compareSkillRows } from './skill-targets.js?v=4_36_2';
 import { renderPartOptions, renderSongSuggestions } from './score-form-renderer.js?v=4_15_8';
 import { getMyPrivateScoreComments, savePrivateScoreComment } from './score-comments.js?v=4_19_1';
 import { createCommentHistory } from './comment-history.js?v=4_27_24';
@@ -1471,6 +1471,30 @@ async function getUserPublicProfile(userId) {
   };
 }
 
+// The public RPCs retain their existing return schemas; supply master order for UI sorting.
+const officialOrderMaps = new Map();
+async function attachMasterOrder(rows, versionId) {
+  if (!versionId || !rows?.length) return rows;
+  let orderPromise = officialOrderMaps.get(versionId);
+  if (!orderPromise) {
+    orderPromise = getPublicSongCatalog(versionId).then(catalog => new Map(
+      catalog.map(song => [song.title, song.official_order])
+    ));
+    officialOrderMaps.set(versionId, orderPromise);
+  }
+  let orderByTitle;
+  try { orderByTitle = await orderPromise; }
+  catch (error) {
+    officialOrderMaps.delete(versionId);
+    console.warn('曲マスターの並び順を取得できませんでした:', error);
+    return rows;
+  }
+  return rows.map(row => ({
+    ...row,
+    official_order: orderByTitle.get(row.title) ?? null
+  }));
+}
+
 async function getPublicUserRegisteredScores(userId, instrument = activeInstrument, versionId = activeVersionId) {
   const pageSize = 1000;
   const rows = [];
@@ -1494,7 +1518,7 @@ async function getPublicUserRegisteredScores(userId, instrument = activeInstrume
     from += pageSize;
   }
 
-  return rows;
+  return attachMasterOrder(rows, versionId);
 }
 
 // 公開確認は移行時点で対象になった既存ユーザーにだけ表示する。
@@ -3589,7 +3613,7 @@ function getVisibleRegisteredRows(data, batch) {
     .slice(0, visiblePerType);
 
   return [...hotRows, ...otherRows]
-    .sort((a,b) => Number(b.skill) - Number(a.skill));
+    .sort(compareSkillRows);
 }
 
 function renderManage() {
@@ -3638,7 +3662,7 @@ function renderManage() {
       return matchesClearRank && matchesFc;
     })
     .filter(r => !tagFilter || scoreTagMap.get(r.score_id)?.has(tagFilter))
-    .sort((a,b) => Number(b.skill) - Number(a.skill));
+    .sort(compareSkillRows);
 
   const visibleRows = getVisibleRegisteredRows(data, ownRegisteredBatch);
   const hasMore = visibleRows.length < data.length;
@@ -4299,7 +4323,7 @@ function setUserDetailTab(tab) {
 
 function renderViewedUserRegisteredScores() {
   const data = [...viewedUserRegisteredScores]
-    .sort((a,b) => Number(b.skill) - Number(a.skill));
+    .sort(compareSkillRows);
   const visibleRows = getVisibleRegisteredRows(data, viewedUserRegisteredBatch);
   const hasMore = visibleRows.length < data.length;
 
@@ -4357,7 +4381,7 @@ async function openUserDetail(userId, username, returnTarget = null) {
       getUserPublicProfile(userId)
     ]);
 
-    viewedUserScores = skillRows;
+    viewedUserScores = await attachMasterOrder(skillRows, activeVersionId);
     viewedUserProfile = profile;
     renderViewedUserSkill();
 
