@@ -7,7 +7,7 @@ export const BOARD_IMAGE_MAX_COUNT = 1;
 export const BOARD_SOURCE_MAX_BYTES = 12 * 1024 * 1024;
 export const BOARD_IMAGE_MAX_EDGE = 960;
 export const BOARD_THREAD_PAGE_SIZE = 10;
-export const BOARD_REPLY_PAGE_SIZE = 10;
+export const BOARD_REPLY_PAGE_SIZE = 100;
 
 const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({
   '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'

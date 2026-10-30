@@ -929,7 +929,7 @@ async function deleteMasterSongTitle(title) {
 }
 
 import * as adminApi from './admin.js?v=4_30_0';
-import * as adminBoard from './admin-board.js?v=4_31_2';
+import * as adminBoard from './admin-board.js?v=4_36_3';
 import { listUserSummaries, getUserSkillTargets, getSongRateComparison, getSongPersonalBestHistory, getSongOptionDistribution, getMyFavorites, removeFavorite } from './users.js?v=3_6_0';
 
 let activeInstrument = localStorage.getItem('gitadora_instrument') === 'DM' ? 'DM' : 'GF';
@@ -5644,7 +5644,9 @@ function renderCurrentAdminBoardThread() {
   const replies = getSortedAdminBoardReplies();
   const totalPages = Math.max(1, Math.ceil(replies.length / adminBoard.BOARD_REPLY_PAGE_SIZE));
   adminBoardReplyPage = Math.min(Math.max(1, adminBoardReplyPage), totalPages);
-  const start = (adminBoardReplyPage - 1) * adminBoard.BOARD_REPLY_PAGE_SIZE;
+  // Post 1 is pinned on every page. Replies are grouped into fixed
+  // 100-post ranges (2–101, 102–201, ...), newest range on page 1.
+  const start = (totalPages - adminBoardReplyPage) * adminBoard.BOARD_REPLY_PAGE_SIZE;
   const end = start + adminBoard.BOARD_REPLY_PAGE_SIZE;
   const renderData = { ...adminBoardCurrentData, replies };
   $('adminBoardThreadBody').innerHTML = adminBoard.renderAdminBoardThreadDetail(renderData, {
@@ -5941,7 +5943,8 @@ function jumpToBoardPost(postNumber) {
     const sorted = getSortedAdminBoardReplies();
     const replyIndex = sorted.findIndex(reply => Number(reply.post_number) === number);
     if (replyIndex < 0) return;
-    adminBoardReplyPage = Math.floor(replyIndex / adminBoard.BOARD_REPLY_PAGE_SIZE) + 1;
+    const totalPages = Math.max(1, Math.ceil(sorted.length / adminBoard.BOARD_REPLY_PAGE_SIZE));
+    adminBoardReplyPage = totalPages - Math.floor(replyIndex / adminBoard.BOARD_REPLY_PAGE_SIZE);
   }
   renderCurrentAdminBoardThread();
   requestAnimationFrame(() => {
