@@ -71,7 +71,7 @@ import {
 
 let adminEnabled = false;
 import { supabase } from './supabase.js?v=21_57';
-import { register, login, loginForAccountSwitch, logout, changePassword, getSession, validateUsername, isEmailLikeUsername } from './auth.js?v=4_36_6';
+import { register, login, loginForAccountSwitch, logout, changePassword, getSession, validateUsername, isEmailLikeUsername } from './auth.js?v=4_36_7';
 import { initAuthCaptcha, prepareAuthCaptcha, getAuthCaptchaToken, resetAuthCaptcha } from './captcha.js?v=21_84';
 import { PARTS, partsForInstrument, normalizeSongTitleForMatch, searchSongTitles, getSongByTitleAndPart, requestSongMaster, requestSongLevelCorrection } from './songs.js?v=4_18_0';
 import { calcSkill, formatLevel, formatRate, formatSkill, getMyScores, saveScore, deleteScore } from './scores.js?v=4_19_1';
