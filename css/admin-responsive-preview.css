@@ -1,0 +1,24 @@
+/* v4.36.5 管理者アカウント限定のレイアウト試験。
+   JS側のis_admin()で付与されたクラスがあるときだけ作用する。
+   狭いスマートフォンでは既存レイアウトを変更しない。 */
+@media (min-width: 701px) {
+  body.admin-responsive-preview #viewSkill:not(.hidden) {
+    width: min(100%, 1000px) !important;
+    max-width: 1000px !important;
+    margin-inline: auto !important;
+    box-sizing: border-box;
+  }
+
+  /* 2カラムの既存グリッドを保持し、内部のカードが最小幅を
+     押し広げて横スクロールを発生させないようにする。 */
+  body.admin-responsive-preview.skill-target-columns #viewSkill > .sk-section {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  body.admin-responsive-preview #viewSkill .dc-card {
+    min-width: 0;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+}

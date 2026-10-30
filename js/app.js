@@ -71,7 +71,7 @@ import {
 
 let adminEnabled = false;
 import { supabase } from './supabase.js?v=21_57';
-import { register, login, loginForAccountSwitch, logout, changePassword, getSession, validateUsername, isEmailLikeUsername } from './auth.js?v=4_36_4';
+import { register, login, loginForAccountSwitch, logout, changePassword, getSession, validateUsername, isEmailLikeUsername } from './auth.js?v=4_36_5';
 import { initAuthCaptcha, prepareAuthCaptcha, getAuthCaptchaToken, resetAuthCaptcha } from './captcha.js?v=21_84';
 import { PARTS, partsForInstrument, normalizeSongTitleForMatch, searchSongTitles, getSongByTitleAndPart, requestSongMaster, requestSongLevelCorrection } from './songs.js?v=4_18_0';
 import { calcSkill, formatLevel, formatRate, formatSkill, getMyScores, saveScore, deleteScore } from './scores.js?v=4_19_1';
@@ -1923,6 +1923,7 @@ async function init() {
       finishAppLoading();
       adminEnabled = false;
       adminAccessChecked = false;
+      document.body.classList.remove('admin-responsive-preview');
       applyAppScrollLayout(false);
       updateDmBassMirrorFieldVisibility();
       applyDisplayCustomization(false, false);
@@ -4773,6 +4774,8 @@ async function checkAdminAccess() {
   }
 
   adminAccessChecked = true;
+  // 管理者専用レスポンシブプレビュー。一般ユーザーには適用しない。
+  document.body.classList.toggle('admin-responsive-preview', adminEnabled);
   $('btnAdmin').classList.toggle('hidden', !adminEnabled);
   const skillSyncButton = $('btnMenuSkillSync');
   if (skillSyncButton) {
