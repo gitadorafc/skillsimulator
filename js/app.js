@@ -2,6 +2,7 @@
 import {
   getSkillColorRowByTotalValue
 } from './skill-colors.js?v=4_14_33';
+import { renderAdminRegisteredRecords, loadAdminRegisteredJackets } from './admin-register-ui.js?v=4_38_1';
 import {
   createCard,
   getPartColorClass
@@ -3564,14 +3565,13 @@ function tintHeaderValues(hot, other, total) {
 }
 
 function renderSkill() {
-  const heading = document.body.classList.contains('admin-new-ui') ? (document.getElementById('adminSkillColumns')?.innerHTML || '') : '';
   const target = calcTargetTotals(getOwnSkillTargetRows());
 
   $('viewSkill').innerHTML = `
-    <div class="sk-section skill-hot-section"><h2>HOT Top25</h2>${heading}<div class="list-container">
+    <div class="sk-section skill-hot-section"><h2>HOT Top25</h2><div class="list-container">
       ${target.hotRows.map((r,i) => createCard(r,i+1,'SKILL')).join('') || '<div class="empty-state">まだ登録がありません</div>'}
     </div></div>
-    <div class="sk-section skill-other-section"><h2>OTHER Top25</h2>${heading}<div class="list-container">
+    <div class="sk-section skill-other-section"><h2>OTHER Top25</h2><div class="list-container">
       ${target.otherRows.map((r,i) => createCard(r,i+1,'SKILL')).join('') || '<div class="empty-state">まだ登録がありません</div>'}
     </div></div>`;
 }
@@ -3673,7 +3673,9 @@ function renderManage() {
   const hasMore = visibleRows.length < data.length;
 
   $('viewAllManage').innerHTML =
-    (renderRegisteredCardList(visibleRows) ||
+    ((document.body.classList.contains('admin-new-ui')
+      ? renderAdminRegisteredRecords(visibleRows)
+      : renderRegisteredCardList(visibleRows)) ||
       '<div class="empty-state">条件に一致する登録データがありません</div>') +
     (hasMore ? `
       <div class="user-detail-records-more own-registered-records-more">
@@ -3681,7 +3683,7 @@ function renderManage() {
         <button type="button" data-own-records-more>もっと見る</button>
       </div>` : '');
 
-  requestAnimationFrame(syncRegisteredEditButtonWidths);
+  if (!document.body.classList.contains('admin-new-ui')) requestAnimationFrame(syncRegisteredEditButtonWidths);
 }
 
 function syncRegisteredEditButtonWidths() {
@@ -4772,7 +4774,7 @@ async function deleteOwnAccount() {
 function updateAdminUiVersion(enabled) {
   const label = document.querySelector('.app-code-version');
   if (!label) return;
-  const adminVersion = document.querySelector('meta[name="admin-ui-version"]')?.content || '4.38.0';
+  const adminVersion = document.querySelector('meta[name="admin-ui-version"]')?.content || '4.38.1';
   label.textContent = `APP VERSION ${enabled ? adminVersion : '4.37.1'}`;
 }
 
@@ -4791,6 +4793,7 @@ async function checkAdminAccess() {
   document.body.classList.remove('admin-responsive-preview');
   document.body.classList.toggle('admin-new-ui', adminNewUi);
   updateAdminUiVersion(adminNewUi);
+  if (adminNewUi) void loadAdminRegisteredJackets(supabase).then(() => { if (activeTabName === 'RECORDS') renderManage(); });
   $('btnAdmin').classList.toggle('hidden', !adminEnabled);
   const skillSyncButton = $('btnMenuSkillSync');
   if (skillSyncButton) {

@@ -1,53 +1,73 @@
-/* admin-only UI prototype 4.38.0. No shared styles or handlers modified. */
-body.admin-new-ui { --ui-panel:#071c33; --ui-stroke:#1c547e; --ui-cyan:#2dd4f1; background:#031326 !important; color:#eaf6ff; }
-body.admin-new-ui #appScreen,body.admin-new-ui #appScreen>.p-container { background:#031326 !important; }
-body.admin-new-ui #appScreen>.p-header {background:#071c33 !important;border-bottom:1px solid #23769e !important;}
-body.admin-new-ui .user-header-row {padding:10px 14px !important; border-bottom:1px solid #153f64;}
-body.admin-new-ui .p-tabs {background:#071c33 !important; padding:7px 14px !important;gap:7px !important;}
-body.admin-new-ui .p-tab-btn {border:1px solid #225679 !important;background:#0b2a49 !important;color:#cde9fa !important;border-radius:6px !important;}
-body.admin-new-ui .p-tab-btn.active {background:#1478cf !important;color:#fff !important;border-color:#26ace5 !important;}
-body.admin-new-ui .score-row {background:#071b35 !important; border:1px solid #1f5a7f;border-radius:8px;margin:8px 14px !important;}
-body.admin-new-ui .score-cell {background:transparent !important;}
-/* Do not force the skill number to white: existing rank colors remain authoritative. */
-body.admin-new-ui .sk-section {min-width:0; margin-bottom:14px !important;}
-body.admin-new-ui #viewSkill .sk-section h2 {font-size:15px !important;color:#35d6f5 !important;padding:5px 10px;border-left:3px solid #25cce5;}
-body.admin-new-ui #viewSkill .list-container {display:flex !important;flex-direction:column !important;gap:3px !important;min-width:0;}
-body.admin-new-ui #viewSkill .dc-card {margin:0 !important;border:1px solid #215479 !important;border-radius:5px !important;background-color:#091e37 !important;min-width:0;box-shadow:none !important;}
-body.admin-new-ui #viewSkill .dc-card::before {display:none !important;}
-body.admin-new-ui #viewSkill .dc-title {min-width:0 !important;text-align:left !important;}
-body.admin-new-ui #viewSkill .dc-song-title {color:#f5fbff !important;font-weight:750 !important;}
-body.admin-new-ui #viewSkill .dc-skill {border:2px solid #207dc6 !important;border-radius:5px !important; min-width:0 !important;}
-body.admin-new-ui #viewSkill .dc-card:hover {border-color:#3ed4ee !important;background-color:#0d2b49 !important;}
-body.admin-new-ui .admin-skill-columns {display:none;}
-@media (min-width:1200px){
- body.admin-new-ui #appScreen>.p-container {width:100% !important;max-width:none !important;padding:12px 18px !important;box-sizing:border-box;}
- body.admin-new-ui #viewSkill {width:100%;max-width:none !important;}
- body.admin-new-ui #viewSkill .sk-section {width:100%;}
- body.admin-new-ui .admin-skill-columns,body.admin-new-ui #viewSkill .dc-card-skill {
-   display:grid !important;grid-template-columns:100px minmax(180px,1fr) 118px 66px 72px 92px 95px !important;
-   grid-template-rows:1fr !important;grid-template-areas:none !important;
-   gap:0 !important;align-items:center !important; width:100% !important;box-sizing:border-box;
- }
- body.admin-new-ui .admin-skill-columns {background:#0c3152;color:#8dddf3;border:1px solid #235d83;border-radius:5px 5px 0 0;min-height:30px;font-size:11px;font-weight:800;}
- body.admin-new-ui .admin-skill-columns>span {padding:0 10px;}
- body.admin-new-ui #viewSkill .dc-card-skill {min-height:55px !important;padding:5px 0 !important;}
- body.admin-new-ui #viewSkill .dc-card-skill>.dc-part,
- body.admin-new-ui #viewSkill .dc-card-skill>.dc-title,
- body.admin-new-ui #viewSkill .dc-card-skill>.dc-skill,
- body.admin-new-ui #viewSkill .dc-card-skill>.dc-fc,
- body.admin-new-ui #viewSkill .dc-card-skill>.dc-lv,
- body.admin-new-ui #viewSkill .dc-card-skill>.dc-rate,
- body.admin-new-ui #viewSkill .dc-card-skill>.dc-option {grid-area:auto !important;grid-column:auto !important;grid-row:auto !important;position:static !important;width:auto !important;max-width:none !important;margin:0 !important;align-self:center !important;justify-self:stretch !important;padding:0 10px !important;box-sizing:border-box !important;}
- body.admin-new-ui #viewSkill .dc-card-skill .dc-field-label {display:none !important;}
- body.admin-new-ui #viewSkill .dc-card-skill>.dc-skill {min-height:35px !important;display:flex !important;align-items:center;justify-content:center;}
+/* admin-only UI 4.38.1: registered tab only. Legacy skill view remains untouched. */
+body.admin-new-ui { --ar-bg:#04172d; --ar-outline:#17527a; --ar-cyan:#66dcf4; }
+body.admin-new-ui #viewAllManage { width:100%; max-width:none; display:block; }
+body.admin-new-ui #viewAllManage.hidden { display:none !important; }
+body.admin-new-ui #viewAllManage .ar-register-view { width:100%; min-width:0; }
+body.admin-new-ui #viewAllManage .ar-table-head,
+body.admin-new-ui #viewAllManage .ar-record { display:grid; grid-template-columns:40px 60px minmax(130px,1fr) 75px 58px 85px 94px 90px 70px 48px; align-items:center; gap:8px; box-sizing:border-box; }
+body.admin-new-ui #viewAllManage .ar-table-head { padding:9px 12px; margin-bottom:4px; background:#0a3150; border:1px solid #1a658c; border-radius:6px; color:#97e9fa; font-size:12px; font-weight:800; }
+body.admin-new-ui #viewAllManage .ar-record-grid { display:grid; grid-template-columns:minmax(0,1fr); gap:4px; }
+body.admin-new-ui #viewAllManage .ar-record { position:relative; padding:7px 12px; min-height:70px; border:1px solid #1c5b80; border-radius:6px; background:linear-gradient(95deg,#092542,#061a30); color:#edf8ff; font-size:13px; }
+body.admin-new-ui #viewAllManage .ar-art {height:52px;width:52px;border-radius:4px;overflow:hidden;background:#102d49;display:grid;place-items:center;}
+body.admin-new-ui #viewAllManage .ar-art img {width:100%;height:100%;object-fit:cover;}
+body.admin-new-ui #viewAllManage .ar-jacket-missing {color:#4d86a6;font-size:25px;}
+body.admin-new-ui #viewAllManage .ar-title {min-width:0;display:flex;align-items:center;gap:8px;}
+body.admin-new-ui #viewAllManage .ar-song-name {overflow-wrap:anywhere;font-weight:700;}
+body.admin-new-ui #viewAllManage .ar-hot {border:1px solid #e44954;color:#fff;background:#791124;padding:2px 5px;font-size:10px;border-radius:3px;flex-shrink:0;}
+body.admin-new-ui #viewAllManage .ar-no {font-size:11px;color:#7db6d2;font-variant-numeric:tabular-nums;}
+body.admin-new-ui #viewAllManage .ar-level,body.admin-new-ui #viewAllManage .ar-rate {text-align:center;font-variant-numeric:tabular-nums;}
+body.admin-new-ui #viewAllManage .ar-skill {text-align:center;justify-self:stretch;border:2px solid #2795df;border-radius:5px;font-weight:850;padding:7px 2px;font-variant-numeric:tabular-nums;}
+body.admin-new-ui #viewAllManage .ar-part,body.admin-new-ui #viewAllManage .ar-option,body.admin-new-ui #viewAllManage .ar-fc-cell {display:flex;justify-content:center;align-items:center;}
+body.admin-new-ui #viewAllManage .ar-normal {font-size:10px;color:#9bb6c8;}
+body.admin-new-ui #viewAllManage .ar-edit button {width:38px;height:38px;border:1px solid #23618a;background:#0b3357;border-radius:6px;color:white;font-size:23px;cursor:pointer;}
+body.admin-new-ui #viewAllManage .ar-medal {display:inline-grid;place-items:center;width:28px;height:28px;border-radius:50%;font-size:23px;text-shadow:0 1px 2px #111;border:2px solid #aaa;}
+body.admin-new-ui #viewAllManage .ar-medal.ar-fc {background:linear-gradient(140deg,#f7faff,#778aa5);color:#e4efff;}
+body.admin-new-ui #viewAllManage .ar-medal.ar-exc {background:linear-gradient(140deg,#ffeba3,#aa6512);border-color:#f6bd40;color:#fff0ad;}
+body.admin-new-ui #viewAllManage .ar-fc-empty {color:#6c8498;}
+body.admin-new-ui #viewAllManage .own-registered-records-more {grid-column:1/-1;}
+/* Two columns only when the user's existing horizontal setting is ON. */
+@media (min-width:768px) {
+ body.admin-new-ui.skill-target-columns #viewAllManage .ar-table-head {display:none;}
+ body.admin-new-ui.skill-target-columns #viewAllManage .ar-record-grid {grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;}
+ body.admin-new-ui.skill-target-columns #viewAllManage .ar-record {grid-template-columns:54px minmax(0,1fr) auto auto;grid-template-rows:auto auto auto;min-height:102px;column-gap:9px;}
+ body.admin-new-ui.skill-target-columns #viewAllManage .ar-no {display:none;}
+ body.admin-new-ui.skill-target-columns #viewAllManage .ar-art {grid-column:1;grid-row:1/4;width:54px;height:54px;}
+ body.admin-new-ui.skill-target-columns #viewAllManage .ar-title {grid-column:2/4;grid-row:1;}
+ body.admin-new-ui.skill-target-columns #viewAllManage .ar-part {grid-column:2;grid-row:2;justify-content:flex-start;}
+ body.admin-new-ui.skill-target-columns #viewAllManage .ar-level {grid-column:3;grid-row:2;}
+ body.admin-new-ui.skill-target-columns #viewAllManage .ar-rate {grid-column:2;grid-row:3;text-align:left;}
+ body.admin-new-ui.skill-target-columns #viewAllManage .ar-skill {grid-column:3;grid-row:3;min-width:70px;}
+ body.admin-new-ui.skill-target-columns #viewAllManage .ar-option {grid-column:4;grid-row:2;}
+ body.admin-new-ui.skill-target-columns #viewAllManage .ar-fc-cell {grid-column:4;grid-row:3;}
+ body.admin-new-ui.skill-target-columns #viewAllManage .ar-edit {grid-column:4;grid-row:1;justify-self:end;}
 }
-@media (min-width:768px) and (max-width:1199px){
- body.admin-new-ui #appScreen>.p-container {padding:10px !important;max-width:none !important;}
- body.admin-new-ui #viewSkill .dc-card-skill {min-height:72px !important;}
+@media (max-width:1199px) {
+ body.admin-new-ui #viewAllManage .ar-table-head {display:none;}
+ body.admin-new-ui #viewAllManage .ar-record-grid {grid-template-columns:minmax(0,1fr);gap:6px;}
+ body.admin-new-ui #viewAllManage .ar-record {grid-template-columns:64px minmax(0,1fr) auto auto;grid-template-rows:auto auto auto;gap:5px 9px;min-height:105px;padding:9px;}
+ body.admin-new-ui #viewAllManage .ar-no {display:none;}
+ body.admin-new-ui #viewAllManage .ar-art {grid-column:1;grid-row:1/4;width:62px;height:62px;}
+ body.admin-new-ui #viewAllManage .ar-title {grid-column:2/4;grid-row:1;}
+ body.admin-new-ui #viewAllManage .ar-part {grid-column:2;grid-row:2;justify-content:flex-start;}
+ body.admin-new-ui #viewAllManage .ar-option {grid-column:3;grid-row:2;}
+ body.admin-new-ui #viewAllManage .ar-level {grid-column:2;grid-row:3;text-align:left;}
+ body.admin-new-ui #viewAllManage .ar-level::before {content:'Lv.';font-size:10px;color:#a5c4d9;}
+ body.admin-new-ui #viewAllManage .ar-rate {grid-column:3;grid-row:3;}
+ body.admin-new-ui #viewAllManage .ar-skill {grid-column:4;grid-row:3;min-width:70px;}
+ body.admin-new-ui #viewAllManage .ar-fc-cell {grid-column:4;grid-row:2;}
+ body.admin-new-ui #viewAllManage .ar-edit {grid-column:4;grid-row:1;justify-self:end;}
 }
-@media (max-width:767px){
- body.admin-new-ui #appScreen>.p-container {padding:6px !important;}
- body.admin-new-ui #viewSkill .dc-card-skill {border-radius:9px !important;margin-bottom:6px !important;min-height:82px !important;padding:6px !important;}
- body.admin-new-ui .p-tabs {padding:5px !important;gap:3px !important;}
- body.admin-new-ui .p-tab-btn {font-size:11px !important;}
+@media (max-width:767px) {
+ body.admin-new-ui:not(.skill-target-columns) #viewAllManage .ar-record-grid {grid-template-columns:minmax(0,1fr) !important;}
+ body.admin-new-ui.skill-target-columns #viewAllManage .ar-record-grid {grid-template-columns:repeat(2,minmax(0,1fr)) !important;}
+ body.admin-new-ui.skill-target-columns #viewAllManage .ar-record {display:flex;flex-direction:column;align-items:flex-start;gap:5px;min-width:0;}
+ body.admin-new-ui.skill-target-columns #viewAllManage .ar-record .ar-art {width:44px;height:44px;}
+ body.admin-new-ui.skill-target-columns #viewAllManage .ar-record .ar-title {width:100%;}
+ body.admin-new-ui.skill-target-columns #viewAllManage .ar-record .ar-edit {position:absolute;top:5px;right:5px;}
+ body.admin-new-ui.skill-target-columns #viewAllManage .ar-record .ar-skill {align-self:stretch;}
+ body.admin-new-ui #viewAllManage .ar-record {grid-template-columns:54px minmax(0,1fr) auto auto;gap:5px 6px;font-size:12px;padding:7px;}
+ body.admin-new-ui #viewAllManage .ar-art {width:52px;height:52px;}
+ body.admin-new-ui #viewAllManage .ar-skill {min-width:59px;padding:5px 2px;}
+ body.admin-new-ui #viewAllManage .ar-title {gap:4px;}
+ body.admin-new-ui #viewAllManage .ar-edit button {width:30px;height:30px;font-size:19px;}
 }
