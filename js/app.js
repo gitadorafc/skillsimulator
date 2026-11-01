@@ -2,7 +2,7 @@
 import {
   getSkillColorRowByTotalValue
 } from './skill-colors.js?v=4_14_33';
-import { renderAdminRegisteredRecords, loadAdminRegisteredJackets } from './admin-register-ui.js?v=4_38_26';
+import { renderAdminRegisteredRecords, loadAdminRegisteredJackets } from './admin-register-ui.js?v=4_38_27';
 import {
   createCard,
   getPartColorClass
@@ -3569,10 +3569,10 @@ function renderSkill() {
 
   $('viewSkill').innerHTML = `
     <div class="sk-section skill-hot-section"><h2>HOT Top25</h2><div class="list-container">
-      ${target.hotRows.map((r,i) => createCard(r,i+1,'SKILL')).join('') || '<div class="empty-state">まだ登録がありません</div>'}
+      ${(document.body.classList.contains('admin-new-ui') ? renderAdminRegisteredRecords(target.hotRows, 'SKILL') : target.hotRows.map((r,i) => createCard(r,i+1,'SKILL')).join('')) || '<div class="empty-state">まだ登録がありません</div>'}
     </div></div>
     <div class="sk-section skill-other-section"><h2>OTHER Top25</h2><div class="list-container">
-      ${target.otherRows.map((r,i) => createCard(r,i+1,'SKILL')).join('') || '<div class="empty-state">まだ登録がありません</div>'}
+      ${(document.body.classList.contains('admin-new-ui') ? renderAdminRegisteredRecords(target.otherRows, 'SKILL') : target.otherRows.map((r,i) => createCard(r,i+1,'SKILL')).join('')) || '<div class="empty-state">まだ登録がありません</div>'}
     </div></div>`;
 }
 
@@ -4774,7 +4774,7 @@ async function deleteOwnAccount() {
 function updateAdminUiVersion(enabled) {
   const label = document.querySelector('.app-code-version');
   if (!label) return;
-  const adminVersion = document.querySelector('meta[name="admin-ui-version"]')?.content || '4.38.26';
+  const adminVersion = document.querySelector('meta[name="admin-ui-version"]')?.content || '4.38.27';
   label.textContent = `APP VERSION ${enabled ? adminVersion : '4.37.1'}`;
 }
 
@@ -4793,7 +4793,7 @@ async function checkAdminAccess() {
   document.body.classList.remove('admin-responsive-preview');
   document.body.classList.toggle('admin-new-ui', adminNewUi);
   updateAdminUiVersion(adminNewUi);
-  if (adminNewUi) void loadAdminRegisteredJackets(supabase).then(() => { if (activeTabName === 'RECORDS') renderManage(); });
+  if (adminNewUi) void loadAdminRegisteredJackets(supabase).then(() => { if (activeTabName === 'RECORDS') renderManage(); else if (activeTabName === 'SKILL') renderSkill(); });
   $('btnAdmin').classList.toggle('hidden', !adminEnabled);
   const skillSyncButton = $('btnMenuSkillSync');
   if (skillSyncButton) {

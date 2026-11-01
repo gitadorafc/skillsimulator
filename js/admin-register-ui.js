@@ -140,7 +140,7 @@ function fcIcon(record) {
   if (type !== 'FC' && type !== 'EXC') return '';
   return bearMedal(type);
 }
-function recordCard(record, index) {
+function recordCard(record, index, mode = 'RECORDS') {
   const title = esc(record.title);
   const compareAttributes = record.song_id
     ? ` data-compare-song="${esc(record.song_id)}" data-compare-title="${title}" data-compare-part="${esc(record.part)}"`
@@ -169,12 +169,12 @@ function recordCard(record, index) {
     <div class="ar-option">${option}</div>
     </div>
     <div class="ar-skill skill-box-${skillRank}"><span class="dc-skill-value">${formatSkill(record.skill)}</span></div>
-    <div class="ar-edit"><button type="button" data-edit="${esc(record.score_id)}" aria-label="${title} を編集" title="編集">✎</button></div>
+    <div class="ar-edit">${mode === 'SKILL' ? '' : `<button type="button" data-edit="${esc(record.score_id)}" aria-label="${title} を編集" title="編集">✎</button>`}</div>
   </article>`;
 }
 
-export function renderAdminRegisteredRecords(rows) {
+export function renderAdminRegisteredRecords(rows, mode = 'RECORDS') {
   if (!rows.length) return '';
-  const header = `<div class="ar-table-head" aria-hidden="true"><span>No.</span><span>ジャケット</span><span>曲名</span><span>パート</span><span>Lv</span><span>達成率</span><span>FC</span><span>オプション</span><span>スキル</span><span>編集</span></div>`;
-  return `<div class="ar-register-view">${header}<div class="ar-record-grid">${rows.map(recordCard).join('')}</div></div>`;
+  const header = `<div class="ar-table-head" aria-hidden="true"><span>No.</span><span>ジャケット</span><span>曲名</span><span>パート</span><span>Lv</span><span>達成率</span><span>FC/EXC</span><span>オプション</span><span>スキル</span><span>編集</span></div>`;
+  return `<div class="ar-register-view">${header}<div class="ar-record-grid">${rows.map((row,index) => recordCard(row,index,mode)).join('')}</div></div>`;
 }
