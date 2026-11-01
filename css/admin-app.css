@@ -25,7 +25,6 @@ body.admin-new-ui #viewAllManage .ar-level strong,body.admin-new-ui #viewAllMana
 body.admin-new-ui #viewAllManage .ar-mini-label{display:none}
 body.admin-new-ui #viewAllManage .ar-skill{position:relative;min-width:0;box-sizing:border-box;overflow:hidden;text-align:center;justify-self:stretch;padding:6px 2px;font-weight:850;border-radius:5px;font-variant-numeric:tabular-nums}
 body.admin-new-ui #viewAllManage .ar-skill>.dc-skill-value{position:relative;z-index:1}
-body.admin-new-ui #viewAllManage .ar-fc-empty{color:#738da1}
 body.admin-new-ui #viewAllManage .ar-bear-medal{display:block;width:34px;height:34px;flex:none;filter:drop-shadow(0 1px 3px #0008)}
 body.admin-new-ui #viewAllManage .ar-edit{display:flex;justify-content:center}
 body.admin-new-ui #viewAllManage .ar-edit button{width:38px;height:38px;border:1px solid #23618a;background:#0b3357;border-radius:6px;color:white;font-size:22px;cursor:pointer}
@@ -56,11 +55,11 @@ body.admin-new-ui #viewAllManage .ar-skill.skill-box-sparkle-rainbow::after{cont
  body.admin-new-ui #viewAllManage .ar-no{display:none}
  body.admin-new-ui #viewAllManage .ar-art{grid-column:1;grid-row:1/3;width:66px;height:66px}
  body.admin-new-ui #viewAllManage .ar-title{grid-column:2;grid-row:1}
- body.admin-new-ui #viewAllManage .ar-metrics{grid-column:2;grid-row:2;display:flex;gap:13px;align-items:center;min-width:0;justify-content:flex-start}
+ body.admin-new-ui #viewAllManage .ar-metrics{grid-column:2;grid-row:2;display:grid;grid-template-columns:72px 62px 95px 72px minmax(0,1fr) 104px;column-gap:8px;align-items:center;min-width:0}
  body.admin-new-ui #viewAllManage .ar-part,body.admin-new-ui #viewAllManage .ar-option{justify-content:flex-start}
  body.admin-new-ui #viewAllManage .ar-level,body.admin-new-ui #viewAllManage .ar-rate{text-align:left}
- body.admin-new-ui #viewAllManage .ar-skill{order:10;margin-left:auto;width:104px;flex:0 0 104px;padding:5px 2px}
- body.admin-new-ui #viewAllManage .ar-option{order:4}
+ body.admin-new-ui #viewAllManage .ar-skill{grid-column:6;width:104px;justify-self:end;padding:5px 2px}
+ body.admin-new-ui #viewAllManage .ar-option{grid-column:4;justify-content:flex-start}
  body.admin-new-ui #viewAllManage .ar-fc-cell{grid-column:3;grid-row:1}
  body.admin-new-ui #viewAllManage .ar-edit{grid-column:4;grid-row:1/3}
  body.admin-new-ui #viewAllManage .ar-mini-label{display:inline;color:#9bbed4;margin-right:3px;font-size:10px}
@@ -79,23 +78,26 @@ body.admin-new-ui #viewAllManage .ar-skill.skill-box-sparkle-rainbow::after{cont
  body.admin-new-ui #viewAllManage .ar-fc-cell{grid-column:3;grid-row:1;justify-self:center}
  body.admin-new-ui #viewAllManage .ar-edit{grid-column:4;grid-row:1/3;align-self:center}
  body.admin-new-ui #viewAllManage .ar-edit button{width:34px;height:34px;font-size:20px}
- body.admin-new-ui #viewAllManage .ar-metrics{grid-column:2/4;grid-row:2;display:flex;gap:9px;align-items:center;min-width:0;justify-content:flex-start}
+ body.admin-new-ui #viewAllManage .ar-metrics{grid-column:2/4;grid-row:2;display:grid;grid-template-columns:58px 36px 53px 43px minmax(0,1fr) 84px;column-gap:4px;align-items:center;min-width:0}
  body.admin-new-ui #viewAllManage .ar-part{justify-content:flex-start}
  body.admin-new-ui #viewAllManage .ar-level,body.admin-new-ui #viewAllManage .ar-rate{text-align:left}
  body.admin-new-ui #viewAllManage .ar-level strong,body.admin-new-ui #viewAllManage .ar-rate strong{font-size:11px}
- body.admin-new-ui #viewAllManage .ar-skill{order:10;margin-left:auto;flex:0 0 84px;width:84px;padding:4px 1px;font-size:12px}
+ body.admin-new-ui #viewAllManage .ar-skill{grid-column:6;width:84px;justify-self:end;padding:4px 1px;font-size:12px}
  body.admin-new-ui #viewAllManage .ar-bear-medal{width:28px;height:28px}
  body.admin-new-ui #viewAllManage .ar-mini-label{display:none}
- body.admin-new-ui #viewAllManage .ar-option{order:4}
+ body.admin-new-ui #viewAllManage .ar-option{grid-column:4;justify-content:flex-start}
  body.admin-new-ui #viewAllManage .ar-option .opt-badge{font-size:10px!important;padding:0 4px!important}
  body.admin-new-ui #viewAllManage .ar-part .p-badge{font-size:10px!important;padding:0 4px!important}
 }
 @media(max-width:420px){
  body.admin-new-ui #viewAllManage .ar-record{grid-template-columns:40px minmax(0,1fr) 27px 32px;column-gap:5px;padding:6px}
  body.admin-new-ui #viewAllManage .ar-art{width:39px;height:39px}
- body.admin-new-ui #viewAllManage .ar-metrics{gap:7px}
- body.admin-new-ui #viewAllManage .ar-skill{flex-basis:80px;width:80px;font-size:12px}
+ body.admin-new-ui #viewAllManage .ar-metrics{grid-template-columns:49px 32px 48px 34px minmax(0,1fr) 74px;column-gap:2px}
+ body.admin-new-ui #viewAllManage .ar-skill{width:74px;font-size:12px}
  body.admin-new-ui #viewAllManage .ar-bear-medal{width:25px;height:25px}
  body.admin-new-ui #viewAllManage .ar-edit button{width:30px;height:30px}
 }
 /* Do not disable this UI status pulse under reduce-motion: the existing public UI also displays it. */
+
+/* Preserve title width regardless of whether an FC/EXC medal is present. */
+body.admin-new-ui #viewAllManage .ar-fc-cell{min-width:0}

@@ -139,7 +139,7 @@ function bearMedal(type) {
 }
 function fcIcon(record) {
   const type = String(record.fc || '').toUpperCase();
-  if (type !== 'FC' && type !== 'EXC') return '<span class="ar-fc-empty">—</span>';
+  if (type !== 'FC' && type !== 'EXC') return '';
   return bearMedal(type);
 }
 function recordCard(record, index) {
