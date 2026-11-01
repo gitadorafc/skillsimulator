@@ -159,16 +159,17 @@ function recordCard(record, index) {
     ? `<img loading="lazy" alt="" src="${esc(urls[0])}"${urls[1] ? ` data-jacket-fallback="${esc(urls[1])}"` : ''}>`
     : '<span class="ar-jacket-missing" aria-hidden="true">♫</span>';
   const skillRank = getSongSkillRank(Number(record.skill));
-  const option = getOptionBadgeMarkup(record.play_option) || '<span class="ar-normal">NORMAL</span>';
+  const option = getOptionBadgeMarkup(record.play_option);
   return `<article class="ar-record skill-row-${skillRank}" data-score-id="${esc(record.score_id)}"${compareAttributes}>
     <div class="ar-no">${String(index + 1).padStart(3,'0')}</div>
     <div class="ar-art">${artwork}</div>
-    <div class="ar-title">${record.is_hot ? '<span class="ar-hot">HOT</span>' : ''}<span class="ar-song-name" title="${title}">${title}</span>${pendingBadge}</div>
-    <div class="ar-part"><span class="p-badge ${getPartColorClass(record.part)}">${esc(record.part)}</span></div>
+    <div class="ar-title">${record.is_hot ? '<span class="hot-tag ar-hot">HOT</span>' : ''}<span class="ar-song-name" title="${title}">${title}</span>${pendingBadge}</div>
+    <div class="ar-metrics"><div class="ar-part"><span class="p-badge ${getPartColorClass(record.part)}">${esc(record.part)}</span></div>
     <div class="ar-level"><span class="ar-mini-label">Lv</span><strong>${formatLevel(record.level)}</strong></div>
     <div class="ar-rate"><span class="ar-mini-label">達成率</span><strong>${formatRate(record.achievement_rate)}%</strong></div>
     <div class="ar-skill skill-box-${skillRank}"><span class="dc-skill-value">${formatSkill(record.skill)}</span></div>
     <div class="ar-option">${option}</div>
+    </div>
     <div class="ar-fc-cell">${fcIcon(record)}</div>
     <div class="ar-edit"><button type="button" data-edit="${esc(record.score_id)}" aria-label="${title} を編集" title="編集">✎</button></div>
   </article>`;
