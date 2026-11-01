@@ -107,13 +107,14 @@
       <div class="record-search-row">
         <input id="domSearch" class="search-input" placeholder="登録済みの曲を検索...">
         <button id="btnHeaderAdd" class="btn-add-inline">＋ 登録</button>
+        <button id="btnAdminRecordFilters" type="button" aria-controls="recordFilterRow" aria-expanded="false">☷ フィルタ</button>
       </div>
       <div id="adminBulkDeleteArea" class="admin-bulk-delete-area hidden">
         <button id="btnAdminBulkDeleteScores" type="button" class="admin-bulk-delete-btn">
           登録曲を一括削除
         </button>
       </div>
-      <div class="record-filter-row">
+      <div class="record-filter-row" id="recordFilterRow">
         <label id="recordTypeFilterField" class="record-type-filter-field">
           <span>種別</span>
           <select id="recordTypeFilter" aria-label="種別フィルタ">

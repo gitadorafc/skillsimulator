@@ -35,11 +35,11 @@ body.admin-new-ui #viewAllManage .ar-skill.skill-box-sparkle-rainbow{animation:n
 body.admin-new-ui #viewAllManage .ar-skill.skill-box-sparkle-rainbow::after{content:"";display:block;position:absolute;inset:0;pointer-events:none;z-index:2;background-image:var(--skill-side-paint),var(--skill-side-paint);background-position:left top,right top;background-size:5px 100%,5px 100%;background-repeat:no-repeat,no-repeat;animation:skill-sparkle-band-pulse var(--skill-sparkle-cycle,1.6s) ease-in-out infinite!important}
 
 /* Full PC: a single table row, no auto-placement overflow. */
-@media (min-width:1280px) {
- body.admin-new-ui #viewAllManage .ar-record{grid-template-columns:var(--ar-cols);grid-template-rows:70px;min-height:86px;padding:8px;overflow:hidden}
+@media (min-width:1600px) {
+ body.admin-new-ui #viewAllManage .ar-record{grid-template-columns:var(--ar-cols);grid-template-rows:48px;min-height:60px;padding:5px 8px;overflow:hidden}
  body.admin-new-ui #viewAllManage .ar-metrics{display:contents}
  body.admin-new-ui #viewAllManage .ar-no{grid-column:1;grid-row:1}
- body.admin-new-ui #viewAllManage .ar-art{grid-column:2/4;grid-row:1}
+ body.admin-new-ui #viewAllManage .ar-art{grid-column:2;grid-row:1;width:46px;height:46px;justify-self:center}
  body.admin-new-ui #viewAllManage .ar-title{grid-column:3;grid-row:1}
  body.admin-new-ui #viewAllManage .ar-part{grid-column:4;grid-row:1}
  body.admin-new-ui #viewAllManage .ar-level{grid-column:5;grid-row:1}
@@ -51,13 +51,13 @@ body.admin-new-ui #viewAllManage .ar-skill.skill-box-sparkle-rainbow::after{cont
 }
 /* Wide/tablet: 2 lines inside a compact horizontal row, unlike the phone layout.
    Skill stays immediately left of Edit, regardless of viewport width. */
-@media (min-width:768px) and (max-width:1279px) {
+@media (min-width:768px) and (max-width:1599px) {
  body.admin-new-ui #viewAllManage .ar-table-head{display:none}
  body.admin-new-ui #viewAllManage .ar-record{grid-template-columns:64px minmax(0,1fr) 34px 72px 38px;grid-template-rows:24px 25px;gap:3px 9px;padding:5px 9px;min-height:63px}
  body.admin-new-ui #viewAllManage .ar-no{display:none}
  body.admin-new-ui #viewAllManage .ar-art{grid-column:1;grid-row:1/3;width:54px;height:54px}
- body.admin-new-ui #viewAllManage .ar-title{grid-column:2/4;grid-row:1}
- body.admin-new-ui #viewAllManage .ar-fc-cell{grid-column:4;grid-row:1;justify-self:center}
+ body.admin-new-ui #viewAllManage .ar-title{grid-column:2;grid-row:1}
+ body.admin-new-ui #viewAllManage .ar-fc-cell{grid-column:4;grid-row:1;justify-self:end;align-self:center}
  body.admin-new-ui #viewAllManage .ar-skill{grid-column:4;grid-row:2}
  body.admin-new-ui #viewAllManage .ar-edit{grid-column:5;grid-row:1/3;align-self:center}
  body.admin-new-ui #viewAllManage .ar-metrics{grid-column:2/4;grid-row:2;display:grid;grid-template-columns:70px 64px 94px 74px;align-items:center;gap:10px;justify-content:start;min-width:0}
@@ -77,7 +77,7 @@ body.admin-new-ui #viewAllManage .ar-skill.skill-box-sparkle-rainbow::after{cont
  body.admin-new-ui #viewAllManage .ar-art{grid-column:1;grid-row:1/3;width:43px;height:43px;align-self:center}
  body.admin-new-ui #viewAllManage .ar-title{grid-column:2/4;grid-row:1;align-self:center}
  body.admin-new-ui #viewAllManage .ar-song-name{font-size:12px}
- body.admin-new-ui #viewAllManage .ar-fc-cell{grid-column:4;grid-row:1;justify-self:center}
+ body.admin-new-ui #viewAllManage .ar-fc-cell{grid-column:4;grid-row:1;justify-self:end;align-self:center}
  body.admin-new-ui #viewAllManage .ar-bear-medal{width:22px;height:22px}
  body.admin-new-ui #viewAllManage .ar-edit{grid-column:5;grid-row:1/3;align-self:center}
  body.admin-new-ui #viewAllManage .ar-edit button{width:32px;height:32px;font-size:19px}
@@ -99,3 +99,27 @@ body.admin-new-ui #viewAllManage .ar-skill.skill-box-sparkle-rainbow::after{cont
  body.admin-new-ui #viewAllManage .ar-edit button{width:30px;height:30px}
 }
 /* The user's current UI still animates the skill band when reduce-motion is enabled. */
+
+/* Admin-only toolbar: reserve the existing filters but collapse them by default. */
+body.admin-new-ui #searchArea .record-search-row{display:flex;align-items:stretch;gap:7px}
+body #searchArea #btnAdminRecordFilters{display:none}
+body.admin-new-ui #searchArea #btnAdminRecordFilters{display:inline-flex;align-items:center;justify-content:center;flex:none;padding:0 13px;border-radius:6px;border:1px solid #415671;background:#23344a;color:#eaf3ff;font-weight:800;cursor:pointer}
+body.admin-new-ui #searchArea .record-filter-row{display:none}
+body.admin-new-ui #searchArea.admin-filters-expanded .record-filter-row{display:flex}
+body.admin-new-ui #searchArea.admin-filters-expanded #btnAdminRecordFilters{border-color:#3b82f6;background:#254d86}
+body.admin-new-ui #searchArea .admin-bulk-delete-area{margin-top:0}
+/* Keep the skill totals pinned at the top while the records themselves scroll. */
+body.admin-new-ui #appScreen>.p-header{position:sticky;top:0;z-index:100}
+@media (min-width:1600px){
+ body.admin-new-ui #viewAllManage{--ar-cols:40px 58px minmax(160px,1fr) 82px 55px 87px 74px 62px 76px 48px}
+ body.admin-new-ui #viewAllManage .ar-record-grid{gap:4px}
+ body.admin-new-ui #viewAllManage .ar-table-head{padding:6px 9px;margin-bottom:4px}
+ body.admin-new-ui #viewAllManage .ar-bear-medal{width:28px;height:28px}
+ body.admin-new-ui #viewAllManage .ar-edit button{width:32px;height:32px;font-size:19px}
+}
+@media (min-width:768px) and (max-width:1599px){
+ body.admin-new-ui #viewAllManage .ar-fc-cell{justify-content:flex-end;justify-self:end;padding-right:0}
+}
+@media (max-width:767px){
+ body.admin-new-ui #viewAllManage .ar-fc-cell{justify-content:flex-end;justify-self:end;padding-right:0}
+}
