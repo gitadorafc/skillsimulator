@@ -175,6 +175,6 @@ function recordCard(record, index) {
 
 export function renderAdminRegisteredRecords(rows) {
   if (!rows.length) return '';
-  const header = `<div class="ar-table-head" aria-hidden="true"><span>No.</span><span>ジャケット</span><span>曲名</span><span>パート</span><span>Lv</span><span>達成率</span><span>FC/EXC</span><span>オプション</span><span>スキル</span><span>編集</span></div>`;
+  const header = `<div class="ar-table-head" aria-hidden="true"><span>No.</span><span>ジャケット</span><span>曲名</span><span>パート</span><span>Lv</span><span>達成率</span><span>FC</span><span>オプション</span><span>スキル</span><span>編集</span></div>`;
   return `<div class="ar-register-view">${header}<div class="ar-record-grid">${rows.map(recordCard).join('')}</div></div>`;
 }
