@@ -2,7 +2,7 @@
 import {
   getSkillColorRowByTotalValue
 } from './skill-colors.js?v=4_14_33';
-import { renderAdminRegisteredRecords, loadAdminRegisteredJackets } from './admin-register-ui.js?v=4_38_28';
+import { renderAdminRegisteredRecords, loadAdminRegisteredJackets } from './admin-register-ui.js?v=4_38_29';
 import {
   createCard,
   getPartColorClass
@@ -4777,7 +4777,7 @@ async function deleteOwnAccount() {
 function updateAdminUiVersion(enabled) {
   const label = document.querySelector('.app-code-version');
   if (!label) return;
-  const adminVersion = document.querySelector('meta[name="admin-ui-version"]')?.content || '4.38.28';
+  const adminVersion = document.querySelector('meta[name="admin-ui-version"]')?.content || '4.38.29';
   label.textContent = `APP VERSION ${enabled ? adminVersion : '4.37.1'}`;
 }
 
@@ -7533,13 +7533,29 @@ function toggleAdminDesktopMenu() {
   document.body.classList.add('admin-desktop-menu-open');
   desktopMenuTrigger.setAttribute('aria-expanded', 'true');
 }
+// On PC the sidebar is navigation, not an additional modal layer.
+function ensureDesktopMenuTree() {
+  if (!desktopMenuTree || !document.body.classList.contains('admin-new-ui') || !window.matchMedia('(min-width:1100px)').matches) return;
+  if (!desktopMenuTree.children.length) toggleAdminDesktopMenu();
+  desktopMenuTree.hidden = false;
+  document.body.classList.add('admin-desktop-menu-open');
+  desktopMenuTrigger.setAttribute('aria-expanded', 'true');
+}
+window.addEventListener('resize', ensureDesktopMenuTree);
+document.addEventListener('click', event => {
+  if (event.target.closest('#btnMenu')) return;
+  if (document.body.classList.contains('admin-new-ui')) requestAnimationFrame(ensureDesktopMenuTree);
+});
+requestAnimationFrame(ensureDesktopMenuTree);
 desktopMenuTrigger.addEventListener('click', () => {
   if (document.body.classList.contains('admin-new-ui') && window.matchMedia('(min-width:1100px)').matches) {
-    toggleAdminDesktopMenu();
+    ensureDesktopMenuTree();
+    desktopMenuTree.querySelector('.admin-menu-group > summary')?.focus();
   } else openMenu();
 });
 window.addEventListener('resize', () => {
   if (!window.matchMedia('(min-width:1100px)').matches) collapseAdminDesktopMenu();
+  else ensureDesktopMenuTree();
 });
 $('btnRefreshApp').addEventListener('click', () => window.location.reload());
 $('btnCloseMenu').addEventListener('click', closeMenu);
