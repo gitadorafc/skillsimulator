@@ -3,6 +3,8 @@ import { formatLevel, formatRate, formatSkill } from './scores.js?v=4_19_1';
 import { getSongSkillRank, getPartColorClass, getOptionBadgeMarkup } from './card-renderer.js?v=4_14_34';
 const esc = value => String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
 const jacketByTitle = new Map();
+const staticJacketTitles = new Set();
+
 let jacketsLoaded = false;
 let jacketsPending = null;
 const missingJacketTitles = new Set();
@@ -27,6 +29,23 @@ export async function loadAdminRegisteredJackets(supabase) {
   if (jacketsPending) return jacketsPending;
   jacketsPending = (async () => {
     try {
+      // The Pages manifest is read first; DB records are a fallback during migration.
+      // A missing manifest is normal before any migration batch is published.
+      try {
+        const manifestResponse = await fetch('./assets/jackets/manifest.json', {cache:'no-cache'});
+        if (manifestResponse.ok) {
+          const manifest = await manifestResponse.json();
+          if (manifest?.schema === 1 && manifest.titles && typeof manifest.titles === 'object') {
+            for (const [title, file] of Object.entries(manifest.titles)) {
+              if (!/^[a-f0-9]{24}\.webp$/.test(file)) continue;
+              const key = normalizeTitle(title);
+              jacketByTitle.set(key, [new URL(`./assets/jackets/${file}`, document.baseURI).href]);
+              staticJacketTitles.add(key);
+            }
+            console.info(`[admin jackets] ${staticJacketTitles.size} Pages images mapped`);
+          }
+        }
+      } catch (error) { console.warn('[admin jackets] Pages manifest unavailable:', error); }
       const staged = new Map();
       // Read all pages, including >1000 entries: Supabase defaults to 1000 rows per response.
       for (let offset = 0; offset < 10000; offset += 500) {
@@ -45,8 +64,9 @@ export async function loadAdminRegisteredJackets(supabase) {
         }
         if (!data || data.length < 500) break;
       }
-      jacketByTitle.clear();
-      for (const [key, urls] of staged) jacketByTitle.set(key, urls);
+      for (const [key, urls] of staged) {
+        if (!staticJacketTitles.has(key)) jacketByTitle.set(key, urls);
+      }
       jacketsLoaded = true;
       console.info(`[admin jackets] ${jacketByTitle.size} jacket titles loaded`);
     } catch (error) {

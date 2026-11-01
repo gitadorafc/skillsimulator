@@ -1,42 +1,38 @@
-/* 公式サイト「曲別成績」ページの開発者コンソールへ貼り付けて実行します。
- * 37カテゴリを順番に取得し、曲名/参照URLをCSVに保存します。
- * 画像そのものはCSVに含めません。ログイン必須URLの有効期間には注意してください。
- */
+/* Paste into Console on the OFFICIAL music-list page after signing in.
+   Images must be accessible in that session. Exports in 100-image gzip chunks.
+   Only run/download material whose reuse and publication are permitted. */
 (async () => {
-  const form = document.querySelector('form[name="category"]');
-  if (!form || !document.querySelector('.music_table_tb')) {
-    console.error('公式の「曲別成績」ページで実行してください。'); return;
+  const imgs=[...document.querySelectorAll('img.jacket[alt]')];
+  if(!imgs.length){console.error('No img.jacket[alt] elements found. Open the official music-list page.');return;}
+  const chunkSize=100;
+  async function readImage(img){
+    const url=new URL(img.getAttribute('src'),location.href);
+    if(url.origin!==location.origin)throw Error('cross-origin image rejected');
+    const response=await fetch(url.href,{credentials:'include',cache:'default'});
+    if(!response.ok)throw Error(`HTTP ${response.status}`);
+    const blob=await response.blob();
+    if(!blob.type.startsWith('image/'))throw Error('response was not an image');
+    return await new Promise((res,rej)=>{const fr=new FileReader();fr.onload=()=>res(fr.result);fr.onerror=()=>rej(fr.error);fr.readAsDataURL(blob);});
   }
-  const endpoint = new URL(form.getAttribute('action') || 'music.html', location.href).href;
-  const rows = new Map();
-  const failures = [];
-  const parser = new DOMParser();
-  for (let cat=0; cat<=36; cat++) {
-    try {
-      const params = new URLSearchParams(new FormData(form));
-      params.set('cat', String(cat));
-      params.set('gtype', 'gf');
-      const response = await fetch(endpoint, {method:'POST',credentials:'include',body:params,redirect:'follow'});
-      if (!response.ok) throw Error(`HTTP ${response.status}`);
-      const doc = parser.parseFromString(await response.text(), 'text/html');
-      const entries = [...doc.querySelectorAll('td.music_cell')];
-      if (!entries.length) throw Error('楽曲一覧が取得できません（ログイン状態を確認）');
-      for (const cell of entries) {
-        const title = cell.querySelector('.title_box a')?.textContent?.trim();
-        const img = cell.querySelector('img.jacket');
-        if (!title || !img) continue;
-        const url = new URL(img.getAttribute('src'), endpoint).href;
-        rows.set(title, {title,image_url:url,category:cat});
-      }
-      console.log(`${cat+1}/37: ${entries.length}曲、累計${rows.size}曲`);
-      await new Promise(resolve => setTimeout(resolve, 350));
-    } catch(e) {failures.push([cat,String(e)]);console.warn(`カテゴリ${cat}取得失敗`,e);}
+  async function gzipBlob(payload){
+    const stream=new Blob([JSON.stringify(payload)]).stream().pipeThrough(new CompressionStream('gzip'));
+    return await new Response(stream).blob();
   }
-  const esc = value => '"'+String(value??'').replace(/"/g,'""')+'"';
-  const csv = '\ufefftitle,image_url,category\r\n'+[...rows.values()].map(r => [r.title,r.image_url,r.category].map(esc).join(',')).join('\r\n');
-  const link = document.createElement('a');
-  link.href = URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));
-  link.download = 'gitadora_official_jackets.csv';link.click();
-  setTimeout(() => URL.revokeObjectURL(link.href), 1500);
-  console.log(`CSV出力: ${rows.size}曲。取得に失敗したカテゴリ`, failures);
+  let successful=0,failed=0;
+  for(let start=0;start<imgs.length;start+=chunkSize){
+    const items=[],errors=[];
+    for(const img of imgs.slice(start,start+chunkSize)){
+      const title=(img.getAttribute('alt')||'').trim();
+      if(!title)continue;
+      try{items.push({title,image:await readImage(img)});successful++;}
+      catch(err){failed++;errors.push({title,message:String(err)});}
+    }
+    const blob=await gzipBlob({schema:1,items,errors});
+    const anchor=document.createElement('a');anchor.href=URL.createObjectURL(blob);
+    anchor.download=`official_jackets_${String(start/chunkSize+1).padStart(3,'0')}.json.gz`;
+    document.body.append(anchor);anchor.click();anchor.remove();
+    setTimeout(()=>URL.revokeObjectURL(anchor.href),120000);
+    console.log('Exported batch',start/chunkSize+1,'/',Math.ceil(imgs.length/chunkSize),'images',items.length,'errors',errors.length);
+  }
+  console.log(`Complete. Exported: ${successful}; failed: ${failed}. Browser may ask you to allow multiple downloads.`);
 })();

@@ -1,0 +1,30 @@
+GITADORA Skill Simulator v4.38.8 ジャケット画像移行ツール
+
+重要: 今回のZIPは画像を含みません。画像そのものの取得には、ユーザー側の公式サイトログイン済みブラウザが必要です。
+また、取得画像をGitHub Pagesで公開・再配布してよい権利または許可を確認してから、公開に進んでください。
+
+0. 既存のsong_jacketsテーブル・Storage・元のURLは削除しない。
+1. 公式サイトの楽曲一覧をログインしたブラウザで開き、開発者ツールConsoleに export_official_jackets.js の内容を貼り付ける。
+   ブラウザが複数ファイルのダウンロード許可を求めたら許可する。
+   公式サイトの楽曲一覧内にある img.jacket[alt] が取得対象。100画像ずつ official_jackets_001.json.gz などのファイルをダウンロードする。
+   取得できなかった画像は、JSON内 errors に記録される。無許可の画像を配信しないこと。
+2. ダウンロードしたJSON.gzを1つのフォルダにまとめる (例: downloads/official)。
+3. Supabaseの Table Editor で public.song_jackets をCSVエクスポートして song_jackets.csv として保存。
+   CSVに title と storage_path が含まれていることを確認。
+4. PCでPythonとPillowを準備: py -m pip install Pillow
+5. 下のコマンドを実行。プロジェクトURLは既存のSupabaseプロジェクトのHTTPS URLに置き換える。
+   py migrate_jackets.py --official-dir downloads/official --csv song_jackets.csv --supabase-url https://YOUR_PROJECT.supabase.co --output assets/jackets
+   ※公開bucket song-jackets の画像のみ匿名取得。service_roleキーやアクセストークンの入力は不要。
+6. assets/jackets/migration-report.json の errors と mapped_titles を確認する。公開可能な画像のみ配信する。
+7. 生成した assets/jackets/*.webp と manifest.json を、GitHub リポジトリの assets/jackets/ に配置する。
+   migration-report.json は公開する必要なし。必要なら配信前に除外。
+8. ZIPのアプリ変更ファイルを既存リポジトリへ適用する（admin限定、一般ユーザー向けバージョン据え置き）。
+9. GitHub Actionsの手動デプロイを実行しadminの登録タブで画像表示を確認する。
+
+仕組み:
+- Pages manifest内の曲名はまずローカル画像を参照し、未登録曲だけ既存SupabaseのURL/Storageへフォールバックする。
+- Supabase Storage側にファイルがある曲は、公式の画像より優先してWebP化する。
+- ファイル名はWebP内容のSHA256先頭24桁なので曲名でのパス問題を回避し、同じ内容は共有する。
+- 曲名は大小文字を維持し、前後空白・波ダッシュ等だけ正規化する。
+- 既存のSupabase DBへの書き込みは発生しない。
+- ファイル配置が完了するまで公式URLだけの曲は表示に失敗する可能性がある。
