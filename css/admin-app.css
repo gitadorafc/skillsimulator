@@ -71,3 +71,66 @@ body.admin-new-ui #viewAllManage .own-registered-records-more {grid-column:1/-1;
  body.admin-new-ui #viewAllManage .ar-title {gap:4px;}
  body.admin-new-ui #viewAllManage .ar-edit button {width:30px;height:30px;font-size:19px;}
 }
+
+/* 4.38.2: retain the legacy pending-master indicator in the admin preview. */
+body.admin-new-ui #viewAllManage .ar-pending { background:#614f22; color:#ffe6a0; border:1px solid #b89138; border-radius:3px; padding:2px 5px; font-size:10px; flex-shrink:0; }
+
+/* v4.38.3: registered-list responsive grid; never alter other tabs. */
+body.admin-new-ui #viewAllManage .ar-record > * { min-width:0; }
+body.admin-new-ui #viewAllManage .ar-art img { display:block; }
+body.admin-new-ui #viewAllManage .ar-bear-medal {display:block;width:32px;height:32px;flex:none;filter:drop-shadow(0 1px 2px #0008);}
+body.admin-new-ui #viewAllManage .ar-title {overflow:hidden;}
+body.admin-new-ui #viewAllManage .ar-song-name {line-height:1.3;}
+body.admin-new-ui #viewAllManage .ar-part .p-badge {max-width:100%;width:auto;min-width:0;display:inline-block;padding:3px 6px;line-height:1.2;white-space:nowrap;}
+body.admin-new-ui #viewAllManage .ar-record .ar-part,
+body.admin-new-ui #viewAllManage .ar-record .ar-option,
+body.admin-new-ui #viewAllManage .ar-record .ar-fc-cell {width:auto;min-width:0;}
+@media(max-width:1199px) {
+ body.admin-new-ui #viewAllManage .ar-record-grid {display:grid;grid-template-columns:minmax(0,1fr);gap:7px;}
+ body.admin-new-ui.skill-target-columns #viewAllManage .ar-record-grid {grid-template-columns:repeat(2,minmax(0,1fr));}
+ body.admin-new-ui #viewAllManage .ar-record,
+ body.admin-new-ui.skill-target-columns #viewAllManage .ar-record {
+  display:grid;grid-template-columns:62px minmax(0,1fr) minmax(68px,auto) 36px;
+  grid-template-rows:minmax(25px,auto) 25px 27px;align-items:center;
+  gap:3px 9px;min-width:0;min-height:103px;padding:8px;
+ }
+ body.admin-new-ui #viewAllManage .ar-record .ar-no {display:none;}
+ body.admin-new-ui #viewAllManage .ar-record .ar-art {grid-column:1;grid-row:1/4;width:60px;height:60px;align-self:center;}
+ body.admin-new-ui #viewAllManage .ar-record .ar-title {grid-column:2/4;grid-row:1;align-self:center;overflow:hidden;}
+ body.admin-new-ui #viewAllManage .ar-record .ar-part {grid-column:2;grid-row:2;justify-content:flex-start;}
+ body.admin-new-ui #viewAllManage .ar-record .ar-option {grid-column:3;grid-row:2;justify-content:flex-start;}
+ body.admin-new-ui #viewAllManage .ar-record .ar-level {grid-column:2;grid-row:3;text-align:left;}
+ body.admin-new-ui #viewAllManage .ar-record .ar-rate {grid-column:3;grid-row:3;text-align:left;}
+ body.admin-new-ui #viewAllManage .ar-record .ar-skill {grid-column:4;grid-row:3;justify-self:end;min-width:66px;}
+ body.admin-new-ui #viewAllManage .ar-record .ar-fc-cell {grid-column:4;grid-row:2;justify-self:center;}
+ body.admin-new-ui #viewAllManage .ar-record .ar-edit {grid-column:4;grid-row:1;justify-self:end;}
+ /* A dedicated right column is shared by edit, medal, and skill: shrink title instead of stretching badges. */
+ body.admin-new-ui #viewAllManage .ar-record,
+ body.admin-new-ui.skill-target-columns #viewAllManage .ar-record {grid-template-columns:62px minmax(0,1fr) minmax(70px,auto) 78px;}
+}
+@media(max-width:767px) {
+ body.admin-new-ui #viewAllManage .ar-record,
+ body.admin-new-ui.skill-target-columns #viewAllManage .ar-record {grid-template-columns:48px minmax(0,1fr) 66px;grid-template-rows:auto auto auto auto;gap:3px 6px;min-height:102px;}
+ body.admin-new-ui #viewAllManage .ar-record .ar-art {grid-column:1;grid-row:1/4;width:46px;height:46px;}
+ body.admin-new-ui #viewAllManage .ar-record .ar-title {grid-column:2;grid-row:1;align-self:center;padding-right:0;}
+ body.admin-new-ui #viewAllManage .ar-record .ar-part {grid-column:2;grid-row:2;}
+ body.admin-new-ui #viewAllManage .ar-record .ar-option {grid-column:2;grid-row:3;}
+ body.admin-new-ui #viewAllManage .ar-record .ar-level {grid-column:1;grid-row:4;}
+ body.admin-new-ui #viewAllManage .ar-record .ar-rate {grid-column:2;grid-row:4;}
+ body.admin-new-ui #viewAllManage .ar-record .ar-skill {grid-column:3;grid-row:4;min-width:0;width:100%;box-sizing:border-box;}
+ body.admin-new-ui #viewAllManage .ar-record .ar-edit {grid-column:3;grid-row:1;position:static;justify-self:end;}
+ body.admin-new-ui #viewAllManage .ar-record .ar-fc-cell {grid-column:3;grid-row:2;justify-self:center;}
+ body.admin-new-ui #viewAllManage .ar-record .ar-song-name {font-size:12px;}
+ body.admin-new-ui #viewAllManage .ar-bear-medal {width:27px;height:27px;}
+ body.admin-new-ui.skill-target-columns #viewAllManage .ar-record-grid {grid-template-columns:repeat(2,minmax(0,1fr)) !important;}
+ body.admin-new-ui.skill-target-columns #viewAllManage .ar-record {display:grid;grid-template-columns:1fr 32px;grid-template-rows:auto auto auto auto auto auto;}
+ body.admin-new-ui.skill-target-columns #viewAllManage .ar-record .ar-art {grid-column:1;grid-row:1;width:44px;height:44px;}
+ body.admin-new-ui.skill-target-columns #viewAllManage .ar-record .ar-edit {grid-column:2;grid-row:1;position:static;}
+ body.admin-new-ui.skill-target-columns #viewAllManage .ar-record .ar-title {grid-column:1/-1;grid-row:2;}
+ body.admin-new-ui.skill-target-columns #viewAllManage .ar-record .ar-part {grid-column:1;grid-row:3;}
+ body.admin-new-ui.skill-target-columns #viewAllManage .ar-record .ar-option {grid-column:2;grid-row:3;}
+ body.admin-new-ui.skill-target-columns #viewAllManage .ar-record .ar-level {grid-column:1;grid-row:4;}
+ body.admin-new-ui.skill-target-columns #viewAllManage .ar-record .ar-rate {grid-column:1;grid-row:5;}
+ body.admin-new-ui.skill-target-columns #viewAllManage .ar-record .ar-fc-cell {grid-column:2;grid-row:5;}
+ body.admin-new-ui.skill-target-columns #viewAllManage .ar-record .ar-skill {grid-column:1/-1;grid-row:6;width:100%;justify-self:stretch;}
+}
