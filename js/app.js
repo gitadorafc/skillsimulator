@@ -2,7 +2,7 @@
 import {
   getSkillColorRowByTotalValue
 } from './skill-colors.js?v=4_14_33';
-import { renderAdminRegisteredRecords, loadAdminRegisteredJackets } from './admin-register-ui.js?v=4_38_33';
+import { renderAdminRegisteredRecords, loadAdminRegisteredJackets } from './admin-register-ui.js?v=4_38_34';
 import {
   createCard,
   getPartColorClass
@@ -4777,7 +4777,7 @@ async function deleteOwnAccount() {
 function updateAdminUiVersion(enabled) {
   const label = document.querySelector('.app-code-version');
   if (!label) return;
-  const adminVersion = document.querySelector('meta[name="admin-ui-version"]')?.content || '4.38.33';
+  const adminVersion = document.querySelector('meta[name="admin-ui-version"]')?.content || '4.38.34';
   label.textContent = `APP VERSION ${enabled ? adminVersion : '4.37.1'}`;
 }
 
@@ -4796,6 +4796,7 @@ async function checkAdminAccess() {
   document.body.classList.remove('admin-responsive-preview');
   document.body.classList.toggle('admin-new-ui', adminNewUi);
   updateAdminUiVersion(adminNewUi);
+  if (adminNewUi) requestAnimationFrame(ensureDesktopMenuTree);
   if (adminNewUi) void loadAdminRegisteredJackets(supabase).then(() => { if (activeTabName === 'RECORDS') renderManage(); else if (activeTabName === 'SKILL') renderSkill(); });
   $('btnAdmin').classList.toggle('hidden', !adminEnabled);
   const skillSyncButton = $('btnMenuSkillSync');
@@ -7555,13 +7556,6 @@ function ensureDesktopMenuTree() {
   document.body.classList.add('admin-desktop-menu-open');
   desktopMenuTrigger.setAttribute('aria-expanded', 'true');
 }
-window.addEventListener('resize', ensureDesktopMenuTree);
-document.addEventListener('click', event => {
-  if (event.target.closest('#btnMenu')) return;
-  if (document.body.classList.contains('admin-new-ui')) requestAnimationFrame(ensureDesktopMenuTree);
-});
-requestAnimationFrame(ensureDesktopMenuTree);
-new MutationObserver(ensureDesktopMenuTree).observe(document.body, {attributes:true,attributeFilter:['class']});
 desktopMenuTrigger.addEventListener('click', () => {
   if (document.body.classList.contains('admin-new-ui') && window.matchMedia('(min-width:1100px)').matches) {
     ensureDesktopMenuTree();
