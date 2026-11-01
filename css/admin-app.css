@@ -40,122 +40,7 @@ body.admin-new-ui :is(#viewAllManage,#viewSkill) .ar-skill.skill-box-sparkle-rai
 body.admin-new-ui :is(#viewAllManage,#viewSkill) .ar-skill.skill-box-sparkle-rainbow::after{content:"";display:block;position:absolute;inset:0;pointer-events:none;z-index:2;background-image:var(--skill-side-paint),var(--skill-side-paint);background-position:left top,right top;background-size:5px 100%,5px 100%;background-repeat:no-repeat,no-repeat;animation:skill-sparkle-band-pulse var(--skill-sparkle-cycle,1.6s) ease-in-out infinite!important}
 
 /* Three exclusive breakpoints; body uses current CSS viewport width, not pixels in a screenshot. */
-@media (min-width:1100px) {
- body.admin-new-ui {--admin-side-width:208px;}
- body.admin-new-ui :is(#viewAllManage,#viewSkill){--ar-cols:30px 64px minmax(125px,1fr) 68px 45px 73px 45px 64px 70px 38px;}
- body.admin-new-ui :is(#viewAllManage,#viewSkill) .ar-table-head,
- body.admin-new-ui :is(#viewAllManage,#viewSkill) .ar-record {grid-template-columns:var(--ar-cols);column-gap:5px;}
- body.admin-new-ui :is(#viewAllManage,#viewSkill) .ar-record {grid-template-rows:46px;min-height:54px;padding:3px 6px;overflow:hidden;}
- body.admin-new-ui :is(#viewAllManage,#viewSkill) .ar-metrics {display:contents;}
- body.admin-new-ui :is(#viewAllManage,#viewSkill) .ar-no{grid-column:1;grid-row:1;}
- body.admin-new-ui :is(#viewAllManage,#viewSkill) .ar-art{grid-column:2;grid-row:1;width:44px;height:44px;justify-self:center;}
- body.admin-new-ui :is(#viewAllManage,#viewSkill) .ar-title{grid-column:3;grid-row:1;}
- body.admin-new-ui :is(#viewAllManage,#viewSkill) .ar-part{grid-column:4;grid-row:1;}
- body.admin-new-ui :is(#viewAllManage,#viewSkill) .ar-level{grid-column:5;grid-row:1;}
- body.admin-new-ui :is(#viewAllManage,#viewSkill) .ar-rate{grid-column:6;grid-row:1;text-align:right;justify-self:stretch;}
- body.admin-new-ui :is(#viewAllManage,#viewSkill) .ar-fc-cell{grid-column:7;grid-row:1;justify-self:center;min-height:29px;}
- body.admin-new-ui :is(#viewAllManage,#viewSkill) .ar-option{grid-column:8;grid-row:1;}
- body.admin-new-ui :is(#viewAllManage,#viewSkill) .ar-skill{grid-column:9;grid-row:1;align-self:center;}
- body.admin-new-ui :is(#viewAllManage,#viewSkill) .ar-edit{grid-column:10;grid-row:1;align-self:center;}
- body.admin-new-ui :is(#viewAllManage,#viewSkill) .ar-bear-medal{width:26px;height:26px;}
- body.admin-new-ui :is(#viewAllManage,#viewSkill) .ar-edit button{width:32px;height:32px;font-size:19px;}
- body.admin-new-ui :is(#viewAllManage,#viewSkill) .ar-table-head{padding:5px 6px;margin-bottom:4px;}
- body.admin-new-ui :is(#viewAllManage,#viewSkill) .ar-table-head span{white-space:nowrap;overflow:hidden;text-overflow:clip;}
- /* Desktop: single distinct top brand row, then the three skill totals. */
- body.admin-new-ui #appScreen>.p-header {
-   position:sticky!important;top:0!important;z-index:100;
-   background:#0f172a!important;margin-left:var(--admin-side-width)!important;
-   width:calc(100% - var(--admin-side-width))!important;min-height:0!important;
- }
- body.admin-new-ui #appScreen>.p-header::before {
-   content:"";position:fixed;top:0;bottom:0;left:0;width:var(--admin-side-width);
-   background:#101b2d;border-right:1px solid #30425a;z-index:100;pointer-events:none;
- }
- body.admin-new-ui #appScreen>.p-header>.admin-desktop-title {
-   display:flex!important;align-items:center;min-height:49px;padding:0 21px;
-   box-sizing:border-box;font-size:17px;font-weight:850;letter-spacing:.03em;
-   border-bottom:1px solid #2c3b50;color:#e9f1ff;
- }
- body.admin-new-ui #appScreen>.p-header>.score-row {
-   margin-left:0!important;width:100%!important;box-sizing:border-box!important;
-   display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;min-height:57px!important;
- }
- body.admin-new-ui #appScreen>.p-header>.score-row>.score-cell{min-width:0!important;width:auto!important;box-sizing:border-box;}
- /* Header controls, tabs, and filters live in the content area, not the side rail. */
- body.admin-new-ui #appScreen>.p-header>.user-header-row {
-   position:relative!important;top:auto!important;left:auto!important;
-   width:100%!important;height:auto!important;min-height:48px!important;
-   padding:6px 13px!important;display:flex!important;flex-direction:row!important;
-   align-items:center!important;justify-content:space-between!important;
-   background:#101827!important;box-sizing:border-box!important;
- }
- body.admin-new-ui #appScreen>.p-header>.user-header-row>.header-mode-controls,
- body.admin-new-ui #appScreen>.p-header>.user-header-row>.header-account-controls {
-   width:auto!important;display:flex!important;align-items:center!important;
-   justify-content:flex-start!important;flex-wrap:nowrap!important;gap:7px!important;
- }
- body.admin-new-ui #appScreen>.p-header>.user-header-row .header-active-version {
-   white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;
-   min-width:0!important;max-width:255px!important;font-size:11px!important;
- }
- body.admin-new-ui #appScreen>.p-header>.user-header-row #btnMenu {
-   position:fixed!important;top:10px!important;left:10px!important;
-   width:calc(var(--admin-side-width) - 20px)!important;height:42px!important;
-   display:flex!important;align-items:center!important;justify-content:flex-start!important;
-   padding:0 13px!important;box-sizing:border-box!important;z-index:108!important;
-   border:1px solid #30425a!important;border-radius:6px!important;
-   background:#202d40!important;color:transparent!important;font-size:0!important;
- }
- body.admin-new-ui #appScreen>.p-header>.user-header-row #btnMenu::after {
-   content:"メニュー ▾";font-size:13px;font-weight:750;color:#d4e0ee;
- }
- body.admin-new-ui #appScreen>.p-header>.p-tabs {
-   position:relative!important;top:auto!important;left:auto!important;
-   width:100%!important;height:auto!important;margin:0!important;
-   display:flex!important;flex-direction:row!important;align-items:stretch!important;
-   gap:6px!important;padding:6px 8px!important;box-sizing:border-box!important;
-   z-index:auto!important;overflow:visible!important;background:transparent!important;
- }
- body.admin-new-ui #appScreen>.p-header>.p-tabs .p-tab-btn:not(.hidden) {
-   display:flex!important;align-items:center!important;justify-content:center!important;
-   flex:1 1 0!important;width:auto!important;min-width:0!important;min-height:40px!important;
-   box-sizing:border-box!important;text-align:center!important;
- }
- body.admin-new-ui #appScreen>.p-header>#searchArea {
-   position:relative!important;top:auto!important;left:auto!important;
-   width:100%!important;max-height:none!important;box-sizing:border-box!important;
-   padding:5px 8px 7px!important;margin:0!important;overflow:visible!important;
-   z-index:102;background:transparent!important;
- }
- body.admin-new-ui #appScreen>.p-header>#searchArea .record-search-row {
-   display:flex!important;grid-template-columns:none!important;
-   align-items:stretch!important;gap:7px!important;
- }
- body.admin-new-ui #appScreen>.p-header>#searchArea #domSearch {
-   grid-column:auto!important;flex:1 1 auto!important;min-width:0!important;
-   width:auto!important;font-size:13px!important;
- }
- body.admin-new-ui #appScreen>.p-header>#searchArea #btnHeaderAdd,
- body.admin-new-ui #appScreen>.p-header>#searchArea #btnAdminRecordFilters {
-   grid-column:auto!important;flex:0 0 44px!important;width:44px!important;min-width:44px!important;
- }
- body.admin-new-ui #appScreen>.p-header>#searchArea.admin-filters-expanded .record-filter-row {
-   position:absolute!important;top:100%!important;right:8px!important;left:auto!important;
-   width:min(590px,calc(100vw - var(--admin-side-width) - 24px))!important;
-   display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;
-   gap:10px!important;padding:16px!important;margin:0!important;
-   border:1px solid #3d678a!important;background:#16263c!important;
-   box-shadow:0 12px 30px #000b!important;max-height:min(55vh,420px)!important;
-   overflow-y:auto!important;
- }
- body.admin-new-ui #appScreen>.p-header>#boardMainFixed,
- body.admin-new-ui #appScreen>.p-header>#userListHeaderSlot{margin-left:0!important;width:100%!important;box-sizing:border-box;}
- body.admin-new-ui #appScreen>.p-container {
-   margin-left:var(--admin-side-width)!important;width:calc(100% - var(--admin-side-width))!important;
-   max-width:none!important;box-sizing:border-box;
- }
 
-}
 /* Tablet: compact two-line horizontal list; FC is a fixed cell between rate and option. */
 @media (min-width:768px) and (max-width:1099px) {
  body.admin-new-ui :is(#viewAllManage,#viewSkill) .ar-table-head{display:none;}
@@ -239,25 +124,7 @@ body.admin-new-ui :is(#viewAllManage,#viewSkill) .ar-rate{display:block!importan
 
 /* PC menu tree: existing menu sections and actions; normal modal unchanged on small screens. */
 .admin-desktop-menu-tree {display:none;}
-@media (min-width:1100px) {
- body.admin-new-ui #appScreen>.p-header>.user-header-row>.header-account-controls {
-   position:relative!important;top:auto!important;right:auto!important;left:auto!important;
-   width:auto!important;z-index:auto!important;
- }
- body.admin-new-ui #appScreen>.p-header>.admin-desktop-title {padding-right:160px!important;}
- body.admin-new-ui #appScreen>.p-header>.admin-desktop-menu-tree {
-   position:fixed;display:block!important;top:65px;bottom:0;left:0;
-   width:var(--admin-side-width);padding:8px 9px 16px;box-sizing:border-box;
-   overflow-y:auto;background:#101b2d;border-right:1px solid #30425a;
-   z-index:107;
- }
- body.admin-new-ui .admin-menu-group {margin:4px 0;border:1px solid #3c5068;border-radius:6px;overflow:hidden;background:#17273b;}
- body.admin-new-ui .admin-menu-group>summary {padding:9px 9px;cursor:pointer;color:#d6e4f7;font-weight:750;font-size:12px;}
- body.admin-new-ui .admin-menu-group[open]>summary {border-bottom:1px solid #3c5068;background:#223850;}
- body.admin-new-ui .admin-menu-tree-item {display:block;width:100%;text-align:left;padding:10px 8px;border:0;
-   border-top:1px solid #28394e;background:transparent;color:#dbeaff;cursor:pointer;font-size:12px;line-height:1.3;}
- body.admin-new-ui .admin-menu-tree-item:hover,body.admin-new-ui .admin-menu-tree-item:focus-visible {background:#284a75;}
-}
+
 
 /* Admin skill-target screen reuses the exact registered card UI. */
 body.admin-new-ui #viewSkill .ar-table-head{display:none!important}
@@ -292,48 +159,109 @@ body.admin-new-ui #viewSkill .ar-record-grid{grid-template-columns:minmax(0,1fr)
  body.admin-new-ui #appScreen>.p-container {margin-left:0!important;width:100%!important;max-width:100%!important;}
 }
 /* Desktop mock: menu is a real fixed rail; title and actions occupy content header. */
-@media (min-width:1100px) {
- body.admin-new-ui #appScreen>.p-header>.admin-desktop-menu-tree {padding-top:9px!important;}
- body.admin-new-ui #appScreen>.p-header>.user-header-row>.header-account-controls {margin-left:auto!important;}
- body.admin-new-ui #appScreen>.p-header>.admin-desktop-title {padding-right:16px!important;}
- body.admin-new-ui #appScreen>.p-header>.user-header-row #btnMenu {justify-content:flex-start!important;}
-}
+
 /* Desktop hierarchy matching the supplied wireframe: GF/DM and version in rail,
    title across the content, account actions at upper-right. */
-@media (min-width:1100px) {
- body.admin-new-ui #appScreen>.p-header>.user-header-row {
-   position:absolute!important;top:0!important;right:0!important;left:auto!important;
-   width:calc(100% - var(--admin-side-width))!important;
-   min-height:0!important;height:0!important;padding:0!important;background:transparent!important;
-   z-index:110!important;
- }
- body.admin-new-ui #appScreen>.p-header>.user-header-row>.header-mode-controls {
-   position:fixed!important;left:8px!important;top:8px!important;
-   width:calc(var(--admin-side-width) - 16px)!important;min-width:0!important;
-   display:flex!important;flex-wrap:wrap!important;gap:5px!important;z-index:112!important;
- }
- body.admin-new-ui #appScreen>.p-header>.user-header-row>.header-mode-controls .header-active-version {
-   width:100%!important;max-width:none!important;white-space:normal!important;
-   overflow-wrap:anywhere!important;text-overflow:clip!important;line-height:1.3!important;
- }
- body.admin-new-ui #appScreen>.p-header>.user-header-row>.header-account-controls {
-   position:absolute!important;top:6px!important;right:9px!important;left:auto!important;
-   width:auto!important;display:flex!important;gap:6px!important;z-index:113!important;
- }
- body.admin-new-ui #appScreen>.p-header>.user-header-row #btnMenu {
-   position:fixed!important;top:104px!important;left:8px!important;
-   width:calc(var(--admin-side-width) - 16px)!important;height:38px!important;
- }
- body.admin-new-ui #appScreen>.p-header>.admin-desktop-menu-tree {
-   top:151px!important;
- }
- body.admin-new-ui #appScreen>.p-header>.admin-desktop-title {padding-right:125px!important;}
-}
+
 
 /* Desktop menu: the category headings themselves are the only disclosure controls.
    No redundant parent 'Menu' dropdown. */
+
+
+/* v4.38.31: SINGLE desktop layout following supplied color-coded wireframe.
+   FULL-WIDTH HEADER (GF/DM + version left; admin/refresh right),
+   SIDEBAR UNDER HEADER, CONTENT TO THE RIGHT. No legacy floating title/menu. */
 @media (min-width:1100px) {
+ body.admin-new-ui { --admin-side-width:208px; --admin-top-height:49px; }
+ body.admin-new-ui #appScreen>.p-header {
+   position:sticky!important;top:0!important;z-index:100!important;
+   margin:0!important;width:100%!important;max-width:none!important;
+   background:#101827!important;min-height:0!important;
+ }
+ body.admin-new-ui #appScreen>.p-header::before {content:none!important;display:none!important;}
+ body.admin-new-ui #appScreen>.p-header>.admin-desktop-title {display:none!important;}
+ body.admin-new-ui #appScreen>.p-header>.user-header-row {
+   position:relative!important;left:auto!important;right:auto!important;top:auto!important;
+   display:flex!important;flex-direction:row!important;align-items:center!important;
+   justify-content:space-between!important;width:100%!important;height:var(--admin-top-height)!important;
+   min-height:var(--admin-top-height)!important;padding:4px 9px!important;
+   box-sizing:border-box!important;background:#101827!important;border-bottom:1px solid #30425a!important;
+ }
+ body.admin-new-ui #appScreen>.p-header>.user-header-row>.header-mode-controls,
+ body.admin-new-ui #appScreen>.p-header>.user-header-row>.header-account-controls {
+   position:static!important;width:auto!important;height:auto!important;min-width:0!important;
+   display:flex!important;flex-direction:row!important;flex-wrap:nowrap!important;
+   align-items:center!important;gap:7px!important;z-index:auto!important;
+ }
+ body.admin-new-ui #appScreen>.p-header>.user-header-row .header-active-version {
+   width:auto!important;max-width:280px!important;white-space:nowrap!important;
+   overflow:hidden!important;text-overflow:ellipsis!important;font-size:11px!important;
+ }
  body.admin-new-ui #appScreen>.p-header>.user-header-row #btnMenu {display:none!important;}
- body.admin-new-ui #appScreen>.p-header>.admin-desktop-menu-tree {top:8px!important;padding-top:0!important;}
- body.admin-new-ui .admin-menu-group>summary {min-height:36px;display:list-item;box-sizing:border-box;}
+ body.admin-new-ui #appScreen>.p-header>.admin-desktop-menu-tree {
+   position:fixed!important;display:block!important;left:0!important;top:var(--admin-top-height)!important;
+   bottom:0!important;width:var(--admin-side-width)!important;height:auto!important;
+   box-sizing:border-box!important;padding:8px 9px 16px!important;overflow-y:auto!important;
+   z-index:105!important;background:#101b2d!important;border-right:1px solid #30425a!important;
+ }
+ body.admin-new-ui #appScreen>.p-header>.admin-desktop-menu-tree[hidden] {display:block!important;}
+ body.admin-new-ui .admin-desktop-menu-caption {font-size:14px;font-weight:750;color:#dce8f7;padding:5px 2px 9px;}
+ body.admin-new-ui .admin-menu-group {margin:3px 0 6px;border:1px solid #405772;border-radius:5px;background:#1c2d42;overflow:hidden;}
+ body.admin-new-ui .admin-menu-group>summary {box-sizing:border-box;display:list-item;min-height:34px;padding:8px 7px;color:#e1ecfc;cursor:pointer;font-size:12px;font-weight:800;}
+ body.admin-new-ui .admin-menu-group[open]>summary {background:#263e59;border-bottom:1px solid #405772;}
+ body.admin-new-ui .admin-menu-tree-item {display:block;width:100%;padding:9px 10px;border:0;border-top:1px solid #30445c;background:transparent;color:#e2eaf5;text-align:left;cursor:pointer;font-size:12px;}
+ body.admin-new-ui .admin-menu-tree-item:hover {background:#284a75;}
+ body.admin-new-ui #appScreen>.p-header>.score-row,
+ body.admin-new-ui #appScreen>.p-header>.p-tabs,
+ body.admin-new-ui #appScreen>.p-header>#searchArea,
+ body.admin-new-ui #appScreen>.p-header>#boardMainFixed,
+ body.admin-new-ui #appScreen>.p-header>#userListHeaderSlot {
+   position:relative!important;left:auto!important;top:auto!important;right:auto!important;
+   margin-left:var(--admin-side-width)!important;width:calc(100% - var(--admin-side-width))!important;
+   box-sizing:border-box!important;
+ }
+ body.admin-new-ui #appScreen>.p-header>.score-row {
+   display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;
+   min-height:63px!important;
+ }
+ body.admin-new-ui #appScreen>.p-header>.score-row>.score-cell {width:auto!important;min-width:0!important;}
+ body.admin-new-ui #appScreen>.p-header>.p-tabs {display:flex!important;gap:6px!important;padding:6px 8px!important;height:auto!important;}
+ body.admin-new-ui #appScreen>.p-header>.p-tabs .p-tab-btn:not(.hidden) {
+   flex:1 1 0!important;width:auto!important;min-width:0!important;
+   display:flex!important;align-items:center!important;justify-content:center!important;min-height:40px!important;
+ }
+ body.admin-new-ui #appScreen>.p-header>#searchArea {padding:5px 8px 7px!important;max-height:none!important;overflow:visible!important;}
+ body.admin-new-ui #appScreen>.p-header>#searchArea .record-search-row {display:flex!important;align-items:stretch!important;gap:7px!important;}
+ body.admin-new-ui #appScreen>.p-header>#searchArea #domSearch {flex:1 1 auto!important;min-width:0!important;width:auto!important;}
+ body.admin-new-ui #appScreen>.p-header>#searchArea #btnHeaderAdd,
+ body.admin-new-ui #appScreen>.p-header>#searchArea #btnAdminRecordFilters {flex:0 0 44px!important;width:44px!important;min-width:44px!important;}
+ body.admin-new-ui #appScreen>.p-header>#searchArea.admin-filters-expanded .record-filter-row {
+   position:absolute!important;right:8px!important;left:auto!important;top:100%!important;
+   width:min(590px,calc(100vw - var(--admin-side-width) - 24px))!important;
+   display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;
+   gap:10px!important;padding:16px!important;border:1px solid #3d678a!important;
+   background:#16263c!important;box-shadow:0 12px 30px #000b!important;
+ }
+ body.admin-new-ui #appScreen>.p-container {
+   margin-left:var(--admin-side-width)!important;width:calc(100% - var(--admin-side-width))!important;
+   max-width:none!important;box-sizing:border-box!important;
+ }
+ body.admin-new-ui :is(#viewAllManage,#viewSkill) {--ar-cols:30px 64px minmax(125px,1fr) 68px 45px 73px 45px 64px 70px 38px;}
+ body.admin-new-ui :is(#viewAllManage,#viewSkill) .ar-record,
+ body.admin-new-ui :is(#viewAllManage,#viewSkill) .ar-table-head {grid-template-columns:var(--ar-cols);column-gap:5px;}
+ body.admin-new-ui :is(#viewAllManage,#viewSkill) .ar-record {grid-template-rows:46px;min-height:54px;padding:3px 6px;overflow:hidden;}
+ body.admin-new-ui :is(#viewAllManage,#viewSkill) .ar-metrics {display:contents;}
+ body.admin-new-ui :is(#viewAllManage,#viewSkill) .ar-no{grid-column:1;grid-row:1;}
+ body.admin-new-ui :is(#viewAllManage,#viewSkill) .ar-art{grid-column:2;grid-row:1;width:44px;height:44px;justify-self:center;}
+ body.admin-new-ui :is(#viewAllManage,#viewSkill) .ar-title{grid-column:3;grid-row:1;}
+ body.admin-new-ui :is(#viewAllManage,#viewSkill) .ar-part{grid-column:4;grid-row:1;}
+ body.admin-new-ui :is(#viewAllManage,#viewSkill) .ar-level{grid-column:5;grid-row:1;}
+ body.admin-new-ui :is(#viewAllManage,#viewSkill) .ar-rate{grid-column:6;grid-row:1;text-align:right;justify-self:stretch;}
+ body.admin-new-ui :is(#viewAllManage,#viewSkill) .ar-fc-cell{grid-column:7;grid-row:1;justify-self:center;}
+ body.admin-new-ui :is(#viewAllManage,#viewSkill) .ar-option{grid-column:8;grid-row:1;}
+ body.admin-new-ui :is(#viewAllManage,#viewSkill) .ar-skill{grid-column:9;grid-row:1;align-self:center;}
+ body.admin-new-ui :is(#viewAllManage,#viewSkill) .ar-edit{grid-column:10;grid-row:1;align-self:center;}
+ body.admin-new-ui :is(#viewAllManage,#viewSkill) .ar-bear-medal{width:26px;height:26px;}
+ body.admin-new-ui :is(#viewAllManage,#viewSkill) .ar-edit button{width:32px;height:32px;font-size:19px;}
+ body.admin-new-ui :is(#viewAllManage,#viewSkill) .ar-table-head{padding:5px 6px;margin-bottom:4px;}
 }

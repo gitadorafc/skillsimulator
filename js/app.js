@@ -2,7 +2,7 @@
 import {
   getSkillColorRowByTotalValue
 } from './skill-colors.js?v=4_14_33';
-import { renderAdminRegisteredRecords, loadAdminRegisteredJackets } from './admin-register-ui.js?v=4_38_30';
+import { renderAdminRegisteredRecords, loadAdminRegisteredJackets } from './admin-register-ui.js?v=4_38_31';
 import {
   createCard,
   getPartColorClass
@@ -4777,7 +4777,7 @@ async function deleteOwnAccount() {
 function updateAdminUiVersion(enabled) {
   const label = document.querySelector('.app-code-version');
   if (!label) return;
-  const adminVersion = document.querySelector('meta[name="admin-ui-version"]')?.content || '4.38.30';
+  const adminVersion = document.querySelector('meta[name="admin-ui-version"]')?.content || '4.38.31';
   label.textContent = `APP VERSION ${enabled ? adminVersion : '4.37.1'}`;
 }
 
@@ -7490,53 +7490,67 @@ function collapseAdminDesktopMenu() {
   desktopMenuTrigger.setAttribute('aria-expanded', 'false');
   document.body.classList.remove('admin-desktop-menu-open');
 }
+const adminDesktopMenuLabels = ['アカウント設定','スキル機能','曲データ','ヘルプ・運営'];
 function toggleAdminDesktopMenu() {
   if (!desktopMenuTree) return;
-  if (!desktopMenuTree.hidden) { collapseAdminDesktopMenu(); return; }
+  const oldOpen = new Set([...desktopMenuTree.querySelectorAll('details[open] summary')].map(e=>e.textContent));
   const source = $('menuMask')?.querySelector('.app-menu-sheet');
-  if (!source) { openMenu(); return; }
   desktopMenuTree.replaceChildren();
-  let current = null;
-  const addGroup = label => {
-    current = document.createElement('details');
-    current.className = 'admin-menu-group';
+  const caption = document.createElement('div');
+  caption.className = 'admin-desktop-menu-caption';
+  caption.textContent = 'メニュー';
+  desktopMenuTree.appendChild(caption);
+  const groups = adminDesktopMenuLabels.map(label => {
+    const details = document.createElement('details');
+    details.className = 'admin-menu-group';
     const summary = document.createElement('summary');
     summary.textContent = label;
-    current.appendChild(summary);
-    desktopMenuTree.appendChild(current);
+    details.appendChild(summary);
+    details.open = oldOpen.has(label);
+    desktopMenuTree.appendChild(details);
+    return details;
+  });
+  let current = groups[0];
+  const sectionIndex = label => {
+    const s = label.replace(/\s/g,'');
+    if (/アカウント|設定/.test(s)) return 0;
+    if (/スキル|ランキング|ライバル/.test(s)) return 1;
+    if (/曲|楽曲|お気に入り|データ/.test(s)) return 2;
+    if (/ヘルプ|運営|サポート|使い方/.test(s)) return 3;
+    return -1;
   };
   const addButton = original => {
     if (!original || original.classList.contains('hidden')) return;
-    if (!current) addGroup('メニュー');
     const button = document.createElement('button');
     button.type = 'button';
     button.className = 'admin-menu-tree-item';
     button.textContent = original.textContent.replace(/\s*›\s*$/, '').trim();
-    button.addEventListener('click', () => {
-      // Keep the sidebar and the selected category expanded across child dialogs.
-      original.click();
-    });
+    button.addEventListener('click', () => original.click());
     current.appendChild(button);
   };
-  for (const element of source.children) {
-    if (element.classList.contains('app-menu-group-label')) addGroup(element.textContent.trim());
-    else if (element.classList.contains('app-menu-item')) addButton(element);
+  if (source) for (const element of source.children) {
+    if (element.classList.contains('app-menu-group-label')) {
+      const index = sectionIndex(element.textContent.trim());
+      if (index >= 0) current = groups[index];
+    } else if (element.classList.contains('app-menu-item')) addButton(element);
     else if (element.id === 'skillSyncMenuSlot' || element.id === 'songCatalogMenuGroup') {
       if (element.classList.contains('hidden')) continue;
       for (const child of element.children) {
-        if (child.classList.contains('app-menu-group-label')) addGroup(child.textContent.trim());
-        else if (child.classList.contains('app-menu-item')) addButton(child);
+        if (child.classList.contains('app-menu-group-label')) {
+          const index = sectionIndex(child.textContent.trim());
+          if (index >= 0) current = groups[index];
+        } else if (child.classList.contains('app-menu-item')) addButton(child);
       }
     }
   }
   desktopMenuTree.hidden = false;
   document.body.classList.add('admin-desktop-menu-open');
-  desktopMenuTrigger.setAttribute('aria-expanded', 'true');
+  desktopMenuTrigger.setAttribute('aria-expanded','true');
 }
 // On PC the sidebar is navigation, not an additional modal layer.
 function ensureDesktopMenuTree() {
   if (!desktopMenuTree || !document.body.classList.contains('admin-new-ui') || !window.matchMedia('(min-width:1100px)').matches) return;
-  if (!desktopMenuTree.children.length) toggleAdminDesktopMenu();
+  if (!desktopMenuTree.querySelector(".admin-menu-group") || (!desktopMenuTree.querySelector(".admin-menu-tree-item") && $("menuMask")?.querySelector(".app-menu-item"))) toggleAdminDesktopMenu();
   desktopMenuTree.hidden = false;
   document.body.classList.add('admin-desktop-menu-open');
   desktopMenuTrigger.setAttribute('aria-expanded', 'true');
@@ -7547,6 +7561,7 @@ document.addEventListener('click', event => {
   if (document.body.classList.contains('admin-new-ui')) requestAnimationFrame(ensureDesktopMenuTree);
 });
 requestAnimationFrame(ensureDesktopMenuTree);
+new MutationObserver(ensureDesktopMenuTree).observe(document.body, {attributes:true,attributeFilter:['class']});
 desktopMenuTrigger.addEventListener('click', () => {
   if (document.body.classList.contains('admin-new-ui') && window.matchMedia('(min-width:1100px)').matches) {
     ensureDesktopMenuTree();
