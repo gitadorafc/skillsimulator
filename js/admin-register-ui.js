@@ -5,40 +5,72 @@ const esc = value => String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;'
 const jacketByTitle = new Map();
 let jacketsLoaded = false;
 let jacketsPending = null;
-// Preserve case: distinct songs such as Fireball / FIREBALL must not share jackets.
-const normalizeTitle = value => String(value || '').normalize('NFKC').trim();
+// Keep case distinct (Fireball and FIREBALL are different songs); align wave-dash/spacing only.
+const normalizeTitle = value => String(value || '')
+  .normalize('NFKC').replace(/\u301c/g, '\uff5e')
+  .replace(/[\s\u3000]+/g, ' ').trim();
+const isWebUrl = url => /^https?:\/\//i.test(String(url || ''));
+
+function jacketCandidates(supabase, row) {
+  const urls = [];
+  if (row.storage_path) {
+    const storageUrl = supabase.storage.from('song-jackets').getPublicUrl(row.storage_path).data.publicUrl;
+    if (isWebUrl(storageUrl)) urls.push(storageUrl);
+  }
+  if (isWebUrl(row.image_url) && !urls.includes(row.image_url)) urls.push(row.image_url);
+  return urls;
+}
 
 export async function loadAdminRegisteredJackets(supabase) {
   if (jacketsLoaded) return;
   if (jacketsPending) return jacketsPending;
   jacketsPending = (async () => {
     try {
-      // Limit batch size and paginate; RLS can deny this for some deployments.
+      const staged = new Map();
+      // Read all pages, including >1000 entries: Supabase defaults to 1000 rows per response.
       for (let offset = 0; offset < 10000; offset += 500) {
         const { data, error } = await supabase.from('song_jackets')
-          .select('title,image_url,storage_path').range(offset, offset + 499);
+          .select('title,image_url,storage_path').order('title', { ascending:true })
+          .range(offset, offset + 499);
         if (error) throw error;
         for (const row of data || []) {
-          const path = row.storage_path;
-          const url = path ? supabase.storage.from('song-jackets').getPublicUrl(path).data.publicUrl : row.image_url;
-          if (url && /^https:\/\//i.test(url)) jacketByTitle.set(normalizeTitle(row.title), url);
+          const key = normalizeTitle(row.title);
+          if (!key) continue;
+          const urls = jacketCandidates(supabase, row);
+          if (!urls.length) continue;
+          const prior = staged.get(key) || [];
+          // Preserve first candidate per title and keep uploaded storage URLs as priority.
+          staged.set(key, [...new Set([...prior, ...urls])]);
         }
         if (!data || data.length < 500) break;
       }
+      jacketByTitle.clear();
+      for (const [key, urls] of staged) jacketByTitle.set(key, urls);
       jacketsLoaded = true;
+      console.info(`[admin jackets] ${jacketByTitle.size} jacket titles loaded`);
     } catch (error) {
-      // Jacket lookup is supplementary: score lists must remain usable.
-      console.warn('admin UI: jacket lookup unavailable', error);
-    } finally { jacketsPending = null; }
+      console.warn('[admin jackets] reading song_jackets failed', error);
+      // Do not mark as loaded: retry after a transient network failure.
+    } finally {
+      jacketsPending = null;
+    }
   })();
   return jacketsPending;
 }
 
-// A broken remote jacket must not render the browser's broken-image icon.
+// Attempt the second registered image source before showing the missing-image icon.
 if (typeof document !== 'undefined') document.addEventListener('error', event => {
   const img = event.target;
   if (!(img instanceof HTMLImageElement) || !img.closest('#viewAllManage .ar-art')) return;
-  img.replaceWith(Object.assign(document.createElement('span'), {className:'ar-jacket-missing', textContent:'♫'}));
+  const fallback = img.getAttribute('data-jacket-fallback');
+  if (fallback && fallback !== img.src && !img.dataset.jacketRetried) {
+    img.dataset.jacketRetried = '1';
+    img.src = fallback;
+    return;
+  }
+  img.replaceWith(Object.assign(document.createElement('span'), {
+    className:'ar-jacket-missing', textContent:'♫'
+  }));
 }, true);
 
 let bearMedalId = 0;
@@ -91,8 +123,10 @@ function recordCard(record, index) {
     ? ` data-compare-song="${esc(record.song_id)}" data-compare-title="${title}" data-compare-part="${esc(record.part)}"`
     : '';
   const pendingBadge = record.pending_master ? '<span class="ar-pending">申請中</span>' : '';
-  const img = jacketByTitle.get(normalizeTitle(record.title));
-  const artwork = img ? `<img loading="lazy" alt="" src="${esc(img)}">` : '<span class="ar-jacket-missing" aria-hidden="true">♫</span>';
+  const urls = jacketByTitle.get(normalizeTitle(record.title)) || [];
+  const artwork = urls.length
+    ? `<img loading="lazy" alt="" src="${esc(urls[0])}"${urls[1] ? ` data-jacket-fallback="${esc(urls[1])}"` : ''}>`
+    : '<span class="ar-jacket-missing" aria-hidden="true">♫</span>';
   const skillRank = getSongSkillRank(Number(record.skill));
   const option = getOptionBadgeMarkup(record.play_option) || '<span class="ar-normal">NORMAL</span>';
   return `<article class="ar-record skill-row-${skillRank}" data-score-id="${esc(record.score_id)}"${compareAttributes}>
