@@ -19,6 +19,9 @@ body.admin-new-ui #viewAllManage .ar-title{display:flex;align-items:center;gap:6
 body.admin-new-ui #viewAllManage .ar-song-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;flex:0 1 auto;font-weight:800;line-height:1.3}
 body.admin-new-ui #viewAllManage .ar-hot,body.admin-new-ui #viewAllManage .ar-pending{flex:none;font-size:10px;line-height:1.2;padding:2px 5px;border-radius:3px}
 body.admin-new-ui #viewAllManage .ar-pending{border:1px solid #b89138;background:#614f22;color:#ffe6a0}
+/* Match the existing user-facing dark HOT badge rather than the pale generic .hot-tag. */
+body.admin-new-ui #viewAllManage .ar-title .hot-tag.ar-hot{color:#fecaca!important;background:#450a0a!important;border:1px solid #991b1b!important}
+
 body.admin-new-ui #viewAllManage .ar-part,body.admin-new-ui #viewAllManage .ar-option,body.admin-new-ui #viewAllManage .ar-fc-cell{display:flex;align-items:center;justify-content:center;min-width:0}
 body.admin-new-ui #viewAllManage .ar-part .p-badge{width:max-content!important;min-width:0!important;max-width:max-content!important;flex:none!important;display:inline-flex!important;align-items:center;justify-content:center;padding:2px 7px!important;white-space:nowrap!important}
 body.admin-new-ui #viewAllManage :is(.ar-hot,.ar-part .p-badge,.ar-option .opt-badge){font-size:10px!important;line-height:1!important;height:19px!important;min-height:19px!important;max-height:19px!important;box-sizing:border-box;border-radius:3px!important;display:inline-flex!important;align-items:center;justify-content:center;padding:0 6px!important;font-weight:900;vertical-align:middle}
