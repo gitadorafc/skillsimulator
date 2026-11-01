@@ -104,7 +104,7 @@ body.admin-new-ui #viewAllManage .ar-skill.skill-box-sparkle-rainbow::after{cont
    border-radius:6px;background:#202d40;border:0;color:transparent;
  }
  body.admin-new-ui #appScreen>.p-header>.user-header-row #btnMenu::after {
-   content:"その他・設定";font-size:13px;font-weight:750;color:#c4d4e9;
+   content:"メニュー ▾";font-size:13px;font-weight:750;color:#c4d4e9;
  }
  body.admin-new-ui #appScreen>.p-header>.p-tabs {
    position:fixed!important;top:157px;left:0;width:var(--admin-side-width)!important;
@@ -228,3 +228,30 @@ body.admin-new-ui #btnHeaderAdd{min-width:48px;white-space:nowrap;}
 
 /* Fixed-end alignment makes percentages end on the same vertical axis. */
 body.admin-new-ui #viewAllManage .ar-rate{display:block!important;text-align:right!important;justify-self:stretch!important;font-variant-numeric:tabular-nums;}
+
+/* PC menu tree: existing menu sections and actions; normal modal unchanged on small screens. */
+.admin-desktop-menu-tree {display:none;}
+@media (min-width:1100px) {
+ body.admin-new-ui #appScreen>.p-header>.user-header-row>.header-account-controls {
+   position:fixed!important;top:5px!important;right:12px!important;left:auto!important;
+   width:auto!important;z-index:110!important;display:flex!important;
+   align-items:center!important;gap:8px!important;
+ }
+ body.admin-new-ui #appScreen>.p-header>.user-header-row #btnMenu {
+   top:352px!important;left:9px!important;right:auto!important;
+ }
+ body.admin-new-ui #appScreen>.p-header>.admin-desktop-title {padding-right:160px!important;}
+ body.admin-new-ui #appScreen>.p-header>.admin-desktop-menu-tree:not([hidden]) {
+   position:fixed;display:block;top:401px;bottom:0;left:0;
+   width:var(--admin-side-width);padding:8px 9px 16px;box-sizing:border-box;
+   overflow-y:auto;background:#101b2d;border-right:1px solid #30425a;
+   z-index:107;
+ }
+ body.admin-new-ui.admin-desktop-menu-open #appScreen>.p-header>#searchArea {visibility:hidden!important;}
+ body.admin-new-ui .admin-menu-group {margin:4px 0;border:1px solid #3c5068;border-radius:6px;overflow:hidden;background:#17273b;}
+ body.admin-new-ui .admin-menu-group>summary {padding:11px 9px;cursor:pointer;color:#d6e4f7;font-weight:750;font-size:12px;}
+ body.admin-new-ui .admin-menu-group[open]>summary {border-bottom:1px solid #3c5068;background:#223850;}
+ body.admin-new-ui .admin-menu-tree-item {display:block;width:100%;text-align:left;padding:10px 8px;border:0;
+   border-top:1px solid #28394e;background:transparent;color:#dbeaff;cursor:pointer;font-size:12px;line-height:1.3;}
+ body.admin-new-ui .admin-menu-tree-item:hover,body.admin-new-ui .admin-menu-tree-item:focus-visible {background:#284a75;}
+}

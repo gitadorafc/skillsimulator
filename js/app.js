@@ -2,7 +2,7 @@
 import {
   getSkillColorRowByTotalValue
 } from './skill-colors.js?v=4_14_33';
-import { renderAdminRegisteredRecords, loadAdminRegisteredJackets } from './admin-register-ui.js?v=4_38_23';
+import { renderAdminRegisteredRecords, loadAdminRegisteredJackets } from './admin-register-ui.js?v=4_38_24';
 import {
   createCard,
   getPartColorClass
@@ -4774,7 +4774,7 @@ async function deleteOwnAccount() {
 function updateAdminUiVersion(enabled) {
   const label = document.querySelector('.app-code-version');
   if (!label) return;
-  const adminVersion = document.querySelector('meta[name="admin-ui-version"]')?.content || '4.38.23';
+  const adminVersion = document.querySelector('meta[name="admin-ui-version"]')?.content || '4.38.24';
   label.textContent = `APP VERSION ${enabled ? adminVersion : '4.37.1'}`;
 }
 
@@ -7478,7 +7478,66 @@ document.addEventListener('click', async e => {
 
 $('btnIntroLogin').addEventListener('click', () => { showAuth('login').catch(console.error); });
 $('btnIntroRegister').addEventListener('click', () => { showAuth('register').catch(console.error); });
-$('btnMenu').addEventListener('click', openMenu);
+// PC admin: show existing menu entries as a nested sidebar tree instead of a second modal.
+const desktopMenuTrigger = $('btnMenu');
+const desktopMenuTree = $('adminDesktopMenuTree');
+function collapseAdminDesktopMenu() {
+  if (!desktopMenuTree) return;
+  desktopMenuTree.hidden = true;
+  desktopMenuTrigger.setAttribute('aria-expanded', 'false');
+  document.body.classList.remove('admin-desktop-menu-open');
+}
+function toggleAdminDesktopMenu() {
+  if (!desktopMenuTree) return;
+  if (!desktopMenuTree.hidden) { collapseAdminDesktopMenu(); return; }
+  const source = $('menuMask')?.querySelector('.app-menu-sheet');
+  if (!source) { openMenu(); return; }
+  desktopMenuTree.replaceChildren();
+  let current = null;
+  const addGroup = label => {
+    current = document.createElement('details');
+    current.className = 'admin-menu-group';
+    const summary = document.createElement('summary');
+    summary.textContent = label;
+    current.appendChild(summary);
+    desktopMenuTree.appendChild(current);
+  };
+  const addButton = original => {
+    if (!original || original.classList.contains('hidden')) return;
+    if (!current) addGroup('メニュー');
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'admin-menu-tree-item';
+    button.textContent = original.textContent.replace(/\s*›\s*$/, '').trim();
+    button.addEventListener('click', () => {
+      collapseAdminDesktopMenu();
+      original.click();
+    });
+    current.appendChild(button);
+  };
+  for (const element of source.children) {
+    if (element.classList.contains('app-menu-group-label')) addGroup(element.textContent.trim());
+    else if (element.classList.contains('app-menu-item')) addButton(element);
+    else if (element.id === 'skillSyncMenuSlot' || element.id === 'songCatalogMenuGroup') {
+      if (element.classList.contains('hidden')) continue;
+      for (const child of element.children) {
+        if (child.classList.contains('app-menu-group-label')) addGroup(child.textContent.trim());
+        else if (child.classList.contains('app-menu-item')) addButton(child);
+      }
+    }
+  }
+  desktopMenuTree.hidden = false;
+  document.body.classList.add('admin-desktop-menu-open');
+  desktopMenuTrigger.setAttribute('aria-expanded', 'true');
+}
+desktopMenuTrigger.addEventListener('click', () => {
+  if (document.body.classList.contains('admin-new-ui') && window.matchMedia('(min-width:1100px)').matches) {
+    toggleAdminDesktopMenu();
+  } else openMenu();
+});
+window.addEventListener('resize', () => {
+  if (!window.matchMedia('(min-width:1100px)').matches) collapseAdminDesktopMenu();
+});
 $('btnRefreshApp').addEventListener('click', () => window.location.reload());
 $('btnCloseMenu').addEventListener('click', closeMenu);
 $('menuMask').addEventListener('click', e => { if (e.target === $('menuMask')) closeMenu(); });
