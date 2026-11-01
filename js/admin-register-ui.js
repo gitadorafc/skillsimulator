@@ -5,6 +5,7 @@ const esc = value => String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;'
 const jacketByTitle = new Map();
 let jacketsLoaded = false;
 let jacketsPending = null;
+const missingJacketTitles = new Set();
 // Keep case distinct (Fireball and FIREBALL are different songs); align wave-dash/spacing only.
 const normalizeTitle = value => String(value || '')
   .normalize('NFKC').replace(/\u301c/g, '\uff5e')
@@ -68,6 +69,10 @@ if (typeof document !== 'undefined') document.addEventListener('error', event =>
     img.src = fallback;
     return;
   }
+  if (!img.dataset.jacketErrorLogged) {
+    console.warn('[admin jackets] image request failed:', img.currentSrc || img.src);
+    img.dataset.jacketErrorLogged = '1';
+  }
   img.replaceWith(Object.assign(document.createElement('span'), {
     className:'ar-jacket-missing', textContent:'♫'
   }));
@@ -123,7 +128,13 @@ function recordCard(record, index) {
     ? ` data-compare-song="${esc(record.song_id)}" data-compare-title="${title}" data-compare-part="${esc(record.part)}"`
     : '';
   const pendingBadge = record.pending_master ? '<span class="ar-pending">申請中</span>' : '';
-  const urls = jacketByTitle.get(normalizeTitle(record.title)) || [];
+  const normalized = normalizeTitle(record.title);
+  const urls = jacketByTitle.get(normalized) || [];
+  // Useful diagnostics without exposing private score data or credentials.
+  if (!urls.length && jacketsLoaded && !missingJacketTitles.has(normalized)) {
+    missingJacketTitles.add(normalized);
+    if (missingJacketTitles.size <= 8) console.warn('[admin jackets] no matching jacket title:', normalized);
+  }
   const artwork = urls.length
     ? `<img loading="lazy" alt="" src="${esc(urls[0])}"${urls[1] ? ` data-jacket-fallback="${esc(urls[1])}"` : ''}>`
     : '<span class="ar-jacket-missing" aria-hidden="true">♫</span>';
@@ -132,7 +143,7 @@ function recordCard(record, index) {
   return `<article class="ar-record skill-row-${skillRank}" data-score-id="${esc(record.score_id)}"${compareAttributes}>
     <div class="ar-no">${String(index + 1).padStart(3,'0')}</div>
     <div class="ar-art">${artwork}</div>
-    <div class="ar-title"><span class="ar-song-name" title="${title}">${title}</span>${pendingBadge}${record.is_hot ? '<span class="ar-hot">HOT</span>' : ''}</div>
+    <div class="ar-title">${record.is_hot ? '<span class="ar-hot">HOT</span>' : ''}<span class="ar-song-name" title="${title}">${title}</span>${pendingBadge}</div>
     <div class="ar-part"><span class="p-badge ${getPartColorClass(record.part)}">${esc(record.part)}</span></div>
     <div class="ar-level"><span class="ar-mini-label">Lv</span><strong>${formatLevel(record.level)}</strong></div>
     <div class="ar-rate"><span class="ar-mini-label">達成率</span><strong>${formatRate(record.achievement_rate)}%</strong></div>
@@ -145,6 +156,6 @@ function recordCard(record, index) {
 
 export function renderAdminRegisteredRecords(rows) {
   if (!rows.length) return '';
-  const header = `<div class="ar-table-head" aria-hidden="true"><span>No.</span><span>ジャケット</span><span>曲名</span><span>パート</span><span>Lv</span><span>達成率</span><span>スキル</span><span>オプション</span><span>FC/EXC</span><span>編集</span></div>`;
+  const header = `<div class="ar-table-head" aria-hidden="true"><span>No.</span><span>ジャケット</span><span>曲名</span><span>パート</span><span>Lv</span><span>達成率</span><span>オプション</span><span>FC/EXC</span><span>スキル</span><span>編集</span></div>`;
   return `<div class="ar-register-view">${header}<div class="ar-record-grid">${rows.map(recordCard).join('')}</div></div>`;
 }
