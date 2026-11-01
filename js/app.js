@@ -2,7 +2,7 @@
 import {
   getSkillColorRowByTotalValue
 } from './skill-colors.js?v=4_14_33';
-import { renderAdminRegisteredRecords, loadAdminRegisteredJackets } from './admin-register-ui.js?v=4_38_8';
+import { renderAdminRegisteredRecords, loadAdminRegisteredJackets } from './admin-register-ui.js?v=4_38_9';
 import {
   createCard,
   getPartColorClass
@@ -4774,7 +4774,7 @@ async function deleteOwnAccount() {
 function updateAdminUiVersion(enabled) {
   const label = document.querySelector('.app-code-version');
   if (!label) return;
-  const adminVersion = document.querySelector('meta[name="admin-ui-version"]')?.content || '4.38.8';
+  const adminVersion = document.querySelector('meta[name="admin-ui-version"]')?.content || '4.38.9';
   label.textContent = `APP VERSION ${enabled ? adminVersion : '4.37.1'}`;
 }
 
@@ -5018,27 +5018,91 @@ function isMobileAdminMaster() {
 }
 
 let editingJacketTitle = '';
-function jacketPreview() {
-  const preview = $('adminJacketPreview');
-  const url = $('adminJacketUrl').value.trim();
-  preview.style.display = /^https:\/\//i.test(url) ? 'block' : 'none';
-  if (preview.style.display !== 'none') preview.src = url;
+let jacketPreviewObjectUrl = null;
+let jacketPreviewCandidates = [];
+let jacketPreviewIndex = 0;
+let jacketManifestPromise = null;
+let jacketModalSequence = 0;
+
+function normalizeJacketTitle(title) {
+  return String(title || '').normalize('NFKC').replace(/\u301c/g, '\uff5e')
+    .replace(/[\s\u3000]+/g, ' ').trim();
 }
-function openAdminJacket(row) {
+function getJacketManifest() {
+  if (!jacketManifestPromise) {
+    jacketManifestPromise = fetch('./assets/jackets/manifest.json', {cache:'no-cache'})
+      .then(response => {
+        if (!response.ok) throw new Error(`manifest HTTP ${response.status}`);
+        return response.json();
+      }).catch(error => { jacketManifestPromise = null; console.warn('[admin jackets] manifest:', error); return null; });
+  }
+  return jacketManifestPromise;
+}
+function disposeJacketPreviewObjectUrl() {
+  if (jacketPreviewObjectUrl) URL.revokeObjectURL(jacketPreviewObjectUrl);
+  jacketPreviewObjectUrl = null;
+}
+function setJacketPreviewCandidates(urls) {
+  jacketPreviewCandidates = [...new Set(urls.filter(Boolean))];
+  jacketPreviewIndex = 0;
+  const preview = $('adminJacketPreview');
+  preview.style.display = jacketPreviewCandidates.length ? 'block' : 'none';
+  if (jacketPreviewCandidates.length) preview.src = jacketPreviewCandidates[0];
+  else preview.removeAttribute('src');
+}
+function jacketPreview() {
+  disposeJacketPreviewObjectUrl();
+  const url = $('adminJacketUrl').value.trim();
+  setJacketPreviewCandidates(/^https:\/\//i.test(url) ? [url] : []);
+}
+async function openAdminJacket(row) {
   if (!row) return;
+  const sequence = ++jacketModalSequence;
   editingJacketTitle = row.title;
   $('adminJacketTitle').textContent = row.title;
   $('adminJacketUrl').value = row.jacket_image_url || '';
   $('adminJacketFile').value = '';
   $('adminJacketError').textContent = '';
-  const preview = $('adminJacketPreview');
+  disposeJacketPreviewObjectUrl();
   const path = row.jacket_storage_path;
-  const url = path ? supabase.storage.from('song-jackets').getPublicUrl(path).data.publicUrl : row.jacket_image_url;
-  preview.style.display = url ? 'block' : 'none';
-  if (url) preview.src = url;
+  const storageUrl = path ? supabase.storage.from('song-jackets').getPublicUrl(path).data.publicUrl : '';
+  const legacyUrl = row.jacket_image_url || '';
+  // A manually uploaded image should win over the old Pages image.
+  setJacketPreviewCandidates([storageUrl, legacyUrl]);
   $('adminJacketMask').style.display = 'flex';
+  const manifest = await getJacketManifest();
+  if (sequence !== jacketModalSequence || editingJacketTitle !== row.title || $('adminJacketFile').files?.length) return;
+  const normalizedTitle = normalizeJacketTitle(row.title);
+  const filename = manifest?.titles && Object.entries(manifest.titles).find(
+    ([title]) => normalizeJacketTitle(title) === normalizedTitle
+  )?.[1];
+  const pagesUrl = typeof filename === 'string' && /^[a-f0-9]{24}\.webp$/.test(filename)
+    ? new URL(`./assets/jackets/${filename}`, document.baseURI).href : '';
+  setJacketPreviewCandidates([storageUrl, pagesUrl, legacyUrl]);
 }
-function closeAdminJacket() { $('adminJacketMask').style.display = 'none'; editingJacketTitle = ''; }
+function closeAdminJacket() {
+  ++jacketModalSequence;
+  $('adminJacketMask').style.display = 'none';
+  editingJacketTitle = '';
+  disposeJacketPreviewObjectUrl();
+  setJacketPreviewCandidates([]);
+}
+async function toWebpJacket(file) {
+  const bitmap = await createImageBitmap(file);
+  try {
+    const maxSide = 256;
+    const scale = Math.min(1, maxSide / Math.max(bitmap.width, bitmap.height));
+    const canvas = document.createElement('canvas');
+    canvas.width = Math.max(1, Math.round(bitmap.width * scale));
+    canvas.height = Math.max(1, Math.round(bitmap.height * scale));
+    const context = canvas.getContext('2d');
+    if (!context) throw new Error('画像変換を開始できません。');
+    context.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+    const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/webp', .82));
+    if (!blob || blob.type !== 'image/webp') throw new Error('WebP変換に失敗しました。');
+    return blob;
+  } finally { bitmap.close(); }
+}
 async function persistAdminJacket(clear = false) {
   const save = $('adminJacketSave');
   const clearButton = $('adminJacketClear');
@@ -5053,9 +5117,9 @@ async function persistAdminJacket(clear = false) {
   try {
     let storagePath = null;
     if (!clear && file) {
-      const ext = file.type === 'image/png' ? 'png' : file.type === 'image/webp' ? 'webp' : 'jpg';
-      storagePath = `master/${crypto.randomUUID()}.${ext}`;
-      const uploaded = await supabase.storage.from('song-jackets').upload(storagePath, file, {contentType:file.type,upsert:false,cacheControl:'31536000'});
+      const converted = await toWebpJacket(file);
+      storagePath = `master/${crypto.randomUUID()}.webp`;
+      const uploaded = await supabase.storage.from('song-jackets').upload(storagePath, converted, {contentType:'image/webp',upsert:false,cacheControl:'31536000'});
       if (uploaded.error) throw uploaded.error;
     }
     const {error} = await supabase.rpc('admin_save_song_jacket', {p_title:title,p_image_url:clear || file ? null : (url || null),p_storage_path:storagePath,p_clear:clear});
@@ -5065,6 +5129,27 @@ async function persistAdminJacket(clear = false) {
   } catch(e) { $('adminJacketError').textContent = '保存失敗: ' + (e.message || e); }
   finally { save.disabled = false; clearButton.disabled = false; }
 }
+$('adminJacketPreview')?.addEventListener('load', () => {
+  if ($('adminJacketError').textContent === 'プレビュー画像を読み込めません。') $('adminJacketError').textContent = '';
+});
+$('adminJacketPreview')?.addEventListener('error', () => {
+  if (++jacketPreviewIndex < jacketPreviewCandidates.length) {
+    $('adminJacketPreview').src = jacketPreviewCandidates[jacketPreviewIndex];
+  } else {
+    $('adminJacketPreview').style.display = 'none';
+    $('adminJacketPreview').removeAttribute('src');
+    $('adminJacketError').textContent = 'プレビュー画像を読み込めません。';
+  }
+});
+$('adminJacketFile')?.addEventListener('change', event => {
+  const file = event.target.files?.[0];
+  disposeJacketPreviewObjectUrl();
+  $('adminJacketError').textContent = '';
+  if (file && ['image/jpeg','image/png','image/webp'].includes(file.type)) {
+    jacketPreviewObjectUrl = URL.createObjectURL(file);
+    setJacketPreviewCandidates([jacketPreviewObjectUrl]);
+  } else jacketPreview();
+});
 $('adminJacketCancel')?.addEventListener('click', closeAdminJacket);
 $('adminJacketSave')?.addEventListener('click', () => persistAdminJacket(false));
 $('adminJacketClear')?.addEventListener('click', () => persistAdminJacket(true));
