@@ -165,9 +165,9 @@ function recordCard(record, index) {
     <div class="ar-metrics"><div class="ar-part"><span class="p-badge ${getPartColorClass(record.part)}">${esc(record.part)}</span></div>
     <div class="ar-level"><span class="ar-mini-label">Lv</span><strong>${formatLevel(record.level)}</strong></div>
     <div class="ar-rate"><span class="ar-mini-label">達成率</span><strong>${formatRate(record.achievement_rate)}%</strong></div>
-    <div class="ar-skill skill-box-${skillRank}"><span class="dc-skill-value">${formatSkill(record.skill)}</span></div>
     <div class="ar-option">${option}</div>
     </div>
+    <div class="ar-skill skill-box-${skillRank}"><span class="dc-skill-value">${formatSkill(record.skill)}</span></div>
     <div class="ar-fc-cell">${fcIcon(record)}</div>
     <div class="ar-edit"><button type="button" data-edit="${esc(record.score_id)}" aria-label="${title} を編集" title="編集">✎</button></div>
   </article>`;

@@ -1,5 +1,5 @@
 /* Admin registered rows: layout only; reuse public UI color, badge, and skill tokens. */
-body.admin-new-ui #viewAllManage{width:100%;max-width:none;display:block;--ar-cols:40px 70px minmax(160px,1fr) 82px 55px 87px 74px 62px 128px 48px}
+body.admin-new-ui #viewAllManage{width:100%;max-width:none;display:block;--ar-cols:40px 70px minmax(160px,1fr) 82px 55px 87px 74px 62px 76px 48px}
 body.admin-new-ui #viewAllManage.hidden{display:none!important}
 body.admin-new-ui #viewAllManage .ar-register-view{width:100%;min-width:0}
 body.admin-new-ui #viewAllManage .ar-record-grid{display:grid;grid-template-columns:minmax(0,1fr);gap:5px}
@@ -23,7 +23,7 @@ body.admin-new-ui #viewAllManage :is(.ar-hot,.ar-part .p-badge,.ar-option .opt-b
 body.admin-new-ui #viewAllManage .ar-level,body.admin-new-ui #viewAllManage .ar-rate{text-align:center;white-space:nowrap;font-variant-numeric:tabular-nums}
 body.admin-new-ui #viewAllManage .ar-level strong,body.admin-new-ui #viewAllManage .ar-rate strong{font-size:inherit}
 body.admin-new-ui #viewAllManage .ar-mini-label{display:none}
-body.admin-new-ui #viewAllManage .ar-skill{position:relative;min-width:0;box-sizing:border-box;overflow:hidden;text-align:center;justify-self:stretch;padding:6px 2px;font-weight:850;border-radius:5px;font-variant-numeric:tabular-nums}
+body.admin-new-ui #viewAllManage .ar-skill{position:relative;width:65px!important;min-width:65px!important;max-width:65px!important;box-sizing:border-box;overflow:hidden;text-align:center;justify-self:center;padding:5px 0!important;font-weight:850;border-radius:5px;font-variant-numeric:tabular-nums}
 body.admin-new-ui #viewAllManage .ar-skill>.dc-skill-value{position:relative;z-index:1}
 body.admin-new-ui #viewAllManage .ar-bear-medal{display:block;width:34px;height:34px;flex:none;filter:drop-shadow(0 1px 3px #0008)}
 body.admin-new-ui #viewAllManage .ar-edit{display:flex;justify-content:center}
@@ -33,10 +33,11 @@ body.admin-new-ui #viewAllManage .own-registered-records-more{grid-column:1/-1}
 body.admin-new-ui #viewAllManage .ar-record.skill-row-sparkle-rainbow{animation:none!important}
 body.admin-new-ui #viewAllManage .ar-skill.skill-box-sparkle-rainbow{animation:none!important;filter:none!important}
 body.admin-new-ui #viewAllManage .ar-skill.skill-box-sparkle-rainbow::after{content:"";display:block;position:absolute;inset:0;pointer-events:none;z-index:2;background-image:var(--skill-side-paint),var(--skill-side-paint);background-position:left top,right top;background-size:5px 100%,5px 100%;background-repeat:no-repeat,no-repeat;animation:skill-sparkle-band-pulse var(--skill-sparkle-cycle,1.6s) ease-in-out infinite!important}
-/* Desktop: exactly one row, including elements inside the metrics wrapper. */
-@media(min-width:1280px){
- body.admin-new-ui #viewAllManage .ar-record{grid-template-rows:70px;grid-auto-rows:0;min-height:86px;overflow:hidden}
- body.admin-new-ui #viewAllManage .ar-record .ar-metrics{display:contents!important}
+
+/* Full PC: a single table row, no auto-placement overflow. */
+@media (min-width:1280px) {
+ body.admin-new-ui #viewAllManage .ar-record{grid-template-columns:var(--ar-cols);grid-template-rows:70px;min-height:86px;padding:8px;overflow:hidden}
+ body.admin-new-ui #viewAllManage .ar-metrics{display:contents}
  body.admin-new-ui #viewAllManage .ar-no{grid-column:1;grid-row:1}
  body.admin-new-ui #viewAllManage .ar-art{grid-column:2;grid-row:1}
  body.admin-new-ui #viewAllManage .ar-title{grid-column:3;grid-row:1}
@@ -48,69 +49,53 @@ body.admin-new-ui #viewAllManage .ar-skill.skill-box-sparkle-rainbow::after{cont
  body.admin-new-ui #viewAllManage .ar-skill{grid-column:9;grid-row:1}
  body.admin-new-ui #viewAllManage .ar-edit{grid-column:10;grid-row:1}
 }
-/* Wide intermediate: first line title and FC; second line left-aligned metrics. */
-@media(min-width:768px) and (max-width:1279px){
+/* Wide/tablet: 2 lines inside a compact horizontal row, unlike the phone layout.
+   Skill stays immediately left of Edit, regardless of viewport width. */
+@media (min-width:768px) and (max-width:1279px) {
  body.admin-new-ui #viewAllManage .ar-table-head{display:none}
- body.admin-new-ui #viewAllManage .ar-record{grid-template-columns:68px minmax(0,1fr) 40px 42px;grid-template-rows:26px 30px;gap:2px 10px;min-height:70px;padding:6px 10px}
+ body.admin-new-ui #viewAllManage .ar-record{grid-template-columns:64px minmax(0,1fr) 34px 72px 38px;grid-template-rows:27px 28px;gap:4px 9px;padding:7px 9px;min-height:75px}
  body.admin-new-ui #viewAllManage .ar-no{display:none}
- body.admin-new-ui #viewAllManage .ar-art{grid-column:1;grid-row:1/3;width:66px;height:66px}
+ body.admin-new-ui #viewAllManage .ar-art{grid-column:1;grid-row:1/3;width:62px;height:62px}
  body.admin-new-ui #viewAllManage .ar-title{grid-column:2;grid-row:1}
- body.admin-new-ui #viewAllManage .ar-metrics{grid-column:2;grid-row:2;display:grid;grid-template-columns:72px 62px 95px 72px minmax(0,1fr) 104px;column-gap:8px;align-items:center;min-width:0;grid-auto-rows:30px}
- body.admin-new-ui #viewAllManage .ar-part,body.admin-new-ui #viewAllManage .ar-option{justify-content:flex-start}
- body.admin-new-ui #viewAllManage .ar-level,body.admin-new-ui #viewAllManage .ar-rate{text-align:left}
- body.admin-new-ui #viewAllManage .ar-skill{grid-column:6;grid-row:1;width:104px;justify-self:end;padding:5px 2px}
- body.admin-new-ui #viewAllManage .ar-option{grid-column:4;grid-row:1;justify-content:flex-start}
- body.admin-new-ui #viewAllManage .ar-fc-cell{grid-column:3;grid-row:1}
- body.admin-new-ui #viewAllManage .ar-edit{grid-column:4;grid-row:1/3}
- body.admin-new-ui #viewAllManage .ar-mini-label{display:inline;color:#9bbed4;margin-right:3px;font-size:10px}
- body.admin-new-ui #viewAllManage .ar-song-name{font-size:13px}
- body.admin-new-ui #viewAllManage .ar-bear-medal{width:30px;height:30px}
- body.admin-new-ui #viewAllManage .ar-edit button{width:36px;height:36px}
- body.admin-new-ui #viewAllManage .ar-level{grid-column:2;grid-row:1;align-self:center}
- body.admin-new-ui #viewAllManage .ar-rate{grid-column:3;grid-row:1;align-self:center}
- body.admin-new-ui #viewAllManage .ar-option{grid-column:4;grid-row:1;align-self:center;justify-content:flex-start}
- body.admin-new-ui #viewAllManage .ar-metrics>*{min-width:0}
-
-}
-/* Phone: TWO lines only; jacket and edit button vertically centered across both lines. */
-@media(max-width:767px){
- body.admin-new-ui #viewAllManage .ar-table-head{display:none}
- body.admin-new-ui #viewAllManage .ar-record{grid-template-columns:50px minmax(0,1fr) 32px 36px;grid-template-rows:28px 28px;column-gap:7px;row-gap:6px;min-height:78px;padding:6px 7px}
- body.admin-new-ui #viewAllManage .ar-no{display:none}
- body.admin-new-ui #viewAllManage .ar-art{grid-column:1;grid-row:1/3;width:48px;height:48px;align-self:center}
- body.admin-new-ui #viewAllManage .ar-title{grid-column:2;grid-row:1}
- body.admin-new-ui #viewAllManage .ar-song-name{font-size:13px}
  body.admin-new-ui #viewAllManage .ar-fc-cell{grid-column:3;grid-row:1;justify-self:center}
- body.admin-new-ui #viewAllManage .ar-edit{grid-column:4;grid-row:1/3;align-self:center}
- body.admin-new-ui #viewAllManage .ar-edit button{width:34px;height:34px;font-size:20px}
- body.admin-new-ui #viewAllManage .ar-metrics{grid-column:2/4;grid-row:2;display:grid;grid-template-columns:60px 40px 62px 54px minmax(0,1fr) 88px;column-gap:5px;align-items:center;min-width:0;grid-auto-rows:28px}
- body.admin-new-ui #viewAllManage .ar-part{grid-column:1;grid-row:1;justify-content:flex-start}
- body.admin-new-ui #viewAllManage .ar-level,body.admin-new-ui #viewAllManage .ar-rate{text-align:left}
- body.admin-new-ui #viewAllManage .ar-level strong,body.admin-new-ui #viewAllManage .ar-rate strong{font-size:11px}
- body.admin-new-ui #viewAllManage .ar-skill{grid-column:6;grid-row:1;width:88px;justify-self:end;padding:4px 1px;font-size:12px}
- body.admin-new-ui #viewAllManage .ar-bear-medal{width:23px;height:23px}
- body.admin-new-ui #viewAllManage .ar-mini-label{display:none}
- body.admin-new-ui #viewAllManage .ar-option{grid-column:4;grid-row:1;justify-content:flex-start}
- body.admin-new-ui #viewAllManage .ar-option .opt-badge{font-size:10px!important;padding:0 4px!important}
- body.admin-new-ui #viewAllManage .ar-part .p-badge{font-size:10px!important;padding:0 4px!important}
- body.admin-new-ui #viewAllManage .ar-level{grid-column:2;grid-row:1;align-self:center}
- body.admin-new-ui #viewAllManage .ar-rate{grid-column:3;grid-row:1;align-self:center}
- body.admin-new-ui #viewAllManage .ar-option{grid-column:4;grid-row:1;align-self:center;justify-content:flex-start}
- body.admin-new-ui #viewAllManage .ar-metrics>*{min-width:0}
-
+ body.admin-new-ui #viewAllManage .ar-skill{grid-column:4;grid-row:2}
+ body.admin-new-ui #viewAllManage .ar-edit{grid-column:5;grid-row:1/3;align-self:center}
+ body.admin-new-ui #viewAllManage .ar-metrics{grid-column:2/4;grid-row:2;display:grid;grid-template-columns:70px 64px 94px 74px;align-items:center;gap:10px;justify-content:start;min-width:0}
+ body.admin-new-ui #viewAllManage .ar-part{grid-column:1;justify-content:start}
+ body.admin-new-ui #viewAllManage .ar-level{grid-column:2;text-align:left}
+ body.admin-new-ui #viewAllManage .ar-rate{grid-column:3;text-align:left}
+ body.admin-new-ui #viewAllManage .ar-option{grid-column:4;justify-content:start}
+ body.admin-new-ui #viewAllManage .ar-mini-label{display:inline;margin-right:3px;font-size:10px;color:#9bbed4}
+ body.admin-new-ui #viewAllManage .ar-bear-medal{width:27px;height:27px}
+ body.admin-new-ui #viewAllManage .ar-edit button{width:36px;height:36px}
 }
-@media(max-width:420px){
- body.admin-new-ui #viewAllManage .ar-record{grid-template-columns:40px minmax(0,1fr) 27px 32px;column-gap:5px;padding:6px}
- body.admin-new-ui #viewAllManage .ar-art{width:39px;height:39px}
- body.admin-new-ui #viewAllManage .ar-metrics{grid-template-columns:49px 32px 54px 42px minmax(0,1fr) 74px;column-gap:3px}
- body.admin-new-ui #viewAllManage .ar-skill{width:74px;font-size:12px}
- body.admin-new-ui #viewAllManage .ar-bear-medal{width:21px;height:21px}
+/* iPhone/phone: two lines with reserved medal and edit slots. */
+@media (max-width:767px) {
+ body.admin-new-ui #viewAllManage .ar-table-head{display:none}
+ body.admin-new-ui #viewAllManage .ar-record{grid-template-columns:48px minmax(0,1fr) 26px 67px 34px;grid-template-rows:25px 25px;gap:5px 5px;padding:7px;min-height:68px}
+ body.admin-new-ui #viewAllManage .ar-no{display:none}
+ body.admin-new-ui #viewAllManage .ar-art{grid-column:1;grid-row:1/3;width:46px;height:46px;align-self:center}
+ body.admin-new-ui #viewAllManage .ar-title{grid-column:2;grid-row:1;align-self:center}
+ body.admin-new-ui #viewAllManage .ar-song-name{font-size:12px}
+ body.admin-new-ui #viewAllManage .ar-fc-cell{grid-column:3;grid-row:1;justify-self:center}
+ body.admin-new-ui #viewAllManage .ar-bear-medal{width:22px;height:22px}
+ body.admin-new-ui #viewAllManage .ar-edit{grid-column:5;grid-row:1/3;align-self:center}
+ body.admin-new-ui #viewAllManage .ar-edit button{width:32px;height:32px;font-size:19px}
+ body.admin-new-ui #viewAllManage .ar-skill{grid-column:4;grid-row:2;align-self:center;font-size:12px}
+ body.admin-new-ui #viewAllManage .ar-metrics{grid-column:2/4;grid-row:2;display:grid;grid-template-columns:54px 34px 66px minmax(42px,1fr);align-items:center;gap:5px;min-width:0}
+ body.admin-new-ui #viewAllManage .ar-part{grid-column:1;justify-content:start}
+ body.admin-new-ui #viewAllManage .ar-level{grid-column:2;text-align:left}
+ body.admin-new-ui #viewAllManage .ar-rate{grid-column:3;text-align:left}
+ body.admin-new-ui #viewAllManage .ar-option{grid-column:4;justify-content:start}
+ body.admin-new-ui #viewAllManage .ar-level strong,body.admin-new-ui #viewAllManage .ar-rate strong{font-size:10px}
+ body.admin-new-ui #viewAllManage .ar-mini-label{display:none}
+ body.admin-new-ui #viewAllManage .ar-option .opt-badge,body.admin-new-ui #viewAllManage .ar-part .p-badge{font-size:10px!important;padding:0 3px!important;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+}
+@media (max-width:410px) {
+ body.admin-new-ui #viewAllManage .ar-record{grid-template-columns:39px minmax(0,1fr) 23px 67px 31px;gap:4px;padding:5px}
+ body.admin-new-ui #viewAllManage .ar-art{width:38px;height:38px}
+ body.admin-new-ui #viewAllManage .ar-metrics{grid-template-columns:47px 30px 59px minmax(37px,1fr);gap:3px}
+ body.admin-new-ui #viewAllManage .ar-bear-medal{width:20px;height:20px}
  body.admin-new-ui #viewAllManage .ar-edit button{width:30px;height:30px}
 }
-/* Do not disable this UI status pulse under reduce-motion: the existing public UI also displays it. */
-
-/* Preserve title width regardless of whether an FC/EXC medal is present. */
-body.admin-new-ui #viewAllManage .ar-fc-cell{min-width:0}
-
-/* Keep reserved FC space distinct from skill band and align both content rows. */
-@media(max-width:767px){body.admin-new-ui #viewAllManage .ar-fc-cell{align-self:center;justify-self:center}body.admin-new-ui #viewAllManage .ar-title{align-self:center}body.admin-new-ui #viewAllManage .ar-metrics{align-self:center}body.admin-new-ui #viewAllManage .ar-option .opt-badge{max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}}
+/* The user's current UI still animates the skill band when reduce-motion is enabled. */

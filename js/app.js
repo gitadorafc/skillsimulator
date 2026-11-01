@@ -2,7 +2,7 @@
 import {
   getSkillColorRowByTotalValue
 } from './skill-colors.js?v=4_14_33';
-import { renderAdminRegisteredRecords, loadAdminRegisteredJackets } from './admin-register-ui.js?v=4_38_13';
+import { renderAdminRegisteredRecords, loadAdminRegisteredJackets } from './admin-register-ui.js?v=4_38_14';
 import {
   createCard,
   getPartColorClass
@@ -4774,7 +4774,7 @@ async function deleteOwnAccount() {
 function updateAdminUiVersion(enabled) {
   const label = document.querySelector('.app-code-version');
   if (!label) return;
-  const adminVersion = document.querySelector('meta[name="admin-ui-version"]')?.content || '4.38.13';
+  const adminVersion = document.querySelector('meta[name="admin-ui-version"]')?.content || '4.38.14';
   label.textContent = `APP VERSION ${enabled ? adminVersion : '4.37.1'}`;
 }
 
