@@ -1,5 +1,5 @@
 const PARTIAL_URLS = [
-  '../partials/app.html?v=4_38_21',
+  '../partials/app.html?v=4_38_22',
   '../partials/menu.html?v=4_37_1',
   '../partials/dialogs.html?v=4_37_1',
   '../partials/admin.html?v=4_37_1',
@@ -34,7 +34,7 @@ async function bootstrap() {
   const parts = await Promise.all(PARTIAL_URLS.map(fetchPartial));
   root.innerHTML = parts.join('\n');
 
-  await import('./app.js?v=4_38_21');
+  await import('./app.js?v=4_38_22');
   await loadClassicScript('./js/version-check.js?v=4_37_1');
 }
 
