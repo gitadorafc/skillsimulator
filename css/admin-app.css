@@ -5,6 +5,7 @@ body.admin-new-ui #viewAllManage .ar-register-view{width:100%;min-width:0}
 body.admin-new-ui #viewAllManage .ar-record-grid{display:grid;grid-template-columns:minmax(0,1fr);gap:5px}
 body.admin-new-ui #viewAllManage .ar-table-head,body.admin-new-ui #viewAllManage .ar-record{display:grid;grid-template-columns:var(--ar-cols);align-items:center;column-gap:7px;box-sizing:border-box}
 body.admin-new-ui #viewAllManage .ar-table-head{padding:9px;margin-bottom:5px;background:#09324f;border:1px solid #1b678a;border-radius:7px;color:#9be9fc;font-size:12px;font-weight:800;text-align:center}
+body.admin-new-ui #viewAllManage .ar-table-head span{white-space:nowrap;min-width:0}
 body.admin-new-ui #viewAllManage .ar-table-head span:nth-child(3){text-align:left}
 body.admin-new-ui #viewAllManage .ar-record{position:relative;padding:8px;min-height:80px;border:1px solid #1c5b80;border-radius:7px;background:linear-gradient(90deg,#112c55,#281531 15%,#0c1728 65%);color:#edf8ff;font-size:13px}
 body.admin-new-ui #viewAllManage .ar-record>*{min-width:0}
@@ -35,7 +36,7 @@ body.admin-new-ui #viewAllManage .ar-skill.skill-box-sparkle-rainbow{animation:n
 body.admin-new-ui #viewAllManage .ar-skill.skill-box-sparkle-rainbow::after{content:"";display:block;position:absolute;inset:0;pointer-events:none;z-index:2;background-image:var(--skill-side-paint),var(--skill-side-paint);background-position:left top,right top;background-size:5px 100%,5px 100%;background-repeat:no-repeat,no-repeat;animation:skill-sparkle-band-pulse var(--skill-sparkle-cycle,1.6s) ease-in-out infinite!important}
 
 /* Full PC: a single table row, no auto-placement overflow. */
-@media (min-width:1360px) {
+@media (min-width:1550px) {
  body.admin-new-ui #viewAllManage .ar-record{grid-template-columns:var(--ar-cols);grid-template-rows:48px;min-height:60px;padding:5px 8px;overflow:hidden}
  body.admin-new-ui #viewAllManage .ar-metrics{display:contents}
  body.admin-new-ui #viewAllManage .ar-no{grid-column:1;grid-row:1}
@@ -51,7 +52,7 @@ body.admin-new-ui #viewAllManage .ar-skill.skill-box-sparkle-rainbow::after{cont
 }
 /* Wide/tablet: 2 lines inside a compact horizontal row, unlike the phone layout.
    Skill stays immediately left of Edit, regardless of viewport width. */
-@media (min-width:768px) and (max-width:1359px) {
+@media (min-width:768px) and (max-width:1549px) {
  body.admin-new-ui #viewAllManage .ar-table-head{display:none}
  body.admin-new-ui #viewAllManage .ar-record{grid-template-columns:64px minmax(0,1fr) 34px 72px 38px;grid-template-rows:24px 25px;gap:3px 9px;padding:5px 9px;min-height:63px}
  body.admin-new-ui #viewAllManage .ar-no{display:none}
@@ -124,16 +125,51 @@ body.admin-new-ui #searchArea.admin-filters-expanded #btnAdminRecordFilters{bord
 body.admin-new-ui #searchArea .admin-bulk-delete-area{margin-top:0}
 /* Keep the skill totals pinned at the top while the records themselves scroll. */
 body.admin-new-ui #appScreen>.p-header{position:sticky;top:0;z-index:100}
-@media (min-width:1360px){
- body.admin-new-ui #viewAllManage{--ar-cols:40px 58px minmax(160px,1fr) 82px 55px 87px 74px 62px 76px 48px}
+@media (min-width:1550px){
+ body.admin-new-ui #viewAllManage{--ar-cols:40px 75px minmax(160px,1fr) 82px 55px 87px 74px 62px 76px 48px}
  body.admin-new-ui #viewAllManage .ar-record-grid{gap:4px}
  body.admin-new-ui #viewAllManage .ar-table-head{padding:6px 9px;margin-bottom:4px}
  body.admin-new-ui #viewAllManage .ar-bear-medal{width:28px;height:28px}
  body.admin-new-ui #viewAllManage .ar-edit button{width:32px;height:32px;font-size:19px}
 }
-@media (min-width:768px) and (max-width:1359px){
+@media (min-width:768px) and (max-width:1549px){
  body.admin-new-ui #viewAllManage .ar-fc-cell{justify-content:flex-end;justify-self:end;padding-right:0}
 }
 @media (max-width:767px){
  body.admin-new-ui #viewAllManage .ar-fc-cell{justify-content:flex-end;justify-self:end;padding-right:0}
 }
+
+/* PC navigation: use the EXISTING four tab controls as the fixed left menu.
+   This is admin-only and changes placement, not tab state or handlers. */
+@media (min-width:1550px) {
+ body.admin-new-ui {--admin-side-width:184px;}
+ body.admin-new-ui #appScreen>.p-header>.p-tabs {
+   position:fixed!important;left:0;top:122px;bottom:0;
+   width:var(--admin-side-width)!important;height:auto!important;
+   display:flex!important;flex-direction:column!important;justify-content:flex-start!important;
+   box-sizing:border-box!important;gap:5px!important;padding:12px 9px!important;
+   background:#101b2d;border-right:1px solid #30425a;
+   z-index:101;overflow-y:auto;align-items:stretch!important;
+ }
+ body.admin-new-ui #appScreen>.p-header>.p-tabs .p-tab-btn:not(.hidden) {
+   display:flex!important;align-items:center!important;justify-content:flex-start!important;
+   width:100%!important;min-height:45px!important;flex:0 0 auto!important;
+   text-align:left!important;padding:0 13px!important;box-sizing:border-box;
+ }
+ body.admin-new-ui #appScreen>.p-header>#searchArea,
+ body.admin-new-ui #appScreen>.p-header>#boardMainFixed,
+ body.admin-new-ui #appScreen>.p-header>#userListHeaderSlot {
+   margin-left:var(--admin-side-width)!important;
+   width:calc(100% - var(--admin-side-width))!important;
+   box-sizing:border-box;
+ }
+ body.admin-new-ui #appScreen>.p-container {
+   margin-left:var(--admin-side-width)!important;
+   width:calc(100% - var(--admin-side-width))!important;
+   max-width:none!important;box-sizing:border-box;
+ }
+ body.admin-new-ui #viewAllManage {--ar-cols:34px 76px minmax(115px,1fr) 74px 50px 76px 67px 62px 76px 40px}
+ body.admin-new-ui #viewAllManage .ar-table-head span {white-space:nowrap;overflow:hidden;text-overflow:clip}
+}
+/* Icon-only create button in admin mode. Public UI keeps its label. */
+body.admin-new-ui #btnHeaderAdd {min-width:48px;white-space:nowrap}
