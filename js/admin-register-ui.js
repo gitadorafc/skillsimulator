@@ -41,15 +41,43 @@ if (typeof document !== 'undefined') document.addEventListener('error', event =>
   img.replaceWith(Object.assign(document.createElement('span'), {className:'ar-jacket-missing', textContent:'♫'}));
 }, true);
 
+let bearMedalId = 0;
 function bearMedal(type) {
   const cls = type === 'EXC' ? 'ar-exc' : 'ar-fc';
-  return `<svg class="ar-bear-medal ${cls}" viewBox="0 0 52 52" role="img" aria-label="${type}" xmlns="http://www.w3.org/2000/svg">
-    <defs><linearGradient id="ar-bear-${cls}" x1="0" y1="0" x2="1" y2="1"><stop stop-color="${type === 'EXC' ? '#fff6b7' : '#ffffff'}"/><stop offset=".45" stop-color="${type === 'EXC' ? '#efaa21' : '#bcc9df'}"/><stop offset="1" stop-color="${type === 'EXC' ? '#9b5503' : '#52647e'}"/></linearGradient></defs>
-    <circle cx="11" cy="11" r="8" fill="url(#ar-bear-${cls})" stroke="${type === 'EXC' ? '#fbe38c' : '#d8e0ec'}" stroke-width="2"/>
-    <circle cx="41" cy="11" r="8" fill="url(#ar-bear-${cls})" stroke="${type === 'EXC' ? '#fbe38c' : '#d8e0ec'}" stroke-width="2"/>
-    <circle cx="26" cy="27" r="21" fill="url(#ar-bear-${cls})" stroke="${type === 'EXC' ? '#ffe69d' : '#eef4fc'}" stroke-width="2.5"/>
-    <circle cx="26" cy="27" r="15" fill="none" stroke="${type === 'EXC' ? '#a9690b' : '#6a7a95'}" stroke-width="2" opacity=".85"/>
-    <path d="M17 17 Q24 13 31 15" fill="none" stroke="#fff" stroke-opacity=".7" stroke-width="2.5" stroke-linecap="round"/>
+  bearMedalId += 1;
+  const gradientId = `ar-bear-grad-${cls}-${bearMedalId}`;
+  const shineId = `ar-bear-shine-${cls}-${bearMedalId}`;
+  const ringId = `ar-bear-ring-${cls}-${bearMedalId}`;
+  const palette = type === 'EXC'
+    ? { outer:'#7a4300', ring:'#ffe18c', dark:'#a45d08', mid:'#f1b536', light:'#fff6c5', shine:'#fffbe6' }
+    : { outer:'#4f607e', ring:'#eef5ff', dark:'#7a8ca9', mid:'#b9c8de', light:'#ffffff', shine:'#ffffff' };
+  return `<svg class="ar-bear-medal ${cls}" viewBox="0 0 64 64" role="img" aria-label="${type}" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <radialGradient id="${gradientId}" cx="30%" cy="25%" r="80%">
+        <stop offset="0" stop-color="${palette.light}"/>
+        <stop offset=".36" stop-color="${palette.mid}"/>
+        <stop offset=".72" stop-color="${palette.dark}"/>
+        <stop offset="1" stop-color="${palette.outer}"/>
+      </radialGradient>
+      <radialGradient id="${shineId}" cx="24%" cy="18%" r="50%">
+        <stop offset="0" stop-color="${palette.shine}" stop-opacity=".95"/>
+        <stop offset=".65" stop-color="${palette.shine}" stop-opacity=".2"/>
+        <stop offset="1" stop-color="${palette.shine}" stop-opacity="0"/>
+      </radialGradient>
+      <linearGradient id="${ringId}" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="${palette.ring}"/>
+        <stop offset=".5" stop-color="${palette.light}"/>
+        <stop offset="1" stop-color="${palette.dark}"/>
+      </linearGradient>
+    </defs>
+    <circle cx="18" cy="14" r="10" fill="url(#${gradientId})" stroke="url(#${ringId})" stroke-width="2.2"/>
+    <circle cx="46" cy="14" r="10" fill="url(#${gradientId})" stroke="url(#${ringId})" stroke-width="2.2"/>
+    <circle cx="32" cy="34" r="23" fill="url(#${gradientId})" stroke="url(#${ringId})" stroke-width="2.8"/>
+    <circle cx="32" cy="34" r="17" fill="none" stroke="${palette.ring}" stroke-opacity=".9" stroke-width="2.4"/>
+    <ellipse cx="32" cy="34" rx="19" ry="16" fill="url(#${shineId})"/>
+    <path d="M22 24 C27 19, 37 19, 42 24" fill="none" stroke="rgba(255,255,255,.72)" stroke-width="3" stroke-linecap="round"/>
+    <circle cx="26" cy="33" r="1.7" fill="rgba(255,255,255,.6)"/>
+    <circle cx="38" cy="33" r="1.7" fill="rgba(255,255,255,.6)"/>
   </svg>`;
 }
 function fcIcon(record) {
@@ -70,19 +98,24 @@ function recordCard(record, index) {
   return `<article class="ar-record skill-row-${skillRank}" data-score-id="${esc(record.score_id)}"${compareAttributes}>
     <div class="ar-no">${String(index + 1).padStart(3,'0')}</div>
     <div class="ar-art">${artwork}</div>
-    <div class="ar-title"><span class="ar-song-name" title="${title}">${title}</span>${pendingBadge}${record.is_hot ? '<span class="ar-hot">HOT</span>' : ''}</div>
-    <div class="ar-part"><span class="p-badge ${getPartColorClass(record.part)}">${esc(record.part)}</span></div>
-    <div class="ar-level">${formatLevel(record.level)}</div>
-    <div class="ar-rate">${formatRate(record.achievement_rate)}%</div>
-    <div class="ar-skill skill-box-${skillRank}">${formatSkill(record.skill)}</div>
-    <div class="ar-option">${option}</div>
-    <div class="ar-fc-cell">${fcIcon(record)}</div>
-    <div class="ar-edit"><button type="button" data-edit="${esc(record.score_id)}" aria-label="${title} を編集" title="編集">✎</button></div>
+    <div class="ar-main">
+      <div class="ar-title"><span class="ar-song-name" title="${title}">${title}</span>${pendingBadge}${record.is_hot ? '<span class="ar-hot">HOT</span>' : ''}</div>
+      <div class="ar-meta">
+        <div class="ar-part"><span class="p-badge ${getPartColorClass(record.part)}">${esc(record.part)}</span></div>
+        <div class="ar-level"><span class="ar-mini-label">Lv</span><strong>${formatLevel(record.level)}</strong></div>
+        <div class="ar-rate"><span class="ar-mini-label">達成率</span><strong>${formatRate(record.achievement_rate)}%</strong></div>
+        <div class="ar-option">${option}</div>
+      </div>
+    </div>
+    <div class="ar-side">
+      <div class="ar-edit"><button type="button" data-edit="${esc(record.score_id)}" aria-label="${title} を編集" title="編集">✎</button></div>
+      <div class="ar-fc-cell">${fcIcon(record)}</div>
+      <div class="ar-skill skill-box-${skillRank}"><span class="dc-skill-value">${formatSkill(record.skill)}</span></div>
+    </div>
   </article>`;
 }
 
 export function renderAdminRegisteredRecords(rows) {
   if (!rows.length) return '';
-  const header = `<div class="ar-table-head" aria-hidden="true"><span>No.</span><span>ジャケット</span><span>曲名</span><span>パート</span><span>Lv</span><span>達成率</span><span>スキル</span><span>オプション</span><span>FC/EXC</span><span>編集</span></div>`;
-  return `<div class="ar-register-view">${header}<div class="ar-record-grid">${rows.map(recordCard).join('')}</div></div>`;
+  return `<div class="ar-register-view"><div class="ar-record-grid">${rows.map(recordCard).join('')}</div></div>`;
 }
