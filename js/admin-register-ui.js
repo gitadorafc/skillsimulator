@@ -169,7 +169,7 @@ function recordCard(record, index, mode = 'RECORDS') {
     <div class="ar-option">${option}</div>
     </div>
     <div class="ar-skill skill-box-${skillRank}"><span class="dc-skill-value">${formatSkill(record.skill)}</span></div>
-    <div class="ar-edit">${mode === 'SKILL' ? '' : `<button type="button" data-edit="${esc(record.score_id)}" aria-label="${title} を編集" title="編集">✎</button>`}</div>
+    <div class="ar-edit">${`<button type="button" data-edit="${esc(record.score_id)}" aria-label="${title} を編集" title="編集">✎</button>`}</div>
   </article>`;
 }
 

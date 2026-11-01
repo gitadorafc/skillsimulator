@@ -2,7 +2,7 @@
 import {
   getSkillColorRowByTotalValue
 } from './skill-colors.js?v=4_14_33';
-import { renderAdminRegisteredRecords, loadAdminRegisteredJackets } from './admin-register-ui.js?v=4_38_29';
+import { renderAdminRegisteredRecords, loadAdminRegisteredJackets } from './admin-register-ui.js?v=4_38_30';
 import {
   createCard,
   getPartColorClass
@@ -4777,7 +4777,7 @@ async function deleteOwnAccount() {
 function updateAdminUiVersion(enabled) {
   const label = document.querySelector('.app-code-version');
   if (!label) return;
-  const adminVersion = document.querySelector('meta[name="admin-ui-version"]')?.content || '4.38.29';
+  const adminVersion = document.querySelector('meta[name="admin-ui-version"]')?.content || '4.38.30';
   label.textContent = `APP VERSION ${enabled ? adminVersion : '4.37.1'}`;
 }
 
@@ -7550,7 +7550,6 @@ requestAnimationFrame(ensureDesktopMenuTree);
 desktopMenuTrigger.addEventListener('click', () => {
   if (document.body.classList.contains('admin-new-ui') && window.matchMedia('(min-width:1100px)').matches) {
     ensureDesktopMenuTree();
-    desktopMenuTree.querySelector('.admin-menu-group > summary')?.focus();
   } else openMenu();
 });
 window.addEventListener('resize', () => {
