@@ -2,7 +2,7 @@
 import {
   getSkillColorRowByTotalValue
 } from './skill-colors.js?v=4_14_33';
-import { renderAdminRegisteredRecords, loadAdminRegisteredJackets } from './admin-register-ui.js?v=4_38_27';
+import { renderAdminRegisteredRecords, loadAdminRegisteredJackets } from './admin-register-ui.js?v=4_38_28';
 import {
   createCard,
   getPartColorClass
@@ -2105,6 +2105,9 @@ async function addAdminSwitchAccount() {
 }
 
 function openMenu() {
+  // On desktop admin, the permanent sidebar is the menu. Never reopen the legacy menu modal
+  // when a child dialog's Back button requests return-to-menu. Preserve its expanded group.
+  if (document.body.classList.contains('admin-new-ui') && window.matchMedia('(min-width:1100px)').matches) return;
   $('menuOfuseSupport')?.classList.remove('hidden');
   $('menuMask').style.display = 'flex';
   loadSongFavorites().catch(error => console.warn('お気に入り名を取得できませんでした:', error));
@@ -4774,7 +4777,7 @@ async function deleteOwnAccount() {
 function updateAdminUiVersion(enabled) {
   const label = document.querySelector('.app-code-version');
   if (!label) return;
-  const adminVersion = document.querySelector('meta[name="admin-ui-version"]')?.content || '4.38.27';
+  const adminVersion = document.querySelector('meta[name="admin-ui-version"]')?.content || '4.38.28';
   label.textContent = `APP VERSION ${enabled ? adminVersion : '4.37.1'}`;
 }
 
@@ -7510,7 +7513,7 @@ function toggleAdminDesktopMenu() {
     button.className = 'admin-menu-tree-item';
     button.textContent = original.textContent.replace(/\s*›\s*$/, '').trim();
     button.addEventListener('click', () => {
-      collapseAdminDesktopMenu();
+      // Keep the sidebar and the selected category expanded across child dialogs.
       original.click();
     });
     current.appendChild(button);
