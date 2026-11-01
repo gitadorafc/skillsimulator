@@ -132,9 +132,7 @@ function bearMedal(type) {
     <circle cx="32" cy="34" r="23" fill="url(#${gradientId})" stroke="url(#${ringId})" stroke-width="2.8"/>
     <circle cx="32" cy="34" r="17" fill="none" stroke="${palette.ring}" stroke-opacity=".9" stroke-width="2.4"/>
     <ellipse cx="32" cy="34" rx="19" ry="16" fill="url(#${shineId})"/>
-    <path d="M22 24 C27 19, 37 19, 42 24" fill="none" stroke="rgba(255,255,255,.72)" stroke-width="3" stroke-linecap="round"/>
-    <circle cx="26" cy="33" r="1.7" fill="rgba(255,255,255,.6)"/>
-    <circle cx="38" cy="33" r="1.7" fill="rgba(255,255,255,.6)"/>
+    <ellipse cx="26" cy="24" rx="11" ry="5" fill="${palette.shine}" opacity=".27" transform="rotate(-27 26 24)"/>
   </svg>`;
 }
 function fcIcon(record) {
