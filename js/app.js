@@ -2,7 +2,7 @@
 import {
   getSkillColorRowByTotalValue
 } from './skill-colors.js?v=4_14_33';
-import { renderAdminRegisteredRecords, loadAdminRegisteredJackets } from './admin-register-ui.js?v=4_38_16';
+import { renderAdminRegisteredRecords, loadAdminRegisteredJackets } from './admin-register-ui.js?v=4_38_17';
 import {
   createCard,
   getPartColorClass
@@ -4774,7 +4774,7 @@ async function deleteOwnAccount() {
 function updateAdminUiVersion(enabled) {
   const label = document.querySelector('.app-code-version');
   if (!label) return;
-  const adminVersion = document.querySelector('meta[name="admin-ui-version"]')?.content || '4.38.16';
+  const adminVersion = document.querySelector('meta[name="admin-ui-version"]')?.content || '4.38.17';
   label.textContent = `APP VERSION ${enabled ? adminVersion : '4.37.1'}`;
 }
 
@@ -7714,6 +7714,31 @@ $('songCatalogPager').addEventListener('change', event => {
   scrollSongCatalogToTop();
 });
 $('btnCloseOfficialSkillRanking').addEventListener('click', () => closeOfficialSkillRanking(true));
+// Admin-only registered-score filter popover. Public UI remains unchanged.
+const adminFilterButton = $('btnAdminRecordFilters');
+const adminFilterArea = $('searchArea');
+const setAdminFilterOpen = (open) => {
+  if (!adminFilterArea || !adminFilterButton) return;
+  adminFilterArea.classList.toggle('admin-filters-expanded', open);
+  adminFilterButton.setAttribute('aria-expanded', String(open));
+  adminFilterButton.setAttribute('aria-label', open ? 'フィルタを閉じる' : 'フィルタを開く');
+};
+adminFilterButton?.addEventListener('click', (event) => {
+  event.stopPropagation();
+  setAdminFilterOpen(!adminFilterArea.classList.contains('admin-filters-expanded'));
+});
+document.addEventListener('pointerdown', (event) => {
+  if (adminFilterArea?.classList.contains('admin-filters-expanded') && !adminFilterArea.contains(event.target)) {
+    setAdminFilterOpen(false);
+  }
+});
+document.addEventListener('keydown', (event) => {
+  if (event.key === 'Escape' && adminFilterArea?.classList.contains('admin-filters-expanded')) {
+    setAdminFilterOpen(false);
+    adminFilterButton?.focus();
+  }
+});
+
 $('officialSkillRankingMask').addEventListener('click', event => {
   if (event.target === $('officialSkillRankingMask')) closeOfficialSkillRanking();
 });
