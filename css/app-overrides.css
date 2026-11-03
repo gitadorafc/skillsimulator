@@ -1852,7 +1852,7 @@ body.light-mode .sync-mini-toolbar{
 
 /* === APP VERSION 3.13.0: 表示カスタマイズ === */
 
-:is(#viewSkill,#userDetailSkill) .sk-section h2{
+:is(body:not(.admin-new-ui) #viewSkill,#userDetailSkill) .sk-section h2{
   min-height:30px;
   display:flex;
   align-items:center;
@@ -1863,10 +1863,10 @@ body.light-mode .sync-mini-toolbar{
   color:#0b1020 !important;
   font-size:12px !important;
 }
-:is(#viewSkill,#userDetailSkill) .skill-hot-section h2{
+ :is(body:not(.admin-new-ui) #viewSkill, #userDetailSkill) .skill-hot-section h2{
   background:#e94b88 !important;
 }
-:is(#viewSkill,#userDetailSkill) .skill-other-section h2{
+ :is(body:not(.admin-new-ui) #viewSkill, #userDetailSkill) .skill-other-section h2{
   background:#83c63d !important;
 }
 
@@ -1899,7 +1899,7 @@ body.text-size-up :is(.howto-body p,.feedback-body,.support-dialog-body,.skill-s
   font-size:15px !important;
 }
 @media(max-width:700px){
-  body.text-size-up.skill-target-columns :is(#viewSkill,#userDetailSkill) .sk-section h2{
+  body.text-size-up.skill-target-columns :is(body:not(.admin-new-ui) #viewSkill,#userDetailSkill) .sk-section h2{
     font-size:13px !important;
   }
 }
