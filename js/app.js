@@ -2,7 +2,7 @@
 import {
   getSkillColorRowByTotalValue
 } from './skill-colors.js?v=4_14_33';
-import { renderAdminRegisteredRecords, loadAdminRegisteredJackets } from './admin-register-ui.js?v=4_38_8';
+import { renderAdminRegisteredRecords, loadAdminRegisteredJackets } from './admin-register-ui.js?v=4_38_34';
 import {
   createCard,
   getPartColorClass
@@ -2105,6 +2105,9 @@ async function addAdminSwitchAccount() {
 }
 
 function openMenu() {
+  // On desktop admin, the permanent sidebar is the menu. Never reopen the legacy menu modal
+  // when a child dialog's Back button requests return-to-menu. Preserve its expanded group.
+  if (document.body.classList.contains('admin-new-ui') && window.matchMedia('(min-width:1100px)').matches) return;
   $('menuOfuseSupport')?.classList.remove('hidden');
   $('menuMask').style.display = 'flex';
   loadSongFavorites().catch(error => console.warn('お気に入り名を取得できませんでした:', error));
@@ -3569,10 +3572,10 @@ function renderSkill() {
 
   $('viewSkill').innerHTML = `
     <div class="sk-section skill-hot-section"><h2>HOT Top25</h2><div class="list-container">
-      ${target.hotRows.map((r,i) => createCard(r,i+1,'SKILL')).join('') || '<div class="empty-state">まだ登録がありません</div>'}
+      ${(document.body.classList.contains('admin-new-ui') ? renderAdminRegisteredRecords(target.hotRows, 'SKILL') : target.hotRows.map((r,i) => createCard(r,i+1,'SKILL')).join('')) || '<div class="empty-state">まだ登録がありません</div>'}
     </div></div>
     <div class="sk-section skill-other-section"><h2>OTHER Top25</h2><div class="list-container">
-      ${target.otherRows.map((r,i) => createCard(r,i+1,'SKILL')).join('') || '<div class="empty-state">まだ登録がありません</div>'}
+      ${(document.body.classList.contains('admin-new-ui') ? renderAdminRegisteredRecords(target.otherRows, 'SKILL') : target.otherRows.map((r,i) => createCard(r,i+1,'SKILL')).join('')) || '<div class="empty-state">まだ登録がありません</div>'}
     </div></div>`;
 }
 
@@ -4774,7 +4777,7 @@ async function deleteOwnAccount() {
 function updateAdminUiVersion(enabled) {
   const label = document.querySelector('.app-code-version');
   if (!label) return;
-  const adminVersion = document.querySelector('meta[name="admin-ui-version"]')?.content || '4.38.8';
+  const adminVersion = document.querySelector('meta[name="admin-ui-version"]')?.content || '4.38.34';
   label.textContent = `APP VERSION ${enabled ? adminVersion : '4.37.1'}`;
 }
 
@@ -4793,7 +4796,8 @@ async function checkAdminAccess() {
   document.body.classList.remove('admin-responsive-preview');
   document.body.classList.toggle('admin-new-ui', adminNewUi);
   updateAdminUiVersion(adminNewUi);
-  if (adminNewUi) void loadAdminRegisteredJackets(supabase).then(() => { if (activeTabName === 'RECORDS') renderManage(); });
+  if (adminNewUi) requestAnimationFrame(ensureDesktopMenuTree);
+  if (adminNewUi) void loadAdminRegisteredJackets(supabase).then(() => { if (activeTabName === 'RECORDS') renderManage(); else if (activeTabName === 'SKILL') renderSkill(); });
   $('btnAdmin').classList.toggle('hidden', !adminEnabled);
   const skillSyncButton = $('btnMenuSkillSync');
   if (skillSyncButton) {
@@ -5018,27 +5022,91 @@ function isMobileAdminMaster() {
 }
 
 let editingJacketTitle = '';
-function jacketPreview() {
-  const preview = $('adminJacketPreview');
-  const url = $('adminJacketUrl').value.trim();
-  preview.style.display = /^https:\/\//i.test(url) ? 'block' : 'none';
-  if (preview.style.display !== 'none') preview.src = url;
+let jacketPreviewObjectUrl = null;
+let jacketPreviewCandidates = [];
+let jacketPreviewIndex = 0;
+let jacketManifestPromise = null;
+let jacketModalSequence = 0;
+
+function normalizeJacketTitle(title) {
+  return String(title || '').normalize('NFKC').replace(/\u301c/g, '\uff5e')
+    .replace(/[\s\u3000]+/g, ' ').trim();
 }
-function openAdminJacket(row) {
+function getJacketManifest() {
+  if (!jacketManifestPromise) {
+    jacketManifestPromise = fetch('./assets/jackets/manifest.json', {cache:'no-cache'})
+      .then(response => {
+        if (!response.ok) throw new Error(`manifest HTTP ${response.status}`);
+        return response.json();
+      }).catch(error => { jacketManifestPromise = null; console.warn('[admin jackets] manifest:', error); return null; });
+  }
+  return jacketManifestPromise;
+}
+function disposeJacketPreviewObjectUrl() {
+  if (jacketPreviewObjectUrl) URL.revokeObjectURL(jacketPreviewObjectUrl);
+  jacketPreviewObjectUrl = null;
+}
+function setJacketPreviewCandidates(urls) {
+  jacketPreviewCandidates = [...new Set(urls.filter(Boolean))];
+  jacketPreviewIndex = 0;
+  const preview = $('adminJacketPreview');
+  preview.style.display = jacketPreviewCandidates.length ? 'block' : 'none';
+  if (jacketPreviewCandidates.length) preview.src = jacketPreviewCandidates[0];
+  else preview.removeAttribute('src');
+}
+function jacketPreview() {
+  disposeJacketPreviewObjectUrl();
+  const url = $('adminJacketUrl').value.trim();
+  setJacketPreviewCandidates(/^https:\/\//i.test(url) ? [url] : []);
+}
+async function openAdminJacket(row) {
   if (!row) return;
+  const sequence = ++jacketModalSequence;
   editingJacketTitle = row.title;
   $('adminJacketTitle').textContent = row.title;
   $('adminJacketUrl').value = row.jacket_image_url || '';
   $('adminJacketFile').value = '';
   $('adminJacketError').textContent = '';
-  const preview = $('adminJacketPreview');
+  disposeJacketPreviewObjectUrl();
   const path = row.jacket_storage_path;
-  const url = path ? supabase.storage.from('song-jackets').getPublicUrl(path).data.publicUrl : row.jacket_image_url;
-  preview.style.display = url ? 'block' : 'none';
-  if (url) preview.src = url;
+  const storageUrl = path ? supabase.storage.from('song-jackets').getPublicUrl(path).data.publicUrl : '';
+  const legacyUrl = row.jacket_image_url || '';
+  // A manually uploaded image should win over the old Pages image.
+  setJacketPreviewCandidates([storageUrl, legacyUrl]);
   $('adminJacketMask').style.display = 'flex';
+  const manifest = await getJacketManifest();
+  if (sequence !== jacketModalSequence || editingJacketTitle !== row.title || $('adminJacketFile').files?.length) return;
+  const normalizedTitle = normalizeJacketTitle(row.title);
+  const filename = manifest?.titles && Object.entries(manifest.titles).find(
+    ([title]) => normalizeJacketTitle(title) === normalizedTitle
+  )?.[1];
+  const pagesUrl = typeof filename === 'string' && /^[a-f0-9]{24}\.webp$/.test(filename)
+    ? new URL(`./assets/jackets/${filename}`, document.baseURI).href : '';
+  setJacketPreviewCandidates([storageUrl, pagesUrl, legacyUrl]);
 }
-function closeAdminJacket() { $('adminJacketMask').style.display = 'none'; editingJacketTitle = ''; }
+function closeAdminJacket() {
+  ++jacketModalSequence;
+  $('adminJacketMask').style.display = 'none';
+  editingJacketTitle = '';
+  disposeJacketPreviewObjectUrl();
+  setJacketPreviewCandidates([]);
+}
+async function toWebpJacket(file) {
+  const bitmap = await createImageBitmap(file);
+  try {
+    const maxSide = 256;
+    const scale = Math.min(1, maxSide / Math.max(bitmap.width, bitmap.height));
+    const canvas = document.createElement('canvas');
+    canvas.width = Math.max(1, Math.round(bitmap.width * scale));
+    canvas.height = Math.max(1, Math.round(bitmap.height * scale));
+    const context = canvas.getContext('2d');
+    if (!context) throw new Error('画像変換を開始できません。');
+    context.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+    const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/webp', .82));
+    if (!blob || blob.type !== 'image/webp') throw new Error('WebP変換に失敗しました。');
+    return blob;
+  } finally { bitmap.close(); }
+}
 async function persistAdminJacket(clear = false) {
   const save = $('adminJacketSave');
   const clearButton = $('adminJacketClear');
@@ -5053,9 +5121,9 @@ async function persistAdminJacket(clear = false) {
   try {
     let storagePath = null;
     if (!clear && file) {
-      const ext = file.type === 'image/png' ? 'png' : file.type === 'image/webp' ? 'webp' : 'jpg';
-      storagePath = `master/${crypto.randomUUID()}.${ext}`;
-      const uploaded = await supabase.storage.from('song-jackets').upload(storagePath, file, {contentType:file.type,upsert:false,cacheControl:'31536000'});
+      const converted = await toWebpJacket(file);
+      storagePath = `master/${crypto.randomUUID()}.webp`;
+      const uploaded = await supabase.storage.from('song-jackets').upload(storagePath, converted, {contentType:'image/webp',upsert:false,cacheControl:'31536000'});
       if (uploaded.error) throw uploaded.error;
     }
     const {error} = await supabase.rpc('admin_save_song_jacket', {p_title:title,p_image_url:clear || file ? null : (url || null),p_storage_path:storagePath,p_clear:clear});
@@ -5065,6 +5133,27 @@ async function persistAdminJacket(clear = false) {
   } catch(e) { $('adminJacketError').textContent = '保存失敗: ' + (e.message || e); }
   finally { save.disabled = false; clearButton.disabled = false; }
 }
+$('adminJacketPreview')?.addEventListener('load', () => {
+  if ($('adminJacketError').textContent === 'プレビュー画像を読み込めません。') $('adminJacketError').textContent = '';
+});
+$('adminJacketPreview')?.addEventListener('error', () => {
+  if (++jacketPreviewIndex < jacketPreviewCandidates.length) {
+    $('adminJacketPreview').src = jacketPreviewCandidates[jacketPreviewIndex];
+  } else {
+    $('adminJacketPreview').style.display = 'none';
+    $('adminJacketPreview').removeAttribute('src');
+    $('adminJacketError').textContent = 'プレビュー画像を読み込めません。';
+  }
+});
+$('adminJacketFile')?.addEventListener('change', event => {
+  const file = event.target.files?.[0];
+  disposeJacketPreviewObjectUrl();
+  $('adminJacketError').textContent = '';
+  if (file && ['image/jpeg','image/png','image/webp'].includes(file.type)) {
+    jacketPreviewObjectUrl = URL.createObjectURL(file);
+    setJacketPreviewCandidates([jacketPreviewObjectUrl]);
+  } else jacketPreview();
+});
 $('adminJacketCancel')?.addEventListener('click', closeAdminJacket);
 $('adminJacketSave')?.addEventListener('click', () => persistAdminJacket(false));
 $('adminJacketClear')?.addEventListener('click', () => persistAdminJacket(true));
@@ -7393,7 +7482,89 @@ document.addEventListener('click', async e => {
 
 $('btnIntroLogin').addEventListener('click', () => { showAuth('login').catch(console.error); });
 $('btnIntroRegister').addEventListener('click', () => { showAuth('register').catch(console.error); });
-$('btnMenu').addEventListener('click', openMenu);
+// PC admin: show existing menu entries as a nested sidebar tree instead of a second modal.
+const desktopMenuTrigger = $('btnMenu');
+const desktopMenuTree = $('adminDesktopMenuTree');
+function collapseAdminDesktopMenu() {
+  if (!desktopMenuTree) return;
+  desktopMenuTree.hidden = true;
+  desktopMenuTrigger.setAttribute('aria-expanded', 'false');
+  document.body.classList.remove('admin-desktop-menu-open');
+}
+const adminDesktopMenuLabels = ['アカウント設定','スキル機能','曲データ','ヘルプ・運営'];
+function toggleAdminDesktopMenu() {
+  if (!desktopMenuTree) return;
+  const oldOpen = new Set([...desktopMenuTree.querySelectorAll('details[open] summary')].map(e=>e.textContent));
+  const source = $('menuMask')?.querySelector('.app-menu-sheet');
+  desktopMenuTree.replaceChildren();
+  const caption = document.createElement('div');
+  caption.className = 'admin-desktop-menu-caption';
+  caption.textContent = 'メニュー';
+  desktopMenuTree.appendChild(caption);
+  const groups = adminDesktopMenuLabels.map(label => {
+    const details = document.createElement('details');
+    details.className = 'admin-menu-group';
+    const summary = document.createElement('summary');
+    summary.textContent = label;
+    details.appendChild(summary);
+    details.open = oldOpen.has(label);
+    desktopMenuTree.appendChild(details);
+    return details;
+  });
+  let current = groups[0];
+  const sectionIndex = label => {
+    const s = label.replace(/\s/g,'');
+    if (/アカウント|設定/.test(s)) return 0;
+    if (/スキル|ランキング|ライバル/.test(s)) return 1;
+    if (/曲|楽曲|お気に入り|データ/.test(s)) return 2;
+    if (/ヘルプ|運営|サポート|使い方/.test(s)) return 3;
+    return -1;
+  };
+  const addButton = original => {
+    if (!original || original.classList.contains('hidden')) return;
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'admin-menu-tree-item';
+    button.textContent = original.textContent.replace(/\s*›\s*$/, '').trim();
+    button.addEventListener('click', () => original.click());
+    current.appendChild(button);
+  };
+  if (source) for (const element of source.children) {
+    if (element.classList.contains('app-menu-group-label')) {
+      const index = sectionIndex(element.textContent.trim());
+      if (index >= 0) current = groups[index];
+    } else if (element.classList.contains('app-menu-item')) addButton(element);
+    else if (element.id === 'skillSyncMenuSlot' || element.id === 'songCatalogMenuGroup') {
+      if (element.classList.contains('hidden')) continue;
+      for (const child of element.children) {
+        if (child.classList.contains('app-menu-group-label')) {
+          const index = sectionIndex(child.textContent.trim());
+          if (index >= 0) current = groups[index];
+        } else if (child.classList.contains('app-menu-item')) addButton(child);
+      }
+    }
+  }
+  desktopMenuTree.hidden = false;
+  document.body.classList.add('admin-desktop-menu-open');
+  desktopMenuTrigger.setAttribute('aria-expanded','true');
+}
+// On PC the sidebar is navigation, not an additional modal layer.
+function ensureDesktopMenuTree() {
+  if (!desktopMenuTree || !document.body.classList.contains('admin-new-ui') || !window.matchMedia('(min-width:1100px)').matches) return;
+  if (!desktopMenuTree.querySelector(".admin-menu-group") || (!desktopMenuTree.querySelector(".admin-menu-tree-item") && $("menuMask")?.querySelector(".app-menu-item"))) toggleAdminDesktopMenu();
+  desktopMenuTree.hidden = false;
+  document.body.classList.add('admin-desktop-menu-open');
+  desktopMenuTrigger.setAttribute('aria-expanded', 'true');
+}
+desktopMenuTrigger.addEventListener('click', () => {
+  if (document.body.classList.contains('admin-new-ui') && window.matchMedia('(min-width:1100px)').matches) {
+    ensureDesktopMenuTree();
+  } else openMenu();
+});
+window.addEventListener('resize', () => {
+  if (!window.matchMedia('(min-width:1100px)').matches) collapseAdminDesktopMenu();
+  else ensureDesktopMenuTree();
+});
 $('btnRefreshApp').addEventListener('click', () => window.location.reload());
 $('btnCloseMenu').addEventListener('click', closeMenu);
 $('menuMask').addEventListener('click', e => { if (e.target === $('menuMask')) closeMenu(); });
@@ -7629,6 +7800,31 @@ $('songCatalogPager').addEventListener('change', event => {
   scrollSongCatalogToTop();
 });
 $('btnCloseOfficialSkillRanking').addEventListener('click', () => closeOfficialSkillRanking(true));
+// Admin-only registered-score filter popover. Public UI remains unchanged.
+const adminFilterButton = $('btnAdminRecordFilters');
+const adminFilterArea = $('searchArea');
+const setAdminFilterOpen = (open) => {
+  if (!adminFilterArea || !adminFilterButton) return;
+  adminFilterArea.classList.toggle('admin-filters-expanded', open);
+  adminFilterButton.setAttribute('aria-expanded', String(open));
+  adminFilterButton.setAttribute('aria-label', open ? 'フィルタを閉じる' : 'フィルタを開く');
+};
+adminFilterButton?.addEventListener('click', (event) => {
+  event.stopPropagation();
+  setAdminFilterOpen(!adminFilterArea.classList.contains('admin-filters-expanded'));
+});
+document.addEventListener('pointerdown', (event) => {
+  if (adminFilterArea?.classList.contains('admin-filters-expanded') && !adminFilterArea.contains(event.target)) {
+    setAdminFilterOpen(false);
+  }
+});
+document.addEventListener('keydown', (event) => {
+  if (event.key === 'Escape' && adminFilterArea?.classList.contains('admin-filters-expanded')) {
+    setAdminFilterOpen(false);
+    adminFilterButton?.focus();
+  }
+});
+
 $('officialSkillRankingMask').addEventListener('click', event => {
   if (event.target === $('officialSkillRankingMask')) closeOfficialSkillRanking();
 });

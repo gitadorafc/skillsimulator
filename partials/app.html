@@ -73,6 +73,7 @@
 
 <div id="appScreen" class="hidden">
   <div class="p-header">
+    <div class="admin-desktop-title" aria-hidden="true">GITADORA Skill Simulator</div>
     <div class="user-header-row">
       <div class="header-mode-controls">
         <div class="instrument-switch" aria-label="ゲーム切替"><button class="instrument-btn active" data-instrument="GF">GF</button><button class="instrument-btn" data-instrument="DM">DM</button></div>
@@ -90,6 +91,7 @@
       <div class="score-cell border-r"><span class="score-lbl">HOT</span><span id="txtHotTotal" class="score-val">0.00</span></div>
       <div class="score-cell"><span class="score-lbl">OTHER</span><span id="txtOtherTotal" class="score-val">0.00</span></div>
     </div>
+    <div id="adminDesktopMenuTree" class="admin-desktop-menu-tree" aria-label="メニューの項目" hidden></div>
     <div class="p-tabs">
       <div class="p-tab-btn active" data-tab="SKILL">スキル対象</div>
       <div class="p-tab-btn" data-tab="RECORDS">登録</div>
@@ -106,14 +108,10 @@
     <div id="searchArea" class="search-bar-container hidden">
       <div class="record-search-row">
         <input id="domSearch" class="search-input" placeholder="登録済みの曲を検索...">
-        <button id="btnHeaderAdd" class="btn-add-inline">＋ 登録</button>
+        <button id="btnHeaderAdd" class="btn-add-inline" aria-label="曲を登録" title="曲を登録">＋</button>
+        <button id="btnAdminRecordFilters" type="button" aria-controls="recordFilterRow" aria-expanded="false" aria-label="フィルタを開く" title="フィルタ"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16l-6.5 7.4V19l-3 1.5v-8.1L4 5Z"/></svg></button>
       </div>
-      <div id="adminBulkDeleteArea" class="admin-bulk-delete-area hidden">
-        <button id="btnAdminBulkDeleteScores" type="button" class="admin-bulk-delete-btn">
-          登録曲を一括削除
-        </button>
-      </div>
-      <div class="record-filter-row">
+      <div class="record-filter-row" id="recordFilterRow">
         <label id="recordTypeFilterField" class="record-type-filter-field">
           <span>種別</span>
           <select id="recordTypeFilter" aria-label="種別フィルタ">
