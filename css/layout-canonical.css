@@ -74,7 +74,7 @@ body.app-scroll-layout .user-list-header-slot :is(
   box-shadow:none !important;
   filter:none !important;
 }
-body.app-scroll-layout .user-list-header-slot .users-toolbar{
+body.app-scroll-layout:not(.admin-new-ui) .user-list-header-slot .users-toolbar{
   display:block !important;
   position:relative !important;
   top:auto !important;
@@ -82,7 +82,7 @@ body.app-scroll-layout .user-list-header-slot .users-toolbar{
   padding:0 0 5px !important;
   margin:0 !important;
 }
-body.app-scroll-layout .user-list-header-slot .user-list-sort-controls{
+body.app-scroll-layout:not(.admin-new-ui) .user-list-header-slot .user-list-sort-controls{
   position:relative !important;
   top:auto !important;
   z-index:auto !important;
@@ -98,7 +98,7 @@ body.app-scroll-layout .user-list-header-slot .user-list-sort-controls{
   border-radius:7px;
   box-sizing:border-box;
 }
-body.app-scroll-layout .user-list-header-slot .user-list-sort-field{
+body.app-scroll-layout:not(.admin-new-ui) .user-list-header-slot .user-list-sort-field{
   display:grid;
   grid-template-columns:auto max-content !important;
   align-items:center;
@@ -110,7 +110,7 @@ body.app-scroll-layout .user-list-header-slot .user-list-sort-field{
   font-weight:900;
   white-space:nowrap;
 }
-body.app-scroll-layout .user-list-header-slot .user-list-sort-field select{
+body.app-scroll-layout:not(.admin-new-ui) .user-list-header-slot .user-list-sort-field select{
   min-width:0;
   height:34px;
   min-height:34px;
@@ -123,11 +123,11 @@ body.app-scroll-layout .user-list-header-slot .user-list-sort-field select{
   font-size:11px;
   font-weight:900;
 }
-body.app-scroll-layout .user-list-header-slot #userListSortKey{
+body.app-scroll-layout:not(.admin-new-ui) .user-list-header-slot #userListSortKey{
   width:calc(8.5em + 42px) !important;
   padding-right:34px !important;
 }
-body.app-scroll-layout .user-list-header-slot #userListSortDirection{
+body.app-scroll-layout:not(.admin-new-ui) .user-list-header-slot #userListSortDirection{
   width:calc(4em + 42px) !important;
   padding-right:34px !important;
 }
@@ -172,15 +172,15 @@ body.light-mode.app-scroll-layout .user-list-header-slot .user-list-sort-field{
   color:#64748b !important;
 }
 @media(max-width:430px){
-  body.app-scroll-layout .user-list-header-slot .user-list-sort-controls{
+  body.app-scroll-layout:not(.admin-new-ui) .user-list-header-slot .user-list-sort-controls{
     gap:5px;
     padding:4px 5px;
   }
-  body.app-scroll-layout .user-list-header-slot .user-list-sort-field{
+  body.app-scroll-layout:not(.admin-new-ui) .user-list-header-slot .user-list-sort-field{
     gap:4px;
     font-size:8px;
   }
-  body.app-scroll-layout .user-list-header-slot .user-list-sort-field select{
+  body.app-scroll-layout:not(.admin-new-ui) .user-list-header-slot .user-list-sort-field select{
     height:32px;
     min-height:32px;
     padding-left:6px;

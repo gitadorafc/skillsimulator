@@ -1162,6 +1162,7 @@ function syncUserListHeaderVisibility() {
   const visible = document.body.classList.contains('app-scroll-layout') &&
     activeTabName === 'USERS';
   slot.classList.toggle('hidden', !visible);
+  if (!visible) setAdminUserFilterOpen(false);
 }
 
 function applyAppScrollLayout(enabled) {
@@ -4779,7 +4780,7 @@ async function deleteOwnAccount() {
 function updateAdminUiVersion(enabled) {
   const label = document.querySelector('.app-code-version');
   if (!label) return;
-  const adminVersion = document.querySelector('meta[name="admin-ui-version"]')?.content || '4.38.40';
+  const adminVersion = document.querySelector('meta[name="admin-ui-version"]')?.content || '4.38.41';
   label.textContent = `APP VERSION ${enabled ? adminVersion : '4.37.1'}`;
   const desktopLabel = $('adminDesktopAppVersion');
   if (desktopLabel) desktopLabel.textContent = label.textContent;
@@ -7039,6 +7040,31 @@ let userSearchTimer = null;
 $('userSearch').addEventListener('input', () => {
   clearTimeout(userSearchTimer);
   userSearchTimer = setTimeout(() => loadUsers({ resetPage: true }), 250);
+});
+
+// Admin UI only: user-list sorting uses the same icon popover pattern as registered songs.
+const adminUserFilterSlot = $('userListHeaderSlot');
+const adminUserFilterButton = $('btnAdminUserFilters');
+function setAdminUserFilterOpen(open) {
+  if (!adminUserFilterSlot || !adminUserFilterButton) return;
+  adminUserFilterSlot.classList.toggle('admin-user-filters-expanded', open);
+  adminUserFilterButton.setAttribute('aria-expanded', String(open));
+  adminUserFilterButton.setAttribute('aria-label', open ? 'フィルタを閉じる' : 'フィルタを開く');
+}
+adminUserFilterButton?.addEventListener('click', event => {
+  event.stopPropagation();
+  setAdminUserFilterOpen(!adminUserFilterSlot.classList.contains('admin-user-filters-expanded'));
+});
+document.addEventListener('pointerdown', event => {
+  if (adminUserFilterSlot?.classList.contains('admin-user-filters-expanded') && !adminUserFilterSlot.contains(event.target)) {
+    setAdminUserFilterOpen(false);
+  }
+});
+document.addEventListener('keydown', event => {
+  if (event.key === 'Escape' && adminUserFilterSlot?.classList.contains('admin-user-filters-expanded')) {
+    setAdminUserFilterOpen(false);
+    adminUserFilterButton?.focus();
+  }
 });
 
 $('userListSortKey')?.addEventListener('change', event => {
