@@ -843,7 +843,7 @@ body.skill-target-columns #viewAllManage .dc-card-manage .dc-edit .m-action-btn 
   line-height: 1 !important;
 }
 
-body.skill-target-columns #viewAllManage:not(.hidden),
+body.skill-target-columns:not(.admin-new-ui) #viewAllManage:not(.hidden),
 body.skill-target-columns #userDetailRecords .list-container {
   display: grid !important;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
