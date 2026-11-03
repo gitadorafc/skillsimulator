@@ -192,6 +192,21 @@ body.admin-new-ui #btnHeaderAdd{min-width:48px;white-space:nowrap;}
  body.admin-new-ui .admin-menu-group[open]>summary {background:#263e59;border-bottom:1px solid #405772;}
  body.admin-new-ui .admin-menu-tree-item {display:block;width:100%;padding:9px 10px;border:0;border-top:1px solid #30445c;background:transparent;color:#e2eaf5;text-align:left;cursor:pointer;font-size:12px;}
  body.admin-new-ui .admin-menu-tree-item:hover {background:#284a75;}
+ body.admin-new-ui .admin-desktop-version-area {
+   display:flex;flex-direction:column;gap:8px;margin-top:16px;padding:12px 5px 10px;
+   border-top:1px solid #30445c;min-width:0;
+ }
+ body.admin-new-ui .admin-desktop-version-area>label {
+   color:#a8c4dc;font-size:11px;font-weight:750;
+ }
+ body.admin-new-ui .admin-desktop-version-select {
+   display:block;width:100%;min-width:0;max-width:100%;box-sizing:border-box;
+   background:#0f1d30;color:#e1ecfc;border:1px solid #405772;
+   border-radius:5px;padding:9px 6px;font:inherit;font-size:12px;
+ }
+ body.admin-new-ui .admin-desktop-app-version {
+   color:#9bb4ca;font-size:11px;overflow-wrap:anywhere;
+ }
  body.admin-new-ui #appScreen>.p-header>.score-row,
  body.admin-new-ui #appScreen>.p-header>.p-tabs,
  body.admin-new-ui #appScreen>.p-header>#searchArea,

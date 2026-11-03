@@ -1801,6 +1801,7 @@ async function loadGameVersionOptions() {
     .join('');
   $('versionSelect').value = activeVersionId;
   updateActiveVersionLabel();
+  syncAdminDesktopVersion();
 }
 
 function updateActiveVersionLabel() {
@@ -1819,6 +1820,7 @@ async function switchGameVersion(versionId) {
   activeVersionId = next.id;
   localStorage.setItem('gitadora_version_id', activeVersionId);
   updateActiveVersionLabel();
+  syncAdminDesktopVersion();
 
   selectedSong = null;
   editingScoreId = null;
@@ -4777,8 +4779,10 @@ async function deleteOwnAccount() {
 function updateAdminUiVersion(enabled) {
   const label = document.querySelector('.app-code-version');
   if (!label) return;
-  const adminVersion = document.querySelector('meta[name="admin-ui-version"]')?.content || '4.38.39';
+  const adminVersion = document.querySelector('meta[name="admin-ui-version"]')?.content || '4.38.40';
   label.textContent = `APP VERSION ${enabled ? adminVersion : '4.37.1'}`;
+  const desktopLabel = $('adminDesktopAppVersion');
+  if (desktopLabel) desktopLabel.textContent = label.textContent;
 }
 
 /* ---------- 管理者 ---------- */
@@ -7492,15 +7496,16 @@ function collapseAdminDesktopMenu() {
   document.body.classList.remove('admin-desktop-menu-open');
 }
 const adminDesktopMenuLabels = ['アカウント設定','スキル機能','曲データ','ヘルプ・運営'];
-// PC sidebar accordion: only one category may stay expanded.
-// A capture listener handles native <details> toggle without altering menu actions.
-desktopMenuTree?.addEventListener('toggle', event => {
-  const openedGroup = event.target;
-  if (!openedGroup?.matches?.('details.admin-menu-group') || !openedGroup.open) return;
-  for (const other of desktopMenuTree.querySelectorAll('details.admin-menu-group[open]')) {
-    if (other !== openedGroup) other.open = false;
-  }
-}, true);
+// Synchronize the dedicated desktop selector with the existing version picker.
+function syncAdminDesktopVersion() {
+  const select = $('adminDesktopVersionSelect');
+  if (!select) return;
+  const original = $('versionSelect');
+  select.innerHTML = original?.innerHTML || '';
+  select.value = activeVersionId || '';
+  const label = $('adminDesktopAppVersion');
+  if (label) label.textContent = document.querySelector('.app-code-version')?.textContent || '';
+}
 function toggleAdminDesktopMenu() {
   if (!desktopMenuTree) return;
   const previousOpen = desktopMenuTree.querySelector('details.admin-menu-group[open] > summary')?.textContent;
@@ -7516,6 +7521,16 @@ function toggleAdminDesktopMenu() {
     const summary = document.createElement('summary');
     summary.textContent = label;
     details.appendChild(summary);
+    // Close the previous section before opening the next, synchronously on click.
+    // The native asynchronous `toggle` event caused a visible two-open flash.
+    summary.addEventListener('click', event => {
+      event.preventDefault();
+      const openNext = !details.open;
+      for (const group of desktopMenuTree.querySelectorAll('details.admin-menu-group[open]')) {
+        group.open = false;
+      }
+      if (openNext) details.open = true;
+    });
     details.open = previousOpen === label;
     desktopMenuTree.appendChild(details);
     return details;
@@ -7553,6 +7568,28 @@ function toggleAdminDesktopMenu() {
       }
     }
   }
+  const versionArea = document.createElement('div');
+  versionArea.className = 'admin-desktop-version-area';
+  const versionLabel = document.createElement('label');
+  versionLabel.htmlFor = 'adminDesktopVersionSelect';
+  versionLabel.textContent = 'VERSION';
+  const desktopVersionSelect = document.createElement('select');
+  desktopVersionSelect.id = 'adminDesktopVersionSelect';
+  desktopVersionSelect.className = 'admin-desktop-version-select';
+  desktopVersionSelect.setAttribute('aria-label', 'GITADORAバージョン切り替え');
+  desktopVersionSelect.addEventListener('change', () => {
+    // Use the existing version change event, including its data refresh semantics.
+    const original = $('versionSelect');
+    if (!original) return;
+    original.value = desktopVersionSelect.value;
+    original.dispatchEvent(new Event('change', { bubbles: true }));
+  });
+  const appVersionLabel = document.createElement('div');
+  appVersionLabel.id = 'adminDesktopAppVersion';
+  appVersionLabel.className = 'admin-desktop-app-version';
+  versionArea.append(versionLabel, desktopVersionSelect, appVersionLabel);
+  desktopMenuTree.appendChild(versionArea);
+  syncAdminDesktopVersion();
   desktopMenuTree.hidden = false;
   document.body.classList.add('admin-desktop-menu-open');
   desktopMenuTrigger.setAttribute('aria-expanded','true');
