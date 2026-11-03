@@ -2,7 +2,7 @@
 import {
   getSkillColorRowByTotalValue
 } from './skill-colors.js?v=4_14_33';
-import { renderAdminRegisteredRecords, loadAdminRegisteredJackets } from './admin-register-ui.js?v=4_38_39';
+import { renderAdminRegisteredRecords, loadAdminRegisteredJackets } from './admin-register-ui.js?v=4_38_42';
 import {
   createCard,
   getPartColorClass
@@ -3680,7 +3680,12 @@ function renderManage() {
 
   $('viewAllManage').innerHTML =
     ((document.body.classList.contains('admin-new-ui')
-      ? renderAdminRegisteredRecords(visibleRows)
+      ? (document.body.classList.contains('skill-target-columns')
+        ? `<div class="admin-records-two-column">`
+          + `<section class="admin-records-pane hot"><h2>HOT</h2>${renderAdminRegisteredRecords(visibleRows.filter(row => Boolean(row.is_hot))) || '<div class="empty-state">登録曲なし</div>'}</section>`
+          + `<section class="admin-records-pane other"><h2>OTHER</h2>${renderAdminRegisteredRecords(visibleRows.filter(row => !row.is_hot)) || '<div class="empty-state">登録曲なし</div>'}</section>`
+          + `</div>`
+        : renderAdminRegisteredRecords(visibleRows))
       : renderRegisteredCardList(visibleRows)) ||
       '<div class="empty-state">条件に一致する登録データがありません</div>') +
     (hasMore ? `
@@ -4780,7 +4785,7 @@ async function deleteOwnAccount() {
 function updateAdminUiVersion(enabled) {
   const label = document.querySelector('.app-code-version');
   if (!label) return;
-  const adminVersion = document.querySelector('meta[name="admin-ui-version"]')?.content || '4.38.41';
+  const adminVersion = document.querySelector('meta[name="admin-ui-version"]')?.content || '4.38.42';
   label.textContent = `APP VERSION ${enabled ? adminVersion : '4.37.1'}`;
   const desktopLabel = $('adminDesktopAppVersion');
   if (desktopLabel) desktopLabel.textContent = label.textContent;

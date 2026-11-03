@@ -63,7 +63,7 @@ body.app-scroll-layout .user-list-header-slot .user-list-sticky{
 body.app-scroll-layout .user-list-header-slot .user-list-sticky::before{
   display:none !important;
 }
-body.app-scroll-layout .user-list-header-slot :is(
+body.app-scroll-layout:not(.admin-new-ui) .user-list-header-slot :is(
   .users-toolbar,
   .user-list-sort-controls,
   .user-list-sort-field
@@ -597,7 +597,8 @@ body:not(.skill-target-columns) .dc-card > .dc-skill-span {
 }
 
 /* === 4.14.18: 横並びONの全曲カードを画像3基準の単一定義へ集約 === */
-body.skill-target-columns :is(#viewSkill, #userDetailSkill):not(.hidden) {
+body.skill-target-columns:not(.admin-new-ui) :is(#viewSkill, #userDetailSkill):not(.hidden),
+body.skill-target-columns.admin-new-ui #userDetailSkill:not(.hidden) {
   display: grid !important;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
   align-items: start !important;

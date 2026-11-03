@@ -2483,7 +2483,7 @@ html.ios-viewport-repair {
 /* === v21 FIX24: user list / rainbow distinction === */
 
 
-.users-toolbar{display:block !important;position:sticky;top:128px;z-index:5;padding:8px 3px 5px;background:#030712}
+body:not(.admin-new-ui) .users-toolbar{display:block !important;position:sticky;top:128px;z-index:5;padding:8px 3px 5px;background:#030712}
 .user-list-header{
   position:sticky;top:183px;z-index:4;
   display:grid;grid-template-columns:minmax(108px,1fr) 72px 72px 82px 72px 38px;
