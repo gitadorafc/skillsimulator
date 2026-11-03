@@ -2,7 +2,7 @@
 import {
   getSkillColorRowByTotalValue
 } from './skill-colors.js?v=4_14_33';
-import { renderAdminRegisteredRecords, loadAdminRegisteredJackets } from './admin-register-ui.js?v=4_38_38';
+import { renderAdminRegisteredRecords, loadAdminRegisteredJackets } from './admin-register-ui.js?v=4_38_39';
 import {
   createCard,
   getPartColorClass
@@ -4777,7 +4777,7 @@ async function deleteOwnAccount() {
 function updateAdminUiVersion(enabled) {
   const label = document.querySelector('.app-code-version');
   if (!label) return;
-  const adminVersion = document.querySelector('meta[name="admin-ui-version"]')?.content || '4.38.38';
+  const adminVersion = document.querySelector('meta[name="admin-ui-version"]')?.content || '4.38.39';
   label.textContent = `APP VERSION ${enabled ? adminVersion : '4.37.1'}`;
 }
 
@@ -7492,9 +7492,18 @@ function collapseAdminDesktopMenu() {
   document.body.classList.remove('admin-desktop-menu-open');
 }
 const adminDesktopMenuLabels = ['アカウント設定','スキル機能','曲データ','ヘルプ・運営'];
+// PC sidebar accordion: only one category may stay expanded.
+// A capture listener handles native <details> toggle without altering menu actions.
+desktopMenuTree?.addEventListener('toggle', event => {
+  const openedGroup = event.target;
+  if (!openedGroup?.matches?.('details.admin-menu-group') || !openedGroup.open) return;
+  for (const other of desktopMenuTree.querySelectorAll('details.admin-menu-group[open]')) {
+    if (other !== openedGroup) other.open = false;
+  }
+}, true);
 function toggleAdminDesktopMenu() {
   if (!desktopMenuTree) return;
-  const oldOpen = new Set([...desktopMenuTree.querySelectorAll('details[open] summary')].map(e=>e.textContent));
+  const previousOpen = desktopMenuTree.querySelector('details.admin-menu-group[open] > summary')?.textContent;
   const source = $('menuMask')?.querySelector('.app-menu-sheet');
   desktopMenuTree.replaceChildren();
   const caption = document.createElement('div');
@@ -7507,7 +7516,7 @@ function toggleAdminDesktopMenu() {
     const summary = document.createElement('summary');
     summary.textContent = label;
     details.appendChild(summary);
-    details.open = oldOpen.has(label);
+    details.open = previousOpen === label;
     desktopMenuTree.appendChild(details);
     return details;
   });

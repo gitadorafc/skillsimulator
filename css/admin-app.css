@@ -90,7 +90,7 @@ body.admin-new-ui #btnHeaderAdd{min-width:48px;white-space:nowrap;}
  body.admin-new-ui :is(#viewAllManage,#viewSkill) .ar-title{grid-column:2;grid-row:1;}
  body.admin-new-ui :is(#viewAllManage,#viewSkill) .ar-song-name{font-size:12px;}
  body.admin-new-ui :is(#viewAllManage,#viewSkill) .ar-metrics{grid-column:2;grid-row:2;display:grid;
-   grid-template-columns:57px 33px 47px 24px 58px;gap:3px;align-items:center;min-width:0;}
+   grid-template-columns:57px 33px 48px 24px 58px;gap:3px;align-items:center;min-width:0;}
  body.admin-new-ui :is(#viewAllManage,#viewSkill) .ar-part{grid-column:1;justify-content:start;}
  body.admin-new-ui :is(#viewAllManage,#viewSkill) .ar-level{grid-column:2;text-align:left;}
  body.admin-new-ui :is(#viewAllManage,#viewSkill) .ar-rate{grid-column:3;text-align:right;justify-self:stretch;}
@@ -109,7 +109,7 @@ body.admin-new-ui #btnHeaderAdd{min-width:48px;white-space:nowrap;}
 @media (max-width:410px){
  body.admin-new-ui :is(#viewAllManage,#viewSkill) .ar-record{grid-template-columns:40px minmax(0,1fr) 67px 32px;gap:3px 4px;padding:5px;}
  body.admin-new-ui :is(#viewAllManage,#viewSkill) .ar-art{width:37px;height:37px;}
- body.admin-new-ui :is(#viewAllManage,#viewSkill) .ar-metrics{grid-template-columns:48px 28px 47px 24px 49px;gap:2px;}
+ body.admin-new-ui :is(#viewAllManage,#viewSkill) .ar-metrics{grid-template-columns:48px 28px 48px 24px 49px;gap:2px;}
  body.admin-new-ui :is(#viewAllManage,#viewSkill) .ar-bear-medal{width:19px;height:19px;}
  body.admin-new-ui :is(#viewAllManage,#viewSkill) .ar-edit button{width:30px;height:30px;}
 }
@@ -219,9 +219,9 @@ body.admin-new-ui #btnHeaderAdd{min-width:48px;white-space:nowrap;}
    display:block;margin-left:0;padding-left:calc(var(--admin-side-width) + 6px);width:100%;
    min-width:0;max-width:none;box-sizing:border-box;
  }
- body.admin-new-ui :is(#viewAllManage,#viewSkill) {--ar-cols:30px 64px minmax(125px,1fr) 68px 45px 73px 45px 64px 70px 38px;}
+ body.admin-new-ui :is(#viewAllManage,#viewSkill) {--ar-cols:30px 64px minmax(125px,1fr) 80px 54px 92px 52px 78px 82px 42px;}
  body.admin-new-ui :is(#viewAllManage,#viewSkill) .ar-record,
- body.admin-new-ui :is(#viewAllManage,#viewSkill) .ar-table-head {grid-template-columns:var(--ar-cols);column-gap:5px;}
+ body.admin-new-ui :is(#viewAllManage,#viewSkill) .ar-table-head {grid-template-columns:var(--ar-cols);column-gap:8px;}
  body.admin-new-ui :is(#viewAllManage,#viewSkill) .ar-record {grid-template-rows:46px;min-height:54px;padding:3px 6px;overflow:hidden;}
  body.admin-new-ui :is(#viewAllManage,#viewSkill) .ar-metrics {display:contents;}
  body.admin-new-ui :is(#viewAllManage,#viewSkill) .ar-no {grid-column:1;grid-row:1;}
@@ -229,7 +229,7 @@ body.admin-new-ui #btnHeaderAdd{min-width:48px;white-space:nowrap;}
  body.admin-new-ui :is(#viewAllManage,#viewSkill) .ar-title {grid-column:3;grid-row:1;}
  body.admin-new-ui :is(#viewAllManage,#viewSkill) .ar-part {grid-column:4;grid-row:1;}
  body.admin-new-ui :is(#viewAllManage,#viewSkill) .ar-level {grid-column:5;grid-row:1;}
- body.admin-new-ui :is(#viewAllManage,#viewSkill) .ar-rate {grid-column:6;grid-row:1;text-align:right;justify-self:stretch;}
+ body.admin-new-ui :is(#viewAllManage,#viewSkill) .ar-rate {grid-column:6;grid-row:1;text-align:center;justify-self:stretch;}
  body.admin-new-ui :is(#viewAllManage,#viewSkill) .ar-fc-cell {grid-column:7;grid-row:1;justify-self:center;}
  body.admin-new-ui :is(#viewAllManage,#viewSkill) .ar-option {grid-column:8;grid-row:1;}
  body.admin-new-ui :is(#viewAllManage,#viewSkill) .ar-skill {grid-column:9;grid-row:1;align-self:center;}
