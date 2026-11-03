@@ -6233,7 +6233,7 @@ body.light-mode .board-main-rule-note{
 #boardMainFixed.board-main-fixed{
   position:static!important;
   z-index:auto;
-  margin:0!important;
+  margin:0;
   padding:6px 8px 8px!important;
   border-bottom:1px solid #334155;
   background:#0f172a!important;
