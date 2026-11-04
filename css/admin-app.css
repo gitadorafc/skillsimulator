@@ -55,7 +55,6 @@ body.admin-new-ui #searchArea #btnAdminRecordFilters svg{width:21px;height:21px;
 @media(max-width:650px){body.admin-new-ui #searchArea.admin-filters-expanded .record-filter-row{grid-template-columns:repeat(2,minmax(0,1fr))!important;}}
 body.admin-new-ui #searchArea.admin-filters-expanded #btnAdminRecordFilters{border-color:#3b82f6;background:#254d86;}
 body.admin-new-ui #searchArea .admin-bulk-delete-area{margin-top:0;}
-body.admin-new-ui #appScreen>.p-header{position:sticky;top:0;z-index:100;}
 body.admin-new-ui #btnHeaderAdd{min-width:48px;white-space:nowrap;}
 
 
@@ -73,8 +72,19 @@ body.admin-new-ui #userListHeaderSlot #btnAdminUserFilters svg {width:21px;heigh
 body.admin-new-ui #userListHeaderSlot.admin-user-filters-expanded #btnAdminUserFilters {
   border-color:#3b82f6;background:#254d86;
 }
+/* Keep all admin search strips on the same inset, surface, and vertical rhythm. */
+body.admin-new-ui #appScreen>.p-header :is(#searchArea,#userListHeaderSlot,#boardMainFixed) {
+  min-width:0;box-sizing:border-box;
+  padding:6px 8px 8px;
+  margin-top:0;margin-bottom:0;
+  border:0;background:transparent;
+}
 body.admin-new-ui #userListHeaderSlot {position:relative;flex:0 0 auto;min-width:0;box-sizing:border-box;}
-body.admin-new-ui #userListHeaderSlot .user-list-sticky {position:relative;top:auto;overflow:visible;}
+body.admin-new-ui.app-scroll-layout #userListHeaderSlot:not(.hidden) {display:block;}
+body.admin-new-ui #userListHeaderSlot .user-list-sticky {
+  position:relative;top:auto;overflow:visible;
+  padding:0;margin:0;background:transparent;
+}
 body.admin-new-ui #userListHeaderSlot #userListSortControls {display:none;}
 body.admin-new-ui #userListHeaderSlot.admin-user-filters-expanded #userListSortControls {
   display:grid;position:absolute;top:100%;right:0;z-index:55;
@@ -133,6 +143,9 @@ body.admin-new-ui #searchArea #btnHeaderAdd {
   background:#3b82f6;border-color:#3b82f6;color:white;-webkit-text-fill-color:white;
 }
 body.admin-new-ui #boardMainFixed #btnBoardNewThread {white-space:nowrap;}
+body.admin-new-ui #boardMainFixed .board-main-toolbar {margin-bottom:10px;}
+body.admin-new-ui #boardMainFixed .board-main-rule-note {display:block;clear:both;margin:0;}
+
 /* No duplicate generated text; the button markup itself contains the plus sign. */
 
 /* Admin skill-target screen reuses the exact registered card UI. */
@@ -431,7 +444,7 @@ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-edit b
  body.admin-new-ui #appScreen>.p-header>.score-row>.score-cell {width:auto;min-width:0;}
  body.admin-new-ui #appScreen>.p-header>.p-tabs {display:flex;gap:6px;padding:6px 8px;height:auto;}
  body.admin-new-ui #appScreen>.p-header>.p-tabs .p-tab-btn:not(.hidden) {display:flex;flex:1 1 0;width:auto;min-width:0;min-height:40px;align-items:center;justify-content:center;}
- body.admin-new-ui #appScreen>.p-header>#searchArea {padding:5px 8px 7px;max-height:none;overflow:visible;}
+ body.admin-new-ui #appScreen>.p-header>#searchArea {max-height:none;overflow:visible;}
  body.admin-new-ui #appScreen>.p-header>#searchArea.admin-filters-expanded .record-filter-row {
    position:absolute;right:8px;left:auto;top:100%;width:min(590px,calc(100vw - var(--admin-side-width) - 24px));
    display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;padding:16px;

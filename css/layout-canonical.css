@@ -44,13 +44,13 @@ body.app-scroll-layout.app-scrolling :is(
 .user-list-header-slot{
   display:none;
 }
-body.app-scroll-layout .user-list-header-slot:not(.hidden){
+body.app-scroll-layout:not(.admin-new-ui) .user-list-header-slot:not(.hidden){
   display:block;
   flex:0 0 auto;
   padding:4px 4px 0;
   background:#0b1220;
 }
-body.app-scroll-layout .user-list-header-slot .user-list-sticky{
+body.app-scroll-layout:not(.admin-new-ui) .user-list-header-slot .user-list-sticky{
   position:relative !important;
   top:auto !important;
   z-index:auto !important;
