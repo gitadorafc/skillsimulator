@@ -3571,42 +3571,39 @@ function tintHeaderValues(hot, other, total) {
   });
 }
 
-function wrapAdminTwoColumnContent(innerHtml, extraClass = '') {
-  if (!document.body.classList.contains('admin-new-ui') || !document.body.classList.contains('skill-target-columns')) return innerHtml;
-  const extra = extraClass ? ` ${extraClass}` : '';
-  return `<div class="admin-two-column-scale-wrap${extra}"><div class="admin-two-column-scale-inner">${innerHtml}</div></div>`;
-}
-
+// Shrink the entire admin two-column viewport on narrow screens, retaining a
+// 620px logical layout and extending its internal scroll height by 1/scale.
+// Unlike the old uncorrected zoom, this does not leave unusable space below.
 function syncAdminTwoColumnViewport() {
-  const activeWrappers = Array.from(document.querySelectorAll('.admin-two-column-scale-wrap')).filter(wrapper => !wrapper.closest('.hidden'));
-  activeWrappers.forEach(wrapper => {
-    const inner = wrapper.querySelector('.admin-two-column-scale-inner');
-    if (!inner) return;
-    let scale = 1;
-    if (document.body.classList.contains('admin-new-ui') && document.body.classList.contains('skill-target-columns')) {
-      if (window.innerWidth <= 360) scale = 0.84;
-      else if (window.innerWidth <= 390) scale = 0.9;
-      else if (window.innerWidth <= 450) scale = 0.95;
-    }
-    inner.style.transform = scale < 0.999 ? `scale(${scale})` : '';
-    inner.style.width = scale < 0.999 ? `${(100 / scale).toFixed(4)}%` : '100%';
-    wrapper.style.height = 'auto';
-    const naturalHeight = inner.scrollHeight || inner.getBoundingClientRect().height || 0;
-    wrapper.style.height = `${Math.ceil(naturalHeight * scale)}px`;
-  });
+  const screen = $('appScreen');
+  if (!screen) return;
+  const narrowColumns = document.body.classList.contains('admin-new-ui')
+    && document.body.classList.contains('skill-target-columns')
+    && (activeTabName === 'SKILL' || activeTabName === 'RECORDS');
+  const viewportWidth = document.documentElement.clientWidth || window.innerWidth;
+  const viewportHeight = window.innerHeight;
+  const scale = narrowColumns && viewportWidth < 620 ? viewportWidth / 620 : 1;
+
+  if (scale >= 1) {
+    ['zoom', 'width', 'height'].forEach(prop => screen.style.removeProperty(prop));
+    return;
+  }
+  screen.style.setProperty('zoom', String(scale), 'important');
+  screen.style.setProperty('width', '620px', 'important');
+  // The CSS grid has a fixed viewport-height scroll pane. Compensate for zoom.
+  screen.style.setProperty('height', `${Math.ceil(viewportHeight / scale)}px`, 'important');
 }
 
 function renderSkill() {
   const target = calcTargetTotals(getOwnSkillTargetRows());
 
-  const skillMarkup = `
+  $('viewSkill').innerHTML = `
     <div class="sk-section skill-hot-section"><h2>HOT Top25</h2><div class="list-container">
       ${(document.body.classList.contains('admin-new-ui') ? renderAdminRegisteredRecords(target.hotRows, 'SKILL') : target.hotRows.map((r,i) => createCard(r,i+1,'SKILL')).join('')) || '<div class="empty-state">まだ登録がありません</div>'}
     </div></div>
     <div class="sk-section skill-other-section"><h2>OTHER Top25</h2><div class="list-container">
       ${(document.body.classList.contains('admin-new-ui') ? renderAdminRegisteredRecords(target.otherRows, 'SKILL') : target.otherRows.map((r,i) => createCard(r,i+1,'SKILL')).join('')) || '<div class="empty-state">まだ登録がありません</div>'}
     </div></div>`;
-  $('viewSkill').innerHTML = wrapAdminTwoColumnContent(skillMarkup, 'admin-skill-two-column-wrap');
 }
 
 function renderRegisteredCardList(data, mode = 'MANAGE') {
@@ -3708,12 +3705,10 @@ function renderManage() {
   $('viewAllManage').innerHTML =
     ((document.body.classList.contains('admin-new-ui')
       ? (document.body.classList.contains('skill-target-columns')
-        ? wrapAdminTwoColumnContent(
-            `<div class="admin-records-two-column">`
+        ? `<div class="admin-records-two-column">`
             + `<section class="admin-records-pane hot"><h2>HOT</h2>${renderAdminRegisteredRecords(visibleRows.filter(row => Boolean(row.is_hot))) || '<div class="empty-state">登録曲なし</div>'}</section>`
             + `<section class="admin-records-pane other"><h2>OTHER</h2>${renderAdminRegisteredRecords(visibleRows.filter(row => !row.is_hot)) || '<div class="empty-state">登録曲なし</div>'}</section>`
-            + `</div>`
-          )
+          + `</div>`
         : renderAdminRegisteredRecords(visibleRows))
       : renderRegisteredCardList(visibleRows)) ||
       '<div class="empty-state">条件に一致する登録データがありません</div>') +
@@ -3778,6 +3773,7 @@ function render() {
     show('viewSkill');
     renderSkill();
   }
+  requestAnimationFrame(syncAdminTwoColumnViewport);
 }
 
 async function getCurrentBoardAccessStatus() {
