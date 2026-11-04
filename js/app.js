@@ -1427,27 +1427,6 @@ async function syncMyDisplaySettings() {
   }
 }
 
-// Keep two 225px HOT/OTHER columns legible on narrow phones by scaling the
-// whole admin screen instead of squeezing individual fixed-width badges.
-function syncAdminTwoColumnViewport() {
-  const screen = document.getElementById('appScreen');
-  if (!screen) return;
-  const shouldScale = document.body.classList.contains('admin-new-ui') &&
-    document.body.classList.contains('skill-target-columns') &&
-    window.innerWidth < 450;
-  if (shouldScale) {
-    const ratio = Math.max(0.1, window.innerWidth / 450);
-    screen.style.width = '450px';
-    screen.style.maxWidth = 'none';
-    screen.style.zoom = String(ratio);
-  } else {
-    screen.style.removeProperty('width');
-    screen.style.removeProperty('max-width');
-    screen.style.removeProperty('zoom');
-  }
-}
-window.addEventListener('resize', syncAdminTwoColumnViewport, { passive: true });
-
 function applyDisplayCustomization(skillTargetColumns = null, textSizeUp = null) {
   const columnsEnabled = (
     skillTargetColumns == null
@@ -1463,7 +1442,6 @@ function applyDisplayCustomization(skillTargetColumns = null, textSizeUp = null)
   // 対象コンテナ側で表示中かを判定するため、設定値は他ユーザー画面でも維持する。
   document.body.classList.toggle('skill-target-columns', columnsEnabled);
   document.body.classList.toggle('text-size-up', textSizeEnabled);
-  syncAdminTwoColumnViewport();
 
   return {
     skillTargetColumns: columnsEnabled,
@@ -4856,7 +4834,7 @@ async function deleteOwnAccount() {
 function updateAdminUiVersion(enabled) {
   const label = document.querySelector('.app-code-version');
   if (!label) return;
-  const adminVersion = document.querySelector('meta[name="admin-ui-version"]')?.content || '4.38.41';
+  const adminVersion = document.querySelector('meta[name="admin-ui-version"]')?.content || '4.38.42';
   label.textContent = `APP VERSION ${enabled ? adminVersion : '4.37.1'}`;
   const desktopLabel = $('adminDesktopAppVersion');
   if (desktopLabel) desktopLabel.textContent = label.textContent;
@@ -4876,7 +4854,6 @@ async function checkAdminAccess() {
   const adminNewUi = adminEnabled && $('headerUsername')?.textContent?.trim() === 'admin';
   document.body.classList.remove('admin-responsive-preview');
   document.body.classList.toggle('admin-new-ui', adminNewUi);
-  syncAdminTwoColumnViewport();
   updateAdminUiVersion(adminNewUi);
   if (adminNewUi) requestAnimationFrame(ensureDesktopMenuTree);
   if (adminNewUi) void loadAdminRegisteredJackets(supabase).then(() => { if (activeTabName === 'RECORDS') renderManage(); else if (activeTabName === 'SKILL') renderSkill(); });
