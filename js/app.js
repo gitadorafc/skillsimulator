@@ -1761,6 +1761,7 @@ async function showApp(session) {
   hide('authScreen');
   show('appScreen');
   applyAppScrollLayout(true);
+  clearAdminUserListCache();
   currentUserId = session?.user?.id || null;
   void recordMyActivity('OPEN');
 
@@ -4217,15 +4218,61 @@ async function submitScore() {
 /* ---------- マイページ ---------- */
 
 let userListLoadSeq = 0;
+// 管理者用新UIに限定した短時間キャッシュ。旧UIの取得動作は変更しない。
+const ADMIN_USER_LIST_CACHE_MS = 45 * 1000;
+const ADMIN_USER_LIST_CACHE_LIMIT = 8;
+const adminUserListCache = new Map();
+const adminUserListPending = new Map();
 
-async function loadUsers({ resetPage = false } = {}) {
+function clearAdminUserListCache() {
+  adminUserListCache.clear();
+  adminUserListPending.clear();
+  // 実行中の通信は中断せず、完了後に古い内容を保存しないよう世代を更新する。
+  adminUserListCacheGeneration++;
+}
+let adminUserListCacheGeneration = 0;
+
+async function fetchAdminUserListCached(keyword, instrument, versionId, forceRefresh = false) {
+  if (!document.body.classList.contains('admin-new-ui')) {
+    return listUserSummaries(keyword, instrument, versionId);
+  }
+  const key = JSON.stringify([currentUserId, keyword.trim(), instrument, versionId]);
+  const now = Date.now();
+  if (!forceRefresh) {
+    const saved = adminUserListCache.get(key);
+    if (saved && now - saved.storedAt < ADMIN_USER_LIST_CACHE_MS) return saved.rows;
+    const pending = adminUserListPending.get(key);
+    if (pending) return pending;
+  }
+
+  const generation = adminUserListCacheGeneration;
+  const request = listUserSummaries(keyword, instrument, versionId).then(rows => {
+    if (generation === adminUserListCacheGeneration) {
+      // 同一条件のリクエストが新しく開始されていた場合は古い結果を保存しない。
+      if (adminUserListPending.get(key) === request) {
+        adminUserListCache.delete(key);
+        adminUserListCache.set(key, { rows, storedAt: Date.now() });
+        while (adminUserListCache.size > ADMIN_USER_LIST_CACHE_LIMIT) {
+          adminUserListCache.delete(adminUserListCache.keys().next().value);
+        }
+      }
+    }
+    return rows;
+  }).finally(() => {
+    if (adminUserListPending.get(key) === request) adminUserListPending.delete(key);
+  });
+  adminUserListPending.set(key, request);
+  return request;
+}
+
+async function loadUsers({ resetPage = false, forceRefresh = false } = {}) {
   const requestSeq = ++userListLoadSeq;
   const keyword = $('userSearch')?.value || '';
   const instrument = activeInstrument;
   const versionId = activeVersionId;
 
   try {
-    const rows = await listUserSummaries(keyword, instrument, versionId);
+    const rows = await fetchAdminUserListCached(keyword, instrument, versionId, forceRefresh);
 
     // 古い再取得結果が後から返ってきても現在の表示を巻き戻さない。
     if (
@@ -4525,7 +4572,8 @@ async function toggleFavorite(userId, instrument = activeInstrument) {
     renderUsers();
 
     // 星の表示を先に確定し、重い再集計は操作完了後に行う。
-    loadUsers().catch(error => console.error('ユーザー一覧再取得失敗:', error));
+    clearAdminUserListCache();
+    loadUsers({ forceRefresh: true }).catch(error => console.error('ユーザー一覧再取得失敗:', error));
     loadFavorites().catch(error => console.error('ライバル一覧再取得失敗:', error));
   } catch (e) {
     user.is_favorite = originalFavorite;
@@ -4581,7 +4629,8 @@ async function removeFavoriteFromManage(userId, instrument) {
 
   try {
     await removeFavorite(userId, instrument);
-    loadUsers().catch(error => console.error('ユーザー一覧再取得失敗:', error));
+    clearAdminUserListCache();
+    loadUsers({ forceRefresh: true }).catch(error => console.error('ユーザー一覧再取得失敗:', error));
     loadFavorites().catch(error => console.error('ライバル一覧再取得失敗:', error));
   } catch (error) {
     favoriteUsers[instrument] = originalRows;
@@ -4807,7 +4856,7 @@ async function deleteOwnAccount() {
 function updateAdminUiVersion(enabled) {
   const label = document.querySelector('.app-code-version');
   if (!label) return;
-  const adminVersion = document.querySelector('meta[name="admin-ui-version"]')?.content || '4.38.40';
+  const adminVersion = document.querySelector('meta[name="admin-ui-version"]')?.content || '4.38.41';
   label.textContent = `APP VERSION ${enabled ? adminVersion : '4.37.1'}`;
   const desktopLabel = $('adminDesktopAppVersion');
   if (desktopLabel) desktopLabel.textContent = label.textContent;
