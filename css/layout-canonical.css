@@ -137,7 +137,7 @@ body.text-size-up.app-scroll-layout .user-list-header-slot .user-list-sort-field
 body.text-size-up.app-scroll-layout .user-list-header-slot .user-list-sort-field select{
   font-size:15px !important;
 }
-body.app-scroll-layout .user-list-header-slot :is(
+body.app-scroll-layout:not(.admin-new-ui) .user-list-header-slot :is(
   .users-toolbar input,
   .user-list-sort-field select
 ){
