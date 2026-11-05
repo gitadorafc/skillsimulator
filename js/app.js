@@ -3571,9 +3571,9 @@ function tintHeaderValues(hot, other, total) {
   });
 }
 
-// Shrink the entire admin two-column viewport on narrow screens, retaining a
-// 620px logical layout and extending its internal scroll height by 1/scale.
-// Unlike the old uncorrected zoom, this does not leave unusable space below.
+// Admin-only compact view: keep the logical width at 500px when narrower.
+// The lower zoom reduction improves legibility on iPhone while the scrollpane
+// height still compensates for zoom to avoid losing the bottom of the list.
 function syncAdminTwoColumnViewport() {
   const screen = $('appScreen');
   if (!screen) return;
@@ -3582,16 +3582,44 @@ function syncAdminTwoColumnViewport() {
     && (activeTabName === 'SKILL' || activeTabName === 'RECORDS');
   const viewportWidth = document.documentElement.clientWidth || window.innerWidth;
   const viewportHeight = window.innerHeight;
-  const scale = narrowColumns && viewportWidth < 620 ? viewportWidth / 620 : 1;
+  const logicalWidth = 500;
+  const scale = narrowColumns && viewportWidth < logicalWidth ? viewportWidth / logicalWidth : 1;
 
   if (scale >= 1) {
     ['zoom', 'width', 'height'].forEach(prop => screen.style.removeProperty(prop));
     return;
   }
   screen.style.setProperty('zoom', String(scale), 'important');
-  screen.style.setProperty('width', '620px', 'important');
+  screen.style.setProperty('width', `${logicalWidth}px`, 'important');
   // The CSS grid has a fixed viewport-height scroll pane. Compensate for zoom.
   screen.style.setProperty('height', `${Math.ceil(viewportHeight / scale)}px`, 'important');
+}
+
+// CSS line-clamp combined with an inline HOT badge stretches the badge in
+// iOS WebKit. Keep normal inline flow and truncate measured text to two lines.
+function clampAdminTwoColumnTitles() {
+  if (!document.body.classList.contains('admin-new-ui') ||
+      !document.body.classList.contains('skill-target-columns')) return;
+  for (const title of document.querySelectorAll(
+      '#viewSkill .ar-title, #viewAllManage .ar-title')) {
+    if (title.closest('.hidden')) continue;
+    const name = title.querySelector('.ar-song-name');
+    if (!name) continue;
+    const full = name.getAttribute('title') || name.textContent || '';
+    if (!full) continue;
+    name.textContent = full;
+    // scrollHeight includes clipped lines even when max-height is 30px.
+    if (title.scrollHeight <= title.clientHeight + 1) continue;
+    let lo = 0, hi = [...full].length;
+    const chars = [...full];
+    while (lo < hi) {
+      const mid = Math.ceil((lo + hi) / 2);
+      name.textContent = chars.slice(0, mid).join('') + '…';
+      if (title.scrollHeight <= title.clientHeight + 1) lo = mid;
+      else hi = mid - 1;
+    }
+    name.textContent = chars.slice(0, lo).join('') + '…';
+  }
 }
 
 function renderSkill() {
@@ -3718,7 +3746,10 @@ function renderManage() {
         <button type="button" data-own-records-more>もっと見る</button>
       </div>` : '');
 
-  if (document.body.classList.contains('admin-new-ui')) requestAnimationFrame(syncAdminTwoColumnViewport);
+  if (document.body.classList.contains('admin-new-ui')) requestAnimationFrame(() => {
+    syncAdminTwoColumnViewport();
+    clampAdminTwoColumnTitles();
+  });
   else requestAnimationFrame(syncRegisteredEditButtonWidths);
 }
 
@@ -3773,7 +3804,7 @@ function render() {
     show('viewSkill');
     renderSkill();
   }
-  requestAnimationFrame(syncAdminTwoColumnViewport);
+  requestAnimationFrame(() => { syncAdminTwoColumnViewport(); clampAdminTwoColumnTitles(); });
 }
 
 async function getCurrentBoardAccessStatus() {
@@ -8068,8 +8099,10 @@ GLOBAL_SCROLL_LOCK_OVERLAYS.forEach(selector => {
 requestAnimationFrame(syncGlobalModalScrollLock);
 
 window.addEventListener('resize', () => {
-  if (document.body.classList.contains('admin-new-ui')) syncAdminTwoColumnViewport();
-  else syncRegisteredEditButtonWidths();
+  if (document.body.classList.contains('admin-new-ui')) {
+    syncAdminTwoColumnViewport();
+    clampAdminTwoColumnTitles();
+  } else syncRegisteredEditButtonWidths();
 });
 
 [

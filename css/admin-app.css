@@ -268,6 +268,7 @@ body.admin-new-ui :is(#viewSkill,#viewAllManage) :is(.skill-other-section,.admin
    grid-template-rows:15px 15px 19px;
    column-gap:4px;row-gap:2px;align-items:center;
    width:100%;min-width:0;min-height:67px;padding:5px;overflow:hidden;
+   -webkit-text-size-adjust:100%;text-size-adjust:100%;
  }
  body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-no {display:none;}
  body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-art {
@@ -275,20 +276,22 @@ body.admin-new-ui :is(#viewSkill,#viewAllManage) :is(.skill-other-section,.admin
  }
  body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-title {
    grid-column:2;grid-row:1/3;align-self:start;
-   display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;
-   min-width:0;overflow:hidden;padding:0;
-   max-height:30px;line-height:15px;font-size:11px;
+   display:block;min-width:0;overflow:hidden;padding:0;
+   height:30px;max-height:30px;line-height:15px;font-size:11px;
  }
  body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-title .ar-hot {
-   float:left;display:inline-flex!important;position:relative;
-   margin-right:3px;margin-bottom:0;vertical-align:top;
+   float:none;display:inline-flex!important;position:static;
+   width:auto!important;min-width:0!important;max-width:max-content!important;
+   flex:none!important;align-self:auto;justify-self:auto;
+   margin:0 3px 0 0;vertical-align:baseline;
    height:15px!important;min-height:15px!important;max-height:15px!important;
    padding:0 3px!important;font-size:9px!important;line-height:1!important;
  }
  body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-song-name {
    display:inline;min-width:0;max-height:none;
    font-size:11px;line-height:15px;
-   white-space:normal;overflow-wrap:anywhere;word-break:normal;
+   white-space:normal;overflow:visible;text-overflow:clip;
+   overflow-wrap:anywhere;word-break:normal;
  }
  body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-skill {
    grid-column:3/5;grid-row:1;justify-self:end;align-self:start;

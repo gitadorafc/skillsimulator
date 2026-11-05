@@ -34,7 +34,7 @@ async function bootstrap() {
   const parts = await Promise.all(PARTIAL_URLS.map(fetchPartial));
   root.innerHTML = parts.join('\n');
 
-  await import('./app.js?v=4_38_44');
+  await import('./app.js?v=4_38_48');
   await loadClassicScript('./js/version-check.js?v=4_37_1');
 }
 
