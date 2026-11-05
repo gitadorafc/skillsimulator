@@ -261,7 +261,7 @@ body.admin-new-ui :is(#viewSkill,#viewAllManage) :is(.skill-other-section,.admin
 body.admin-new-ui :is(#viewSkill,#viewAllManage) :is(.ar-top-metrics,.ar-bottom-metrics) {display:contents;}
 body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-title .ar-hot {display:none!important;}
 
-@media (max-width:1499px) {
+@media (max-width:1099px) {
  body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-table-head {display:none;}
  body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-record {
    display:grid;grid-template-columns:44px minmax(0,1fr) 20px;
@@ -285,16 +285,18 @@ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-title 
  }
  body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-top-metrics {
    grid-row:1;grid-template-columns:45px minmax(18px,1fr) minmax(0,68px);
- }
- body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-bottom-metrics {
-   grid-row:2;grid-template-columns:27px minmax(55px,1fr) 44px;
    column-gap:4px;
+ }
+ /* Keep the three lower metrics as a compact, fixed-width group. */
+ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-bottom-metrics {
+   grid-row:2;grid-template-columns:30px 55px 44px;
+   column-gap:3px;justify-content:start;
  }
  body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-part {
    grid-column:1;grid-row:1;justify-content:start;
  }
  body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-fc-cell {
-   grid-column:2;grid-row:1;justify-self:center;min-height:0;
+   grid-column:2;grid-row:1;justify-self:end;min-height:0;
  }
  body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-bear-medal {width:17px;height:17px;}
  body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-skill {
@@ -302,7 +304,7 @@ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-title 
    width:100%!important;min-width:0!important;max-width:68px!important;
    height:19px!important;min-height:19px!important;max-height:19px!important;
    display:flex;align-items:center;justify-content:center;box-sizing:border-box;overflow:hidden;
-   font-size:11px;line-height:19px;padding:0!important;white-space:nowrap;
+   border-radius:3px;font-size:11px;line-height:1;padding:0!important;white-space:nowrap;
  }
  body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-level {
    grid-column:1;grid-row:1;text-align:left;font-size:11px;white-space:nowrap;
@@ -336,31 +338,63 @@ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-title 
    box-sizing:border-box;font-size:13px;line-height:1;border-radius:4px;
  }
 }
-/* Spacious two-column cards are used only where both columns have room. */
-@media (min-width:1500px) {
+/* Desktop ON: one consistent layout from 1100px upward.
+   Keep every metric inside the same card grid regardless of viewport width. */
+@media (min-width:1100px) {
  body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-table-head {display:none;}
  body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-record {
-   display:grid;grid-template-columns:44px minmax(0,1fr) 70px 34px;
-   grid-template-rows:22px 23px;gap:2px 6px;width:100%;min-width:0;
-   min-height:60px;padding:5px 6px;box-sizing:border-box;
+   display:grid;
+   grid-template-columns:52px minmax(80px,1fr) minmax(206px,0.9fr) 34px;
+   grid-template-rows:24px 24px;
+   gap:3px 7px;
+   min-width:0;width:100%;min-height:60px;padding:5px 7px;
+   box-sizing:border-box;align-items:center;overflow:hidden;
  }
  body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-no {display:none;}
- body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-art {grid-column:1;grid-row:1/3;width:42px;height:42px;align-self:center;}
- body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-title {grid-column:2;grid-row:1;min-width:0;overflow:hidden;}
+ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-art {
+   grid-column:1;grid-row:1/3;width:46px;height:46px;align-self:center;
+ }
+ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-title {
+   grid-column:2;grid-row:1/3;display:flex;align-items:center;
+   min-width:0;max-width:100%;margin:0;padding:0;overflow:hidden;
+ }
+ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-song-name {
+   display:block;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;
+   min-width:0;max-width:100%;font-size:12px;
+ }
  body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-metrics {
-   grid-column:2;grid-row:2;display:grid;min-width:0;
-   grid-template-columns:56px 36px minmax(54px,1fr) 27px 58px;
-   column-gap:5px;align-items:center;
+   grid-column:3;grid-row:1/3;display:grid;min-width:0;
+   grid-template-rows:24px 24px;gap:3px;
+ }
+ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) :is(.ar-top-metrics,.ar-bottom-metrics) {
+   display:grid;min-width:0;align-items:center;grid-template-rows:24px;gap:4px;
+ }
+ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-top-metrics {
+   grid-row:1;grid-template-columns:54px minmax(20px,1fr) 72px;
+ }
+ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-bottom-metrics {
+   grid-row:2;grid-template-columns:42px 68px minmax(50px,1fr);
  }
  body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-part {grid-column:1;grid-row:1;justify-content:start;}
- body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-level {grid-column:2;grid-row:1;text-align:left;}
- body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-rate {grid-column:3;grid-row:1;text-align:right;}
- body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-fc-cell {grid-column:4;grid-row:1;justify-self:center;}
- body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-option {grid-column:5;grid-row:1;justify-content:start;}
- body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-skill {grid-column:3;grid-row:1/3;align-self:center;}
- body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-edit {grid-column:4;grid-row:1/3;align-self:center;}
- body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-bear-medal {width:20px;height:20px;}
- body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-edit button {width:30px;height:30px;font-size:18px;}
+ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-fc-cell {grid-column:2;grid-row:1;justify-self:end;min-height:0;}
+ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-bear-medal {width:19px;height:19px;}
+ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-skill {
+   grid-column:3;grid-row:1;justify-self:end;align-self:center;
+   width:72px!important;min-width:72px!important;max-width:72px!important;
+   height:19px!important;min-height:19px!important;max-height:19px!important;
+   padding:0!important;line-height:19px;font-size:12px;
+   display:flex;align-items:center;justify-content:center;
+ }
+ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-level {grid-column:1;grid-row:1;text-align:left;}
+ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-rate {grid-column:2;grid-row:1;text-align:right;justify-self:stretch;}
+ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-option {grid-column:3;grid-row:1;justify-content:end;}
+ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-edit {
+   grid-column:4;grid-row:1/3;justify-self:center;align-self:center;
+ }
+ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-edit button {
+   width:30px;height:30px;min-width:30px;min-height:30px;
+   font-size:18px;padding:0;
+ }
 }
 @media (min-width:1100px) {
  body.admin-new-ui {--admin-side-width:208px;--admin-top-height:50px;}
