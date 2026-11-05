@@ -256,17 +256,18 @@ body.admin-new-ui :is(#viewSkill,#viewAllManage) :is(.skill-hot-section,.admin-r
 body.admin-new-ui :is(#viewSkill,#viewAllManage) :is(.skill-other-section,.admin-records-pane.other)>h2 {
  color:#b6ebf5;background:#173447;border-color:#367e9d;
 }
-/* Admin-only two-column cards at phone/tablet widths.
-   At 400px logical width each column has about 190px; all five compact
-   metrics and the edit control have dedicated, non-overlapping slots. */
+/* Admin two-column phone/tablet cards: the 400px viewport yields columns of
+   around 190px.  A single five-field row plus an edit control cannot fit at
+   readable type sizes, so the metrics use two explicit rows instead.  This
+   rule REPLACES the prior fixed five-column row, it does not override it. */
 @media (max-width:1099px) {
  body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-table-head {display:none;}
  body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-record {
    display:grid;position:relative;
-   grid-template-columns:34px minmax(0,1fr) 60px;
-   grid-template-rows:16px 16px 20px;
+   grid-template-columns:34px minmax(0,1fr) 60px 20px;
+   grid-template-rows:16px 16px 20px 20px;
    column-gap:3px;row-gap:1px;align-items:center;
-   width:100%;min-width:0;min-height:64px;padding:5px 4px;
+   width:100%;min-width:0;min-height:88px;padding:5px 4px;
    overflow:hidden;box-sizing:border-box;
    -webkit-text-size-adjust:100%;text-size-adjust:100%;
  }
@@ -294,35 +295,38 @@ body.admin-new-ui :is(#viewSkill,#viewAllManage) :is(.skill-other-section,.admin
    overflow-wrap:anywhere;word-break:normal;
  }
  body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-skill {
-   grid-column:3;grid-row:1;justify-self:end;align-self:start;
+   grid-column:3/5;grid-row:1;justify-self:end;align-self:start;
    width:58px!important;min-width:58px!important;max-width:58px!important;
    font-size:10px;padding:2px 0!important;
  }
+ /* Two rows, inside the space to the left of the dedicated edit column. */
  body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-metrics {
-   display:grid;grid-column:1/4;grid-row:3;min-width:0;
-   grid-template-columns:37px 25px 40px 16px 35px;
-   column-gap:2px;align-items:center;justify-content:start;
+   display:grid;grid-column:1/4;grid-row:3/5;min-width:0;width:100%;
+   grid-template-columns:46px 30px minmax(0,1fr);
+   grid-template-rows:20px 20px;column-gap:3px;row-gap:1px;
+   justify-content:stretch;align-items:center;
  }
  body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-part {
    grid-column:1;grid-row:1;justify-content:start;
  }
  body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-level {
-   grid-column:2;grid-row:1;text-align:left;white-space:nowrap;font-size:9px;
+   grid-column:2;grid-row:1;text-align:left;white-space:nowrap;font-size:10px;
  }
  body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-rate {
-   grid-column:3;grid-row:1;text-align:right;justify-self:end;white-space:nowrap;font-size:9px;
+   grid-column:3;grid-row:1;text-align:right;justify-self:end;
+   white-space:nowrap;font-size:10px;
  }
  body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-fc-cell {
-   grid-column:4;grid-row:1;justify-self:center;min-height:0;
+   grid-column:2;grid-row:2;justify-self:end;min-height:0;
  }
  body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-bear-medal {
-   width:15px;height:15px;
+   width:17px;height:17px;
  }
  body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-option {
-   grid-column:5;grid-row:1;justify-content:start;
+   grid-column:3;grid-row:2;justify-content:end;
  }
  body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-edit {
-   grid-column:3;grid-row:3;justify-self:end;align-self:center;
+   grid-column:4;grid-row:4;justify-self:end;align-self:center;
  }
  body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-edit button {
    display:grid;place-items:center;box-sizing:border-box;
