@@ -3571,9 +3571,9 @@ function tintHeaderValues(hot, other, total) {
   });
 }
 
-// Admin-only compact view: keep the logical width at 500px when narrower.
-// The lower zoom reduction improves legibility on iPhone while the scrollpane
-// height still compensates for zoom to avoid losing the bottom of the list.
+// Admin-only two-column view: use a 400px logical width at narrower sizes.
+// Keep the scrollpane proportional to the visual viewport so shrinking does
+// not strand unused space beneath the last visible card.
 function syncAdminTwoColumnViewport() {
   const screen = $('appScreen');
   if (!screen) return;
@@ -3581,8 +3581,8 @@ function syncAdminTwoColumnViewport() {
     && document.body.classList.contains('skill-target-columns')
     && (activeTabName === 'SKILL' || activeTabName === 'RECORDS');
   const viewportWidth = document.documentElement.clientWidth || window.innerWidth;
-  const viewportHeight = window.innerHeight;
-  const logicalWidth = 500;
+  const viewportHeight = window.visualViewport?.height || window.innerHeight;
+  const logicalWidth = 400;
   const scale = narrowColumns && viewportWidth < logicalWidth ? viewportWidth / logicalWidth : 1;
 
   if (scale >= 1) {
