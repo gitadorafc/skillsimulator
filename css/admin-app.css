@@ -260,13 +260,15 @@ body.admin-new-ui :is(#viewSkill,#viewAllManage) :is(.skill-other-section,.admin
    a first-line floating skill box. Metrics are separated into measured rows.
    This replaces the previous narrow title and sparse footer definitions. */
 body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-skill-float {display:none;}
+body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-title .ar-hot {display:none!important;}
+
 @media (max-width:1099px) {
  body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-table-head {display:none;}
  body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-record {
    display:grid;grid-template-columns:34px minmax(0,1fr) 20px;
-   grid-template-rows:16px 16px 20px 20px;
-   gap:2px 4px;align-items:center;
-   width:100%;min-width:0;min-height:86px;padding:5px;
+   grid-template-rows:16px 16px 19px 19px;
+   gap:1px 4px;align-items:center;
+   width:100%;min-width:0;min-height:78px;padding:4px 5px;
    overflow:hidden;box-sizing:border-box;
    -webkit-text-size-adjust:100%;text-size-adjust:100%;
  }
@@ -279,13 +281,6 @@ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-skill-
    min-width:0;max-height:32px;height:32px;overflow:hidden;
    padding:0;line-height:16px;font-size:11px;
  }
- body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-title .ar-hot {
-   float:none;display:inline-flex!important;position:static;
-   width:auto!important;min-width:0!important;max-width:max-content!important;
-   vertical-align:baseline;margin:0 3px 0 0;padding:0 3px!important;
-   height:15px!important;min-height:15px!important;max-height:15px!important;
-   font-size:9px!important;line-height:1!important;
- }
  body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-song-name {
    display:inline;min-width:0;max-height:none;font-size:11px;line-height:16px;
    white-space:normal;overflow:visible;text-overflow:clip;
@@ -297,15 +292,15 @@ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-skill-
    display:block!important;float:right;clear:none;
    position:relative;z-index:1;margin:0 0 0 4px;
    width:61px!important;min-width:61px!important;max-width:61px!important;
-   height:16px;min-height:16px;max-height:16px;
-   padding:0!important;font-size:10px;line-height:16px;
+   height:23px;min-height:23px;max-height:23px;
+   padding:3px 0!important;font-size:11px;line-height:17px;
    box-sizing:border-box;
  }
  body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-record > .ar-skill {display:none;}
  body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-metrics {
    display:grid;grid-column:1/4;grid-row:3;min-width:0;width:100%;
    grid-template-columns:48px 34px minmax(0,1fr);
-   grid-template-rows:20px;column-gap:3px;
+   grid-template-rows:19px;column-gap:3px;
    align-items:center;box-sizing:border-box;
  }
  body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-part {
@@ -319,17 +314,17 @@ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-skill-
    white-space:nowrap;font-size:10px;
  }
  body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-fc-cell {
-   position:absolute;right:83px;bottom:5px;min-height:0;
+   position:absolute;right:80px;bottom:4px;min-height:0;
  }
  body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-bear-medal {
    width:17px;height:17px;
  }
  body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-option {
-   position:absolute;right:25px;bottom:5px;min-width:0;justify-content:end;
+   position:absolute;right:25px;bottom:4px;min-width:0;justify-content:end;
  }
  body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-edit {
    position:absolute;grid-column:auto;grid-row:auto;
-   top:auto;right:4px;bottom:5px;align-self:auto;
+   top:auto;right:4px;bottom:4px;align-self:auto;
  }
  body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-edit button {
    display:grid;place-items:center;box-sizing:border-box;
