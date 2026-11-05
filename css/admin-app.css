@@ -287,7 +287,8 @@ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-title 
    grid-row:1;grid-template-columns:36px 19px minmax(0,1fr);
  }
  body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-bottom-metrics {
-   grid-row:2;grid-template-columns:30px minmax(53px,1fr) 49px;
+   grid-row:2;grid-template-columns:27px minmax(55px,1fr) 44px;
+   column-gap:4px;
  }
  body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-part {
    grid-column:1;grid-row:1;justify-content:start;
@@ -305,7 +306,8 @@ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-title 
    grid-column:1;grid-row:1;text-align:left;font-size:11px;white-space:nowrap;
  }
  body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-rate {
-   grid-column:2;grid-row:1;text-align:left;justify-self:start;font-size:11px;white-space:nowrap;
+   grid-column:2;grid-row:1;text-align:right;justify-self:stretch;
+   padding-right:3px;box-sizing:border-box;font-size:11px;white-space:nowrap;
  }
  body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-option {
    grid-column:3;grid-row:1;justify-content:end;min-width:0;
