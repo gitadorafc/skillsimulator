@@ -256,18 +256,17 @@ body.admin-new-ui :is(#viewSkill,#viewAllManage) :is(.skill-hot-section,.admin-r
 body.admin-new-ui :is(#viewSkill,#viewAllManage) :is(.skill-other-section,.admin-records-pane.other)>h2 {
  color:#b6ebf5;background:#173447;border-color:#367e9d;
 }
-/* Admin two-column phone/tablet cards: the 400px viewport yields columns of
-   around 190px.  A single five-field row plus an edit control cannot fit at
-   readable type sizes, so the metrics use two explicit rows instead.  This
-   rule REPLACES the prior fixed five-column row, it does not override it. */
+/* Admin-only two-column mobile/tablet card: full-width 2-line title with
+   a first-line floating skill box. Metrics are separated into measured rows.
+   This replaces the previous narrow title and sparse footer definitions. */
+body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-skill-float {display:none;}
 @media (max-width:1099px) {
  body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-table-head {display:none;}
  body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-record {
-   display:grid;position:relative;
-   grid-template-columns:34px minmax(0,1fr) 60px 20px;
+   display:grid;grid-template-columns:34px minmax(0,1fr) 20px;
    grid-template-rows:16px 16px 20px 20px;
-   column-gap:3px;row-gap:1px;align-items:center;
-   width:100%;min-width:0;min-height:88px;padding:5px 4px;
+   gap:2px 4px;align-items:center;
+   width:100%;min-width:0;min-height:86px;padding:5px;
    overflow:hidden;box-sizing:border-box;
    -webkit-text-size-adjust:100%;text-size-adjust:100%;
  }
@@ -276,35 +275,38 @@ body.admin-new-ui :is(#viewSkill,#viewAllManage) :is(.skill-other-section,.admin
    grid-column:1;grid-row:1/3;width:32px;height:32px;align-self:start;
  }
  body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-title {
-   grid-column:2;grid-row:1/3;align-self:start;
-   display:block;min-width:0;overflow:hidden;padding:0;
-   height:32px;max-height:32px;line-height:16px;font-size:10px;
+   grid-column:2/4;grid-row:1/3;display:block;align-self:start;
+   min-width:0;max-height:32px;height:32px;overflow:hidden;
+   padding:0;line-height:16px;font-size:11px;
  }
  body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-title .ar-hot {
    float:none;display:inline-flex!important;position:static;
    width:auto!important;min-width:0!important;max-width:max-content!important;
-   flex:none!important;align-self:auto;justify-self:auto;
-   margin:0 2px 0 0;vertical-align:baseline;
+   vertical-align:baseline;margin:0 3px 0 0;padding:0 3px!important;
    height:15px!important;min-height:15px!important;max-height:15px!important;
-   padding:0 2px!important;font-size:9px!important;line-height:1!important;
+   font-size:9px!important;line-height:1!important;
  }
  body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-song-name {
-   display:inline;min-width:0;max-height:none;
-   font-size:10px;line-height:16px;
+   display:inline;min-width:0;max-height:none;font-size:11px;line-height:16px;
    white-space:normal;overflow:visible;text-overflow:clip;
    overflow-wrap:anywhere;word-break:normal;
  }
- body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-skill {
-   grid-column:3/5;grid-row:1;justify-self:end;align-self:start;
-   width:58px!important;min-width:58px!important;max-width:58px!important;
-   font-size:10px;padding:2px 0!important;
+ /* A float only occupies the first line; the second title line can use the
+    width underneath the 16px-high skill box. */
+ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-title .ar-skill-float {
+   display:block!important;float:right;clear:none;
+   position:relative;z-index:1;margin:0 0 0 4px;
+   width:61px!important;min-width:61px!important;max-width:61px!important;
+   height:16px;min-height:16px;max-height:16px;
+   padding:0!important;font-size:10px;line-height:16px;
+   box-sizing:border-box;
  }
- /* Two rows, inside the space to the left of the dedicated edit column. */
+ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-record > .ar-skill {display:none;}
  body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-metrics {
-   display:grid;grid-column:1/4;grid-row:3/5;min-width:0;width:100%;
-   grid-template-columns:46px 30px minmax(0,1fr);
-   grid-template-rows:20px 20px;column-gap:3px;row-gap:1px;
-   justify-content:stretch;align-items:center;
+   display:grid;grid-column:1/4;grid-row:3;min-width:0;width:100%;
+   grid-template-columns:48px 34px minmax(0,1fr);
+   grid-template-rows:20px;column-gap:3px;
+   align-items:center;box-sizing:border-box;
  }
  body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-part {
    grid-column:1;grid-row:1;justify-content:start;
@@ -317,16 +319,17 @@ body.admin-new-ui :is(#viewSkill,#viewAllManage) :is(.skill-other-section,.admin
    white-space:nowrap;font-size:10px;
  }
  body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-fc-cell {
-   grid-column:2;grid-row:2;justify-self:end;min-height:0;
+   position:absolute;right:83px;bottom:5px;min-height:0;
  }
  body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-bear-medal {
    width:17px;height:17px;
  }
  body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-option {
-   grid-column:3;grid-row:2;justify-content:end;
+   position:absolute;right:25px;bottom:5px;min-width:0;justify-content:end;
  }
  body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-edit {
-   grid-column:4;grid-row:4;justify-self:end;align-self:center;
+   position:absolute;grid-column:auto;grid-row:auto;
+   top:auto;right:4px;bottom:5px;align-self:auto;
  }
  body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-edit button {
    display:grid;place-items:center;box-sizing:border-box;

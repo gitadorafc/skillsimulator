@@ -161,7 +161,7 @@ function recordCard(record, index, mode = 'RECORDS') {
   return `<article class="ar-record skill-row-${skillRank}" data-score-id="${esc(record.score_id)}"${compareAttributes}>
     <div class="ar-no">${String(index + 1).padStart(3,'0')}</div>
     <div class="ar-art">${artwork}</div>
-    <div class="ar-title">${record.is_hot ? '<span class="hot-tag ar-hot">HOT</span>' : ''}<span class="ar-song-name" title="${title}">${title}</span>${pendingBadge}</div>
+    <div class="ar-title"><span class="ar-skill ar-skill-float skill-box-${skillRank}" aria-hidden="true"><span class="dc-skill-value">${formatSkill(record.skill)}</span></span>${record.is_hot ? '<span class="hot-tag ar-hot">HOT</span>' : ''}<span class="ar-song-name" title="${title}">${title}</span>${pendingBadge}</div>
     <div class="ar-metrics"><div class="ar-part"><span class="p-badge ${getPartColorClass(record.part)}">${esc(record.part)}</span></div>
     <div class="ar-level"><span class="ar-mini-label">Lv</span><strong>${formatLevel(record.level)}</strong></div>
     <div class="ar-rate"><span class="ar-mini-label">達成率</span><strong>${formatRate(record.achievement_rate)}%</strong></div>
