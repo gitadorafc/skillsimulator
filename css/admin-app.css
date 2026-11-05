@@ -264,29 +264,30 @@ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-title 
 @media (max-width:1099px) {
  body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-table-head {display:none;}
  body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-record {
-   display:grid;grid-template-columns:35px minmax(0,1fr) 19px;
-   grid-template-rows:21px 21px 32px;gap:2px 4px;
-   min-width:0;min-height:87px;width:100%;padding:5px;
+   display:grid;grid-template-columns:50px minmax(0,1fr) 20px;
+   grid-template-rows:24px 24px 20px;column-gap:4px;row-gap:2px;
+   min-width:0;min-height:80px;width:100%;padding:5px;
    box-sizing:border-box;align-items:center;overflow:hidden;
    -webkit-text-size-adjust:100%;text-size-adjust:100%;
  }
  body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-no {display:none;}
+ /* Jacket and the two metric rows share one top/bottom edge. */
  body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-art {
-   grid-column:1;grid-row:1/3;width:34px;height:34px;align-self:start;
+   grid-column:1;grid-row:1/3;width:48px;height:48px;align-self:center;
  }
  body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-metrics {
    grid-column:2/4;grid-row:1/3;display:grid;
-   grid-template-columns:minmax(0,1fr);grid-template-rows:21px 21px;
-   row-gap:2px;min-width:0;min-height:0;width:100%;
+   grid-template-columns:minmax(0,1fr);grid-template-rows:24px 24px;
+   row-gap:2px;min-width:0;min-height:0;width:100%;align-self:center;
  }
  body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) :is(.ar-top-metrics,.ar-bottom-metrics) {
-   display:grid;grid-template-rows:21px;min-width:0;align-items:center;gap:3px;
+   display:grid;grid-template-rows:24px;min-width:0;align-items:center;gap:2px;
  }
  body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-top-metrics {
-   grid-row:1;grid-template-columns:48px 19px minmax(0,1fr);
+   grid-row:1;grid-template-columns:42px 17px minmax(0,1fr);
  }
  body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-bottom-metrics {
-   grid-row:2;grid-template-columns:30px 55px minmax(0,1fr);
+   grid-row:2;grid-template-columns:28px 50px minmax(0,1fr);
  }
  body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-part {
    grid-column:1;grid-row:1;justify-content:start;
@@ -298,7 +299,7 @@ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-title 
  body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-skill {
    grid-column:3;grid-row:1;justify-self:end;align-self:center;
    width:61px!important;min-width:61px!important;max-width:61px!important;
-   font-size:11px;line-height:15px;padding:3px 0!important;
+   font-size:11px;line-height:15px;padding:5px 0!important;
  }
  body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-level {
    grid-column:1;grid-row:1;text-align:left;font-size:11px;white-space:nowrap;
@@ -312,17 +313,19 @@ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-title 
  body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) :is(.ar-part .p-badge,.ar-option .opt-badge) {
    font-size:9px!important;padding:0 2px!important;white-space:nowrap;
  }
+ /* Title is a single dedicated row, with the edit button on its right. */
  body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-title {
-   grid-column:1/3;grid-row:3;display:block;align-self:start;
-   width:100%;height:32px;max-height:32px;min-width:0;
-   margin:0;padding:0;overflow:hidden;line-height:16px;
+   grid-column:1/3;grid-row:3;display:block;align-self:center;
+   width:100%;height:auto;max-height:none;min-width:0;
+   margin:0;padding:0;overflow:hidden;line-height:19px;
+   white-space:nowrap;text-overflow:ellipsis;
  }
  body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-song-name {
-   display:block;min-width:0;max-width:100%;font-size:11px;line-height:16px;
-   white-space:normal;overflow-wrap:anywhere;word-break:normal;
+   display:block;min-width:0;max-width:100%;font-size:11px;line-height:19px;
+   white-space:nowrap;overflow:hidden;text-overflow:ellipsis;overflow-wrap:normal;
  }
  body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-edit {
-   grid-column:3;grid-row:3;justify-self:end;align-self:end;
+   grid-column:3;grid-row:3;justify-self:end;align-self:center;
  }
  body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-edit button {
    display:grid;place-items:center;width:19px;height:19px;padding:0;
