@@ -157,7 +157,11 @@ function recordCard(record, index, mode = 'RECORDS') {
     ? `<img loading="lazy" alt="" src="${esc(urls[0])}"${urls[1] ? ` data-jacket-fallback="${esc(urls[1])}"` : ''}>`
     : '<span class="ar-jacket-missing" aria-hidden="true">♫</span>';
   const skillRank = getSongSkillRank(Number(record.skill));
-  const option = getOptionBadgeMarkup(record.play_option);
+  const originalOption = getOptionBadgeMarkup(record.play_option);
+  // Short label for DM bass mirror in the compact admin card; keep stored value unchanged.
+  const option = record.play_option === 'BASS_MIRROR'
+    ? originalOption.replace(/>[^<>]*</, '>B-MIR<')
+    : originalOption;
   return `<article class="ar-record skill-row-${skillRank}" data-score-id="${esc(record.score_id)}"${compareAttributes}>
     <div class="ar-no">${String(index + 1).padStart(3,'0')}</div>
     <div class="ar-art">${artwork}</div>
