@@ -256,8 +256,8 @@ body.admin-new-ui :is(#viewSkill,#viewAllManage) :is(.skill-hot-section,.admin-r
 body.admin-new-ui :is(#viewSkill,#viewAllManage) :is(.skill-other-section,.admin-records-pane.other)>h2 {
  color:#b6ebf5;background:#173447;border-color:#367e9d;
 }
-/* Admin ON cards: one compact mobile grid (<800px), one shared tablet/PC
-   grid (>=800px). The legacy single-column layout is not changed. */
+/* Admin ON cards: one compact grid below 700px and one two-row grid
+   from 700px upward. These rules do not change the classic single-column UI. */
 body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-table-head {display:none;}
 body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-title .ar-hot {display:none!important;}
 body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-no {display:none;}
@@ -269,9 +269,8 @@ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-song-n
 body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-edit button {
  display:grid;place-items:center;box-sizing:border-box;padding:0;
 }
-/* At narrow width keep the jacket + two metric rows above a single-line title.
-   The sizes are bounded by the actual column, not the overall viewport. */
-@media (max-width:799px) {
+/* Compact two-column cards below 700px, including the 400px scaling range. */
+@media (max-width:699px) {
  body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-record {
    display:grid;grid-template-columns:40px minmax(0,1fr) 20px;
    grid-template-rows:20px 20px 20px;column-gap:4px;row-gap:2px;
@@ -341,11 +340,11 @@ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-edit b
    width:19px;height:19px;font-size:13px;line-height:1;border-radius:4px;
  }
 }
-/* Two-column ON cards at 800px and above: one stable two-row grid.
+/* Two-column ON cards from 700px upward: one stable two-row grid.
    Do not flatten the metric wrappers into the article grid; doing so makes the
    record dependent on the number of columns and creates width-boundary bugs.
    Part / level / rate / FC / option are one flex group. Only edit is rightmost. */
-@media (min-width:800px) {
+@media (min-width:700px) {
  body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-record {
    position:relative;display:grid;
    grid-template-columns:48px minmax(0,1fr) 28px;
@@ -359,7 +358,7 @@ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-edit b
  }
  body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-title {
    grid-column:2/4;grid-row:1;display:block;min-width:0;width:100%;
-   margin:0;padding:0 85px 0 0;box-sizing:border-box;
+   margin:0;padding:0 83px 0 0;box-sizing:border-box;
    overflow:hidden;white-space:nowrap;text-overflow:ellipsis;align-self:center;
  }
  body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-song-name {
@@ -373,7 +372,7 @@ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-edit b
    display:contents;
  }
  body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-skill {
-   position:absolute;top:7px;right:41px;
+   position:absolute;top:7px;right:6px;
    width:72px!important;min-width:0!important;max-width:72px!important;
    height:19px!important;min-height:19px!important;max-height:19px!important;
    padding:0!important;display:flex;align-items:center;justify-content:center;
