@@ -3571,19 +3571,20 @@ function tintHeaderValues(hot, other, total) {
   });
 }
 
-// Admin-only two-column view: use a 400px logical width at narrower sizes.
+// Admin registered views: use a 400px logical width at narrower sizes.
 // Keep the scrollpane proportional to the visual viewport so shrinking does
 // not strand unused space beneath the last visible card.
 function syncAdminTwoColumnViewport() {
   const screen = $('appScreen');
   if (!screen) return;
-  const narrowColumns = document.body.classList.contains('admin-new-ui')
-    && document.body.classList.contains('skill-target-columns')
+  // Both ON and OFF registered-card views share a 400px minimum logical width.
+  // Never zoom the user list, board, or public UI.
+  const narrowRegisteredView = document.body.classList.contains('admin-new-ui')
     && (activeTabName === 'SKILL' || activeTabName === 'RECORDS');
   const viewportWidth = document.documentElement.clientWidth || window.innerWidth;
   const viewportHeight = window.visualViewport?.height || window.innerHeight;
   const logicalWidth = 400;
-  const scale = narrowColumns && viewportWidth < logicalWidth ? viewportWidth / logicalWidth : 1;
+  const scale = narrowRegisteredView && viewportWidth < logicalWidth ? viewportWidth / logicalWidth : 1;
 
   if (scale >= 1) {
     ['zoom', 'width', 'height'].forEach(prop => screen.style.removeProperty(prop));
