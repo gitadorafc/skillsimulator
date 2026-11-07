@@ -23,6 +23,7 @@ body.admin-new-ui :is(#viewAllManage,#viewSkill) .ar-record::before{
 /* Match the existing 190.00+ public card border pulse without animating the card contents. */
 body.admin-new-ui :is(#viewAllManage,#viewSkill) .ar-record.skill-row-sparkle-rainbow::before{
  animation:skill-sparkle-border-pulse var(--skill-sparkle-cycle,1.6s) ease-in-out infinite;
+ animation-delay:var(--admin-sparkle-phase,0ms)!important;
 }
 
 body.admin-new-ui :is(#viewAllManage,#viewSkill) .ar-metrics{display:contents}
@@ -52,7 +53,7 @@ body.admin-new-ui :is(#viewAllManage,#viewSkill) .own-registered-records-more{gr
 /* The exact public UI animation is skill-sparkle-band-pulse. */
 body.admin-new-ui :is(#viewAllManage,#viewSkill) .ar-record.skill-row-sparkle-rainbow{animation:none!important}
 body.admin-new-ui :is(#viewAllManage,#viewSkill) .ar-skill.skill-box-sparkle-rainbow{animation:none!important;filter:none!important}
-body.admin-new-ui :is(#viewAllManage,#viewSkill) .ar-skill.skill-box-sparkle-rainbow::after{content:"";display:block;position:absolute;inset:0;pointer-events:none;z-index:2;background-image:var(--skill-side-paint),var(--skill-side-paint);background-position:left top,right top;background-size:5px 100%,5px 100%;background-repeat:no-repeat,no-repeat;animation:skill-sparkle-band-pulse var(--skill-sparkle-cycle,1.6s) ease-in-out infinite!important}
+body.admin-new-ui :is(#viewAllManage,#viewSkill) .ar-skill.skill-box-sparkle-rainbow::after{content:"";display:block;position:absolute;inset:0;pointer-events:none;z-index:2;background-image:var(--skill-side-paint),var(--skill-side-paint);background-position:left top,right top;background-size:5px 100%,5px 100%;background-repeat:no-repeat,no-repeat;animation:skill-sparkle-band-pulse var(--skill-sparkle-cycle,1.6s) ease-in-out infinite!important;animation-delay:var(--admin-sparkle-phase,0ms)!important}
 
 
 /* Existing admin-only filter interaction; keep this separate from responsive layout. */

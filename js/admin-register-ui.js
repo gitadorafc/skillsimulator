@@ -170,7 +170,17 @@ function recordCard(record, index, mode = 'RECORDS') {
   const option = record.play_option === 'BASS_MIRROR'
     ? originalOption.replace(/>[^<>]*</, '>B-MIR<')
     : originalOption;
-  return `<article class="ar-record skill-row-${skillRank}" style="--song-skill-border:${esc(borderPaint)}" data-score-id="${esc(record.score_id)}"${compareAttributes}>
+  // Both the frame and the skill side bands must pulse against the same document
+  // clock. Rows can be recreated on tab changes or refreshed asynchronously; an
+  // identical default animation-delay of 0 would restart only those new rows.
+  // A negative delay equal to the current phase of the original 1.6s cycle keeps
+  // all sparkle frames and bands synchronized even after separate re-renders.
+  const documentTime = Number(document.timeline?.currentTime ?? performance.now());
+  const pulsePhase = Number.isFinite(documentTime) ? ((documentTime % 1600) + 1600) % 1600 : 0;
+  const phaseStyle = skillRank === 'sparkle-rainbow'
+    ? `;--admin-sparkle-phase:-${pulsePhase.toFixed(2)}ms`
+    : '';
+  return `<article class="ar-record skill-row-${skillRank}" style="--song-skill-border:${esc(borderPaint)}${phaseStyle}" data-score-id="${esc(record.score_id)}"${compareAttributes}>
     <div class="ar-no">${String(index + 1).padStart(3,'0')}</div>
     <div class="ar-art">${artwork}</div>
     <div class="ar-title">${record.is_hot ? '<span class="hot-tag ar-hot">HOT</span>' : ''}<span class="ar-song-name" title="${title}">${title}</span>${pendingBadge}</div>
