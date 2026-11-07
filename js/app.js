@@ -4463,7 +4463,7 @@ function renderViewedUserRegisteredScores() {
       ? (document.body.classList.contains('skill-target-columns')
         ? `<div class="admin-records-two-column">`
           + `<section class="admin-records-pane hot"><h2>HOT</h2>${renderAdminRegisteredRecords(visibleRows.filter(row => Boolean(row.is_hot)), 'PUBLIC', true) || '<div class="empty-state">登録曲なし</div>'}</section>`
-          + `<section class="admin-records-pane other"><h2>OTHER</h2>${renderAdminRegisteredRecords(visibleRows.filter(row => !row.is_hot)), 'PUBLIC', true) || '<div class="empty-state">登録曲なし</div>'}</section>`
+          + `<section class="admin-records-pane other"><h2>OTHER</h2>${renderAdminRegisteredRecords(visibleRows.filter(row => !row.is_hot), 'PUBLIC', true) || '<div class="empty-state">登録曲なし</div>'}</section>`
           + `</div>`
         : renderAdminRegisteredRecords(visibleRows, 'PUBLIC', true))
       : renderRegisteredCardList(visibleRows, 'PUBLIC'),
