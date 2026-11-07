@@ -173,6 +173,15 @@ body.admin-new-ui #searchArea #btnHeaderAdd {
 body.admin-new-ui #boardMainFixed #btnBoardNewThread {white-space:nowrap;}
 /* Board search row: use the shared toolbar geometry; keep its own bottom gap. */
 body.admin-new-ui #boardMainFixed .board-main-toolbar {margin-bottom:8px;}
+/* Align thread cards with the shared search row: the enclosing .p-container
+   already contributes 6px of inline padding, so the board view supplies only
+   the remaining 2px (8px total). Keep public UI rules untouched. */
+@media (width < 1100px) {
+  body.admin-new-ui #appScreen>.p-container>#viewBoard.board-main-view {
+    padding-left:2px;
+    padding-right:2px;
+  }
+}
 /* Only the notice tracks the thread cards' actual horizontal extent. */
 body.admin-new-ui #boardMainFixed .board-main-rule-note {
   display:block;clear:both;box-sizing:border-box;min-width:0;
