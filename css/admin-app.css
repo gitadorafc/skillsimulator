@@ -9,6 +9,20 @@ body.admin-new-ui :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailReco
 body.admin-new-ui :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-table-head span:nth-child(3){text-align:left}
 body.admin-new-ui :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-record{position:relative;padding:8px;min-height:80px;border:1px solid transparent;border-radius:7px;background:linear-gradient(90deg,#112c55,#281531 15%,#0c1728 65%);color:#edf8ff;font-size:13px}
 body.admin-new-ui :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-record>*{min-width:0}
+/* Light theme: explicit contrast for admin cards. Layout, skill-color border,
+   and the shared public sparkle animation remain identical in both themes. */
+body.admin-new-ui.light-mode :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-record{
+ background:#ffffff;color:#17243a;
+}
+body.admin-new-ui.light-mode :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) :is(.ar-song-name,.ar-level,.ar-rate),
+body.admin-new-ui.light-mode :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) :is(.ar-level,.ar-rate) strong{
+ color:#17243a!important;-webkit-text-fill-color:#17243a;
+}
+body.admin-new-ui.light-mode :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-no{color:#536780;}
+body.admin-new-ui.light-mode :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-table-head{
+ background:#e8f3fa;border-color:#83bdd6;color:#184c68;
+}
+
 /* Single admin-only skill border. Paint is derived from the SAME skill-color table
    as the existing user-facing card; no rank colors are duplicated here. */
 body.admin-new-ui :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-record::before{
@@ -288,6 +302,14 @@ body.admin-new-ui :is(#viewSkill,#viewAllManage,#userDetailSkill,#userDetailReco
 body.admin-new-ui :is(#viewSkill,#viewAllManage,#userDetailSkill,#userDetailRecords) :is(.skill-other-section,.admin-records-pane.other)>h2 {
  color:#b6ebf5;background:#173447;border-color:#367e9d;
 }
+/* Light-theme section headings stay legible on the light page background. */
+body.admin-new-ui.light-mode :is(#viewSkill,#viewAllManage,#userDetailSkill,#userDetailRecords) :is(.skill-hot-section,.admin-records-pane.hot)>h2 {
+ color:#8b1e29;background:#fff1f2;border-color:#b42332;
+}
+body.admin-new-ui.light-mode :is(#viewSkill,#viewAllManage,#userDetailSkill,#userDetailRecords) :is(.skill-other-section,.admin-records-pane.other)>h2 {
+ color:#15556d;background:#eaf8fd;border-color:#257a9e;
+}
+
 /* ON card layout: base shared by all widths. The 700px breakpoint changes
    only the compact card arrangement, not the HTML structure. OFF styles and
    the public UI remain untouched. */
