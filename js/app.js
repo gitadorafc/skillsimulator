@@ -2,7 +2,7 @@
 import {
   getSkillColorRowByTotalValue
 } from './skill-colors.js?v=4_14_33';
-import { renderAdminRegisteredRecords, loadAdminRegisteredJackets } from './admin-register-ui.js?v=4_38_85';
+import { renderAdminRegisteredRecords, loadAdminRegisteredJackets } from './admin-register-ui.js?v=4_38_87';
 import {
   createCard,
   getPartColorClass
@@ -3773,6 +3773,32 @@ function syncRegisteredEditButtonWidths() {
   });
 }
 
+
+// Align newly rendered admin card effects with the existing public header glow.
+// Only runs after a render; no frame-by-frame app-wide styles or observers.
+function syncAdminSparkleWithHeader() {
+  if (!document.body.classList.contains('admin-new-ui')) return;
+  const candidates = [...document.querySelectorAll('.score-val.score-rank-sparkle-rainbow, .user-detail-skill-value.score-rank-sparkle-rainbow')];
+  const headerAnimations = candidates.flatMap(element => element.getAnimations({subtree:false}));
+  const clock = headerAnimations.find(animation => animation.animationName === 'skill-sparkle-text-glow' && animation.currentTime != null);
+  if (!clock) return;
+  const duration = 1600;
+  const phase = ((Number(clock.currentTime) % duration) + duration) % duration;
+  // ::before / ::after animations are not included in element.getAnimations().
+  // Document animations expose their owning element through effect.target.
+  for (const animation of document.getAnimations()) {
+    const name = animation.animationName;
+    if (name !== 'skill-sparkle-border-pulse' && name !== 'skill-sparkle-band-pulse') continue;
+    const owner = animation.effect?.target;
+    if (!owner?.closest?.('.ar-record.skill-row-sparkle-rainbow')) continue;
+    try { animation.currentTime = phase; } catch (_) { /* animation no longer active */ }
+  }
+}
+function scheduleAdminSparkleSync() {
+  if (!document.body.classList.contains('admin-new-ui')) return;
+  requestAnimationFrame(syncAdminSparkleWithHeader);
+}
+
 function render() {
   // 表示設定を再評価する。CSS側でスキル対象コンテナだけに限定しているため、
   // 登録曲タブには横並びレイアウトを適用しない。
@@ -3808,7 +3834,7 @@ function render() {
     show('viewSkill');
     renderSkill();
   }
-  requestAnimationFrame(() => { syncAdminTwoColumnViewport(); clampAdminTwoColumnTitles(); });
+  requestAnimationFrame(() => { syncAdminTwoColumnViewport(); clampAdminTwoColumnTitles(); syncAdminSparkleWithHeader(); });
 }
 
 async function getCurrentBoardAccessStatus() {
@@ -4439,6 +4465,7 @@ function renderViewedUserSkill() {
       ? renderAdminRegisteredRecords(target.otherRows, 'SKILL', true)
       : target.otherRows.map((r,i) => createCard(r,i+1,'SKILL')).join('')
   });
+  scheduleAdminSparkleSync();
 }
 
 function setUserDetailTab(tab) {
@@ -4448,6 +4475,7 @@ function setUserDetailTab(tab) {
 
   $('userDetailSkill').classList.toggle('hidden', tab !== 'skill');
   $('userDetailRecords').classList.toggle('hidden', tab !== 'records');
+  scheduleAdminSparkleSync();
 }
 
 function renderViewedUserRegisteredScores() {
@@ -4469,6 +4497,7 @@ function renderViewedUserRegisteredScores() {
       : renderRegisteredCardList(visibleRows, 'PUBLIC'),
     hasMore
   });
+  scheduleAdminSparkleSync();
 }
 
 async function loadViewedUserRegisteredScores() {

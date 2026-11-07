@@ -170,7 +170,7 @@ function recordCard(record, index, mode = 'RECORDS', readOnly = false) {
   const option = record.play_option === 'BASS_MIRROR'
     ? originalOption.replace(/>[^<>]*</, '>B-MIR<')
     : originalOption;
-  return `<article class="ar-record skill-row-${skillRank}" style="--song-skill-border:${esc(borderPaint)}" data-score-id="${esc(record.score_id)}"${compareAttributes}>
+  return `<article class="ar-record${readOnly ? ' ar-readonly' : ''} skill-row-${skillRank}" style="--song-skill-border:${esc(borderPaint)}" data-score-id="${esc(record.score_id)}"${compareAttributes}>
     <div class="ar-no">${String(index + 1).padStart(3,'0')}</div>
     <div class="ar-art">${artwork}</div>
     <div class="ar-title">${record.is_hot ? '<span class="hot-tag ar-hot">HOT</span>' : ''}<span class="ar-song-name" title="${title}">${title}</span>${pendingBadge}</div>
@@ -182,12 +182,12 @@ function recordCard(record, index, mode = 'RECORDS', readOnly = false) {
       <div class="ar-option">${option}</div>
     </div>
     <div class="ar-skill skill-box-${skillRank}"><span class="dc-skill-value">${formatSkill(record.skill)}</span></div>
-    <div class="ar-edit">${readOnly ? '' : `<button type="button" data-edit="${esc(record.score_id)}" aria-label="${title} を編集" title="編集">✎</button>`}</div>
+    ${readOnly ? '' : `<div class="ar-edit"><button type="button" data-edit="${esc(record.score_id)}" aria-label="${title} を編集" title="編集">✎</button></div>`}
   </article>`;
 }
 
 export function renderAdminRegisteredRecords(rows, mode = 'RECORDS', readOnly = false) {
   if (!rows.length) return '';
   const header = `<div class="ar-table-head" aria-hidden="true"><span>No.</span><span>ジャケット</span><span>曲名</span><span>パート</span><span>Lv</span><span>達成率</span><span>FC/EXC</span><span>オプション</span><span>スキル</span><span>編集</span></div>`;
-  return `<div class="ar-register-view">${header}<div class="ar-record-grid">${rows.map((row,index) => recordCard(row,index,mode,readOnly)).join('')}</div></div>`;
+  return `<div class="ar-register-view${readOnly ? ' ar-readonly' : ''}">${header}<div class="ar-record-grid">${rows.map((row,index) => recordCard(row,index,mode,readOnly)).join('')}</div></div>`;
 }
