@@ -20,24 +20,33 @@ body.admin-new-ui :is(#viewAllManage,#viewSkill) .ar-record::before{
  -webkit-mask-composite:xor;
  mask-composite:exclude;
 }
-/* One inherited animation clock per 190+ card. The border and the skill
-   side bands read the same phase; neither creates an independent timeline. */
-@property --admin-card-sparkle-phase {
+/* One timeline for all admin 190+ effects, including header totals and cards.
+   Re-rendered cards inherit the phase instead of restarting their own clocks. */
+@property --admin-ui-glow-phase {
  syntax:"<number>";
  inherits:true;
  initial-value:0;
 }
-@keyframes admin-card-sparkle-phase {
- 0%,100% { --admin-card-sparkle-phase:0; }
- 50% { --admin-card-sparkle-phase:1; }
+@keyframes admin-ui-glow-clock {
+ 0%,100% { --admin-ui-glow-phase:0; }
+ 50% { --admin-ui-glow-phase:1; }
+}
+body.admin-new-ui #appScreen:not(.hidden) {
+ animation:admin-ui-glow-clock var(--skill-sparkle-cycle,1.6s) ease-in-out infinite;
+}
+body.admin-new-ui #appScreen .score-val.score-rank-sparkle-rainbow {
+ animation:none!important;
+ filter:brightness(calc(.94 + .18 * var(--admin-ui-glow-phase)))
+   saturate(calc(1.04 + .10 * var(--admin-ui-glow-phase)))
+   drop-shadow(0 0 calc(.45px + .40px * var(--admin-ui-glow-phase)) rgba(255,255,255,.52));
 }
 body.admin-new-ui :is(#viewAllManage,#viewSkill) .ar-record.skill-row-sparkle-rainbow {
- animation:admin-card-sparkle-phase var(--skill-sparkle-cycle,1.6s) ease-in-out infinite;
+ animation:none!important;
 }
 body.admin-new-ui :is(#viewAllManage,#viewSkill) .ar-record.skill-row-sparkle-rainbow::before {
- opacity:calc(.78 + .22 * var(--admin-card-sparkle-phase));
- filter:brightness(calc(1.05 + .8 * var(--admin-card-sparkle-phase)))
-   drop-shadow(0 0 calc(1px + 3px * var(--admin-card-sparkle-phase)) rgba(255,255,255,.65));
+ opacity:calc(.78 + .22 * var(--admin-ui-glow-phase));
+ filter:brightness(calc(1.05 + .8 * var(--admin-ui-glow-phase)))
+   drop-shadow(0 0 calc(1px + 3px * var(--admin-ui-glow-phase)) rgba(255,255,255,.65));
 }
 
 body.admin-new-ui :is(#viewAllManage,#viewSkill) .ar-metrics{display:contents}
@@ -64,15 +73,15 @@ body.admin-new-ui :is(#viewAllManage,#viewSkill) .ar-bear-medal{display:block;wi
 body.admin-new-ui :is(#viewAllManage,#viewSkill) .ar-edit{display:flex;justify-content:center}
 body.admin-new-ui :is(#viewAllManage,#viewSkill) .ar-edit button{width:37px;height:37px;border:1px solid #23618a;background:#0b3357;border-radius:6px;color:white;font-size:22px;cursor:pointer}
 body.admin-new-ui :is(#viewAllManage,#viewSkill) .own-registered-records-more{grid-column:1/-1}
-/* Skill-side glow follows the card's inherited phase, including after redraw. */
+/* Skill bands inherit the same app-wide animation phase. */
 body.admin-new-ui :is(#viewAllManage,#viewSkill) .ar-skill.skill-box-sparkle-rainbow {animation:none!important;filter:none!important}
 body.admin-new-ui :is(#viewAllManage,#viewSkill) .ar-skill.skill-box-sparkle-rainbow::after {
  content:"";display:block;position:absolute;inset:0;pointer-events:none;z-index:2;
  background-image:var(--skill-side-paint),var(--skill-side-paint);
  background-position:left top,right top;background-size:5px 100%,5px 100%;
  background-repeat:no-repeat,no-repeat;
- opacity:calc(.78 + .22 * var(--admin-card-sparkle-phase));
- filter:brightness(calc(1.05 + .8 * var(--admin-card-sparkle-phase)));
+ opacity:calc(.78 + .22 * var(--admin-ui-glow-phase));
+ filter:brightness(calc(1.05 + .8 * var(--admin-ui-glow-phase)));
 }
 
 
@@ -116,11 +125,11 @@ body.admin-new-ui #appScreen>.p-header :is(#searchArea,#userListHeaderSlot) {
   margin-top:0;margin-bottom:0;
   border:0;background:transparent;
 }
-/* The board fixed header stays full width; inset only its toolbar and notice.
-   The thread list in .p-container must retain its original spacing. */
+/* Board header itself owns the same 8px horizontal inset as other tabs.
+   The thread list lives in a separate container and is unaffected. */
 body.admin-new-ui #appScreen>.p-header>#boardMainFixed.board-main-fixed {
   min-width:0;box-sizing:border-box;
-  padding:6px 0 8px!important;
+  padding:6px 8px 8px!important;
   margin-top:0;margin-bottom:0;
   border:0;background:transparent;
 }
@@ -189,13 +198,12 @@ body.admin-new-ui #searchArea #btnHeaderAdd {
 }
 body.admin-new-ui #boardMainFixed #btnBoardNewThread {white-space:nowrap;}
 body.admin-new-ui #boardMainFixed .board-main-toolbar {
-  width:calc(100% - 16px);max-width:calc(100% - 16px);
-  margin:0 8px 10px;
+  width:100%;max-width:100%;margin:0 0 10px;
 }
 body.admin-new-ui #boardMainFixed .board-main-rule-note {
   display:block;clear:both;
-  width:calc(100% - 16px);max-width:calc(100% - 16px);
-  box-sizing:border-box;margin:0 8px;
+  width:100%;max-width:100%;min-width:0;
+  box-sizing:border-box;margin:0;
 }
 
 /* No duplicate generated text; the button markup itself contains the plus sign. */
