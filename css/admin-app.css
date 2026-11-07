@@ -103,20 +103,13 @@ body.admin-new-ui #appScreen>.p-header :is(#searchArea,#userListHeaderSlot) {
   margin-top:0;margin-bottom:0;
   border:0;background:transparent;
 }
-/* The toolbar and notice occupy the SAME horizontal extent as the rendered
-   thread cards. JS measures their actual bounds after the thread list renders;
-   these values are only the no-threads fallback (6+7 / 6+10). */
+/* Board toolbar uses the same fixed 8px inset as the user list.
+   Thread alignment applies ONLY to the notice, never to the search row. */
 body.admin-new-ui #appScreen>.p-header>#boardMainFixed.board-main-fixed {
   box-sizing:border-box!important;min-width:0;
-  --admin-board-thread-inset-left:13px;--admin-board-thread-inset-right:13px;
-  padding:6px 13px 8px!important;
+  padding:6px 8px 8px!important;
   border:0!important;background:transparent!important;
-}
-@media (min-width:561px) {
-  body.admin-new-ui #appScreen>.p-header>#boardMainFixed.board-main-fixed {
-    --admin-board-thread-inset-left:16px;--admin-board-thread-inset-right:16px;
-    padding-right:16px!important;padding-left:16px!important;
-  }
+  --admin-board-notice-left:0px;--admin-board-notice-right:0px;
 }
 body.admin-new-ui #userListHeaderSlot {position:relative;flex:0 0 auto;min-width:0;box-sizing:border-box;}
 body.admin-new-ui.app-scroll-layout #userListHeaderSlot:not(.hidden) {display:block;}
@@ -182,17 +175,15 @@ body.admin-new-ui #searchArea #btnHeaderAdd {
   background:#3b82f6;border-color:#3b82f6;color:white;-webkit-text-fill-color:white;
 }
 body.admin-new-ui #boardMainFixed #btnBoardNewThread {white-space:nowrap;}
-/* Search strip matches the user-list toolbar's 8px inset, independent of
-   the thread-card inset used by the board notice and content. */
+/* Search strip: same width and inset as #userListHeaderSlot .users-toolbar. */
 body.admin-new-ui #boardMainFixed .board-main-toolbar {
-  max-width:none;
-  width:calc(100% + var(--admin-board-thread-inset-left,13px) + var(--admin-board-thread-inset-right,13px) - 16px);
-  margin:0 0 8px calc(8px - var(--admin-board-thread-inset-left,13px));
+  width:100%;max-width:100%;margin:0 0 8px;
 }
+/* Only the notice tracks the thread cards' actual horizontal extent. */
 body.admin-new-ui #boardMainFixed .board-main-rule-note {
-  display:block;clear:both;
-  width:100%;max-width:100%;min-width:0;
-  box-sizing:border-box;margin:0;
+  display:block;clear:both;box-sizing:border-box;min-width:0;
+  width:auto;max-width:none;
+  margin:0 var(--admin-board-notice-right,0px) 0 var(--admin-board-notice-left,0px);
 }
 
 /* Viewed profiles are read-only. They inherit exactly the same card rules. */

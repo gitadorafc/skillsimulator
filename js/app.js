@@ -3808,19 +3808,22 @@ function alignAdminBoardHeaderToThreads() {
   if (!document.body.classList.contains('admin-new-ui')) return;
   const header = document.getElementById('boardMainFixed');
   const thread = document.querySelector('#boardMainBody .admin-board-thread-card');
-  if (!header || !thread || header.classList.contains('hidden')) return;
+  if (!header || header.classList.contains('hidden')) return;
+  // Search bar always follows the shared 8px toolbar inset. Only the
+  // notice tracks the thread's horizontal bounds inside the scroll region.
+  if (!thread) {
+    header.style.setProperty('--admin-board-notice-left', '0px');
+    header.style.setProperty('--admin-board-notice-right', '0px');
+    return;
+  }
   const h = header.getBoundingClientRect();
   const t = thread.getBoundingClientRect();
   const scale = header.offsetWidth ? h.width / header.offsetWidth : 1;
   if (!scale || !h.width || !t.width) return;
-  const left = Math.max(0,(t.left-h.left)/scale);
-  const right = Math.max(0,(h.right-t.right)/scale);
-  header.style.setProperty('padding-left', `${left}px`, 'important');
-  header.style.setProperty('padding-right', `${right}px`, 'important');
-  // The notice remains aligned to threads, but the search strip follows the
-  // shared 8px inset of the user-list and registered-records toolbars.
-  header.style.setProperty('--admin-board-thread-inset-left', `${left}px`);
-  header.style.setProperty('--admin-board-thread-inset-right', `${right}px`);
+  const left = (t.left - h.left) / scale - 8;
+  const right = (h.right - t.right) / scale - 8;
+  header.style.setProperty('--admin-board-notice-left', `${left}px`);
+  header.style.setProperty('--admin-board-notice-right', `${right}px`);
 }
 function scheduleAdminBoardHeaderAlignment() {
   if (!document.body.classList.contains('admin-new-ui')) return;
