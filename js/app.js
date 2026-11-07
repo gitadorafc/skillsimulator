@@ -2,7 +2,7 @@
 import {
   getSkillColorRowByTotalValue
 } from './skill-colors.js?v=4_14_33';
-import { renderAdminRegisteredRecords, loadAdminRegisteredJackets } from './admin-register-ui.js?v=4_38_79';
+import { renderAdminRegisteredRecords, loadAdminRegisteredJackets } from './admin-register-ui.js?v=4_38_85';
 import {
   createCard,
   getPartColorClass
@@ -4416,43 +4416,6 @@ function renderUsers() {
     }
   }
 }
-
-// Existing public CSS keyframes remain the only animation definitions.
-// A card inserted after an async fetch starts its CSS timeline later than the
-// persistent header. Align once on DOM replacement (never per animation frame).
-let adminSparkleSyncQueued = false;
-function syncAdminSparkleAnimations() {
-  if (adminSparkleSyncQueued || !document.body.classList.contains('admin-new-ui')) return;
-  adminSparkleSyncQueued = true;
-  requestAnimationFrame(() => {
-    adminSparkleSyncQueued = false;
-    const header = document.querySelector('#txtGrandTotal.score-rank-sparkle-rainbow')
-      || document.querySelector('#txtHotTotal.score-rank-sparkle-rainbow')
-      || document.querySelector('#txtOtherTotal.score-rank-sparkle-rainbow');
-    if (!header) return;
-    const reference = header.getAnimations().find(a => a.animationName === 'skill-sparkle-text-glow');
-    if (!reference || typeof reference.currentTime !== 'number') return;
-    const phase = ((reference.currentTime % 1600) + 1600) % 1600;
-    for (const id of ['viewSkill', 'viewAllManage', 'userDetailSkill', 'userDetailRecords']) {
-      const root = document.getElementById(id);
-      if (!root) continue;
-      for (const animation of root.getAnimations({ subtree: true })) {
-        if (animation.animationName === 'skill-sparkle-band-pulse'
-            || animation.animationName === 'skill-sparkle-border-pulse') {
-          animation.currentTime = phase;
-        }
-      }
-    }
-  });
-}
-// Only child replacements trigger synchronization; no observer runs every frame.
-function observeAdminSparkleCards() {
-  for (const id of ['viewSkill', 'viewAllManage', 'userDetailSkill', 'userDetailRecords']) {
-    const root = document.getElementById(id);
-    if (root) new MutationObserver(syncAdminSparkleAnimations).observe(root, { childList:true });
-  }
-}
-observeAdminSparkleCards();
 
 function renderViewedUserSkill() {
   const target = calcTargetTotals(viewedUserScores);
