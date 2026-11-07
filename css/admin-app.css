@@ -110,9 +110,17 @@ body.admin-new-ui #userListHeaderSlot.admin-user-filters-expanded #btnAdminUserF
   border-color:#3b82f6;background:#254d86;
 }
 /* Keep all admin search strips on the same inset, surface, and vertical rhythm. */
-body.admin-new-ui #appScreen>.p-header :is(#searchArea,#userListHeaderSlot,#boardMainFixed) {
+body.admin-new-ui #appScreen>.p-header :is(#searchArea,#userListHeaderSlot) {
   min-width:0;box-sizing:border-box;
   padding:6px 8px 8px!important;
+  margin-top:0;margin-bottom:0;
+  border:0;background:transparent;
+}
+/* The board fixed header stays full width; inset only its toolbar and notice.
+   The thread list in .p-container must retain its original spacing. */
+body.admin-new-ui #appScreen>.p-header>#boardMainFixed.board-main-fixed {
+  min-width:0;box-sizing:border-box;
+  padding:6px 0 8px!important;
   margin-top:0;margin-bottom:0;
   border:0;background:transparent;
 }
@@ -180,8 +188,15 @@ body.admin-new-ui #searchArea #btnHeaderAdd {
   background:#3b82f6;border-color:#3b82f6;color:white;-webkit-text-fill-color:white;
 }
 body.admin-new-ui #boardMainFixed #btnBoardNewThread {white-space:nowrap;}
-body.admin-new-ui #boardMainFixed .board-main-toolbar {margin-bottom:10px;}
-body.admin-new-ui #boardMainFixed .board-main-rule-note {display:block;clear:both;margin:0;}
+body.admin-new-ui #boardMainFixed .board-main-toolbar {
+  width:calc(100% - 16px);max-width:calc(100% - 16px);
+  margin:0 8px 10px;
+}
+body.admin-new-ui #boardMainFixed .board-main-rule-note {
+  display:block;clear:both;
+  width:calc(100% - 16px);max-width:calc(100% - 16px);
+  box-sizing:border-box;margin:0 8px;
+}
 
 /* No duplicate generated text; the button markup itself contains the plus sign. */
 
