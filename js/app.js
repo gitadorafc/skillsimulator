@@ -3817,6 +3817,10 @@ function alignAdminBoardHeaderToThreads() {
   const right = Math.max(0,(h.right-t.right)/scale);
   header.style.setProperty('padding-left', `${left}px`, 'important');
   header.style.setProperty('padding-right', `${right}px`, 'important');
+  // The notice remains aligned to threads, but the search strip follows the
+  // shared 8px inset of the user-list and registered-records toolbars.
+  header.style.setProperty('--admin-board-thread-inset-left', `${left}px`);
+  header.style.setProperty('--admin-board-thread-inset-right', `${right}px`);
 }
 function scheduleAdminBoardHeaderAlignment() {
   if (!document.body.classList.contains('admin-new-ui')) return;
