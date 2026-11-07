@@ -1,6 +1,7 @@
 // admin only: isolated presentation of the registered records. No score mutations here.
 import { formatLevel, formatRate, formatSkill } from './scores.js?v=4_19_1';
 import { getSongSkillRank, getPartColorClass, getOptionBadgeMarkup } from './card-renderer.js?v=4_14_34';
+import { getSkillColorRowByTotalValue } from './skill-colors.js?v=4_14_33';
 const esc = value => String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
 const jacketByTitle = new Map();
 const staticJacketTitles = new Set();
@@ -157,12 +158,19 @@ function recordCard(record, index, mode = 'RECORDS') {
     ? `<img loading="lazy" alt="" src="${esc(urls[0])}"${urls[1] ? ` data-jacket-fallback="${esc(urls[1])}"` : ''}>`
     : '<span class="ar-jacket-missing" aria-hidden="true">♫</span>';
   const skillRank = getSongSkillRank(Number(record.skill));
+  // Use the canonical total-equivalent color, including the existing 170deg border
+  // gradient. This changes the admin card frame only, never the stored skill.
+  const colorRow = getSkillColorRowByTotalValue((Number(record.skill) || 0) * 50);
+  const borderPaint = colorRow.type === 'solid'
+    ? colorRow.color
+    : `linear-gradient(170deg, ${colorRow.stops.map(([color, pos]) => `${color} ${pos}%`).join(', ')})`;
+
   const originalOption = getOptionBadgeMarkup(record.play_option);
   // Short label for DM bass mirror in the compact admin card; keep stored value unchanged.
   const option = record.play_option === 'BASS_MIRROR'
     ? originalOption.replace(/>[^<>]*</, '>B-MIR<')
     : originalOption;
-  return `<article class="ar-record skill-row-${skillRank}" data-score-id="${esc(record.score_id)}"${compareAttributes}>
+  return `<article class="ar-record skill-row-${skillRank}" style="--song-skill-border:${esc(borderPaint)}" data-score-id="${esc(record.score_id)}"${compareAttributes}>
     <div class="ar-no">${String(index + 1).padStart(3,'0')}</div>
     <div class="ar-art">${artwork}</div>
     <div class="ar-title">${record.is_hot ? '<span class="hot-tag ar-hot">HOT</span>' : ''}<span class="ar-song-name" title="${title}">${title}</span>${pendingBadge}</div>
