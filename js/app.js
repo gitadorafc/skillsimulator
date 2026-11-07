@@ -3571,20 +3571,18 @@ function tintHeaderValues(hot, other, total) {
   });
 }
 
-// Admin registered views: use a 400px logical width at narrower sizes.
-// Keep the scrollpane proportional to the visual viewport so shrinking does
-// not strand unused space beneath the last visible card.
+// Admin UI: all four tabs share a 400px logical viewport at narrower sizes.
+// Zoom the common appScreen, not individual tab contents, so switching to the
+// user list or board cannot change the header and tab dimensions.
+// Keep the scrollpane proportional to the visual viewport after scaling.
 function syncAdminTwoColumnViewport() {
   const screen = $('appScreen');
   if (!screen) return;
-  // Both ON and OFF registered-card views share a 400px minimum logical width.
-  // Never zoom the user list, board, or public UI.
-  const narrowRegisteredView = document.body.classList.contains('admin-new-ui')
-    && (activeTabName === 'SKILL' || activeTabName === 'RECORDS');
+  const adminNewUi = document.body.classList.contains('admin-new-ui');
   const viewportWidth = document.documentElement.clientWidth || window.innerWidth;
   const viewportHeight = window.visualViewport?.height || window.innerHeight;
   const logicalWidth = 400;
-  const scale = narrowRegisteredView && viewportWidth < logicalWidth ? viewportWidth / logicalWidth : 1;
+  const scale = adminNewUi && viewportWidth < logicalWidth ? viewportWidth / logicalWidth : 1;
 
   if (scale >= 1) {
     ['zoom', 'width', 'height'].forEach(prop => screen.style.removeProperty(prop));
