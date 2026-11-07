@@ -103,15 +103,18 @@ body.admin-new-ui #appScreen>.p-header :is(#searchArea,#userListHeaderSlot) {
   margin-top:0;margin-bottom:0;
   border:0;background:transparent;
 }
-/* Board search and notice belong to the header, not to the thread list.
-   This exact element has a competing legacy !important padding declaration. */
+/* The toolbar and notice occupy the SAME horizontal extent as the rendered
+   thread cards. JS measures their actual bounds after the thread list renders;
+   these values are only the no-threads fallback (6+7 / 6+10). */
 body.admin-new-ui #appScreen>.p-header>#boardMainFixed.board-main-fixed {
   box-sizing:border-box!important;min-width:0;
-  padding:6px var(--admin-board-inset,13px) 8px!important;
+  padding:6px 13px 8px!important;
   border:0!important;background:transparent!important;
 }
 @media (min-width:561px) {
-  body.admin-new-ui {--admin-board-inset:16px;}
+  body.admin-new-ui #appScreen>.p-header>#boardMainFixed.board-main-fixed {
+    padding-right:16px!important;padding-left:16px!important;
+  }
 }
 body.admin-new-ui #userListHeaderSlot {position:relative;flex:0 0 auto;min-width:0;box-sizing:border-box;}
 body.admin-new-ui.app-scroll-layout #userListHeaderSlot:not(.hidden) {display:block;}

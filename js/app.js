@@ -3774,38 +3774,53 @@ function syncRegisteredEditButtonWidths() {
 }
 
 
-// Anchor the existing public CSS effects to one animation timeline. The native
-// header effects start when the page loads; song rows are inserted much later.
-// No global animation, CSS variable animation, or per-frame animation loop.
+// The public CSS effects are unchanged. Align their actual playback positions
+// after records are inserted; do not animate the whole app or run a frame loop.
 let adminPulseObserver = null;
 let adminPulseFramePending = false;
 function syncAdminPublicPulsePhase() {
   if (!document.body.classList.contains('admin-new-ui')) return;
   const headers = [...document.querySelectorAll('#appScreen>.p-header .score-val.score-rank-sparkle-rainbow')];
-  const getGlow = element => element.getAnimations({subtree:false})
-    .find(animation => animation.animationName === 'skill-sparkle-text-glow');
-  const clock = headers.map(getGlow).find(animation => animation && animation.startTime != null);
-  if (!clock) return;
-  const origin = clock.startTime;
-  const sharedNames = new Set([
+  const glow = headers.flatMap(element => element.getAnimations({subtree:false}))
+    .find(animation => animation.animationName === 'skill-sparkle-text-glow' && animation.currentTime != null);
+  if (!glow) return;
+  const phase = glow.currentTime;
+  const names = new Set([
     'skill-sparkle-text-glow', 'skill-sparkle-text-sweep',
     'skill-sparkle-border-pulse', 'skill-sparkle-band-pulse'
   ]);
-  for (const header of headers) {
-    for (const animation of header.getAnimations({subtree:false})) {
-      if (sharedNames.has(animation.animationName) && animation.startTime != null && animation.startTime !== origin) {
-        try { animation.startTime = origin; } catch (_) { /* detached animation */ }
-      }
-    }
-  }
-  document.querySelectorAll('body.admin-new-ui .ar-record.skill-row-sparkle-rainbow').forEach(card => {
-    // getAnimations({subtree:true}) includes ::before/::after CSS animations.
-    for (const animation of card.getAnimations({subtree:true})) {
-      if (sharedNames.has(animation.animationName) && animation.startTime != null && animation.startTime !== origin) {
-        try { animation.startTime = origin; } catch (_) { /* detached animation */ }
-      }
-    }
-  });
+  const align = animation => {
+    if (!names.has(animation.animationName) || animation.currentTime == null) return;
+    // WAAPI currentTime is relative to animation playback and works without
+    // assuming that Safari exposes a writable document-timeline startTime.
+    if (Math.abs(Number(animation.currentTime) - Number(phase)) < 12) return;
+    try { animation.currentTime = phase; } catch (_) { /* detached animation */ }
+  };
+  for (const header of headers) header.getAnimations({subtree:false}).forEach(align);
+  document.querySelectorAll('body.admin-new-ui .ar-record.skill-row-sparkle-rainbow')
+    .forEach(card => card.getAnimations({subtree:true}).forEach(align));
+}
+
+// The board toolbar is in the fixed header, while threads are inside the
+// scrollable content. Resolve their actual horizontal bounds, not guessed
+// paddings; this also handles Safari zoom and scrollbar width.
+function alignAdminBoardHeaderToThreads() {
+  if (!document.body.classList.contains('admin-new-ui')) return;
+  const header = document.getElementById('boardMainFixed');
+  const thread = document.querySelector('#boardMainBody .admin-board-thread-card');
+  if (!header || !thread || header.classList.contains('hidden')) return;
+  const h = header.getBoundingClientRect();
+  const t = thread.getBoundingClientRect();
+  const scale = header.offsetWidth ? h.width / header.offsetWidth : 1;
+  if (!scale || !h.width || !t.width) return;
+  const left = Math.max(0,(t.left-h.left)/scale);
+  const right = Math.max(0,(h.right-t.right)/scale);
+  header.style.setProperty('padding-left', `${left}px`, 'important');
+  header.style.setProperty('padding-right', `${right}px`, 'important');
+}
+function scheduleAdminBoardHeaderAlignment() {
+  if (!document.body.classList.contains('admin-new-ui')) return;
+  requestAnimationFrame(alignAdminBoardHeaderToThreads);
 }
 function scheduleAdminPublicPulsePhase() {
   if (adminPulseFramePending || !document.body.classList.contains('admin-new-ui')) return;
@@ -3858,6 +3873,7 @@ function render() {
     show('boardMainFixed');
     show('viewBoard');
     loadMainBoard();
+    scheduleAdminBoardHeaderAlignment();
   } else {
     activeTabName = 'SKILL';
     show('viewSkill');
@@ -5894,6 +5910,7 @@ function renderMainBoardThreadPage() {
     totalPages,
     emptyMessage: query ? '一致するスレッドがありません。' : 'スレッドはまだありません。'
   });
+  scheduleAdminBoardHeaderAlignment();
 }
 
 async function loadMainBoard({ showLoading = true, force = false } = {}) {
@@ -8173,6 +8190,7 @@ window.addEventListener('resize', () => {
   if (document.body.classList.contains('admin-new-ui')) {
     syncAdminTwoColumnViewport();
     clampAdminTwoColumnTitles();
+    scheduleAdminBoardHeaderAlignment();
   } else syncRegisteredEditButtonWidths();
 });
 
