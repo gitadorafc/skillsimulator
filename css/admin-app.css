@@ -20,9 +20,24 @@ body.admin-new-ui :is(#viewAllManage,#viewSkill) .ar-record::before{
  -webkit-mask-composite:xor;
  mask-composite:exclude;
 }
-/* Match the existing 190.00+ public card border pulse without animating the card contents. */
-body.admin-new-ui :is(#viewAllManage,#viewSkill) .ar-record.skill-row-sparkle-rainbow::before{
- animation:skill-sparkle-border-pulse var(--skill-sparkle-cycle,1.6s) ease-in-out infinite;
+/* One inherited animation clock per 190+ card. The border and the skill
+   side bands read the same phase; neither creates an independent timeline. */
+@property --admin-card-sparkle-phase {
+ syntax:"<number>";
+ inherits:true;
+ initial-value:0;
+}
+@keyframes admin-card-sparkle-phase {
+ 0%,100% { --admin-card-sparkle-phase:0; }
+ 50% { --admin-card-sparkle-phase:1; }
+}
+body.admin-new-ui :is(#viewAllManage,#viewSkill) .ar-record.skill-row-sparkle-rainbow {
+ animation:admin-card-sparkle-phase var(--skill-sparkle-cycle,1.6s) ease-in-out infinite;
+}
+body.admin-new-ui :is(#viewAllManage,#viewSkill) .ar-record.skill-row-sparkle-rainbow::before {
+ opacity:calc(.78 + .22 * var(--admin-card-sparkle-phase));
+ filter:brightness(calc(1.05 + .8 * var(--admin-card-sparkle-phase)))
+   drop-shadow(0 0 calc(1px + 3px * var(--admin-card-sparkle-phase)) rgba(255,255,255,.65));
 }
 
 body.admin-new-ui :is(#viewAllManage,#viewSkill) .ar-metrics{display:contents}
@@ -49,10 +64,16 @@ body.admin-new-ui :is(#viewAllManage,#viewSkill) .ar-bear-medal{display:block;wi
 body.admin-new-ui :is(#viewAllManage,#viewSkill) .ar-edit{display:flex;justify-content:center}
 body.admin-new-ui :is(#viewAllManage,#viewSkill) .ar-edit button{width:37px;height:37px;border:1px solid #23618a;background:#0b3357;border-radius:6px;color:white;font-size:22px;cursor:pointer}
 body.admin-new-ui :is(#viewAllManage,#viewSkill) .own-registered-records-more{grid-column:1/-1}
-/* The exact public UI animation is skill-sparkle-band-pulse. */
-body.admin-new-ui :is(#viewAllManage,#viewSkill) .ar-record.skill-row-sparkle-rainbow{animation:none!important}
-body.admin-new-ui :is(#viewAllManage,#viewSkill) .ar-skill.skill-box-sparkle-rainbow{animation:none!important;filter:none!important}
-body.admin-new-ui :is(#viewAllManage,#viewSkill) .ar-skill.skill-box-sparkle-rainbow::after{content:"";display:block;position:absolute;inset:0;pointer-events:none;z-index:2;background-image:var(--skill-side-paint),var(--skill-side-paint);background-position:left top,right top;background-size:5px 100%,5px 100%;background-repeat:no-repeat,no-repeat;animation:skill-sparkle-band-pulse var(--skill-sparkle-cycle,1.6s) ease-in-out infinite!important}
+/* Skill-side glow follows the card's inherited phase, including after redraw. */
+body.admin-new-ui :is(#viewAllManage,#viewSkill) .ar-skill.skill-box-sparkle-rainbow {animation:none!important;filter:none!important}
+body.admin-new-ui :is(#viewAllManage,#viewSkill) .ar-skill.skill-box-sparkle-rainbow::after {
+ content:"";display:block;position:absolute;inset:0;pointer-events:none;z-index:2;
+ background-image:var(--skill-side-paint),var(--skill-side-paint);
+ background-position:left top,right top;background-size:5px 100%,5px 100%;
+ background-repeat:no-repeat,no-repeat;
+ opacity:calc(.78 + .22 * var(--admin-card-sparkle-phase));
+ filter:brightness(calc(1.05 + .8 * var(--admin-card-sparkle-phase)));
+}
 
 
 /* Existing admin-only filter interaction; keep this separate from responsive layout. */
@@ -91,7 +112,7 @@ body.admin-new-ui #userListHeaderSlot.admin-user-filters-expanded #btnAdminUserF
 /* Keep all admin search strips on the same inset, surface, and vertical rhythm. */
 body.admin-new-ui #appScreen>.p-header :is(#searchArea,#userListHeaderSlot,#boardMainFixed) {
   min-width:0;box-sizing:border-box;
-  padding:6px 8px 8px;
+  padding:6px 8px 8px!important;
   margin-top:0;margin-bottom:0;
   border:0;background:transparent;
 }
@@ -186,7 +207,7 @@ body.admin-new-ui #appScreen>.p-header{position:sticky;top:0;z-index:100;}
  body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill) .ar-table-head{display:none;}
  body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill) .ar-record{
    grid-template-columns:40px minmax(0,1fr) 67px 32px;
-   grid-template-rows:20px 20px;gap:3px 4px;padding:5px;min-height:53px;
+   grid-template-rows:20px 20px;gap:3px 2px;padding:5px;min-height:53px;
  }
  body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill) .ar-no{display:none;}
  body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill) .ar-art{
@@ -285,7 +306,7 @@ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-edit b
  body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-record {
    grid-template-columns:40px minmax(0,1fr) 20px;
    grid-template-rows:20px 20px 20px;
-   column-gap:4px;row-gap:2px;min-height:76px;padding:5px;align-items:center;
+   column-gap:2px;row-gap:2px;min-height:76px;padding:5px;align-items:center;
    -webkit-text-size-adjust:100%;text-size-adjust:100%;
  }
  body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-art {
@@ -358,7 +379,7 @@ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-edit b
 @media (width >= 700px) {
  body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-record {
    grid-template-columns:48px minmax(0,1fr) 28px;
-   grid-template-rows:24px 24px;column-gap:7px;row-gap:2px;
+   grid-template-rows:24px 24px;column-gap:4px;row-gap:2px;
    min-height:60px;padding:5px 6px;align-items:center;
  }
  body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-art {
@@ -498,7 +519,7 @@ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-edit b
  body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill) .ar-record {grid-template-rows:46px;min-height:54px;padding:3px 6px;overflow:hidden;}
  body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill) .ar-metrics {display:contents;}
  body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill) .ar-no {grid-column:1;grid-row:1;}
- body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill) .ar-art {grid-column:2;grid-row:1;width:44px;height:44px;justify-self:center;}
+ body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill) .ar-art {grid-column:2;grid-row:1;width:44px;height:44px;justify-self:start;}
  body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill) .ar-title {grid-column:3;grid-row:1;}
  body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill) .ar-part {grid-column:4;grid-row:1;}
  body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill) .ar-level {grid-column:5;grid-row:1;}
