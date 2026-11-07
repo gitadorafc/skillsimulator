@@ -3774,6 +3774,60 @@ function syncRegisteredEditButtonWidths() {
 }
 
 
+// Anchor the existing public CSS effects to one animation timeline. The native
+// header effects start when the page loads; song rows are inserted much later.
+// No global animation, CSS variable animation, or per-frame animation loop.
+let adminPulseObserver = null;
+let adminPulseFramePending = false;
+function syncAdminPublicPulsePhase() {
+  if (!document.body.classList.contains('admin-new-ui')) return;
+  const headers = [...document.querySelectorAll('#appScreen>.p-header .score-val.score-rank-sparkle-rainbow')];
+  const getGlow = element => element.getAnimations({subtree:false})
+    .find(animation => animation.animationName === 'skill-sparkle-text-glow');
+  const clock = headers.map(getGlow).find(animation => animation && animation.startTime != null);
+  if (!clock) return;
+  const origin = clock.startTime;
+  const sharedNames = new Set([
+    'skill-sparkle-text-glow', 'skill-sparkle-text-sweep',
+    'skill-sparkle-border-pulse', 'skill-sparkle-band-pulse'
+  ]);
+  for (const header of headers) {
+    for (const animation of header.getAnimations({subtree:false})) {
+      if (sharedNames.has(animation.animationName) && animation.startTime != null && animation.startTime !== origin) {
+        try { animation.startTime = origin; } catch (_) { /* detached animation */ }
+      }
+    }
+  }
+  document.querySelectorAll('body.admin-new-ui .ar-record.skill-row-sparkle-rainbow').forEach(card => {
+    // getAnimations({subtree:true}) includes ::before/::after CSS animations.
+    for (const animation of card.getAnimations({subtree:true})) {
+      if (sharedNames.has(animation.animationName) && animation.startTime != null && animation.startTime !== origin) {
+        try { animation.startTime = origin; } catch (_) { /* detached animation */ }
+      }
+    }
+  });
+}
+function scheduleAdminPublicPulsePhase() {
+  if (adminPulseFramePending || !document.body.classList.contains('admin-new-ui')) return;
+  adminPulseFramePending = true;
+  // New CSS animations can still be pending on their first frame.
+  // Run once after the browser has committed their start times.
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    adminPulseFramePending = false;
+    syncAdminPublicPulsePhase();
+  }));
+}
+function ensureAdminPulseObserver() {
+  if (adminPulseObserver || !document.body.classList.contains('admin-new-ui')) return;
+  const roots = ['viewSkill','viewAllManage','userDetailSkill','userDetailRecords']
+    .map(id => $(id)).filter(Boolean);
+  if (!roots.length) return;
+  adminPulseObserver = new MutationObserver(mutations => {
+    if (mutations.some(mutation => mutation.addedNodes.length)) scheduleAdminPublicPulsePhase();
+  });
+  for (const root of roots) adminPulseObserver.observe(root,{childList:true,subtree:true});
+}
+
 function render() {
   // 表示設定を再評価する。CSS側でスキル対象コンテナだけに限定しているため、
   // 登録曲タブには横並びレイアウトを適用しない。
@@ -3809,7 +3863,8 @@ function render() {
     show('viewSkill');
     renderSkill();
   }
-  requestAnimationFrame(() => { syncAdminTwoColumnViewport(); clampAdminTwoColumnTitles(); });
+  ensureAdminPulseObserver();
+  requestAnimationFrame(() => { syncAdminTwoColumnViewport(); clampAdminTwoColumnTitles(); syncAdminPublicPulsePhase(); });
 }
 
 async function getCurrentBoardAccessStatus() {

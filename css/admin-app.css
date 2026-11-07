@@ -59,7 +59,9 @@ body.admin-new-ui :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailReco
  background-position:left top,right top;background-size:5px 100%,5px 100%;
  background-repeat:no-repeat,no-repeat;
  animation:skill-sparkle-band-pulse var(--skill-sparkle-cycle,1.6s) ease-in-out infinite;
+ animation-play-state:running!important;
 }
+
 
 /* Existing admin-only filter interaction; keep this separate from responsive layout. */
 body #searchArea #btnAdminRecordFilters{display:none;}
@@ -104,10 +106,12 @@ body.admin-new-ui #appScreen>.p-header :is(#searchArea,#userListHeaderSlot) {
 /* Board search and notice belong to the header, not to the thread list.
    This exact element has a competing legacy !important padding declaration. */
 body.admin-new-ui #appScreen>.p-header>#boardMainFixed.board-main-fixed {
-  box-sizing:border-box!important;
-  width:100%;max-width:100%;min-width:0;
-  padding:6px 28px 8px!important;
-  margin:0!important;border:0!important;background:transparent!important;
+  box-sizing:border-box!important;min-width:0;
+  padding:6px var(--admin-board-inset,13px) 8px!important;
+  border:0!important;background:transparent!important;
+}
+@media (min-width:561px) {
+  body.admin-new-ui {--admin-board-inset:16px;}
 }
 body.admin-new-ui #userListHeaderSlot {position:relative;flex:0 0 auto;min-width:0;box-sizing:border-box;}
 body.admin-new-ui.app-scroll-layout #userListHeaderSlot:not(.hidden) {display:block;}
