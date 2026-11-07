@@ -3584,14 +3584,19 @@ function syncAdminTwoColumnViewport() {
   const logicalWidth = 400;
   const scale = adminNewUi && viewportWidth < logicalWidth ? viewportWidth / logicalWidth : 1;
 
+  // The viewed-user sheet is a separate fixed overlay outside appScreen.
+  // Apply the same 400px logical viewport when it is opened.
+  const detail = $('userDetailPage');
   if (scale >= 1) {
     ['zoom', 'width', 'height'].forEach(prop => screen.style.removeProperty(prop));
+    if (detail) ['zoom', 'width', 'height'].forEach(prop => detail.style.removeProperty(prop));
     return;
   }
-  screen.style.setProperty('zoom', String(scale), 'important');
-  screen.style.setProperty('width', `${logicalWidth}px`, 'important');
-  // The CSS grid has a fixed viewport-height scroll pane. Compensate for zoom.
-  screen.style.setProperty('height', `${Math.ceil(viewportHeight / scale)}px`, 'important');
+  for (const surface of [screen, detail].filter(Boolean)) {
+    surface.style.setProperty('zoom', String(scale), 'important');
+    surface.style.setProperty('width', `${logicalWidth}px`, 'important');
+    surface.style.setProperty('height', `${Math.ceil(viewportHeight / scale)}px`, 'important');
+  }
 }
 
 // CSS line-clamp combined with an inline HOT badge stretches the badge in
@@ -4412,6 +4417,43 @@ function renderUsers() {
   }
 }
 
+// Existing public CSS keyframes remain the only animation definitions.
+// A card inserted after an async fetch starts its CSS timeline later than the
+// persistent header. Align once on DOM replacement (never per animation frame).
+let adminSparkleSyncQueued = false;
+function syncAdminSparkleAnimations() {
+  if (adminSparkleSyncQueued || !document.body.classList.contains('admin-new-ui')) return;
+  adminSparkleSyncQueued = true;
+  requestAnimationFrame(() => {
+    adminSparkleSyncQueued = false;
+    const header = document.querySelector('#txtGrandTotal.score-rank-sparkle-rainbow')
+      || document.querySelector('#txtHotTotal.score-rank-sparkle-rainbow')
+      || document.querySelector('#txtOtherTotal.score-rank-sparkle-rainbow');
+    if (!header) return;
+    const reference = header.getAnimations().find(a => a.animationName === 'skill-sparkle-text-glow');
+    if (!reference || typeof reference.currentTime !== 'number') return;
+    const phase = ((reference.currentTime % 1600) + 1600) % 1600;
+    for (const id of ['viewSkill', 'viewAllManage', 'userDetailSkill', 'userDetailRecords']) {
+      const root = document.getElementById(id);
+      if (!root) continue;
+      for (const animation of root.getAnimations({ subtree: true })) {
+        if (animation.animationName === 'skill-sparkle-band-pulse'
+            || animation.animationName === 'skill-sparkle-border-pulse') {
+          animation.currentTime = phase;
+        }
+      }
+    }
+  });
+}
+// Only child replacements trigger synchronization; no observer runs every frame.
+function observeAdminSparkleCards() {
+  for (const id of ['viewSkill', 'viewAllManage', 'userDetailSkill', 'userDetailRecords']) {
+    const root = document.getElementById(id);
+    if (root) new MutationObserver(syncAdminSparkleAnimations).observe(root, { childList:true });
+  }
+}
+observeAdminSparkleCards();
+
 function renderViewedUserSkill() {
   const target = calcTargetTotals(viewedUserScores);
 
@@ -4427,8 +4469,12 @@ function renderViewedUserSkill() {
   });
 
   $('userDetailSkill').innerHTML = renderUserDetailSkillSections({
-    hotCards: target.hotRows.map((r,i) => createCard(r,i+1,'SKILL')).join(''),
-    otherCards: target.otherRows.map((r,i) => createCard(r,i+1,'SKILL')).join('')
+    hotCards: document.body.classList.contains('admin-new-ui')
+      ? renderAdminRegisteredRecords(target.hotRows, 'SKILL', true)
+      : target.hotRows.map((r,i) => createCard(r,i+1,'SKILL')).join(''),
+    otherCards: document.body.classList.contains('admin-new-ui')
+      ? renderAdminRegisteredRecords(target.otherRows, 'SKILL', true)
+      : target.otherRows.map((r,i) => createCard(r,i+1,'SKILL')).join('')
   });
 }
 
@@ -4450,7 +4496,14 @@ function renderViewedUserRegisteredScores() {
   $('userDetailRecords').innerHTML = renderUserDetailRegisteredSection({
     totalCount: data.length,
     visibleCount: visibleRows.length,
-    cards: renderRegisteredCardList(visibleRows, 'PUBLIC'),
+    cards: document.body.classList.contains('admin-new-ui')
+      ? (document.body.classList.contains('skill-target-columns')
+        ? `<div class="admin-records-two-column">`
+          + `<section class="admin-records-pane hot"><h2>HOT</h2>${renderAdminRegisteredRecords(visibleRows.filter(row => Boolean(row.is_hot)), 'PUBLIC', true) || '<div class="empty-state">登録曲なし</div>'}</section>`
+          + `<section class="admin-records-pane other"><h2>OTHER</h2>${renderAdminRegisteredRecords(visibleRows.filter(row => !row.is_hot)), 'PUBLIC', true) || '<div class="empty-state">登録曲なし</div>'}</section>`
+          + `</div>`
+        : renderAdminRegisteredRecords(visibleRows, 'PUBLIC', true))
+      : renderRegisteredCardList(visibleRows, 'PUBLIC'),
     hasMore
   });
 }

@@ -1,17 +1,17 @@
 /* Admin registered rows: layout only; reuse public UI color, badge, and skill tokens. */
-body.admin-new-ui :is(#viewAllManage,#viewSkill){width:100%;max-width:none;display:block;--ar-cols:40px 70px minmax(160px,1fr) 82px 55px 87px 74px 62px 76px 48px}
-body.admin-new-ui :is(#viewAllManage,#viewSkill).hidden{display:none!important}
-body.admin-new-ui :is(#viewAllManage,#viewSkill) .ar-register-view{width:100%;min-width:0}
-body.admin-new-ui :is(#viewAllManage,#viewSkill) .ar-record-grid{display:grid;grid-template-columns:minmax(0,1fr);gap:5px}
-body.admin-new-ui :is(#viewAllManage,#viewSkill) .ar-table-head,body.admin-new-ui :is(#viewAllManage,#viewSkill) .ar-record{display:grid;grid-template-columns:var(--ar-cols);align-items:center;column-gap:7px;box-sizing:border-box}
-body.admin-new-ui :is(#viewAllManage,#viewSkill) .ar-table-head{padding:9px;margin-bottom:5px;background:#09324f;border:1px solid #1b678a;border-radius:7px;color:#9be9fc;font-size:12px;font-weight:800;text-align:center}
-body.admin-new-ui :is(#viewAllManage,#viewSkill) .ar-table-head span{white-space:nowrap;min-width:0}
-body.admin-new-ui :is(#viewAllManage,#viewSkill) .ar-table-head span:nth-child(3){text-align:left}
-body.admin-new-ui :is(#viewAllManage,#viewSkill) .ar-record{position:relative;padding:8px;min-height:80px;border:1px solid transparent;border-radius:7px;background:linear-gradient(90deg,#112c55,#281531 15%,#0c1728 65%);color:#edf8ff;font-size:13px}
-body.admin-new-ui :is(#viewAllManage,#viewSkill) .ar-record>*{min-width:0}
+body.admin-new-ui :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords){width:100%;max-width:none;display:block;--ar-cols:40px 70px minmax(160px,1fr) 82px 55px 87px 74px 62px 76px 48px}
+body.admin-new-ui :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords).hidden{display:none!important}
+body.admin-new-ui :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-register-view{width:100%;min-width:0}
+body.admin-new-ui :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-record-grid{display:grid;grid-template-columns:minmax(0,1fr);gap:5px}
+body.admin-new-ui :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-table-head,body.admin-new-ui :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-record{display:grid;grid-template-columns:var(--ar-cols);align-items:center;column-gap:7px;box-sizing:border-box}
+body.admin-new-ui :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-table-head{padding:9px;margin-bottom:5px;background:#09324f;border:1px solid #1b678a;border-radius:7px;color:#9be9fc;font-size:12px;font-weight:800;text-align:center}
+body.admin-new-ui :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-table-head span{white-space:nowrap;min-width:0}
+body.admin-new-ui :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-table-head span:nth-child(3){text-align:left}
+body.admin-new-ui :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-record{position:relative;padding:8px;min-height:80px;border:1px solid transparent;border-radius:7px;background:linear-gradient(90deg,#112c55,#281531 15%,#0c1728 65%);color:#edf8ff;font-size:13px}
+body.admin-new-ui :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-record>*{min-width:0}
 /* Single admin-only skill border. Paint is derived from the SAME skill-color table
    as the existing user-facing card; no rank colors are duplicated here. */
-body.admin-new-ui :is(#viewAllManage,#viewSkill) .ar-record::before{
+body.admin-new-ui :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-record::before{
  content:"";position:absolute;inset:0;border-radius:inherit;
  padding:2px;box-sizing:border-box;
  background:var(--song-skill-border,#475569);
@@ -22,38 +22,38 @@ body.admin-new-ui :is(#viewAllManage,#viewSkill) .ar-record::before{
 }
 /* Reuse the public UI animations directly. Do not animate the whole app screen
    or disable the header's existing text sweep and glow. */
-body.admin-new-ui :is(#viewAllManage,#viewSkill) .ar-record.skill-row-sparkle-rainbow::before {
+body.admin-new-ui :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-record.skill-row-sparkle-rainbow::before {
  animation:skill-sparkle-border-pulse var(--skill-sparkle-cycle,1.6s) ease-in-out infinite;
 }
-body.admin-new-ui :is(#viewAllManage,#viewSkill) .ar-metrics{display:contents}
-body.admin-new-ui :is(#viewAllManage,#viewSkill) .ar-no{font-size:12px;color:#84b5d0;text-align:center;font-variant-numeric:tabular-nums}
-body.admin-new-ui :is(#viewAllManage,#viewSkill) .ar-art{width:70px;height:70px;display:grid;place-items:center;background:#0b2d49;border-radius:5px;overflow:hidden}
-body.admin-new-ui :is(#viewAllManage,#viewSkill) .ar-art img{width:100%;height:100%;display:block;object-fit:cover}
-body.admin-new-ui :is(#viewAllManage,#viewSkill) .ar-jacket-missing{font-size:27px;color:#4c88ad}
-body.admin-new-ui :is(#viewAllManage,#viewSkill) .ar-title{display:flex;align-items:center;gap:6px;flex-wrap:nowrap;min-width:0;overflow:hidden}
-body.admin-new-ui :is(#viewAllManage,#viewSkill) .ar-song-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;flex:0 1 auto;font-weight:800;line-height:1.3}
-body.admin-new-ui :is(#viewAllManage,#viewSkill) .ar-hot,body.admin-new-ui :is(#viewAllManage,#viewSkill) .ar-pending{flex:none;font-size:10px;line-height:1.2;padding:2px 5px;border-radius:3px}
-body.admin-new-ui :is(#viewAllManage,#viewSkill) .ar-pending{border:1px solid #b89138;background:#614f22;color:#ffe6a0}
+body.admin-new-ui :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-metrics{display:contents}
+body.admin-new-ui :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-no{font-size:12px;color:#84b5d0;text-align:center;font-variant-numeric:tabular-nums}
+body.admin-new-ui :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-art{width:70px;height:70px;display:grid;place-items:center;background:#0b2d49;border-radius:5px;overflow:hidden}
+body.admin-new-ui :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-art img{width:100%;height:100%;display:block;object-fit:cover}
+body.admin-new-ui :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-jacket-missing{font-size:27px;color:#4c88ad}
+body.admin-new-ui :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-title{display:flex;align-items:center;gap:6px;flex-wrap:nowrap;min-width:0;overflow:hidden}
+body.admin-new-ui :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-song-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;flex:0 1 auto;font-weight:800;line-height:1.3}
+body.admin-new-ui :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-hot,body.admin-new-ui :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-pending{flex:none;font-size:10px;line-height:1.2;padding:2px 5px;border-radius:3px}
+body.admin-new-ui :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-pending{border:1px solid #b89138;background:#614f22;color:#ffe6a0}
 /* Match the existing user-facing dark HOT badge rather than the pale generic .hot-tag. */
-body.admin-new-ui :is(#viewAllManage,#viewSkill) .ar-title .hot-tag.ar-hot{color:#fecaca!important;background:#450a0a!important;border:1px solid #991b1b!important}
+body.admin-new-ui :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-title .hot-tag.ar-hot{color:#fecaca!important;background:#450a0a!important;border:1px solid #991b1b!important}
 
-body.admin-new-ui :is(#viewAllManage,#viewSkill) .ar-part,body.admin-new-ui :is(#viewAllManage,#viewSkill) .ar-option,body.admin-new-ui :is(#viewAllManage,#viewSkill) .ar-fc-cell{display:flex;align-items:center;justify-content:center;min-width:0}
-body.admin-new-ui :is(#viewAllManage,#viewSkill) .ar-part .p-badge{width:max-content!important;min-width:0!important;max-width:max-content!important;flex:none!important;display:inline-flex!important;align-items:center;justify-content:center;padding:2px 7px!important;white-space:nowrap!important}
-body.admin-new-ui :is(#viewAllManage,#viewSkill) :is(.ar-hot,.ar-part .p-badge,.ar-option .opt-badge){font-size:10px!important;line-height:1!important;height:19px!important;min-height:19px!important;max-height:19px!important;box-sizing:border-box;border-radius:3px!important;display:inline-flex!important;align-items:center;justify-content:center;padding:0 6px!important;font-weight:900;vertical-align:middle}
-body.admin-new-ui :is(#viewAllManage,#viewSkill) .ar-level,body.admin-new-ui :is(#viewAllManage,#viewSkill) .ar-rate{text-align:center;white-space:nowrap;font-variant-numeric:tabular-nums}
-body.admin-new-ui :is(#viewAllManage,#viewSkill) .ar-level strong,body.admin-new-ui :is(#viewAllManage,#viewSkill) .ar-rate strong{font-size:inherit}
-body.admin-new-ui :is(#viewAllManage,#viewSkill) .ar-mini-label{display:none}
-body.admin-new-ui :is(#viewAllManage,#viewSkill) .ar-skill{position:relative;width:65px!important;min-width:65px!important;max-width:65px!important;box-sizing:border-box;overflow:hidden;text-align:center;justify-self:center;padding:5px 0!important;font-weight:850;border-radius:5px;font-variant-numeric:tabular-nums}
-body.admin-new-ui :is(#viewAllManage,#viewSkill) .ar-skill>.dc-skill-value{position:relative;z-index:1}
-body.admin-new-ui :is(#viewAllManage,#viewSkill) .ar-bear-medal{display:block;width:34px;height:34px;flex:none;filter:drop-shadow(0 1px 3px #0008)}
-body.admin-new-ui :is(#viewAllManage,#viewSkill) .ar-edit{display:flex;justify-content:center}
-body.admin-new-ui :is(#viewAllManage,#viewSkill) .ar-edit button{width:37px;height:37px;border:1px solid #23618a;background:#0b3357;border-radius:6px;color:white;font-size:22px;cursor:pointer}
-body.admin-new-ui :is(#viewAllManage,#viewSkill) .own-registered-records-more{grid-column:1/-1}
+body.admin-new-ui :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-part,body.admin-new-ui :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-option,body.admin-new-ui :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-fc-cell{display:flex;align-items:center;justify-content:center;min-width:0}
+body.admin-new-ui :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-part .p-badge{width:max-content!important;min-width:0!important;max-width:max-content!important;flex:none!important;display:inline-flex!important;align-items:center;justify-content:center;padding:2px 7px!important;white-space:nowrap!important}
+body.admin-new-ui :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) :is(.ar-hot,.ar-part .p-badge,.ar-option .opt-badge){font-size:10px!important;line-height:1!important;height:19px!important;min-height:19px!important;max-height:19px!important;box-sizing:border-box;border-radius:3px!important;display:inline-flex!important;align-items:center;justify-content:center;padding:0 6px!important;font-weight:900;vertical-align:middle}
+body.admin-new-ui :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-level,body.admin-new-ui :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-rate{text-align:center;white-space:nowrap;font-variant-numeric:tabular-nums}
+body.admin-new-ui :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-level strong,body.admin-new-ui :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-rate strong{font-size:inherit}
+body.admin-new-ui :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-mini-label{display:none}
+body.admin-new-ui :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-skill{position:relative;width:65px!important;min-width:65px!important;max-width:65px!important;box-sizing:border-box;overflow:hidden;text-align:center;justify-self:center;padding:5px 0!important;font-weight:850;border-radius:5px;font-variant-numeric:tabular-nums}
+body.admin-new-ui :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-skill>.dc-skill-value{position:relative;z-index:1}
+body.admin-new-ui :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-bear-medal{display:block;width:34px;height:34px;flex:none;filter:drop-shadow(0 1px 3px #0008)}
+body.admin-new-ui :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-edit{display:flex;justify-content:center}
+body.admin-new-ui :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-edit button{width:37px;height:37px;border:1px solid #23618a;background:#0b3357;border-radius:6px;color:white;font-size:22px;cursor:pointer}
+body.admin-new-ui :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .own-registered-records-more{grid-column:1/-1}
 /* Same side-band animation as public .dc-card .dc-skill. */
-body.admin-new-ui :is(#viewAllManage,#viewSkill) .ar-skill.skill-box-sparkle-rainbow {
+body.admin-new-ui :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-skill.skill-box-sparkle-rainbow {
  animation:none!important;filter:none!important;
 }
-body.admin-new-ui :is(#viewAllManage,#viewSkill) .ar-skill.skill-box-sparkle-rainbow::after {
+body.admin-new-ui :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-skill.skill-box-sparkle-rainbow::after {
  content:"";display:block;position:absolute;inset:0;pointer-events:none;z-index:2;
  background-image:var(--skill-side-paint),var(--skill-side-paint);
  background-position:left top,right top;background-size:5px 100%,5px 100%;
@@ -101,13 +101,13 @@ body.admin-new-ui #appScreen>.p-header :is(#searchArea,#userListHeaderSlot) {
   margin-top:0;margin-bottom:0;
   border:0;background:transparent;
 }
-/* Board header itself owns the same 8px horizontal inset as other tabs.
-   The thread list lives in a separate container and is unaffected. */
+/* Board search and notice belong to the header, not to the thread list.
+   This exact element has a competing legacy !important padding declaration. */
 body.admin-new-ui #appScreen>.p-header>#boardMainFixed.board-main-fixed {
-  min-width:0;box-sizing:border-box;
+  box-sizing:border-box!important;
+  width:100%;max-width:100%;min-width:0;
   padding:6px 8px 8px!important;
-  margin-top:0;margin-bottom:0;
-  border:0;background:transparent;
+  margin:0!important;border:0!important;background:transparent!important;
 }
 body.admin-new-ui #userListHeaderSlot {position:relative;flex:0 0 auto;min-width:0;box-sizing:border-box;}
 body.admin-new-ui.app-scroll-layout #userListHeaderSlot:not(.hidden) {display:block;}
@@ -174,7 +174,7 @@ body.admin-new-ui #searchArea #btnHeaderAdd {
 }
 body.admin-new-ui #boardMainFixed #btnBoardNewThread {white-space:nowrap;}
 body.admin-new-ui #boardMainFixed .board-main-toolbar {
-  width:100%;max-width:100%;margin:0 0 10px;
+  width:100%;max-width:100%;margin:0 0 8px;
 }
 body.admin-new-ui #boardMainFixed .board-main-rule-note {
   display:block;clear:both;
@@ -182,19 +182,35 @@ body.admin-new-ui #boardMainFixed .board-main-rule-note {
   box-sizing:border-box;margin:0;
 }
 
+/* Keep header, card border, and skill side bands on the same clock while
+   scrolling. Legacy public CSS pauses only the side band inside a scroll pane. */
+body.admin-new-ui.app-scroll-layout.app-scrolling #appScreen>.p-container .ar-skill.skill-box-sparkle-rainbow::after,
+body.admin-new-ui.app-scroll-layout.app-scrolling .user-detail-body .ar-skill.skill-box-sparkle-rainbow::after {
+  animation-play-state:running!important;
+}
+/* Viewed profiles are read-only. They inherit exactly the same card rules. */
+body.admin-new-ui :is(#userDetailSkill,#userDetailRecords) .ar-edit {visibility:hidden;pointer-events:none;}
+body.admin-new-ui #userDetailSkill .ar-table-head,
+body.admin-new-ui #userDetailRecords .ar-table-head {display:none!important;}
+/* The public two-column rule targets all children of the registered list.
+   Our own nested HOT/OTHER wrapper must occupy its full width instead. */
+body.admin-new-ui.skill-target-columns #userDetailRecords .list-container {
+  display:block!important;grid-template-columns:none!important;
+}
+
 /* No duplicate generated text; the button markup itself contains the plus sign. */
 
 /* Admin skill-target screen reuses the exact registered card UI. */
-body.admin-new-ui #viewSkill .ar-table-head{display:none!important}
-body.admin-new-ui #viewSkill .ar-register-view{min-width:0}
-body.admin-new-ui #viewSkill .sk-section{min-width:0}
-body.admin-new-ui #viewSkill .list-container{display:block;min-width:0}
-body.admin-new-ui #viewSkill .ar-record-grid{grid-template-columns:minmax(0,1fr)!important}
+body.admin-new-ui :is(#viewSkill,#userDetailSkill,#userDetailRecords) .ar-table-head{display:none!important}
+body.admin-new-ui :is(#viewSkill,#userDetailSkill) .ar-register-view{min-width:0}
+body.admin-new-ui :is(#viewSkill,#userDetailSkill) .sk-section{min-width:0}
+body.admin-new-ui :is(#viewSkill,#userDetailSkill) .list-container{display:block;min-width:0}
+body.admin-new-ui :is(#viewSkill,#userDetailSkill) .ar-record-grid{grid-template-columns:minmax(0,1fr)!important}
 
 
 /* Shared visibility. The sidebar is available only in the desktop range. */
 .admin-desktop-menu-tree{display:none;}
-body.admin-new-ui :is(#viewAllManage,#viewSkill) .ar-rate{display:block;text-align:right;justify-self:stretch;font-variant-numeric:tabular-nums;}
+body.admin-new-ui :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-rate{display:block;text-align:right;justify-self:stretch;font-variant-numeric:tabular-nums;}
 body.admin-new-ui #appScreen>.p-header{position:sticky;top:0;z-index:100;}
 /* Admin OFF mode: a single compact registered-card layout through 1099px.
    The 400px logical width is handled in JS for narrower viewports.
@@ -203,35 +219,35 @@ body.admin-new-ui #appScreen>.p-header{position:sticky;top:0;z-index:100;}
  body.admin-new-ui #appRoot,body.admin-new-ui #appScreen:not(.hidden){width:100%;max-width:none;min-width:0;box-sizing:border-box;}
  body.admin-new-ui #appScreen>.p-header,body.admin-new-ui #appScreen>.p-container{width:100%;max-width:none;min-width:0;box-sizing:border-box;margin-left:0;}
  body.admin-new-ui #appScreen>.p-header>.admin-desktop-menu-tree{display:none;}
- body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill) .ar-table-head{display:none;}
- body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill) .ar-record{
+ body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-table-head{display:none;}
+ body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-record{
    grid-template-columns:40px minmax(0,1fr) 67px 32px;
    grid-template-rows:20px 20px;gap:3px 2px;padding:5px;min-height:53px;
  }
- body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill) .ar-no{display:none;}
- body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill) .ar-art{
+ body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-no{display:none;}
+ body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-art{
    grid-column:1;grid-row:1/3;width:37px;height:37px;align-self:center;
  }
- body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill) .ar-title{grid-column:2;grid-row:1;}
- body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill) .ar-song-name{font-size:12px;}
- body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill) .ar-metrics{
+ body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-title{grid-column:2;grid-row:1;}
+ body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-song-name{font-size:12px;}
+ body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-metrics{
    grid-column:2;grid-row:2;display:grid;
    grid-template-columns:48px 28px 48px 24px 49px;gap:2px;align-items:center;min-width:0;
  }
- body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill) .ar-part{grid-column:1;justify-content:start;}
- body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill) .ar-level{grid-column:2;text-align:left;}
- body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill) .ar-rate{grid-column:3;text-align:right;justify-self:stretch;}
- body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill) .ar-fc-cell{grid-column:4;justify-self:center;min-height:22px;}
- body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill) .ar-option{grid-column:5;justify-content:start;}
- body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill) .ar-bear-medal{width:19px;height:19px;}
- body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill) .ar-skill{grid-column:3;grid-row:1/3;align-self:center;font-size:12px;}
- body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill) .ar-edit{grid-column:4;grid-row:1/3;align-self:center;}
- body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill) .ar-edit button{width:30px;height:30px;font-size:19px;}
- body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill) .ar-mini-label{display:none;}
- body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill) .ar-level strong,
- body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill) .ar-rate strong{font-size:10px;}
- body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill) .ar-option .opt-badge,
- body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill) .ar-part .p-badge{
+ body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-part{grid-column:1;justify-content:start;}
+ body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-level{grid-column:2;text-align:left;}
+ body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-rate{grid-column:3;text-align:right;justify-self:stretch;}
+ body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-fc-cell{grid-column:4;justify-self:center;min-height:22px;}
+ body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-option{grid-column:5;justify-content:start;}
+ body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-bear-medal{width:19px;height:19px;}
+ body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-skill{grid-column:3;grid-row:1/3;align-self:center;font-size:12px;}
+ body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-edit{grid-column:4;grid-row:1/3;align-self:center;}
+ body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-edit button{width:30px;height:30px;font-size:19px;}
+ body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-mini-label{display:none;}
+ body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-level strong,
+ body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-rate strong{font-size:10px;}
+ body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-option .opt-badge,
+ body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-part .p-badge{
    font-size:10px!important;padding:0 3px!important;white-space:nowrap;
  }
 }
@@ -247,86 +263,87 @@ body.admin-new-ui #appScreen>.p-header{position:sticky;top:0;z-index:100;}
 
 /* Admin HOT/OTHER two-column wrapper and section headers. */
 body.admin-new-ui.skill-target-columns #viewSkill:not(.hidden),
-body.admin-new-ui.skill-target-columns #viewAllManage .admin-records-two-column {
+body.admin-new-ui.skill-target-columns #userDetailSkill:not(.hidden),
+body.admin-new-ui.skill-target-columns :is(#viewAllManage,#userDetailRecords) .admin-records-two-column {
  display:grid;
  grid-template-columns:repeat(2,minmax(0,1fr));
  gap:8px;
  width:100%;max-width:none;min-width:0;align-items:start;box-sizing:border-box;
 }
-body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) :is(
+body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetailSkill,#userDetailRecords) :is(
  .sk-section,.admin-records-pane,.list-container,.ar-register-view,.ar-record-grid
 ) {
  width:100%;max-width:none;min-width:0;box-sizing:border-box;
 }
-body.admin-new-ui :is(#viewSkill,#viewAllManage) :is(.skill-hot-section,.admin-records-pane.hot)>h2,
-body.admin-new-ui :is(#viewSkill,#viewAllManage) :is(.skill-other-section,.admin-records-pane.other)>h2 {
+body.admin-new-ui :is(#viewSkill,#viewAllManage,#userDetailSkill,#userDetailRecords) :is(.skill-hot-section,.admin-records-pane.hot)>h2,
+body.admin-new-ui :is(#viewSkill,#viewAllManage,#userDetailSkill,#userDetailRecords) :is(.skill-other-section,.admin-records-pane.other)>h2 {
  box-sizing:border-box;width:100%;margin:0 0 6px;padding:7px 9px;
  border-radius:6px;font-size:12px;font-weight:850;line-height:1.3;
  border:1px solid transparent;border-left-width:3px;
 }
-body.admin-new-ui :is(#viewSkill,#viewAllManage) :is(.skill-hot-section,.admin-records-pane.hot)>h2 {
+body.admin-new-ui :is(#viewSkill,#viewAllManage,#userDetailSkill,#userDetailRecords) :is(.skill-hot-section,.admin-records-pane.hot)>h2 {
  color:#fecaca;background:#450a0a;border-color:#991b1b;
 }
-body.admin-new-ui :is(#viewSkill,#viewAllManage) :is(.skill-other-section,.admin-records-pane.other)>h2 {
+body.admin-new-ui :is(#viewSkill,#viewAllManage,#userDetailSkill,#userDetailRecords) :is(.skill-other-section,.admin-records-pane.other)>h2 {
  color:#b6ebf5;background:#173447;border-color:#367e9d;
 }
 /* ON card layout: base shared by all widths. The 700px breakpoint changes
    only the compact card arrangement, not the HTML structure. OFF styles and
    the public UI remain untouched. */
-body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-table-head,
-body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-no,
-body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-title .ar-hot,
-body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-mini-label {display:none!important;}
-body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-record {
+body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetailSkill,#userDetailRecords) .ar-table-head,
+body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetailSkill,#userDetailRecords) .ar-no,
+body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetailSkill,#userDetailRecords) .ar-title .ar-hot,
+body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetailSkill,#userDetailRecords) .ar-mini-label {display:none!important;}
+body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetailSkill,#userDetailRecords) .ar-record {
  position:relative;display:grid;min-width:0;width:100%;box-sizing:border-box;overflow:hidden;
 }
-body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-title {
+body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetailSkill,#userDetailRecords) .ar-title {
  display:block;min-width:0;max-width:100%;overflow:hidden;white-space:nowrap;
  text-overflow:ellipsis;
 }
-body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-song-name {
+body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetailSkill,#userDetailRecords) .ar-song-name {
  display:block;min-width:0;max-width:100%;overflow:hidden;text-overflow:ellipsis;
  white-space:nowrap;overflow-wrap:normal;
 }
-body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-metrics {min-width:0;}
-body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-rate {
+body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetailSkill,#userDetailRecords) .ar-metrics {min-width:0;}
+body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetailSkill,#userDetailRecords) .ar-rate {
  white-space:nowrap;text-align:right;font-variant-numeric:tabular-nums;
 }
-body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-rate strong {
+body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetailSkill,#userDetailRecords) .ar-rate strong {
  display:block;width:100%;text-align:right;font-variant-numeric:tabular-nums;
 }
-body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-edit button {
+body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetailSkill,#userDetailRecords) .ar-edit button {
  display:grid;place-items:center;box-sizing:border-box;padding:0;
 }
 
 /* Compact admin ON cards below 700px. This grid matches the flat card
    markup; do not reintroduce the retired nested metric wrappers. */
 @media (width < 700px) {
- body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-record {
+ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetailSkill,#userDetailRecords) .ar-record {
    grid-template-columns:40px minmax(0,1fr) 20px;
    grid-template-rows:20px 20px 20px;
    column-gap:2px;row-gap:2px;min-height:76px;padding:5px;align-items:center;
    -webkit-text-size-adjust:100%;text-size-adjust:100%;
  }
- body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-art {
+ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetailSkill,#userDetailRecords) .ar-art {
    grid-column:1;grid-row:1/3;width:38px;height:38px;align-self:start;
  }
- body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-metrics {
+ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetailSkill,#userDetailRecords) .ar-metrics {
    grid-column:2/4;grid-row:1/3;display:grid;
    grid-template-columns:43px 32px minmax(0,1fr);
    grid-template-rows:20px 20px;column-gap:2px;row-gap:2px;justify-content:start;
    min-width:0;width:100%;align-items:center;
  }
- body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-part {
+ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetailSkill,#userDetailRecords) .ar-part {
    position:static;grid-column:1;grid-row:1;justify-content:center;
    justify-self:stretch;margin:0;
  }
- body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-fc-cell {
+ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetailSkill,#userDetailRecords) .ar-fc-cell {
    position:static;grid-column:3;grid-row:2;justify-self:end;
    min-width:0;min-height:0;padding:0;margin:0;
  }
- body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-bear-medal {width:16px;height:16px;}
- body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-skill {
+ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetailSkill,#userDetailRecords) .ar-bear-medal {width:16px;height:16px;}
+ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetailSkill,#userDetailRecords) .ar-skill {
    position:absolute;top:5px;right:5px;
    width:51px!important;min-width:0!important;max-width:51px!important;
    height:19px!important;min-height:19px!important;max-height:19px!important;
@@ -334,41 +351,41 @@ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-edit b
    overflow:hidden;box-sizing:border-box;border-radius:3px;
    padding:0!important;font-size:10px;line-height:19px;white-space:nowrap;
  }
- body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-skill .dc-skill-value {
+ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetailSkill,#userDetailRecords) .ar-skill .dc-skill-value {
    display:flex;align-items:center;justify-content:center;height:100%;min-width:0;font-size:inherit;line-height:1;
  }
- body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-level {
+ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetailSkill,#userDetailRecords) .ar-level {
    position:static;grid-column:1;grid-row:2;justify-self:stretch;
    width:100%;margin:0;text-align:center;font-size:10px;
    white-space:nowrap;
  }
- body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-rate {
+ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetailSkill,#userDetailRecords) .ar-rate {
    grid-column:2;grid-row:2;justify-self:stretch;
    min-width:0;padding:0;box-sizing:border-box;text-align:right;
    font-size:10px;white-space:nowrap;font-variant-numeric:tabular-nums;
  }
- body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-option {
+ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetailSkill,#userDetailRecords) .ar-option {
    grid-column:2;grid-row:1;justify-content:start;
    width:32px;min-width:0;max-width:32px;overflow:hidden;
  }
- body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-option .opt-badge {
+ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetailSkill,#userDetailRecords) .ar-option .opt-badge {
    box-sizing:border-box;width:32px!important;min-width:0!important;max-width:32px!important;
    font-size:9px!important;padding:0 1px!important;
    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
  }
- body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-part .p-badge {
+ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetailSkill,#userDetailRecords) .ar-part .p-badge {
    box-sizing:border-box;width:43px!important;min-width:43px!important;max-width:43px!important;
    font-size:9px!important;padding:0 1px!important;white-space:nowrap;
    border-radius:3px!important;
  }
- body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-title {
+ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetailSkill,#userDetailRecords) .ar-title {
    grid-column:1/3;grid-row:3;width:100%;padding:0;margin:0;line-height:19px;
  }
- body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-song-name {font-size:11px;line-height:19px;}
- body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-edit {
+ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetailSkill,#userDetailRecords) .ar-song-name {font-size:11px;line-height:19px;}
+ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetailSkill,#userDetailRecords) .ar-edit {
    grid-column:3;grid-row:3;justify-self:end;align-self:center;
  }
- body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-edit button {
+ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetailSkill,#userDetailRecords) .ar-edit button {
    width:19px;height:19px;font-size:13px;line-height:1;border-radius:4px;
  }
 }
@@ -376,53 +393,53 @@ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-edit b
 /* From 700 CSS px: same two-line desktop/tablet card with a stable
    single-row flex group for part, level, rate, FC and option. */
 @media (width >= 700px) {
- body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-record {
+ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetailSkill,#userDetailRecords) .ar-record {
    grid-template-columns:48px minmax(0,1fr) 28px;
    grid-template-rows:24px 24px;column-gap:4px;row-gap:2px;
    min-height:60px;padding:5px 6px;align-items:center;
  }
- body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-art {
+ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetailSkill,#userDetailRecords) .ar-art {
    grid-column:1;grid-row:1/3;width:45px;height:45px;align-self:center;
  }
- body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-title {
+ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetailSkill,#userDetailRecords) .ar-title {
    grid-column:2/4;grid-row:1;width:100%;padding:0 83px 0 0;margin:0;
    box-sizing:border-box;align-self:center;
  }
- body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-song-name {
+ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetailSkill,#userDetailRecords) .ar-song-name {
    font-size:12px;line-height:22px;
  }
- body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-metrics {
+ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetailSkill,#userDetailRecords) .ar-metrics {
    grid-column:2;grid-row:2;display:flex;align-items:center;
    justify-content:flex-start;gap:5px;width:100%;min-width:0;
  }
- body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-part {
+ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetailSkill,#userDetailRecords) .ar-part {
    order:1;flex:0 0 auto;justify-content:start;
  }
- body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-level {
+ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetailSkill,#userDetailRecords) .ar-level {
    order:2;flex:0 0 auto;text-align:left;white-space:nowrap;font-size:11px;
  }
- body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-rate {
+ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetailSkill,#userDetailRecords) .ar-rate {
    order:3;flex:0 0 55px;min-width:55px;justify-self:auto;text-align:right;
    box-sizing:border-box;font-size:11px;
  }
- body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-fc-cell {
+ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetailSkill,#userDetailRecords) .ar-fc-cell {
    order:4;flex:0 0 20px;min-height:0;justify-content:center;
  }
- body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-bear-medal {width:18px;height:18px;}
- body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-option {
+ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetailSkill,#userDetailRecords) .ar-bear-medal {width:18px;height:18px;}
+ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetailSkill,#userDetailRecords) .ar-option {
    order:5;flex:0 0 auto;justify-content:start;
  }
- body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-skill {
+ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetailSkill,#userDetailRecords) .ar-skill {
    position:absolute;top:7px;right:6px;
    width:72px!important;min-width:0!important;max-width:72px!important;
    height:19px!important;min-height:19px!important;max-height:19px!important;
    padding:0!important;display:flex;align-items:center;justify-content:center;
    overflow:hidden;box-sizing:border-box;font-size:12px;line-height:19px;white-space:nowrap;
  }
- body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-edit {
+ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetailSkill,#userDetailRecords) .ar-edit {
    grid-column:3;grid-row:2;justify-self:end;align-self:center;
  }
- body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-edit button {
+ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetailSkill,#userDetailRecords) .ar-edit button {
    width:24px;height:24px;font-size:15px;line-height:1;
  }
 }
@@ -512,22 +529,22 @@ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-edit b
    display:block;margin-left:0;padding-left:calc(var(--admin-side-width) + 6px);width:100%;
    min-width:0;max-width:none;box-sizing:border-box;
  }
- body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill) {--ar-cols:30px 64px minmax(125px,1fr) 80px 54px 92px 52px 78px 82px 42px;}
- body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill) .ar-record,
- body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill) .ar-table-head {grid-template-columns:var(--ar-cols);column-gap:8px;}
- body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill) .ar-record {grid-template-rows:46px;min-height:54px;padding:3px 6px;overflow:hidden;}
- body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill) .ar-metrics {display:contents;}
- body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill) .ar-no {grid-column:1;grid-row:1;}
- body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill) .ar-art {grid-column:2;grid-row:1;width:44px;height:44px;justify-self:start;}
- body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill) .ar-title {grid-column:3;grid-row:1;}
- body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill) .ar-part {grid-column:4;grid-row:1;}
- body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill) .ar-level {grid-column:5;grid-row:1;}
- body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill) .ar-rate {grid-column:6;grid-row:1;text-align:center;justify-self:stretch;}
- body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill) .ar-fc-cell {grid-column:7;grid-row:1;justify-self:center;}
- body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill) .ar-option {grid-column:8;grid-row:1;}
- body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill) .ar-skill {grid-column:9;grid-row:1;align-self:center;}
- body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill) .ar-edit {grid-column:10;grid-row:1;align-self:center;}
- body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill) .ar-bear-medal {width:26px;height:26px;}
- body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill) .ar-edit button {width:32px;height:32px;font-size:19px;}
- body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill) .ar-table-head {padding:5px 6px;margin-bottom:4px;}
+ body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) {--ar-cols:30px 64px minmax(125px,1fr) 80px 54px 92px 52px 78px 82px 42px;}
+ body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-record,
+ body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-table-head {grid-template-columns:var(--ar-cols);column-gap:8px;}
+ body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-record {grid-template-rows:46px;min-height:54px;padding:3px 6px;overflow:hidden;}
+ body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-metrics {display:contents;}
+ body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-no {grid-column:1;grid-row:1;}
+ body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-art {grid-column:2;grid-row:1;width:44px;height:44px;justify-self:start;}
+ body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-title {grid-column:3;grid-row:1;}
+ body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-part {grid-column:4;grid-row:1;}
+ body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-level {grid-column:5;grid-row:1;}
+ body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-rate {grid-column:6;grid-row:1;text-align:center;justify-self:stretch;}
+ body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-fc-cell {grid-column:7;grid-row:1;justify-self:center;}
+ body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-option {grid-column:8;grid-row:1;}
+ body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-skill {grid-column:9;grid-row:1;align-self:center;}
+ body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-edit {grid-column:10;grid-row:1;align-self:center;}
+ body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-bear-medal {width:26px;height:26px;}
+ body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-edit button {width:32px;height:32px;font-size:19px;}
+ body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-table-head {padding:5px 6px;margin-bottom:4px;}
 }
