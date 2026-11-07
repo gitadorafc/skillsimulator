@@ -106,7 +106,7 @@ body.admin-new-ui #appScreen>.p-header :is(#searchArea,#userListHeaderSlot) {
 body.admin-new-ui #appScreen>.p-header>#boardMainFixed.board-main-fixed {
   box-sizing:border-box!important;
   width:100%;max-width:100%;min-width:0;
-  padding:6px 18px 8px!important;
+  padding:6px 28px 8px!important;
   margin:0!important;border:0!important;background:transparent!important;
 }
 body.admin-new-ui #userListHeaderSlot {position:relative;flex:0 0 auto;min-width:0;box-sizing:border-box;}
@@ -182,12 +182,6 @@ body.admin-new-ui #boardMainFixed .board-main-rule-note {
   box-sizing:border-box;margin:0;
 }
 
-/* Keep header, card border, and skill side bands on the same clock while
-   scrolling. Legacy public CSS pauses only the side band inside a scroll pane. */
-body.admin-new-ui.app-scroll-layout.app-scrolling #appScreen>.p-container .ar-skill.skill-box-sparkle-rainbow::after,
-body.admin-new-ui.app-scroll-layout.app-scrolling .user-detail-body .ar-skill.skill-box-sparkle-rainbow::after {
-  animation-play-state:running!important;
-}
 /* Viewed profiles are read-only. They inherit exactly the same card rules. */
 body.admin-new-ui :is(#userDetailSkill,#userDetailRecords) .ar-edit {visibility:hidden;pointer-events:none;}
 body.admin-new-ui #userDetailSkill .ar-table-head,
