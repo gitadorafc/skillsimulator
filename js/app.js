@@ -3851,8 +3851,8 @@ function ensureAdminPulseObserver() {
 }
 
 function render() {
-  // 表示設定を再評価する。CSS側でスキル対象コンテナだけに限定しているため、
-  // 登録曲タブには横並びレイアウトを適用しない。
+  // 表示設定を再評価する。管理者UIのスキル対象・登録・閲覧画面では
+  // 横並びON/OFFを共通のカード定義で切り替える。
   applyDisplayCustomization();
 
   const t = totals();
@@ -7727,9 +7727,9 @@ function collapseAdminDesktopMenu() {
   document.body.classList.remove('admin-desktop-menu-open');
 }
 const adminDesktopMenuLabels = ['アカウント設定','スキル機能','曲データ','ヘルプ・運営'];
-/* Desktop navigation is one workspace, not a stack of independent modals.
-   Close the previous menu destination before dispatching the next action;
-   preserve all normal click handlers and the permanent sidebar. */
+/* Desktop navigation is a single workspace, not a stack of dialogs.
+   Use the existing close hooks so previews, form state, and modal scroll locks
+   are cleaned up. The in-progress synchronization dialogs cannot be dismissed. */
 const ADMIN_DESKTOP_WORKSPACE_MASK_IDS = [
   'mypageModal','featureSettingsMask','tagSettingsMask',
   'skillSyncMask','allScoreSyncMask','skillShareMask','skillHistoryMask',
@@ -7737,19 +7737,33 @@ const ADMIN_DESKTOP_WORKSPACE_MASK_IDS = [
   'songCatalogMask','howToMask','feedbackMask','supportMask',
   'accountSwitchMask'
 ];
+const ADMIN_DESKTOP_WORKSPACE_CLOSE = {
+  mypageModal: () => closeMyPage(false),
+  featureSettingsMask: () => closeFeatureSettings(false),
+  tagSettingsMask: () => closeTagSettings(false),
+  skillSyncMask: () => closeSkillSyncDialog(false),
+  allScoreSyncMask: () => closeAllScoreSyncDialog(false),
+  skillShareMask: () => closeSkillShareDialog(false),
+  skillHistoryMask: () => closeSkillHistory(false)
+};
 function closeAdminDesktopWorkspace() {
   if (!document.body.classList.contains('admin-new-ui') ||
-      !window.matchMedia('(min-width:1100px)').matches) return;
+      !window.matchMedia('(min-width:1100px)').matches) return true;
+  // Do not replace a running synchronization view with another menu view.
+  if (($('skillSyncMask')?.style.display !== 'none' && skillSyncInProgress) ||
+      ($('allScoreSyncMask')?.style.display !== 'none' && allScoreSyncInProgress)) return false;
   const detail = $('userDetailPage');
-  if (detail && detail.style.display !== 'none' && detail.classList.contains('user-detail-open')) {
-    closeUserDetail(false);
-  }
+  if (detail?.classList.contains('user-detail-open')) closeUserDetail(false);
   for (const id of ADMIN_DESKTOP_WORKSPACE_MASK_IDS) {
     const mask = $(id);
-    if (mask) mask.style.display = 'none';
+    if (!mask || mask.style.display === 'none') continue;
+    const close = ADMIN_DESKTOP_WORKSPACE_CLOSE[id];
+    if (close) close();
+    else mask.style.display = 'none';
   }
   myPageOpenedFromMenu = false;
   syncGlobalModalScrollLock();
+  return true;
 }
 
 // Synchronize the dedicated desktop selector with the existing version picker.
@@ -7807,7 +7821,7 @@ function toggleAdminDesktopMenu() {
     button.className = 'admin-menu-tree-item';
     button.textContent = original.textContent.replace(/\s*›\s*$/, '').trim();
     button.addEventListener('click', () => {
-      closeAdminDesktopWorkspace();
+      if (!closeAdminDesktopWorkspace()) return;
       original.click();
     });
     current.appendChild(button);

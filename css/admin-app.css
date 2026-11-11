@@ -187,21 +187,17 @@ body.admin-new-ui #userListHeaderSlot #btnAdminUserFilters svg {width:21px;heigh
 body.admin-new-ui #userListHeaderSlot.admin-user-filters-expanded #btnAdminUserFilters {
   border-color:#3b82f6;background:#254d86;
 }
-/* Identical outer geometry for user-list and board search areas.
-   Override the older .board-main-fixed negative margins at their source for admin only. */
-body.admin-new-ui #appScreen>.p-header :is(#searchArea,#boardMainFixed.board-main-fixed) {
+/* Shared search-region geometry for the three admin tabs. Desktop sidebar
+   offsets are owned by the >=1100px header rule, never reset here. */
+body.admin-new-ui #appScreen>.p-header :is(#searchArea,#boardMainFixed.board-main-fixed,#userListHeaderSlot) {
   min-width:0;box-sizing:border-box;
   padding:6px 8px 8px!important;
   border:0!important;background:transparent!important;
 }
 @media (width < 1100px) {
-  body.admin-new-ui #appScreen>.p-header :is(#searchArea,#boardMainFixed.board-main-fixed) {margin:0!important;}
-}
-/* User toolbar must not share the board's zero-margin rule on desktop. */
-body.admin-new-ui #appScreen>.p-header>#userListHeaderSlot {
-  min-width:0;box-sizing:border-box;
-  padding:6px 8px 8px!important;
-  border:0!important;background:transparent!important;
+  body.admin-new-ui #appScreen>.p-header :is(#searchArea,#boardMainFixed.board-main-fixed) {
+    margin:0!important;
+  }
 }
 body.admin-new-ui #appScreen>.p-header>#boardMainFixed.board-main-fixed {
   --admin-board-notice-left:0px;--admin-board-notice-right:0px;
