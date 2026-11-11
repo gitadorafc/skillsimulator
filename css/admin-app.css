@@ -327,7 +327,7 @@ body.admin-new-ui #appScreen>.p-header{position:sticky;top:0;z-index:100;}
  }
  body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-part{grid-column:1;justify-content:start;}
  body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-level{grid-column:2;text-align:left;}
- body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-rate{grid-column:3;text-align:right;}
+ body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-rate{grid-column:3;}
  body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-fc-cell{grid-column:4;justify-self:center;min-height:22px;}
  body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-option{grid-column:5;justify-content:start;}
  body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-bear-medal{width:19px;height:19px;}
@@ -338,7 +338,7 @@ body.admin-new-ui #appScreen>.p-header{position:sticky;top:0;z-index:100;}
  body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-rate strong{font-size:10px;}
  body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-option .opt-badge,
  body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-part .p-badge{
-   font-size:10px!important;padding:0 3px!important;white-space:nowrap;
+   padding:0 3px!important;
  }
 }
 /* Only the overall header/navigation structure changes at 768px;
@@ -401,14 +401,11 @@ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetail
 }
 body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetailSkill,#userDetailRecords) .ar-song-name {
  display:block;min-width:0;max-width:100%;overflow:hidden;text-overflow:ellipsis;
- white-space:nowrap;overflow-wrap:normal;
+ overflow-wrap:normal;
 }
 body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetailSkill,#userDetailRecords) .ar-metrics {min-width:0;}
-body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetailSkill,#userDetailRecords) .ar-rate {
- white-space:nowrap;text-align:right;font-variant-numeric:tabular-nums;
-}
 body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetailSkill,#userDetailRecords) .ar-rate strong {
- display:block;width:100%;text-align:right;font-variant-numeric:tabular-nums;
+ display:block;width:100%;text-align:right;
 }
 body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetailSkill,#userDetailRecords) .ar-edit button {
  display:grid;place-items:center;box-sizing:border-box;padding:0;
@@ -455,26 +452,24 @@ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetail
  body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetailSkill,#userDetailRecords) .ar-level {
    position:static;grid-column:1;grid-row:2;justify-self:stretch;
    width:100%;margin:0;text-align:center;font-size:10px;
-   white-space:nowrap;
  }
  body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetailSkill,#userDetailRecords) .ar-rate {
    grid-column:2;grid-row:2;justify-self:stretch;
    min-width:0;padding:0;box-sizing:border-box;text-align:right;
-   font-size:10px;white-space:nowrap;font-variant-numeric:tabular-nums;
+   font-size:10px;
  }
  body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetailSkill,#userDetailRecords) .ar-option {
    grid-column:2;grid-row:1;justify-content:start;
    width:32px;min-width:0;max-width:32px;overflow:hidden;
  }
  body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetailSkill,#userDetailRecords) .ar-option .opt-badge {
-   box-sizing:border-box;width:32px!important;min-width:0!important;max-width:32px!important;
+   width:32px!important;min-width:0!important;max-width:32px!important;
    font-size:9px!important;padding:0 1px!important;
    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
  }
  body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetailSkill,#userDetailRecords) .ar-part .p-badge {
-   box-sizing:border-box;width:43px!important;min-width:43px!important;max-width:43px!important;
-   font-size:9px!important;padding:0 1px!important;white-space:nowrap;
-   border-radius:3px!important;
+   width:43px!important;min-width:43px!important;max-width:43px!important;
+   font-size:9px!important;padding:0 1px!important;
  }
  body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetailSkill,#userDetailRecords) .ar-title {
    grid-column:1/3;grid-row:3;width:100%;padding:0;margin:0;line-height:19px;
