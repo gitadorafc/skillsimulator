@@ -676,8 +676,21 @@ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetail
  body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-edit button {width:32px;height:32px;font-size:19px;}
  body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-table-head {padding:5px 6px;margin-bottom:4px;}
 
- /* Desktop menu destinations are work-area pages, not viewport-wide modal sheets.
-    Preserve the fixed top bar (50px) and permanent sidebar (208px). */
+ /* Shared desktop work-area geometry: menu sheets and user detail occupy the
+    same space, while scrolling, padding and stacking remain specific to each. */
+ body.admin-new-ui :is(
+   #mypageModal,#featureSettingsMask,#tagSettingsMask,#skillSyncMask,
+   #allScoreSyncMask,#skillShareMask,#skillHistoryMask,
+   #skillRankingMask,#officialSkillRankingMask,#rivalManageMask,
+   #songCatalogMask,#howToMask,#feedbackMask,#supportMask,
+   #accountSwitchMask,#userDetailPage.user-detail-page
+ ) {
+   position:fixed!important;
+   inset:var(--admin-top-height) 0 0 var(--admin-side-width)!important;
+   width:auto!important;height:auto!important;max-width:none!important;
+   box-sizing:border-box!important;
+ }
+ /* Desktop menu destinations are work-area pages, not viewport-wide modal sheets. */
  body.admin-new-ui :is(
    #mypageModal,#featureSettingsMask,#tagSettingsMask,#skillSyncMask,
    #allScoreSyncMask,#skillShareMask,#skillHistoryMask,
@@ -685,15 +698,11 @@ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetail
    #songCatalogMask,#howToMask,#feedbackMask,#supportMask,
    #accountSwitchMask
  ) {
-   position:fixed!important;
-   inset:var(--admin-top-height) 0 0 var(--admin-side-width)!important;
-   width:auto!important;height:auto!important;max-width:none!important;
    padding:12px!important;margin:0!important;
    align-items:flex-start!important;justify-content:flex-start!important;
    overflow-y:auto!important;overflow-x:hidden!important;
    background:var(--admin-work-surface,#0c1728)!important;
    backdrop-filter:none!important;box-shadow:none!important;
-   box-sizing:border-box!important;
  }
  body.admin-new-ui :is(
    #mypageModal,#featureSettingsMask,#tagSettingsMask,#skillSyncMask,
@@ -725,11 +734,7 @@ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetail
  /* Viewed profiles use the same right-side workspace, with their own sticky
     name/skill/tab bar. Their existing markup and click handlers stay intact. */
  body.admin-new-ui #userDetailPage.user-detail-page {
-   position:fixed!important;
-   inset:var(--admin-top-height) 0 0 var(--admin-side-width)!important;
-   width:auto!important;height:auto!important;max-width:none!important;
-   min-height:0!important;overflow:hidden!important;
-   box-sizing:border-box!important;z-index:1100;
+   min-height:0!important;overflow:hidden!important;z-index:1100;
  }
 }
 
