@@ -308,7 +308,7 @@ body.admin-new-ui #appScreen>.p-header{position:sticky;top:0;z-index:100;}
  body.admin-new-ui #appRoot,body.admin-new-ui #appScreen:not(.hidden){width:100%;max-width:none;min-width:0;box-sizing:border-box;}
  body.admin-new-ui #appScreen>.p-header,body.admin-new-ui #appScreen>.p-container{width:100%;max-width:none;min-width:0;box-sizing:border-box;margin-left:0;}
  body.admin-new-ui #appScreen>.p-header>.admin-desktop-menu-tree{display:none;}
- body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-table-head{display:none;}
+ body.admin-new-ui:not(.skill-target-columns) #viewAllManage .ar-table-head{display:none;}
  body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-record{
    grid-template-columns:40px minmax(0,1fr) 67px 32px;
    grid-template-rows:20px 20px;gap:3px 2px;padding:5px;min-height:53px;
@@ -386,7 +386,7 @@ body.admin-new-ui.light-mode :is(#viewSkill,#viewAllManage,#userDetailSkill,#use
 /* ON card layout: base shared by all widths. The 700px breakpoint changes
    only the compact card arrangement, not the HTML structure. OFF styles and
    the public UI remain untouched. */
-body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetailSkill,#userDetailRecords) .ar-table-head,
+body.admin-new-ui.skill-target-columns #viewAllManage .ar-table-head,
 body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetailSkill,#userDetailRecords) .ar-no,
 body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetailSkill,#userDetailRecords) .ar-title .ar-hot,
 body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetailSkill,#userDetailRecords) .ar-mini-label {display:none!important;}
