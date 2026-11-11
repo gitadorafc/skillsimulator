@@ -66,10 +66,8 @@ body.admin-new-ui.light-mode .favorite-toggle {
   border:1px solid #cbd5e1 !important;
 }
 body.admin-new-ui.light-mode .favorite-toggle.active {
-  background:#f8fafc !important;
   color:#eab308 !important;
   -webkit-text-fill-color:#eab308 !important;
-  border-color:#cbd5e1 !important;
 }
 
 /* Light-mode card badges: identical palette in SKILL and registered tabs.
@@ -201,7 +199,7 @@ body.admin-new-ui #appScreen>.p-header :is(#searchArea,#boardMainFixed.board-mai
 body.admin-new-ui #appScreen>.p-header>#boardMainFixed.board-main-fixed {
   --admin-board-notice-left:0px;--admin-board-notice-right:0px;
 }
-body.admin-new-ui #userListHeaderSlot {position:relative;flex:0 0 auto;min-width:0;box-sizing:border-box;}
+body.admin-new-ui #userListHeaderSlot {position:relative;flex:0 0 auto;}
 body.admin-new-ui.app-scroll-layout #userListHeaderSlot:not(.hidden) {display:block;}
 body.admin-new-ui #userListHeaderSlot .user-list-sticky {
   position:relative;top:auto;overflow:visible;
@@ -265,7 +263,7 @@ body.admin-new-ui #searchArea #btnHeaderAdd {
   background:#3b82f6;border-color:#3b82f6;color:white;-webkit-text-fill-color:white;
 }
 body.admin-new-ui #boardMainFixed #btnBoardNewThread {white-space:nowrap;}
-/* Board search row: use the shared toolbar geometry; keep its own bottom gap. */
+/* Board toolbar uses shared search geometry; retain its bottom spacing. */
 body.admin-new-ui #boardMainFixed .board-main-toolbar {margin-bottom:8px;}
 /* Align thread cards with the shared search row: the enclosing .p-container
    already contributes 6px of inline padding, so the board view supplies only
