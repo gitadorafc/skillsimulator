@@ -72,6 +72,29 @@ body.admin-new-ui.light-mode .favorite-toggle.active {
   border-color:#cbd5e1 !important;
 }
 
+/* Light-mode card badges: identical palette in SKILL and registered tabs.
+   Use the public registered-card tokens, without changing the dark theme. */
+body.admin-new-ui.light-mode :is(#viewSkill,#viewAllManage,#userDetailSkill,#userDetailRecords) .ar-option .opt-ran {
+  color:#15803d!important;-webkit-text-fill-color:#15803d!important;
+  background:#ecfdf5!important;border-color:#15803d!important;
+}
+body.admin-new-ui.light-mode :is(#viewSkill,#viewAllManage,#userDetailSkill,#userDetailRecords) .ar-option .opt-sra {
+  color:#c2410c!important;-webkit-text-fill-color:#c2410c!important;
+  background:#fff7ed!important;border-color:#c2410c!important;
+}
+body.admin-new-ui.light-mode :is(#viewSkill,#viewAllManage,#userDetailSkill,#userDetailRecords) .ar-option .opt-ran-plus {
+  color:#0369a1!important;-webkit-text-fill-color:#0369a1!important;
+  background:#f0f9ff!important;border-color:#0369a1!important;
+}
+body.admin-new-ui.light-mode :is(#viewSkill,#viewAllManage,#userDetailSkill,#userDetailRecords) .ar-option .opt-sra-plus {
+  color:#be123c!important;-webkit-text-fill-color:#be123c!important;
+  background:#fff1f2!important;border-color:#be123c!important;
+}
+/* Light cards already have a skill-colored border; remove the medal drop shadow. */
+body.admin-new-ui.light-mode :is(#viewSkill,#viewAllManage,#userDetailSkill,#userDetailRecords) .ar-bear-medal {
+  filter:none;
+}
+
 /* Single admin-only skill border. Paint is derived from the SAME skill-color table
    as the existing user-facing card; no rank colors are duplicated here. */
 body.admin-new-ui :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-record::before{
@@ -161,9 +184,15 @@ body.admin-new-ui #userListHeaderSlot.admin-user-filters-expanded #btnAdminUserF
 }
 /* Identical outer geometry for user-list and board search areas.
    Override the older .board-main-fixed negative margins at their source for admin only. */
-body.admin-new-ui #appScreen>.p-header :is(#searchArea,#userListHeaderSlot,#boardMainFixed.board-main-fixed) {
+body.admin-new-ui #appScreen>.p-header :is(#searchArea,#boardMainFixed.board-main-fixed) {
   min-width:0;box-sizing:border-box;
   margin:0!important;
+  padding:6px 8px 8px!important;
+  border:0!important;background:transparent!important;
+}
+/* User toolbar must not share the board's zero-margin rule on desktop. */
+body.admin-new-ui #appScreen>.p-header>#userListHeaderSlot {
+  min-width:0;box-sizing:border-box;
   padding:6px 8px 8px!important;
   border:0!important;background:transparent!important;
 }
@@ -653,6 +682,62 @@ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetail
  body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-bear-medal {width:26px;height:26px;}
  body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-edit button {width:32px;height:32px;font-size:19px;}
  body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-table-head {padding:5px 6px;margin-bottom:4px;}
+
+ /* Desktop menu destinations are work-area pages, not viewport-wide modal sheets.
+    Preserve the fixed top bar (50px) and permanent sidebar (208px). */
+ body.admin-new-ui :is(
+   #mypageModal,#featureSettingsMask,#tagSettingsMask,#skillSyncMask,
+   #allScoreSyncMask,#skillShareMask,#skillHistoryMask,
+   #skillRankingMask,#officialSkillRankingMask,#rivalManageMask,
+   #songCatalogMask,#howToMask,#feedbackMask,#supportMask,
+   #accountSwitchMask
+ ) {
+   position:fixed!important;
+   inset:var(--admin-top-height) 0 0 var(--admin-side-width)!important;
+   width:auto!important;height:auto!important;max-width:none!important;
+   padding:12px!important;margin:0!important;
+   align-items:flex-start!important;justify-content:flex-start!important;
+   overflow-y:auto!important;overflow-x:hidden!important;
+   background:var(--admin-work-surface,#0c1728)!important;
+   backdrop-filter:none!important;box-shadow:none!important;
+   box-sizing:border-box!important;
+ }
+ body.admin-new-ui :is(
+   #mypageModal,#featureSettingsMask,#tagSettingsMask,#skillSyncMask,
+   #allScoreSyncMask,#skillShareMask,#skillHistoryMask,
+   #skillRankingMask,#officialSkillRankingMask,#rivalManageMask,
+   #songCatalogMask,#howToMask,#feedbackMask,#supportMask,
+   #accountSwitchMask
+ ) > :first-child {
+   position:relative!important;
+   flex:0 0 100%!important;width:100%!important;max-width:none!important;
+   height:auto!important;min-height:0!important;max-height:none!important;
+   margin:0!important;padding:16px!important;
+   border-radius:8px!important;box-shadow:none!important;
+   overflow:visible!important;box-sizing:border-box!important;
+ }
+ body.admin-new-ui.light-mode {
+   --admin-work-surface:#e5e7eb;
+ }
+ body.admin-new-ui.light-mode :is(
+   #mypageModal,#featureSettingsMask,#tagSettingsMask,#skillSyncMask,
+   #allScoreSyncMask,#skillShareMask,#skillHistoryMask,
+   #skillRankingMask,#officialSkillRankingMask,#rivalManageMask,
+   #songCatalogMask,#howToMask,#feedbackMask,#supportMask,
+   #accountSwitchMask
+ ) > :first-child {
+   background:#f8fafc!important;color:#17243a!important;
+   border-color:#cbd5e1!important;
+ }
+ /* Viewed profiles use the same right-side workspace, with their own sticky
+    name/skill/tab bar. Their existing markup and click handlers stay intact. */
+ body.admin-new-ui #userDetailPage.user-detail-page {
+   position:fixed!important;
+   inset:var(--admin-top-height) 0 0 var(--admin-side-width)!important;
+   width:auto!important;height:auto!important;max-width:none!important;
+   min-height:0!important;overflow:hidden!important;
+   box-sizing:border-box!important;z-index:1100;
+ }
 }
 
 
