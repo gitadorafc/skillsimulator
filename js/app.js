@@ -7727,6 +7727,31 @@ function collapseAdminDesktopMenu() {
   document.body.classList.remove('admin-desktop-menu-open');
 }
 const adminDesktopMenuLabels = ['アカウント設定','スキル機能','曲データ','ヘルプ・運営'];
+/* Desktop navigation is one workspace, not a stack of independent modals.
+   Close the previous menu destination before dispatching the next action;
+   preserve all normal click handlers and the permanent sidebar. */
+const ADMIN_DESKTOP_WORKSPACE_MASK_IDS = [
+  'mypageModal','featureSettingsMask','tagSettingsMask',
+  'skillSyncMask','allScoreSyncMask','skillShareMask','skillHistoryMask',
+  'skillRankingMask','officialSkillRankingMask','rivalManageMask',
+  'songCatalogMask','howToMask','feedbackMask','supportMask',
+  'accountSwitchMask'
+];
+function closeAdminDesktopWorkspace() {
+  if (!document.body.classList.contains('admin-new-ui') ||
+      !window.matchMedia('(min-width:1100px)').matches) return;
+  const detail = $('userDetailPage');
+  if (detail && detail.style.display !== 'none' && detail.classList.contains('user-detail-open')) {
+    closeUserDetail(false);
+  }
+  for (const id of ADMIN_DESKTOP_WORKSPACE_MASK_IDS) {
+    const mask = $(id);
+    if (mask) mask.style.display = 'none';
+  }
+  myPageOpenedFromMenu = false;
+  syncGlobalModalScrollLock();
+}
+
 // Synchronize the dedicated desktop selector with the existing version picker.
 function syncAdminDesktopVersion() {
   const select = $('adminDesktopVersionSelect');
@@ -7781,7 +7806,10 @@ function toggleAdminDesktopMenu() {
     button.type = 'button';
     button.className = 'admin-menu-tree-item';
     button.textContent = original.textContent.replace(/\s*›\s*$/, '').trim();
-    button.addEventListener('click', () => original.click());
+    button.addEventListener('click', () => {
+      closeAdminDesktopWorkspace();
+      original.click();
+    });
     current.appendChild(button);
   };
   if (source) for (const element of source.children) {
