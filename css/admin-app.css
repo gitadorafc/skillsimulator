@@ -23,6 +23,54 @@ body.admin-new-ui.light-mode :is(#viewAllManage,#viewSkill,#userDetailSkill,#use
  background:#e8f3fa;border-color:#83bdd6;color:#184c68;
 }
 
+
+/* Light-mode admin controls: match the existing public light UI instead of
+   keeping dark-theme button/input paints. */
+body.admin-new-ui.light-mode #searchArea #domSearch,
+body.admin-new-ui.light-mode #userListHeaderSlot #userSearch,
+body.admin-new-ui.light-mode #boardMainFixed #boardThreadSearch {
+  background:#ffffff !important;
+  color:#111827 !important;
+  -webkit-text-fill-color:#111827 !important;
+  border-color:#94a3b8 !important;
+  box-shadow:0 1px 1px rgba(15,23,42,.06) !important;
+}
+body.admin-new-ui.light-mode :is(#domSearch,#userSearch,#boardThreadSearch)::placeholder {
+  color:#94a3b8 !important;
+  -webkit-text-fill-color:#94a3b8 !important;
+}
+body.admin-new-ui.light-mode #appScreen>.p-header :is(#searchArea,#userListHeaderSlot,#boardMainFixed.board-main-fixed),
+body.admin-new-ui.light-mode #boardMainFixed .board-main-toolbar,
+body.admin-new-ui.light-mode #userListHeaderSlot .users-toolbar {
+  background:transparent !important;
+  box-shadow:none !important;
+}
+body.admin-new-ui.light-mode #searchArea #btnAdminRecordFilters,
+body.admin-new-ui.light-mode #userListHeaderSlot #btnAdminUserFilters,
+body.admin-new-ui.light-mode :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-edit button {
+  background:#f8fafc !important;
+  border-color:#94a3b8 !important;
+  color:#1e293b !important;
+  -webkit-text-fill-color:#1e293b !important;
+}
+body.admin-new-ui.light-mode :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-skill,
+body.admin-new-ui.light-mode :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-skill .dc-skill-value {
+  color:#111827 !important;
+  -webkit-text-fill-color:#111827 !important;
+  -webkit-text-stroke:0 !important;
+  text-shadow:none !important;
+}
+body.admin-new-ui.light-mode .favorite-toggle {
+  background:#f8fafc !important;
+  color:#334155 !important;
+  border:1px solid #cbd5e1 !important;
+}
+body.admin-new-ui.light-mode .favorite-toggle.active {
+  background:#fef3c7 !important;
+  color:#d97706 !important;
+  border-color:#fbbf24 !important;
+}
+
 /* Single admin-only skill border. Paint is derived from the SAME skill-color table
    as the existing user-facing card; no rank colors are duplicated here. */
 body.admin-new-ui :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-record::before{
@@ -304,10 +352,10 @@ body.admin-new-ui :is(#viewSkill,#viewAllManage,#userDetailSkill,#userDetailReco
 }
 /* Light-theme section headings stay legible on the light page background. */
 body.admin-new-ui.light-mode :is(#viewSkill,#viewAllManage,#userDetailSkill,#userDetailRecords) :is(.skill-hot-section,.admin-records-pane.hot)>h2 {
- color:#8b1e29;background:#fff1f2;border-color:#b42332;
+ color:#7f1d1d;background:#ffffff;border-color:#b91c1c;
 }
 body.admin-new-ui.light-mode :is(#viewSkill,#viewAllManage,#userDetailSkill,#userDetailRecords) :is(.skill-other-section,.admin-records-pane.other)>h2 {
- color:#15556d;background:#eaf8fd;border-color:#257a9e;
+ color:#15556d;background:#ffffff;border-color:#257a9e;
 }
 
 /* ON card layout: base shared by all widths. The 700px breakpoint changes
