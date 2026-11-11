@@ -619,16 +619,19 @@ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetail
    display:flex;flex-direction:column;gap:8px;margin-top:16px;padding:12px 5px 10px;
    border-top:1px solid #30445c;min-width:0;
  }
- body.admin-new-ui .admin-desktop-version-area>label {
-   color:#a8c4dc;font-size:11px;font-weight:750;
+ /* Version metadata shares one dark-mode color and weight; individual size/flow stays distinct. */
+ body.admin-new-ui .admin-desktop-version-area>label,
+ body.admin-new-ui .admin-desktop-app-version {
+   color:#a8c4dc;font-weight:750;
  }
+ body.admin-new-ui .admin-desktop-version-area>label {font-size:11px;}
  body.admin-new-ui .admin-desktop-version-select {
    display:block;width:100%;min-width:0;max-width:100%;box-sizing:border-box;
    background:#0f1d30;color:#e1ecfc;border:1px solid #405772;
    border-radius:5px;padding:9px 6px;font:inherit;font-size:12px;
  }
  body.admin-new-ui .admin-desktop-app-version {
-   color:#a8c4dc;font-family:inherit;font-size:11px;font-weight:750;
+   font-family:inherit;font-size:11px;
    line-height:1.4;letter-spacing:normal;overflow-wrap:anywhere;
  }
  body.admin-new-ui #appScreen>.p-header>.score-row,
@@ -640,8 +643,8 @@ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetail
    margin-left:var(--admin-side-width);
    width:calc(100% - var(--admin-side-width));box-sizing:border-box;
  }
- body.admin-new-ui #appScreen>.p-header>#boardMainFixed {min-width:0;max-width:none;overflow-wrap:anywhere;}
- body.admin-new-ui #appScreen>.p-header>#boardMainFixed .board-main-rule-note {max-width:100%;min-width:0;box-sizing:border-box;overflow-wrap:anywhere;}
+ body.admin-new-ui #appScreen>.p-header>#boardMainFixed {max-width:none;overflow-wrap:anywhere;}
+ body.admin-new-ui #appScreen>.p-header>#boardMainFixed .board-main-rule-note {max-width:100%;overflow-wrap:anywhere;}
  body.admin-new-ui #appScreen>.p-header>.score-row {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));min-height:63px;}
  body.admin-new-ui #appScreen>.p-header>.score-row>.score-cell {width:auto;min-width:0;}
  body.admin-new-ui #appScreen>.p-header>.p-tabs {display:flex;gap:6px;padding:6px 8px;height:auto;}
