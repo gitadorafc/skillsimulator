@@ -12,7 +12,7 @@ body.admin-new-ui :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailReco
 /* Light theme: explicit contrast for admin cards. Layout, skill-color border,
    and the shared public sparkle animation remain identical in both themes. */
 body.admin-new-ui.light-mode :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-record{
- background:#ffffff;color:#17243a;
+ background:#f3f4f6 !important;color:#17243a;
 }
 body.admin-new-ui.light-mode :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) :is(.ar-song-name,.ar-level,.ar-rate),
 body.admin-new-ui.light-mode :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) :is(.ar-level,.ar-rate) strong{
@@ -66,9 +66,10 @@ body.admin-new-ui.light-mode .favorite-toggle {
   border:1px solid #cbd5e1 !important;
 }
 body.admin-new-ui.light-mode .favorite-toggle.active {
-  background:#fef3c7 !important;
-  color:#d97706 !important;
-  border-color:#fbbf24 !important;
+  background:#f8fafc !important;
+  color:#eab308 !important;
+  -webkit-text-fill-color:#eab308 !important;
+  border-color:#cbd5e1 !important;
 }
 
 /* Single admin-only skill border. Paint is derived from the SAME skill-color table
@@ -559,6 +560,40 @@ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetail
  body.admin-new-ui .admin-menu-group[open]>summary {background:#263e59;border-bottom:1px solid #405772;}
  body.admin-new-ui .admin-menu-tree-item {display:block;width:100%;padding:9px 10px;border:0;border-top:1px solid #30445c;background:transparent;color:#e2eaf5;text-align:left;cursor:pointer;font-size:12px;}
  body.admin-new-ui .admin-menu-tree-item:hover {background:#284a75;}
+ /* Desktop light theme: the admin sidebar should follow the page theme.
+    These are the light counterparts of the sidebar's dark-only rules above. */
+ body.admin-new-ui.light-mode #appScreen>.p-header>.admin-desktop-menu-tree {
+   background:#e5e7eb;border-right-color:#94a3b8;
+ }
+ body.admin-new-ui.light-mode .admin-desktop-menu-caption {
+   color:#17243a;
+ }
+ body.admin-new-ui.light-mode .admin-menu-group {
+   background:#f8fafc;border-color:#94a3b8;
+ }
+ body.admin-new-ui.light-mode .admin-menu-group>summary {
+   color:#1e293b;
+ }
+ body.admin-new-ui.light-mode .admin-menu-group[open]>summary {
+   background:#dbe4ef;border-bottom-color:#94a3b8;
+ }
+ body.admin-new-ui.light-mode .admin-menu-tree-item {
+   background:transparent;color:#1e293b;border-top-color:#cbd5e1;
+ }
+ body.admin-new-ui.light-mode .admin-menu-tree-item:hover {
+   background:#dbeafe;
+ }
+ body.admin-new-ui.light-mode .admin-desktop-version-area {
+   border-top-color:#94a3b8;
+ }
+ body.admin-new-ui.light-mode .admin-desktop-version-area>label,
+ body.admin-new-ui.light-mode .admin-desktop-app-version {
+   color:#334155;
+ }
+ body.admin-new-ui.light-mode .admin-desktop-version-select {
+   background:#fff;color:#17243a;border-color:#94a3b8;
+ }
+
  body.admin-new-ui .admin-desktop-version-area {
    display:flex;flex-direction:column;gap:8px;margin-top:16px;padding:12px 5px 10px;
    border-top:1px solid #30445c;min-width:0;
