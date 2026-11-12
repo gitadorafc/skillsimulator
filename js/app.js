@@ -1947,6 +1947,7 @@ async function init() {
       finishAppLoading();
       adminEnabled = false;
       adminAccessChecked = false;
+      restoreAdminUnifiedMenuScreens();
       document.body.classList.remove('admin-responsive-preview', 'admin-new-ui');
       updateAdminUiVersion(false);
       applyAppScrollLayout(false);
@@ -2620,6 +2621,7 @@ const contextualHelpTargets = {
   btnCloseAccountSwitch: 'howto-accounts',
   btnCloseTagSettings: 'howto-tags',
   btnCloseSkillSync: 'howto-sync',
+  btnCloseAllScoreSync: 'howto-sync',
   btnCloseSkillShare: 'howto-share',
   btnCloseSkillHistory: 'howto-share',
   btnCloseSkillRanking: 'howto-ranking',
@@ -2641,6 +2643,108 @@ for (const [backId, section] of Object.entries(contextualHelpTargets)) {
   help.addEventListener('click', () => openHowTo(typeof section === 'function' ? section() : section));
   back.before(actions);
   actions.append(help, back);
+}
+
+// One admin menu screen header component for all destinations. Keep the existing
+// content and close handlers; only transplant the title/context and controls.
+// The public UI retains its original markup, styling, and interaction.
+const ADMIN_UNIFIED_MENU_SCREENS = [
+  ['mypageModal', 'mypage-title-row', 'btnCloseMypage'],
+  ['featureSettingsMask', 'app-menu-head', 'btnCloseFeatureSettings'],
+  ['tagSettingsMask', 'tag-settings-head', 'btnCloseTagSettings'],
+  ['skillSyncMask', 'skill-sync-head', 'btnCloseSkillSync'],
+  ['allScoreSyncMask', 'skill-sync-head', 'btnCloseAllScoreSync'],
+  ['skillShareMask', 'skill-share-head', 'btnCloseSkillShare'],
+  ['skillHistoryMask', 'skill-history-head', 'btnCloseSkillHistory'],
+  ['skillRankingMask', 'skill-ranking-head-row', 'btnCloseSkillRanking'],
+  ['officialSkillRankingMask', 'official-ranking-head', 'btnCloseOfficialSkillRanking'],
+  ['rivalManageMask', 'app-menu-head', 'btnCloseRivalManage'],
+  ['songCatalogMask', 'song-catalog-head', 'btnCloseSongCatalog'],
+  ['howToMask', 'app-menu-head', 'btnCloseHowTo'],
+  ['feedbackMask', 'app-menu-head', 'btnCloseFeedback'],
+  ['supportMask', 'app-menu-head', 'btnCloseSupport'],
+  ['accountSwitchMask', 'app-menu-head', 'btnCloseAccountSwitch']
+];
+const adminUnifiedMenuMounts = [];
+function initAdminUnifiedMenuScreens() {
+  if (!document.body.classList.contains('admin-new-ui')) return;
+  for (const [maskId, oldHeaderClass, backId] of ADMIN_UNIFIED_MENU_SCREENS) {
+    const mask = $(maskId);
+    const oldHeader = mask?.querySelector(`.${oldHeaderClass}`);
+    const back = $(backId);
+    if (!oldHeader || !back || mask.querySelector('.admin-workspace-header')) continue;
+    let heading = oldHeader.querySelector('h3, h2, h1, strong');
+    if (!heading) continue;
+    let convertedHeading = null;
+    if (heading.tagName !== 'STRONG') {
+      const unifiedTitle = document.createElement('strong');
+      unifiedTitle.id = heading.id;
+      unifiedTitle.className = heading.className;
+      while (heading.firstChild) unifiedTitle.appendChild(heading.firstChild);
+      heading.replaceWith(unifiedTitle);
+      convertedHeading = { original: heading, current: unifiedTitle };
+      heading = unifiedTitle;
+    }
+
+    // Keep placeholders for each source node. This also lets sign-out restore
+    // the original public UI without replacing event-bound buttons with clones.
+    const movedNodes = [];
+    const relocate = (node, destination) => {
+      const marker = document.createComment('admin-menu-node');
+      node.before(marker);
+      movedNodes.push({ marker, node });
+      destination.appendChild(node);
+    };
+    const title = document.createElement('div');
+    title.className = 'admin-workspace-title';
+    relocate(heading, title);
+    const context = oldHeader.querySelector(
+      '.song-catalog-version, .skill-history-context, .skill-ranking-context, ' +
+      '.official-ranking-context, .skill-sync-kicker'
+    );
+    if (context) relocate(context, title);
+
+    const originalBackClass = back.className;
+    const originalBackText = back.textContent;
+    back.className = 'admin-workspace-back';
+    back.textContent = '戻る';
+    const actions = document.createElement('div');
+    actions.className = 'admin-workspace-actions';
+    const existingActions = back.closest('.menu-context-actions');
+    if (existingActions) {
+      for (const child of [...existingActions.children]) relocate(child, actions);
+    } else relocate(back, actions);
+
+    const header = document.createElement('header');
+    header.className = 'admin-workspace-header';
+    header.append(title, actions);
+    const position = document.createComment('admin-menu-header');
+    oldHeader.before(position);
+    if (maskId === 'skillRankingMask') {
+      // Ranking controls remain in their dedicated strip, below the shared header.
+      oldHeader.parentElement.before(header);
+      oldHeader.remove();
+    } else oldHeader.replaceWith(header);
+    mask.querySelector('.menu-screen-dialog')?.classList.add('admin-workspace-panel');
+    adminUnifiedMenuMounts.push({ mask, oldHeader, header, position, movedNodes,
+      back, originalBackClass, originalBackText, convertedHeading });
+  }
+}
+function restoreAdminUnifiedMenuScreens() {
+  while (adminUnifiedMenuMounts.length) {
+    const mount = adminUnifiedMenuMounts.pop();
+    for (const { marker, node } of mount.movedNodes) marker.replaceWith(node);
+    if (mount.convertedHeading) {
+      const { original, current } = mount.convertedHeading;
+      while (current.firstChild) original.appendChild(current.firstChild);
+      current.replaceWith(original);
+    }
+    mount.back.className = mount.originalBackClass;
+    mount.back.textContent = mount.originalBackText;
+    mount.position.replaceWith(mount.oldHeader);
+    mount.header.remove();
+    mount.mask.querySelector('.menu-screen-dialog')?.classList.remove('admin-workspace-panel');
+  }
 }
 
 $('howToMask').querySelector('.howto-index').addEventListener('click', event => {
@@ -5101,7 +5205,9 @@ async function checkAdminAccess() {
   document.body.classList.remove('admin-responsive-preview');
   document.body.classList.toggle('admin-new-ui', adminNewUi);
   updateAdminUiVersion(adminNewUi);
+  if (!adminNewUi) restoreAdminUnifiedMenuScreens();
   if (adminNewUi) {
+    initAdminUnifiedMenuScreens();
     requestAnimationFrame(ensureDesktopMenuTree);
     // Start the same users RPC while the first tab is being prepared, so
     // the first user-list visit can reuse its result or its in-flight promise.

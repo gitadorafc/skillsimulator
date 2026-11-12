@@ -564,6 +564,47 @@ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetail
     grid-column:2;padding-right:83px;
   }
 }
+ /* Shared workspace header is generated once for every admin menu.
+    No per-screen header geometry, title font or back-button rules. */
+ body.admin-new-ui .admin-workspace-header {
+   display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:start;
+   gap:12px;min-width:0;margin:0 0 16px;padding:0 0 12px;
+   background:transparent;border:0;border-bottom:1px solid #30445c;
+   box-sizing:border-box;
+ }
+ body.admin-new-ui .admin-workspace-title {display:flex;flex-direction:column;min-width:0;gap:4px;}
+ body.admin-new-ui .admin-workspace-title > :is(h1,h2,h3,strong) {
+   display:block;margin:0;padding:0;color:#f8fafc;
+   font-size:19px!important;font-weight:900;line-height:1.4;overflow-wrap:anywhere;
+ }
+ body.admin-new-ui .admin-workspace-title > :not(h1,h2,h3,strong) {
+   margin:0;color:#9fb5ca;font-size:12px;font-weight:700;line-height:1.4;
+ }
+ body.admin-new-ui .admin-workspace-actions {
+   display:flex;flex:0 0 auto;align-items:center;justify-content:flex-end;gap:7px;
+ }
+ body.admin-new-ui .admin-workspace-actions > :is(button,.menu-context-help) {
+   display:inline-flex!important;align-items:center!important;justify-content:center!important;
+   flex:none!important;box-sizing:border-box!important;
+   width:auto!important;min-width:52px!important;height:36px!important;
+   min-height:36px!important;max-height:36px!important;
+   margin:0!important;padding:0 11px!important;
+   border:1px solid #64748b!important;border-radius:7px!important;
+   background:#111827!important;color:#e2e8f0!important;
+   -webkit-text-fill-color:#e2e8f0!important;
+   font-family:inherit!important;font-size:12px!important;
+   font-weight:900!important;line-height:1!important;
+   white-space:nowrap!important;box-shadow:none!important;
+   text-align:center!important;cursor:pointer;
+ }
+ body.admin-new-ui.light-mode .admin-workspace-header {border-bottom-color:#cbd5e1;}
+ body.admin-new-ui.light-mode .admin-workspace-title > :is(h1,h2,h3,strong) {color:#17243a;}
+ body.admin-new-ui.light-mode .admin-workspace-title > :not(h1,h2,h3,strong) {color:#526579;}
+ body.admin-new-ui.light-mode .admin-workspace-actions > :is(button,.menu-context-help) {
+   background:#f8fafc!important;color:#1e293b!important;
+   -webkit-text-fill-color:#1e293b!important;border-color:#94a3b8!important;
+ }
+
 @media (min-width:1100px) {
  body.admin-new-ui {--admin-side-width:208px;--admin-top-height:50px;}
  body.admin-new-ui #appRoot {display:block;width:100%;max-width:none;min-width:0;box-sizing:border-box;}
@@ -751,31 +792,15 @@ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetail
    display:flex;flex-direction:column;min-width:0;
    border:1px solid #30445c;background:#081327;
  }
- body.admin-new-ui .menu-screen-head {
-   display:flex;align-items:flex-start;justify-content:space-between;gap:12px;
-   margin:0 0 16px;padding:0 0 12px;
-   border-bottom:1px solid #30445c;background:transparent;
- }
- body.admin-new-ui .menu-screen-head>:first-child {min-width:0;}
- body.admin-new-ui .menu-screen-head :is(strong,h1,h2,h3) {
-   margin:0;color:#f8fafc;font-size:20px;font-weight:900;line-height:1.4;
- }
- body.admin-new-ui .menu-screen-head :is(.song-catalog-version,.skill-history-context,.skill-ranking-context,.official-ranking-context) {
-   margin-top:4px;color:#9fb5ca;font-size:12px;font-weight:700;line-height:1.5;
- }
- body.admin-new-ui .menu-screen-head .menu-context-actions {margin-left:auto;align-self:flex-start;}
+ /* Desktop menu content uses a single panel padding and aligned header. */
+ body.admin-new-ui .admin-workspace-panel {padding:16px!important;}
+ body.admin-new-ui .admin-workspace-panel > .tag-settings-body {padding:0;overflow:visible;}
+ body.admin-new-ui .admin-workspace-panel .tag-settings-actions {grid-template-columns:minmax(0,1fr);}
+ body.admin-new-ui .admin-workspace-panel .tag-settings-actions > #btnCancelTagSettings {display:none;}
+ body.admin-new-ui .admin-workspace-panel .tag-settings-actions > #btnSaveTagSettings {width:100%;}
  body.admin-new-ui .menu-screen-body {min-width:0;}
  body.admin-new-ui.light-mode .menu-screen-dialog {
    border-color:#cbd5e1;background:#f8fafc;
- }
- body.admin-new-ui.light-mode .menu-screen-head {
-   border-bottom-color:#cbd5e1;
- }
- body.admin-new-ui.light-mode .menu-screen-head :is(strong,h1,h2,h3) {
-   color:#17243a;
- }
- body.admin-new-ui.light-mode .menu-screen-head :is(.song-catalog-version,.skill-history-context,.skill-ranking-context,.official-ranking-context) {
-   color:#526579;
  }
  body.admin-new-ui.light-mode {
    --admin-work-surface:#e5e7eb;
