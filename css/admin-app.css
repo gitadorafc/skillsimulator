@@ -155,13 +155,24 @@ body.admin-new-ui :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailReco
 
 /* Existing admin-only filter interaction; keep this separate from responsive layout. */
 body #searchArea #btnAdminRecordFilters{display:none;}
-body.admin-new-ui #searchArea #btnAdminRecordFilters{border:1px solid #415671;background:#23344a;color:#eaf3ff;font-weight:800;cursor:pointer;}
+body.admin-new-ui #searchArea #btnAdminRecordFilters,
+body.admin-new-ui #userListHeaderSlot #btnAdminUserFilters {
+ border:1px solid #415671;background:#23344a;color:#eaf3ff;cursor:pointer;
+}
+body.admin-new-ui #searchArea #btnAdminRecordFilters{font-weight:800;}
 body.admin-new-ui #searchArea{position:relative;z-index:15;}
 body.admin-new-ui #searchArea .record-filter-row{display:none!important;}
+/* Filter panels share their surface and positioning rules. Keep their
+   different widths and grid columns in the individual definitions below. */
+body.admin-new-ui #searchArea.admin-filters-expanded .record-filter-row,
+body.admin-new-ui #userListHeaderSlot.admin-user-filters-expanded #userListSortControls {
+ position:absolute;top:100%;padding:12px;gap:8px;
+ border:1px solid #3c6385;border-radius:8px;
+ background:#152438;box-shadow:0 8px 25px #0009;
+}
 body.admin-new-ui #searchArea.admin-filters-expanded .record-filter-row{
- display:grid!important;position:absolute;z-index:35;right:4px;top:100%;width:min(590px,calc(100% - 8px));padding:12px;margin-top:2px;
- grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:8px;border:1px solid #3c6385;border-radius:8px;
- background:#152438;box-shadow:0 8px 25px #0009;box-sizing:border-box;
+ display:grid!important;z-index:35;right:4px;width:min(590px,calc(100% - 8px));margin-top:2px;
+ grid-template-columns:repeat(4,minmax(0,1fr))!important;box-sizing:border-box;
 }
 body.admin-new-ui #searchArea.admin-filters-expanded .record-filter-row label{min-width:0;}
 body.admin-new-ui #searchArea.admin-filters-expanded .record-filter-row select{width:100%;min-width:0;}
@@ -175,11 +186,7 @@ body.admin-new-ui #btnHeaderAdd{white-space:nowrap;}
 /* Admin user list: compact search with a registered-list-style filter popover. */
 body.admin-new-ui #userListHeaderSlot .users-toolbar #userSearch {grid-column:1;}
 body #userListHeaderSlot #btnAdminUserFilters {display:none;}
-body.admin-new-ui #userListHeaderSlot #btnAdminUserFilters {
-  grid-column:2;
-  border:1px solid #415671;
-  background:#23344a;color:#eaf3ff;cursor:pointer;
-}
+body.admin-new-ui #userListHeaderSlot #btnAdminUserFilters {grid-column:2;}
 body.admin-new-ui #userListHeaderSlot #btnAdminUserFilters svg {width:21px;height:21px;}
 body.admin-new-ui #userListHeaderSlot.admin-user-filters-expanded #btnAdminUserFilters {
   border-color:#3b82f6;background:#254d86;
@@ -207,10 +214,8 @@ body.admin-new-ui #userListHeaderSlot .user-list-sticky {
 }
 body.admin-new-ui #userListHeaderSlot #userListSortControls {display:none;}
 body.admin-new-ui #userListHeaderSlot.admin-user-filters-expanded #userListSortControls {
-  display:grid;position:absolute;top:100%;right:0;z-index:55;
-  width:min(410px,100%);grid-template-columns:repeat(2,minmax(0,1fr));
-  gap:8px;margin:0;padding:12px;border:1px solid #3c6385;border-radius:8px;
-  background:#152438;box-shadow:0 8px 25px #0009;
+  display:grid;right:0;z-index:55;
+  width:min(410px,100%);grid-template-columns:repeat(2,minmax(0,1fr));margin:0;
 }
 body.admin-new-ui #userListHeaderSlot #userListSortControls .user-list-sort-field {
   display:flex;flex-direction:column;gap:5px;width:auto;min-width:0;
