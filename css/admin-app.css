@@ -627,10 +627,36 @@ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetail
    min-width:120px;flex:0 0 auto!important;align-self:flex-end;
    margin-left:auto;padding-left:18px;padding-right:18px;
  }
+ /* One-row tag actions. Keep the modal and desktop workspace layouts separate. */
+ body.admin-new-ui .admin-workspace-panel > .tag-settings-body {
+   display:grid;grid-template-columns:minmax(0,1fr) auto auto;
+   column-gap:8px;align-items:start;
+ }
+ body.admin-new-ui .admin-workspace-panel .tag-settings-body > :is(p,.tag-settings-rows,.tag-settings-status) {
+   grid-column:1/-1;
+ }
+ body.admin-new-ui .admin-workspace-panel #btnAddTagSetting {
+   grid-column:2;grid-row:3;margin:0;align-self:center;
+ }
  body.admin-new-ui .admin-workspace-panel .tag-settings-actions {
-   grid-template-columns:max-content;justify-content:end;
+   grid-column:3;grid-row:3;display:flex;justify-content:flex-end;
+   gap:8px;margin:0;
  }
  body.admin-new-ui .admin-workspace-panel .tag-settings-actions > #btnCancelTagSettings {display:none;}
+ /* Standalone destructive/account actions align right; inline input actions stay inline. */
+ body.admin-new-ui .admin-workspace-panel :is(#btnMypageUserSwitch,#btnLogout,#btnDeleteAccount) {
+   display:block;margin-left:auto;
+ }
+ /* Three distinct action colors, scoped to the administrator's new UI. */
+ body.admin-new-ui #btnUnifiedSkillShare {
+   background:#6d28d9;border-color:#5b21b6;color:#fff;
+ }
+ body.admin-new-ui #btnUnifiedSkillSave {
+   background:#b45309;border-color:#92400e;color:#fff;
+ }
+ body.admin-new-ui #btnUnifiedSkillSaveShare {
+   background:#047857;border-color:#065f46;color:#fff;
+ }
  body.admin-new-ui .menu-screen-body {min-width:0;}
  body.admin-new-ui.light-mode .menu-screen-dialog {
    border-color:#cbd5e1;background:#f8fafc;
