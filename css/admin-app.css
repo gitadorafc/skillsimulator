@@ -637,15 +637,16 @@ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetail
    display:inline-flex!important;align-items:center;justify-content:center;
    align-self:flex-end;margin-top:4px!important;
  }
- /* Unified share/save controls are a single compact action row. Grouped
-    controls wrap as units when the modal is too narrow for one row. */
+ /* Keep the selection and the execution actions visually distinct: on PC
+    the instrument group starts the toolbar and actions finish it. The two
+    groups wrap independently when the modal cannot fit them on one line. */
  body.admin-new-ui .admin-workspace-panel #skillHistoryUnifiedControls {
    display:flex;flex-wrap:wrap;align-items:center;
-   justify-content:flex-end;gap:10px 16px;
+   justify-content:space-between;gap:10px 16px;
  }
  body.admin-new-ui .admin-workspace-panel .skill-history-unified-select {
    display:flex;flex:0 1 auto;flex-wrap:nowrap;
-   align-items:center;justify-content:flex-end;
+   align-items:center;justify-content:flex-start;
    gap:6px;margin:0;max-width:100%;
  }
  body.admin-new-ui .admin-workspace-panel .skill-history-unified-select > button {
@@ -741,7 +742,7 @@ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetail
  }
 
 @media (min-width:1100px) {
- body.admin-new-ui {--admin-side-width:208px;--admin-top-height:50px;}
+ body.admin-new-ui {--admin-side-width:290px;--admin-top-height:50px;}
  body.admin-new-ui #appRoot {display:block;width:100%;max-width:none;min-width:0;box-sizing:border-box;}
  body.admin-new-ui #appScreen:not(.hidden) {
    display:grid;grid-template-columns:minmax(0,1fr);
