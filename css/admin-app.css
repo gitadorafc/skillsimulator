@@ -399,7 +399,7 @@ body.admin-new-ui.light-mode :is(#viewSkill,#viewAllManage,#userDetailSkill,#use
 body.admin-new-ui.skill-target-columns #viewAllManage .ar-table-head,
 body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetailSkill,#userDetailRecords) .ar-no,
 body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetailSkill,#userDetailRecords) .ar-title .ar-hot,
-body.admin-new-ui #viewSkill .ar-title .ar-hot,
+body.admin-new-ui :is(#viewSkill,#userDetailSkill) .ar-title .ar-hot,
 body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetailSkill,#userDetailRecords) .ar-mini-label {display:none!important;}
 body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetailSkill,#userDetailRecords) .ar-record {
  min-width:0;width:100%;overflow:hidden;
