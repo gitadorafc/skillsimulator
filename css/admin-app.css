@@ -337,6 +337,14 @@ body.admin-new-ui #appScreen>.p-header{position:sticky;top:0;z-index:100;}
  body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-part .p-badge{
    padding:0 3px!important;
  }
+
+ /* Read-only user detail: same breakpoint as editable cards. */
+ body.admin-new-ui:not(.skill-target-columns) :is(#userDetailSkill,#userDetailRecords) .ar-record.ar-readonly {
+    grid-template-columns:40px minmax(0,1fr) 67px;
+  }
+  body.admin-new-ui:not(.skill-target-columns) :is(#userDetailSkill,#userDetailRecords) .ar-record.ar-readonly .ar-skill {
+    grid-column:3;justify-self:end;
+  }
 }
 /* Only the overall header/navigation structure changes at 768px;
    OFF-mode registered cards do NOT switch layout here. */
@@ -477,6 +485,9 @@ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetail
  body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetailSkill,#userDetailRecords) .ar-edit button {
    width:19px;height:19px;font-size:13px;line-height:1;border-radius:4px;
  }
+
+ /* Read-only user detail: same breakpoint as editable cards. */
+ body.admin-new-ui.skill-target-columns :is(#userDetailSkill,#userDetailRecords) .ar-record.ar-readonly .ar-title {grid-column:1/4;}
 }
 
 /* From 700 CSS px: same two-line desktop/tablet card with a stable
@@ -531,6 +542,14 @@ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetail
  body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetailSkill,#userDetailRecords) .ar-edit button {
    width:24px;height:24px;font-size:15px;line-height:1;
  }
+
+ /* Read-only user detail: same breakpoint as editable cards. */
+ body.admin-new-ui.skill-target-columns :is(#userDetailSkill,#userDetailRecords) .ar-record.ar-readonly {
+    grid-template-columns:48px minmax(0,1fr);
+  }
+  body.admin-new-ui.skill-target-columns :is(#userDetailSkill,#userDetailRecords) .ar-record.ar-readonly .ar-title {
+    grid-column:2;padding-right:83px;
+  }
 }
 @media (min-width:1100px) {
  body.admin-new-ui {--admin-side-width:208px;--admin-top-height:50px;}
@@ -734,36 +753,16 @@ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetail
  body.admin-new-ui #userDetailPage.user-detail-page {
    min-height:0!important;overflow:hidden!important;z-index:1100;
  }
-}
 
+ /* Read-only user detail: same breakpoint as editable cards. */
+ body.admin-new-ui:not(.skill-target-columns) :is(#userDetailSkill,#userDetailRecords).ar-readonly,
+  body.admin-new-ui:not(.skill-target-columns) :is(#userDetailSkill,#userDetailRecords) .ar-register-view.ar-readonly {
+    --ar-cols:30px 64px minmax(125px,1fr) 80px 54px 92px 52px 78px 82px;
+  }
+  body.admin-new-ui:not(.skill-target-columns) :is(#userDetailSkill,#userDetailRecords) .ar-record.ar-readonly .ar-skill {
+    grid-column:9;justify-self:end;
+  }
+}
 
 /* Read-only user-detail cards: the editing slot does not exist in the layout. */
 body.admin-new-ui :is(#userDetailSkill,#userDetailRecords) .ar-record.ar-readonly .ar-edit {display:none;}
-@media (width < 1100px) {
- body.admin-new-ui:not(.skill-target-columns) :is(#userDetailSkill,#userDetailRecords) .ar-record.ar-readonly {
-   grid-template-columns:40px minmax(0,1fr) 67px;
- }
- body.admin-new-ui:not(.skill-target-columns) :is(#userDetailSkill,#userDetailRecords) .ar-record.ar-readonly .ar-skill {
-   grid-column:3;justify-self:end;
- }
-}
-@media (width >= 1100px) {
- body.admin-new-ui:not(.skill-target-columns) :is(#userDetailSkill,#userDetailRecords).ar-readonly,
- body.admin-new-ui:not(.skill-target-columns) :is(#userDetailSkill,#userDetailRecords) .ar-register-view.ar-readonly {
-   --ar-cols:30px 64px minmax(125px,1fr) 80px 54px 92px 52px 78px 82px;
- }
- body.admin-new-ui:not(.skill-target-columns) :is(#userDetailSkill,#userDetailRecords) .ar-record.ar-readonly .ar-skill {
-   grid-column:9;justify-self:end;
- }
-}
-@media (width >= 700px) {
- body.admin-new-ui.skill-target-columns :is(#userDetailSkill,#userDetailRecords) .ar-record.ar-readonly {
-   grid-template-columns:48px minmax(0,1fr);
- }
- body.admin-new-ui.skill-target-columns :is(#userDetailSkill,#userDetailRecords) .ar-record.ar-readonly .ar-title {
-   grid-column:2;padding-right:83px;
- }
-}
-@media (width < 700px) {
- body.admin-new-ui.skill-target-columns :is(#userDetailSkill,#userDetailRecords) .ar-record.ar-readonly .ar-title {grid-column:1/4;}
-}
