@@ -2,7 +2,7 @@
 import {
   getSkillColorRowByTotalValue
 } from './skill-colors.js?v=4_14_33';
-import { renderAdminRegisteredRecords, loadAdminRegisteredJackets } from './admin-register-ui.js?v=4_38_87';
+import { renderAdminRegisteredRecords, loadAdminRegisteredJackets, getAdminJacketUrls } from './admin-register-ui.js?v=4_40_0';
 import {
   createCard,
   getPartColorClass
@@ -1587,8 +1587,11 @@ function normalizeXIdInput(value) {
   return text;
 }
 
+let adminFeatureSettingsRequest = 0;
 async function openFeatureSettings() {
+  const request = ++adminFeatureSettingsRequest;
   closeMenu();
+  if (document.body.classList.contains('admin-new-ui')) $('featureSettingsMask').style.display = 'flex';
   $('featureSettingsStatus').textContent = '';
 
   const lightInput = $('settingLightMode');
@@ -1621,14 +1624,18 @@ async function openFeatureSettings() {
   try {
     const settings = await getMyFeatureSettings();
     $('settingRecordsPublic').checked = Boolean(settings.registration_public);
+    if (request !== adminFeatureSettingsRequest) return;
     $('settingXPublic').checked = Boolean(settings.x_public);
     $('featureSettingsMask').style.display = 'flex';
   } catch (e) {
+    if (request !== adminFeatureSettingsRequest) return;
+    $('featureSettingsMask').style.display = 'none';
     await showSiteDialog('機能設定の取得に失敗しました: ' + e.message, 'エラー');
   }
 }
 
 function closeFeatureSettings(returnToMenu = false) {
+  adminFeatureSettingsRequest++;
   $('featureSettingsMask').style.display = 'none';
   if (returnToMenu) openMenu();
 }
@@ -1772,6 +1779,16 @@ async function showApp(session) {
   setAppLoading('画面を準備中...');
   await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
   finishAppLoading();
+  if (document.body.classList.contains('admin-new-ui')) {
+    const versionForWarmup = activeVersionId;
+    const warmup = () => {
+      if (currentUserId && activeVersionId === versionForWarmup)
+        void getAdminSongCatalogCached(versionForWarmup).catch(error =>
+          console.warn('[admin catalog] preload failed:', error));
+    };
+    if ('requestIdleCallback' in window) requestIdleCallback(warmup, { timeout: 4000 });
+    else setTimeout(warmup, 1600);
+  }
   requestAnimationFrame(() => {
     void tutorialController?.start();
     // 新規登録ユーザーはDB上で対象外。チュートリアル中の重複表示も防止する。
@@ -2957,7 +2974,22 @@ function closeOfficialSkillRanking(returnToMenu = false) {
 }
 
 const SONG_CATALOG_PAGE_SIZE = 100;
-const songCatalogState = { rows: [], songs: null, versionId: null, page: 0, loading: false, requestId: 0, favoriteSlot: 0, pendingFavoriteUpdate: false };
+const adminCatalogRequests = new Map();
+function getAdminSongCatalogCached(versionId) {
+  if (!document.body.classList.contains('admin-new-ui')) return getPublicSongCatalog(versionId);
+  if (adminCatalogRequests.has(versionId)) return adminCatalogRequests.get(versionId);
+  const request = getPublicSongCatalog(versionId).catch(error => {
+    if (adminCatalogRequests.get(versionId) === request) adminCatalogRequests.delete(versionId);
+    throw error;
+  });
+  adminCatalogRequests.set(versionId, request);
+  // Limit stale versions to keep the browser's memory bounded.
+  while (adminCatalogRequests.size > 3) adminCatalogRequests.delete(adminCatalogRequests.keys().next().value);
+  return request;
+}
+
+let adminCatalogArtworkInitialized = false;
+const songCatalogState = { rows: [], songs: null, versionId: null, page: 0, loading: false, requestId: 0, favoriteSlot: 0, renderedSlot: null, pendingFavoriteUpdate: false };
 let catalogScoreReturn = null;
 const songFavoriteState = { userId: null, versionId: null, names: {}, titles: [null, new Set(), new Set(), new Set()] };
 
@@ -3033,6 +3065,22 @@ async function getPublicSongCatalog(versionId) {
   return groupSongCatalogRows(rows);
 }
 
+function setupAdminCatalogFilters() {
+  if (!document.body.classList.contains('admin-new-ui')) return;
+  const controls = document.querySelector('#songCatalogMask .song-catalog-controls');
+  if (!controls || controls.querySelector('.admin-catalog-filter-toggle')) return;
+  const toggle = document.createElement('button');
+  toggle.type = 'button';
+  toggle.className = 'admin-catalog-filter-toggle';
+  toggle.textContent = 'フィルタ ▾';
+  toggle.setAttribute('aria-expanded', 'false');
+  toggle.addEventListener('click', () => {
+    const expanded = controls.classList.toggle('admin-catalog-filters-open');
+    toggle.setAttribute('aria-expanded', String(expanded));
+  });
+  controls.prepend(toggle);
+}
+
 function scrollSongCatalogToTop() {
   $('songCatalogBody').scrollTo({ top: 0, left: 0, behavior: 'instant' });
 }
@@ -3047,6 +3095,7 @@ function renderSongCatalog() {
   const totalPages = Math.ceil(total / SONG_CATALOG_PAGE_SIZE);
   songCatalogState.page = Math.min(songCatalogState.page, totalPages - 1);
   const offset = songCatalogState.page * SONG_CATALOG_PAGE_SIZE;
+  const fragment = document.createDocumentFragment();
   for (const entry of songCatalogState.rows.slice(offset, offset + SONG_CATALOG_PAGE_SIZE)) {
     const row = document.createElement('details');
     row.className = `song-catalog-row${entry.part ? ' with-level' : ''}`;
@@ -3055,6 +3104,19 @@ function renderSongCatalog() {
     const title = document.createElement('span');
     title.className = 'song-catalog-title';
     title.textContent = entry.title;
+    if (document.body.classList.contains('admin-new-ui')) {
+      const urls = getAdminJacketUrls(entry.title);
+      const jacket = document.createElement('span');
+      jacket.className = 'admin-catalog-jacket';
+      if (urls.length) {
+        const img = document.createElement('img');
+        img.loading = 'lazy'; img.decoding = 'async'; img.alt = '';
+        img.src = urls[0];
+        if (urls[1]) img.dataset.fallback = urls[1];
+        jacket.append(img);
+      } else jacket.textContent = '♫';
+      summary.append(jacket);
+    }
     summary.append(title);
     if (entry.part) {
       const part = document.createElement('span');
@@ -3067,11 +3129,12 @@ function renderSongCatalog() {
     }
     const detail = document.createElement('div');
     detail.className = 'song-catalog-detail';
-    detail.innerHTML = renderSongCatalogDetails(entry.song);
+    if (!document.body.classList.contains('admin-new-ui')) detail.innerHTML = renderSongCatalogDetails(entry.song);
     row.append(summary, detail);
     refreshFavoriteButtons(row);
-    list.append(row);
+    fragment.append(row);
   }
+  list.append(fragment);
   pager.innerHTML = `${totalPages > 1
     ? `<div class="user-pager-main">${renderUserListPager({ totalPages, currentPage: songCatalogState.page })}</div>` : ''}
     <div class="user-list-page-summary">${offset + 1}～${Math.min(offset + SONG_CATALOG_PAGE_SIZE, total)}件 / ${total}件</div>`;
@@ -3109,7 +3172,7 @@ async function showSongCatalog() {
   $('songCatalogStatus').textContent = '曲データを取得中...';
   try {
     const songs = songCatalogState.versionId === versionId && songCatalogState.songs
-      ? songCatalogState.songs : await getPublicSongCatalog(versionId);
+      ? songCatalogState.songs : await getAdminSongCatalogCached(versionId);
     if (requestId !== songCatalogState.requestId || versionId !== activeVersionId) return;
     songCatalogState.songs = songs;
     songCatalogState.versionId = versionId;
@@ -3118,6 +3181,7 @@ async function showSongCatalog() {
     const filteredSongs = visibleSongs.filter(song => hotFilter === 'all' || song.is_hot === (hotFilter === 'hot'));
     const entries = buildSongCatalogEntries(filteredSongs, mode, direction);
     songCatalogState.rows = mode === 'title' ? entries : filterSongCatalogEntries(entries, minLevel, maxLevel);
+    songCatalogState.renderedSlot = songCatalogState.favoriteSlot;
     songCatalogState.page = 0;
     $('songCatalogStatus').textContent = songCatalogState.rows.length ? '' : '該当する曲データがありません。';
     renderSongCatalog();
@@ -3139,36 +3203,59 @@ async function showSongCatalog() {
 
 async function openSongCatalog(favoriteSlot = 0) {
   closeMenu();
+  const isAdminCatalog = document.body.classList.contains('admin-new-ui');
+  const previousSlot = songCatalogState.renderedSlot;
+  const canReuseRows = isAdminCatalog && previousSlot === favoriteSlot &&
+    songCatalogState.versionId === activeVersionId && songCatalogState.rows.length > 0;
   songCatalogState.favoriteSlot = favoriteSlot;
-  ++songCatalogState.requestId;
+  const openingRequestId = ++songCatalogState.requestId;
   songCatalogState.loading = false;
   songCatalogState.pendingFavoriteUpdate = false;
   $('btnShowSongCatalog').disabled = false;
   $('btnShowSongCatalog').textContent = '一覧を表示';
-  songCatalogState.rows = [];
-  songCatalogState.songs = null;
-  songCatalogState.versionId = null;
-  songCatalogState.page = 0;
-  $('songCatalogMode').value = 'title';
-  $('songCatalogDirection').value = 'asc';
-  $('songCatalogHotFilter').value = 'all';
-  $('songCatalogMinLevel').value = '';
-  $('songCatalogMaxLevel').value = '';
-  $('songCatalogRange').classList.add('hidden');
+  if (!canReuseRows) {
+    songCatalogState.rows = [];
+    songCatalogState.page = 0;
+  }
+  if (!isAdminCatalog) {
+    songCatalogState.songs = null;
+    songCatalogState.versionId = null;
+  }
+  if (!canReuseRows) {
+    $('songCatalogMode').value = 'title';
+    $('songCatalogDirection').value = 'asc';
+    $('songCatalogHotFilter').value = 'all';
+    $('songCatalogMinLevel').value = '';
+    $('songCatalogMaxLevel').value = '';
+    $('songCatalogRange').classList.add('hidden');
+  }
   $('songCatalogTitle').textContent = favoriteSlot ? favoriteListName(favoriteSlot) : '曲データ一覧';
   $('songCatalogFavoriteName').classList.toggle('hidden', !favoriteSlot);
   $('btnShowSongCatalog').classList.toggle('hidden', !!favoriteSlot);
   $('songCatalogFavoriteNameInput').value = favoriteSlot ? favoriteListName(favoriteSlot) : '';
   $('songCatalogVersion').textContent = activeVersion?.name || '';
   $('songCatalogStatus').textContent = '';
-  renderSongCatalog();
+  setupAdminCatalogFilters();
+  if (!canReuseRows || !$('songCatalogList').children.length) renderSongCatalog();
   $('songCatalogMask').style.display = 'flex';
+  if (isAdminCatalog && !adminCatalogArtworkInitialized) {
+    void loadAdminRegisteredJackets(supabase).then(() => {
+      adminCatalogArtworkInitialized = true;
+      // Update already-rendered catalog rows even when the user has closed the
+      // panel. The next opening must not retain empty jacket placeholders.
+      if (songCatalogState.rows.length && songCatalogState.favoriteSlot === favoriteSlot) renderSongCatalog();
+    });
+  }
   try {
     await loadSongFavorites();
+    if (openingRequestId !== songCatalogState.requestId || songCatalogState.favoriteSlot !== favoriteSlot ||
+        $('songCatalogMask').style.display !== 'flex') return;
     if (songCatalogState.rows.length) document.querySelectorAll('.song-catalog-row').forEach(refreshFavoriteButtons);
     if (favoriteSlot && songCatalogState.favoriteSlot === favoriteSlot && $('songCatalogMask').style.display === 'flex') {
       $('songCatalogTitle').textContent = favoriteListName(favoriteSlot);
       $('songCatalogFavoriteNameInput').value = favoriteListName(favoriteSlot);
+      if (!canReuseRows) await showSongCatalog();
+    } else if (isAdminCatalog && !favoriteSlot && !canReuseRows) {
       await showSongCatalog();
     }
   } catch (error) {
@@ -4913,9 +5000,13 @@ function closeRateComparison() {
   $('btnEditRateCompare')?.classList.add('hidden');
 }
 
+let adminMyPageRequest = 0;
 async function openMyPage(fromMenu = false) {
+  const request = ++adminMyPageRequest;
   myPageOpenedFromMenu = Boolean(fromMenu);
+  if (document.body.classList.contains('admin-new-ui')) $('mypageModal').style.display = 'flex';
   const { data } = await supabase.auth.getUser();
+  if (request !== adminMyPageRequest) return;
   $('mypageUsernameInput').value = data.user?.user_metadata?.username || $('headerUsername').textContent || '';
   $('newPassword').value = '';
   $('mypageXIdInput').value = '';
@@ -4923,6 +5014,7 @@ async function openMyPage(fromMenu = false) {
 
   try {
     const settings = await getMyFeatureSettings();
+    if (request !== adminMyPageRequest) return;
     $('mypageXIdInput').value = settings.x_id || '';
   } catch (e) {
     console.error('X ID取得失敗:', e);
@@ -4941,6 +5033,7 @@ async function changeOwnUsername() {
 }
 
 function closeMyPage(returnToPrevious = false) {
+  adminMyPageRequest++;
   $('mypageModal').style.display = 'none';
   if (returnToPrevious && myPageOpenedFromMenu) openMenu();
   myPageOpenedFromMenu = false;
@@ -5005,7 +5098,13 @@ async function checkAdminAccess() {
   document.body.classList.remove('admin-responsive-preview');
   document.body.classList.toggle('admin-new-ui', adminNewUi);
   updateAdminUiVersion(adminNewUi);
-  if (adminNewUi) requestAnimationFrame(ensureDesktopMenuTree);
+  if (adminNewUi) {
+    requestAnimationFrame(ensureDesktopMenuTree);
+    // Start the same users RPC while the first tab is being prepared, so
+    // the first user-list visit can reuse its result or its in-flight promise.
+    void fetchAdminUserListCached('', activeInstrument, activeVersionId)
+      .catch(error => console.warn('[admin users] prefetch:', error));
+  }
   if (adminNewUi) void loadAdminRegisteredJackets(supabase).then(() => { if (activeTabName === 'RECORDS') renderManage(); else if (activeTabName === 'SKILL') renderSkill(); });
   $('btnAdmin').classList.toggle('hidden', !adminEnabled);
   const skillSyncButton = $('btnMenuSkillSync');
@@ -7727,6 +7826,7 @@ function collapseAdminDesktopMenu() {
   document.body.classList.remove('admin-desktop-menu-open');
 }
 const adminDesktopMenuLabels = ['アカウント設定','スキル機能','曲データ','ヘルプ・運営'];
+let adminDesktopWorkspaceSelection = null;
 /* Desktop navigation is a single workspace, not a stack of dialogs.
    Use the existing close hooks so previews, form state, and modal scroll locks
    are cleaned up. The in-progress synchronization dialogs cannot be dismissed. */
@@ -7821,8 +7921,13 @@ function toggleAdminDesktopMenu() {
     button.className = 'admin-menu-tree-item';
     button.textContent = original.textContent.replace(/\s*›\s*$/, '').trim();
     button.addEventListener('click', () => {
+      const target = original.id || original.dataset.menuFavoriteSlot || button.textContent;
+      const sameOpen = adminDesktopWorkspaceSelection === target &&
+        ADMIN_DESKTOP_WORKSPACE_MASK_IDS.some(id => isOverlayVisible($(id)));
       if (!closeAdminDesktopWorkspace()) return;
-      original.click();
+      // Only a repeated click on the same *visible* destination closes it.
+      adminDesktopWorkspaceSelection = sameOpen ? null : target;
+      if (!sameOpen) original.click();
     });
     current.appendChild(button);
   };
@@ -8102,6 +8207,27 @@ for (const id of ['songCatalogMinLevel', 'songCatalogMaxLevel']) {
     if (songCatalogState.favoriteSlot) showSongCatalog();
   });
 }
+$('songCatalogList').addEventListener('toggle', event => {
+  if (!document.body.classList.contains('admin-new-ui')) return;
+  const row = event.target;
+  if (!row.matches?.('.song-catalog-row') || !row.open) return;
+  const detail = row.querySelector('.song-catalog-detail');
+  if (!detail || detail.dataset.built) return;
+  const entry = songCatalogState.rows.find(item => item.title === row.dataset.catalogTitle);
+  if (!entry) return;
+  detail.innerHTML = renderSongCatalogDetails(entry.song);
+  detail.dataset.built = '1';
+  refreshFavoriteButtons(row);
+}, true);
+$('songCatalogList').addEventListener('error', event => {
+  const img = event.target;
+  if (!(img instanceof HTMLImageElement) || !img.closest('.admin-catalog-jacket')) return;
+  if (img.dataset.fallback && !img.dataset.fallbackUsed) {
+    img.dataset.fallbackUsed = '1';
+    img.src = img.dataset.fallback;
+  } else img.replaceWith(document.createTextNode('♫'));
+}, true);
+
 $('songCatalogPager').addEventListener('click', event => {
   const button = event.target.closest('[data-user-page]');
   if (!button || button.disabled) return;

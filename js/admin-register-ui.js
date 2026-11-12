@@ -186,6 +186,12 @@ function recordCard(record, index, mode = 'RECORDS', readOnly = false) {
   </article>`;
 }
 
+// Reuse the identical title normalization, manifest and storage image URLs in
+// the admin catalog. No duplicate API requests or separately managed image map.
+export function getAdminJacketUrls(title) {
+  return jacketByTitle.get(normalizeTitle(title)) || [];
+}
+
 export function renderAdminRegisteredRecords(rows, mode = 'RECORDS', readOnly = false) {
   if (!rows.length) return '';
   const header = `<div class="ar-table-head" aria-hidden="true"><span>No.</span><span>ジャケット</span><span>曲名</span><span>パート</span><span>Lv</span><span>達成率</span><span>FC/EXC</span><span>オプション</span><span>スキル</span><span>編集</span></div>`;

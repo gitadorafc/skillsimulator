@@ -779,5 +779,48 @@ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetail
   }
 }
 
+/* Admin-only song catalog: the controls remain compact until the filter
+   button is opened. Public catalog markup and styling are unchanged. */
+body.admin-new-ui #songCatalogMask .song-catalog-controls {
+  display:grid;grid-template-columns:minmax(0,1fr);gap:0;
+  padding:9px 12px;position:relative;
+}
+body.admin-new-ui #songCatalogMask .song-catalog-controls > :not(.admin-catalog-filter-toggle) {display:none;}
+body.admin-new-ui #songCatalogMask .song-catalog-controls > .admin-catalog-filter-toggle {
+  display:inline-flex;align-items:center;justify-content:center;
+  justify-self:end;min-width:112px;height:38px;padding:0 12px;
+  border:1px solid #475569;border-radius:7px;
+  background:#26364b;color:#f8fafc;font-size:13px;font-weight:800;cursor:pointer;
+}
+body.admin-new-ui #songCatalogMask .song-catalog-controls.admin-catalog-filters-open {
+  grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;
+}
+body.admin-new-ui #songCatalogMask .song-catalog-controls.admin-catalog-filters-open > .admin-catalog-filter-toggle {grid-column:1/-1;}
+body.admin-new-ui #songCatalogMask .song-catalog-controls.admin-catalog-filters-open > label {display:block;}
+body.admin-new-ui #songCatalogMask .song-catalog-controls.admin-catalog-filters-open > .song-catalog-range {display:grid;}
+body.admin-new-ui #songCatalogMask .song-catalog-controls.admin-catalog-filters-open > .song-catalog-range.hidden {display:none;}
+body.admin-new-ui #songCatalogMask .song-catalog-controls.admin-catalog-filters-open > .song-catalog-action-row {display:grid;}
+body.admin-new-ui #songCatalogMask .song-catalog-row summary {
+  grid-template-columns:36px minmax(0,1fr) 16px;
+}
+body.admin-new-ui #songCatalogMask .song-catalog-row.with-level summary {
+  grid-template-columns:36px minmax(0,1fr) 48px 35px 16px;
+}
+body.admin-new-ui #songCatalogMask .song-catalog-row summary::after {grid-column:3;}
+body.admin-new-ui #songCatalogMask .song-catalog-row.with-level summary::after {grid-column:5;}
+body.admin-new-ui #songCatalogMask .admin-catalog-jacket {
+  display:grid;place-items:center;width:36px;height:36px;
+  overflow:hidden;flex:none;border-radius:4px;background:#27374b;color:#9ab6cd;
+}
+body.admin-new-ui #songCatalogMask .admin-catalog-jacket img {
+  display:block;width:100%;height:100%;object-fit:cover;
+}
+body.admin-new-ui.light-mode #songCatalogMask .admin-catalog-jacket {
+  background:#e2e8f0;color:#64748b;
+}
+body.admin-new-ui.light-mode #songCatalogMask .song-catalog-controls > .admin-catalog-filter-toggle {
+  background:#f8fafc;color:#1e293b;border-color:#94a3b8;
+}
+
 /* Read-only user-detail cards: the editing slot does not exist in the layout. */
 body.admin-new-ui :is(#userDetailSkill,#userDetailRecords) .ar-record.ar-readonly .ar-edit {display:none;}
