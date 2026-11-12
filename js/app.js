@@ -2892,7 +2892,7 @@ async function loadSkillTargetRanking() {
   } finally {
     skillRankingState.loading = false;
     button.disabled = false;
-    button.textContent = '表示する';
+    button.textContent = '表示';
     renderSkillTargetRanking();
   }
 }

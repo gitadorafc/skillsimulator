@@ -637,12 +637,32 @@ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetail
    display:inline-flex!important;align-items:center;justify-content:center;
    align-self:flex-end;margin-top:4px!important;
  }
+ /* Unified share/save controls are a single compact action row. Grouped
+    controls wrap as units when the modal is too narrow for one row. */
+ body.admin-new-ui .admin-workspace-panel #skillHistoryUnifiedControls {
+   display:flex;flex-wrap:wrap;align-items:center;
+   justify-content:flex-end;gap:10px 16px;
+ }
+ body.admin-new-ui .admin-workspace-panel .skill-history-unified-select {
+   display:flex;flex:0 1 auto;flex-wrap:nowrap;
+   align-items:center;justify-content:flex-end;
+   gap:6px;margin:0;max-width:100%;
+ }
+ body.admin-new-ui .admin-workspace-panel .skill-history-unified-select > button {
+   flex:0 0 auto;width:78px;max-width:calc((100vw - 76px)/3);
+   padding:0 10px;white-space:nowrap;
+ }
  body.admin-new-ui .admin-workspace-panel .skill-history-unified-actions {
-   display:flex;flex-wrap:wrap;justify-content:flex-end;gap:8px;
+   display:flex;flex:0 1 auto;flex-wrap:wrap;
+   justify-content:flex-end;align-items:center;gap:8px;
  }
  body.admin-new-ui .admin-workspace-panel .skill-history-unified-action {
    flex:0 0 auto;width:max-content;max-width:100%;min-width:0;
-   padding:10px 14px;white-space:normal;
+   padding:10px 14px;white-space:nowrap;
+ }
+ body.admin-new-ui .admin-workspace-panel #btnLoadSkillRanking {
+   width:100%!important;padding:0 10px;
+   white-space:nowrap;text-align:center;
  }
  /* Tag actions: explicit rows prevent status, add, and save from sharing an
     implicit grid cell. Gap is retained on narrow modal widths. */
