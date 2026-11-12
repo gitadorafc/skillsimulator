@@ -615,9 +615,22 @@ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetail
  /* Shared menu content uses a single panel padding and aligned header. */
  body.admin-new-ui .admin-workspace-panel {padding:16px!important;}
  body.admin-new-ui .admin-workspace-panel > .tag-settings-body {padding:0;overflow:visible;}
- body.admin-new-ui .admin-workspace-panel .tag-settings-actions {grid-template-columns:minmax(0,1fr);}
+ /* Admin menu actions share compact sizing; full-width option selectors, tabs,
+    and inline list controls keep their own geometry. */
+ body.admin-new-ui .admin-workspace-panel :is(
+   #btnSaveFeatureSettings,#btnSaveTagSettings,#btnSubmitFeedback,
+   #btnExecuteSkillShare,#btnCopyOfficialRankingScript,
+   #btnAddTagSetting,#btnAddSwitchAccount,#btnMypageUserSwitch,
+   #btnLogout,#btnDeleteAccount
+ ) {
+   box-sizing:border-box;width:fit-content!important;max-width:100%;
+   min-width:120px;flex:0 0 auto!important;align-self:flex-end;
+   margin-left:auto;padding-left:18px;padding-right:18px;
+ }
+ body.admin-new-ui .admin-workspace-panel .tag-settings-actions {
+   grid-template-columns:max-content;justify-content:end;
+ }
  body.admin-new-ui .admin-workspace-panel .tag-settings-actions > #btnCancelTagSettings {display:none;}
- body.admin-new-ui .admin-workspace-panel .tag-settings-actions > #btnSaveTagSettings {width:100%;}
  body.admin-new-ui .menu-screen-body {min-width:0;}
  body.admin-new-ui.light-mode .menu-screen-dialog {
    border-color:#cbd5e1;background:#f8fafc;
