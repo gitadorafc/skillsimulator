@@ -678,7 +678,6 @@ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetail
  body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-record,
  body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-table-head {grid-template-columns:var(--ar-cols);column-gap:8px;}
  body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-record {grid-template-rows:46px;min-height:54px;padding:3px 6px;overflow:hidden;}
- body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-metrics {display:contents;}
  body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-no {grid-column:1;grid-row:1;}
  body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-art {grid-column:2;grid-row:1;width:44px;height:44px;justify-self:start;}
  body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-title {grid-column:3;grid-row:1;}
