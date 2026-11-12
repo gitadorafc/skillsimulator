@@ -45,8 +45,7 @@ body.admin-new-ui.light-mode #userListHeaderSlot .users-toolbar {
   background:transparent !important;
   box-shadow:none !important;
 }
-body.admin-new-ui.light-mode #searchArea #btnAdminRecordFilters,
-body.admin-new-ui.light-mode #userListHeaderSlot #btnAdminUserFilters,
+body.admin-new-ui.light-mode :is(#searchArea #btnAdminRecordFilters,#userListHeaderSlot #btnAdminUserFilters,.admin-filter-toggle-button),
 body.admin-new-ui.light-mode :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-edit button {
   background:#f8fafc !important;
   border-color:#94a3b8 !important;
@@ -155,8 +154,7 @@ body.admin-new-ui :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailReco
 
 /* Existing admin-only filter interaction; keep this separate from responsive layout. */
 body #searchArea #btnAdminRecordFilters{display:none;}
-body.admin-new-ui #searchArea #btnAdminRecordFilters,
-body.admin-new-ui #userListHeaderSlot #btnAdminUserFilters {
+body.admin-new-ui :is(#searchArea #btnAdminRecordFilters,#userListHeaderSlot #btnAdminUserFilters,.admin-filter-toggle-button) {
  border:1px solid #415671;background:#23344a;color:#eaf3ff;cursor:pointer;
 }
 body.admin-new-ui #searchArea #btnAdminRecordFilters{font-weight:800;}
@@ -176,9 +174,9 @@ body.admin-new-ui #searchArea.admin-filters-expanded .record-filter-row{
 }
 body.admin-new-ui #searchArea.admin-filters-expanded .record-filter-row label{min-width:0;}
 body.admin-new-ui #searchArea.admin-filters-expanded .record-filter-row select{width:100%;min-width:0;}
-body.admin-new-ui #searchArea #btnAdminRecordFilters svg{width:21px;height:21px;display:block;}
+body.admin-new-ui :is(#searchArea #btnAdminRecordFilters,#userListHeaderSlot #btnAdminUserFilters,.admin-filter-toggle-button) svg{width:21px;height:21px;display:block;}
 @media(max-width:650px){body.admin-new-ui #searchArea.admin-filters-expanded .record-filter-row{grid-template-columns:repeat(2,minmax(0,1fr))!important;}}
-body.admin-new-ui #searchArea.admin-filters-expanded #btnAdminRecordFilters{border-color:#3b82f6;background:#254d86;}
+body.admin-new-ui :is(#searchArea.admin-filters-expanded #btnAdminRecordFilters,#userListHeaderSlot.admin-user-filters-expanded #btnAdminUserFilters,#songCatalogMask .song-catalog-controls.admin-catalog-filters-open > .admin-catalog-filter-toggle){border-color:#3b82f6;background:#254d86;}
 body.admin-new-ui #searchArea .admin-bulk-delete-area{margin-top:0;}
 body.admin-new-ui #btnHeaderAdd{white-space:nowrap;}
 
@@ -188,9 +186,6 @@ body.admin-new-ui #userListHeaderSlot .users-toolbar #userSearch {grid-column:1;
 body #userListHeaderSlot #btnAdminUserFilters {display:none;}
 body.admin-new-ui #userListHeaderSlot #btnAdminUserFilters {grid-column:2;}
 body.admin-new-ui #userListHeaderSlot #btnAdminUserFilters svg {width:21px;height:21px;}
-body.admin-new-ui #userListHeaderSlot.admin-user-filters-expanded #btnAdminUserFilters {
-  border-color:#3b82f6;background:#254d86;
-}
 /* Shared search-region geometry for the three admin tabs. Desktop sidebar
    offsets are owned by the >=1100px header rule, never reset here. */
 body.admin-new-ui #appScreen>.p-header :is(#searchArea,#boardMainFixed.board-main-fixed,#userListHeaderSlot) {
@@ -256,7 +251,8 @@ body.admin-new-ui :is(#domSearch,#userSearch,#boardThreadSearch)::placeholder {
 body.admin-new-ui #searchArea #btnHeaderAdd,
 body.admin-new-ui #searchArea #btnAdminRecordFilters,
 body.admin-new-ui #userListHeaderSlot #btnAdminUserFilters,
-body.admin-new-ui #boardMainFixed #btnBoardNewThread {
+body.admin-new-ui #boardMainFixed #btnBoardNewThread,
+body.admin-new-ui .admin-filter-toggle-button {
   display:inline-flex;align-items:center;justify-content:center;
   grid-column:auto;width:42px;min-width:42px;max-width:42px;
   height:42px;min-height:42px;max-height:42px;flex:0 0 42px;
@@ -750,6 +746,37 @@ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetail
    border-radius:8px!important;box-shadow:none!important;
    overflow:visible!important;box-sizing:border-box!important;
  }
+
+ body.admin-new-ui .menu-screen-dialog {
+   display:flex;flex-direction:column;min-width:0;
+   border:1px solid #30445c;background:#081327;
+ }
+ body.admin-new-ui .menu-screen-head {
+   display:flex;align-items:flex-start;justify-content:space-between;gap:12px;
+   margin:0 0 16px;padding:0 0 12px;
+   border-bottom:1px solid #30445c;background:transparent;
+ }
+ body.admin-new-ui .menu-screen-head>:first-child {min-width:0;}
+ body.admin-new-ui .menu-screen-head :is(strong,h1,h2,h3) {
+   margin:0;color:#f8fafc;font-size:20px;font-weight:900;line-height:1.4;
+ }
+ body.admin-new-ui .menu-screen-head :is(.song-catalog-version,.skill-history-context,.skill-ranking-context,.official-ranking-context) {
+   margin-top:4px;color:#9fb5ca;font-size:12px;font-weight:700;line-height:1.5;
+ }
+ body.admin-new-ui .menu-screen-head .menu-context-actions {margin-left:auto;align-self:flex-start;}
+ body.admin-new-ui .menu-screen-body {min-width:0;}
+ body.admin-new-ui.light-mode .menu-screen-dialog {
+   border-color:#cbd5e1;background:#f8fafc;
+ }
+ body.admin-new-ui.light-mode .menu-screen-head {
+   border-bottom-color:#cbd5e1;
+ }
+ body.admin-new-ui.light-mode .menu-screen-head :is(strong,h1,h2,h3) {
+   color:#17243a;
+ }
+ body.admin-new-ui.light-mode .menu-screen-head :is(.song-catalog-version,.skill-history-context,.skill-ranking-context,.official-ranking-context) {
+   color:#526579;
+ }
  body.admin-new-ui.light-mode {
    --admin-work-surface:#e5e7eb;
  }
@@ -779,23 +806,21 @@ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetail
   }
 }
 
-/* Admin-only song catalog: the controls remain compact until the filter
-   button is opened. Public catalog markup and styling are unchanged. */
+/* Admin-only song catalog: the controls remain compact until the shared
+   filter button is opened. Public catalog markup and styling are unchanged. */
 body.admin-new-ui #songCatalogMask .song-catalog-controls {
-  display:grid;grid-template-columns:minmax(0,1fr);gap:0;
+  display:grid;grid-template-columns:42px;justify-content:end;gap:0;
   padding:9px 12px;position:relative;
 }
 body.admin-new-ui #songCatalogMask .song-catalog-controls > :not(.admin-catalog-filter-toggle) {display:none;}
 body.admin-new-ui #songCatalogMask .song-catalog-controls > .admin-catalog-filter-toggle {
   display:inline-flex;align-items:center;justify-content:center;
-  justify-self:end;min-width:112px;height:38px;padding:0 12px;
-  border:1px solid #475569;border-radius:7px;
-  background:#26364b;color:#f8fafc;font-size:13px;font-weight:800;cursor:pointer;
+  justify-self:end;
 }
 body.admin-new-ui #songCatalogMask .song-catalog-controls.admin-catalog-filters-open {
-  grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;
+  grid-template-columns:repeat(2,minmax(0,1fr));justify-content:stretch;gap:8px;
 }
-body.admin-new-ui #songCatalogMask .song-catalog-controls.admin-catalog-filters-open > .admin-catalog-filter-toggle {grid-column:1/-1;}
+body.admin-new-ui #songCatalogMask .song-catalog-controls.admin-catalog-filters-open > .admin-catalog-filter-toggle {grid-column:1/-1;justify-self:end;}
 body.admin-new-ui #songCatalogMask .song-catalog-controls.admin-catalog-filters-open > label {display:block;}
 body.admin-new-ui #songCatalogMask .song-catalog-controls.admin-catalog-filters-open > .song-catalog-range {display:grid;}
 body.admin-new-ui #songCatalogMask .song-catalog-controls.admin-catalog-filters-open > .song-catalog-range.hidden {display:none;}
@@ -817,9 +842,6 @@ body.admin-new-ui #songCatalogMask .admin-catalog-jacket img {
 }
 body.admin-new-ui.light-mode #songCatalogMask .admin-catalog-jacket {
   background:#e2e8f0;color:#64748b;
-}
-body.admin-new-ui.light-mode #songCatalogMask .song-catalog-controls > .admin-catalog-filter-toggle {
-  background:#f8fafc;color:#1e293b;border-color:#94a3b8;
 }
 
 /* Read-only user-detail cards: the editing slot does not exist in the layout. */

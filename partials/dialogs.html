@@ -1,10 +1,10 @@
 <div id="tagSettingsMask" class="site-dialog-mask" role="dialog" aria-modal="true" aria-labelledby="tagSettingsTitle">
-  <div class="tag-settings-dialog">
-    <div class="tag-settings-head">
+  <div class="tag-settings-dialog menu-screen-dialog">
+    <div class="tag-settings-head menu-screen-head">
       <strong id="tagSettingsTitle">タグ設定</strong>
-      <button id="btnCloseTagSettings" type="button" aria-label="閉じる">×</button>
+      <button id="btnCloseTagSettings" type="button" class="menu-back-btn" aria-label="戻る">戻る</button>
     </div>
-    <div class="tag-settings-body">
+    <div class="tag-settings-body menu-screen-body">
       <p>タグは最大10個まで設定できます。削除したタグは登録曲からも外れます。</p>
       <div id="tagSettingsRows" class="tag-settings-rows"></div>
       <button id="btnAddTagSetting" type="button" class="tag-settings-add">＋ タグを追加</button>
@@ -19,12 +19,12 @@
 
 
 <div id="skillShareMask" class="site-dialog-mask">
-  <div class="skill-share-dialog" role="dialog" aria-modal="true" aria-labelledby="skillShareTitle">
-    <div class="skill-share-head">
+  <div class="skill-share-dialog menu-screen-dialog" role="dialog" aria-modal="true" aria-labelledby="skillShareTitle">
+    <div class="skill-share-head menu-screen-head">
       <strong id="skillShareTitle">スキル対象の画像共有</strong>
       <button id="btnCloseSkillShare" type="button" class="menu-back-btn">戻る</button>
     </div>
-    <div class="skill-share-body">
+    <div class="skill-share-body menu-screen-body">
       <p class="skill-share-note">共有するスキル対象を選択してください。「両方」はGF・DMの2枚をまとめて出力します。</p>
       <div class="skill-share-options" role="group" aria-label="共有する機種">
         <button type="button" class="skill-share-option" data-skill-share-selection="GF" aria-pressed="false">GFのみ</button>
@@ -38,15 +38,15 @@
 
 
 <div id="skillHistoryMask" class="site-dialog-mask">
-  <div class="skill-history-dialog" role="dialog" aria-modal="true" aria-labelledby="skillHistoryTitle">
-    <div class="skill-history-head">
+  <div class="skill-history-dialog menu-screen-dialog" role="dialog" aria-modal="true" aria-labelledby="skillHistoryTitle">
+    <div class="skill-history-head menu-screen-head">
       <div>
         <strong id="skillHistoryTitle">現在のスキル対象を共有・保存</strong>
         <div id="skillHistoryContext" class="skill-history-context"></div>
       </div>
       <button id="btnCloseSkillHistory" type="button" class="menu-back-btn">戻る</button>
     </div>
-    <div class="skill-history-body">
+    <div class="skill-history-body menu-screen-body">
       <div id="skillHistoryListView">
         <div id="skillHistoryLegacyControls" class="hidden">
           <div class="skill-history-save-title">現在のスキル対象を保存</div>
@@ -85,9 +85,9 @@
 
 
 <div id="skillRankingMask" class="site-dialog-mask">
-  <div class="skill-ranking-dialog">
+  <div class="skill-ranking-dialog menu-screen-dialog">
     <div class="skill-ranking-head">
-      <div class="skill-ranking-head-row">
+      <div class="skill-ranking-head-row menu-screen-head">
         <div>
           <div class="skill-ranking-title-line">
             <strong>スキル対象ランキング</strong>
@@ -130,8 +130,8 @@
 </div>
 
 <div id="songCatalogMask" class="site-dialog-mask" role="dialog" aria-modal="true" aria-labelledby="songCatalogTitle">
-  <div class="song-catalog-dialog">
-    <div class="song-catalog-head">
+  <div class="song-catalog-dialog menu-screen-dialog">
+    <div class="song-catalog-head menu-screen-head">
       <div><strong id="songCatalogTitle">曲データ一覧</strong><div id="songCatalogVersion" class="song-catalog-version"></div></div>
       <button id="btnCloseSongCatalog" type="button" class="menu-back-btn">戻る</button>
     </div>
@@ -156,7 +156,7 @@
         <button id="btnShowSongCatalog" type="button">一覧を表示</button>
       </div>
     </div>
-    <div id="songCatalogBody" class="song-catalog-body">
+    <div id="songCatalogBody" class="song-catalog-body menu-screen-body">
       <div id="songCatalogStatus" class="song-catalog-status" aria-live="polite"></div>
       <div id="songCatalogList" class="song-catalog-list"></div>
       <div id="songCatalogPager" class="user-list-pager song-catalog-pager"></div>
@@ -165,8 +165,8 @@
 </div>
 
 <div id="officialSkillRankingMask" class="site-dialog-mask" role="dialog" aria-modal="true" aria-labelledby="officialSkillRankingTitle">
-  <div class="official-ranking-dialog">
-    <div class="official-ranking-head">
+  <div class="official-ranking-dialog menu-screen-dialog">
+    <div class="official-ranking-head menu-screen-head">
       <div>
         <strong id="officialSkillRankingTitle">公式スキルランキング</strong>
         <div id="officialSkillRankingContext" class="official-ranking-context"></div>
@@ -199,12 +199,12 @@
 
 
 <div id="supportMask" class="site-dialog-mask">
-  <div class="feedback-dialog support-dialog">
-    <div class="app-menu-head">
+  <div class="feedback-dialog support-dialog menu-screen-dialog">
+    <div class="app-menu-head menu-screen-head">
       <strong>運営を支援する</strong>
       <button id="btnCloseSupport" type="button" class="menu-back-btn">戻る</button>
     </div>
-    <div class="support-dialog-body">
+    <div class="support-dialog-body menu-screen-body">
       <p>GITADORA Skill Simulatorは無料で公開・運営しています。</p>
       <p>サイトの維持・運営費として、任意でご支援いただけると助かります。</p>
       <p>支援の有無によって利用できる機能が変わることはありません。</p>
@@ -219,13 +219,13 @@
 
 
 <div id="featureSettingsMask" class="site-dialog-mask">
-  <div class="feature-settings-dialog">
-    <div class="app-menu-head">
+  <div class="feature-settings-dialog menu-screen-dialog">
+    <div class="app-menu-head menu-screen-head">
       <strong>機能設定</strong>
       <button id="btnCloseFeatureSettings" type="button" class="menu-back-btn">戻る</button>
     </div>
 
-    <div class="feature-settings-body">
+    <div class="feature-settings-body menu-screen-body">
       <label class="feature-setting-row">
         <span>
           <strong>ライトモード</strong>
@@ -287,12 +287,12 @@
 </div>
 
 <div id="accountSwitchMask" class="site-dialog-mask">
-  <div class="feature-settings-dialog account-switch-dialog">
-    <div class="app-menu-head">
+  <div class="feature-settings-dialog account-switch-dialog menu-screen-dialog">
+    <div class="app-menu-head menu-screen-head">
       <strong>ユーザー切り替え</strong>
       <button id="btnCloseAccountSwitch" type="button" class="menu-back-btn">戻る</button>
     </div>
-    <div class="account-switch-body">
+    <div class="account-switch-body menu-screen-body">
       <div class="account-switch-note">この端末に保存したユーザーを切り替えます。パスワードは保存しません。</div>
       <div id="accountSwitchList" class="account-switch-list"></div>
       <div class="account-switch-add">
@@ -308,12 +308,12 @@
 </div>
 
 <div id="feedbackMask" class="site-dialog-mask">
-  <div class="feedback-dialog">
-    <div class="app-menu-head">
+  <div class="feedback-dialog menu-screen-dialog">
+    <div class="app-menu-head menu-screen-head">
       <strong>要望・不具合報告</strong>
       <button id="btnCloseFeedback" type="button" class="menu-back-btn">戻る</button>
     </div>
-    <div class="feedback-body">
+    <div class="feedback-body menu-screen-body">
       <label for="feedbackCategory">種類</label>
       <select id="feedbackCategory">
         <option value="request">要望</option>
@@ -351,9 +351,9 @@
 </div>
 
 <div id="howToMask" class="site-dialog-mask">
-  <div class="howto-dialog">
-    <div class="app-menu-head"><strong id="howToTitle">使い方</strong><button id="btnCloseHowTo" type="button" class="menu-back-btn">戻る</button></div>
-    <div class="howto-body">
+  <div class="howto-dialog menu-screen-dialog">
+    <div class="app-menu-head menu-screen-head"><strong id="howToTitle">使い方</strong><button id="btnCloseHowTo" type="button" class="menu-back-btn">戻る</button></div>
+    <div class="howto-body menu-screen-body">
       <nav class="howto-index" aria-label="使い方の目次">
         <strong>項目を選んで移動</strong>
         <div class="howto-index-links">
@@ -465,8 +465,8 @@
 
 
 <div id="rivalManageMask" class="site-dialog-mask">
-  <div class="rival-manage-dialog">
-    <div class="app-menu-head">
+  <div class="rival-manage-dialog menu-screen-dialog">
+    <div class="app-menu-head menu-screen-head">
       <strong>ライバル管理</strong>
       <button id="btnCloseRivalManage" type="button" class="menu-back-btn">戻る</button>
     </div>
@@ -483,8 +483,8 @@
 </div>
 
 <div id="mypageModal" class="mypage-modal">
-  <div class="mypage-sheet">
-    <div class="mypage-title-row">
+  <div class="mypage-sheet menu-screen-dialog">
+    <div class="mypage-title-row menu-screen-head">
       <h3>マイページ</h3>
       <button id="btnCloseMypage" type="button" class="mypage-close menu-back-btn">戻る</button>
     </div>
@@ -529,8 +529,8 @@
 
 
 <div id="skillSyncMask" class="site-dialog-mask">
-  <div class="skill-sync-dialog">
-    <div class="skill-sync-head">
+  <div class="skill-sync-dialog menu-screen-dialog">
+    <div class="skill-sync-head menu-screen-head">
       <div>
         <div class="skill-sync-kicker">e-amusement連携</div>
         <h3 id="skillSyncDialogTitle">スキル対象を同期する</h3>
@@ -593,8 +593,8 @@
 </div>
 
 <div id="allScoreSyncMask" class="site-dialog-mask">
-  <div class="skill-sync-dialog">
-    <div class="skill-sync-head">
+  <div class="skill-sync-dialog menu-screen-dialog">
+    <div class="skill-sync-head menu-screen-head">
       <div>
         <div class="skill-sync-kicker">e-amusement連携</div>
         <h3 id="allScoreSyncTitle">全曲同期</h3>

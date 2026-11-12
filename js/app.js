@@ -3071,12 +3071,15 @@ function setupAdminCatalogFilters() {
   if (!controls || controls.querySelector('.admin-catalog-filter-toggle')) return;
   const toggle = document.createElement('button');
   toggle.type = 'button';
-  toggle.className = 'admin-catalog-filter-toggle';
-  toggle.textContent = 'フィルタ ▾';
+  toggle.className = 'admin-catalog-filter-toggle admin-filter-toggle-button';
+  toggle.setAttribute('aria-label', 'フィルタを開く');
+  toggle.setAttribute('title', 'フィルタ');
   toggle.setAttribute('aria-expanded', 'false');
+  toggle.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16l-6.5 7.5V19l-3 1.5v-8L4 5z"/></svg>';
   toggle.addEventListener('click', () => {
     const expanded = controls.classList.toggle('admin-catalog-filters-open');
     toggle.setAttribute('aria-expanded', String(expanded));
+    toggle.setAttribute('aria-label', expanded ? 'フィルタを閉じる' : 'フィルタを開く');
   });
   controls.prepend(toggle);
 }
