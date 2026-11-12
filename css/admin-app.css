@@ -417,7 +417,7 @@ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetail
  overflow-wrap:normal;
 }
 body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetailSkill,#userDetailRecords) .ar-rate strong {
- display:block;width:100%;text-align:right;
+ display:block;width:100%;
 }
 body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetailSkill,#userDetailRecords) .ar-edit button {
  display:grid;place-items:center;box-sizing:border-box;padding:0;line-height:1;
@@ -578,8 +578,9 @@ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetail
  body.admin-new-ui #appScreen:not(.hidden)>.p-header {grid-row:1;}
  body.admin-new-ui #appScreen:not(.hidden)>.p-container {grid-row:2;}
 
+ /* Header positioning and stacking are defined by the shared admin rule. */
  body.admin-new-ui #appScreen>.p-header {
-   position:sticky;top:0;z-index:100;width:100%;max-width:none;
+   width:100%;max-width:none;
    min-width:0;margin:0;box-sizing:border-box;background:#101827;
  }
  body.admin-new-ui #appScreen>.p-header::before {display:none;content:none;}
