@@ -57,15 +57,21 @@
           </div>
         </div>
         <div id="skillHistoryUnifiedControls">
-          <div class="skill-history-unified-select" role="group" aria-label="共有・保存する機種">
-            <button type="button" class="skill-history-save-option" data-skill-unified-selection="GF" aria-pressed="false">GF</button>
-            <button type="button" class="skill-history-save-option" data-skill-unified-selection="DM" aria-pressed="false">DM</button>
-            <button type="button" class="skill-history-save-option" data-skill-unified-selection="BOTH" aria-pressed="false">両方</button>
+          <div class="skill-history-control-row">
+            <span class="skill-history-control-label" id="skillHistoryInstrumentLabel">対象機種</span>
+            <div class="skill-history-unified-select" role="group" aria-labelledby="skillHistoryInstrumentLabel">
+              <button type="button" class="skill-history-save-option" data-skill-unified-selection="GF" aria-pressed="false">GF</button>
+              <button type="button" class="skill-history-save-option" data-skill-unified-selection="DM" aria-pressed="false">DM</button>
+              <button type="button" class="skill-history-save-option" data-skill-unified-selection="BOTH" aria-pressed="false">両方</button>
+            </div>
           </div>
-          <div class="skill-history-unified-actions">
-            <button id="btnUnifiedSkillShare" type="button" class="skill-history-unified-action">画像を共有</button>
-            <button id="btnUnifiedSkillSave" type="button" class="skill-history-unified-action">履歴に保存</button>
-            <button id="btnUnifiedSkillSaveShare" type="button" class="skill-history-unified-action">保存して共有</button>
+          <div class="skill-history-control-row">
+            <span class="skill-history-control-label" id="skillHistoryActionLabel">実行操作</span>
+            <div class="skill-history-unified-actions" role="group" aria-labelledby="skillHistoryActionLabel">
+              <button id="btnUnifiedSkillShare" type="button" class="skill-history-unified-action">画像を共有</button>
+              <button id="btnUnifiedSkillSave" type="button" class="skill-history-unified-action">履歴に保存</button>
+              <button id="btnUnifiedSkillSaveShare" type="button" class="skill-history-unified-action">保存して共有</button>
+            </div>
           </div>
         </div>
         <div id="skillHistoryStatus" class="skill-history-status"></div>

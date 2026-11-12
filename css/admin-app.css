@@ -637,29 +637,42 @@ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetail
    display:inline-flex!important;align-items:center;justify-content:center;
    align-self:flex-end;margin-top:4px!important;
  }
- /* Keep the selection and the execution actions visually distinct: on PC
-    the instrument group starts the toolbar and actions finish it. The two
-    groups wrap independently when the modal cannot fit them on one line. */
- body.admin-new-ui .admin-workspace-panel #skillHistoryUnifiedControls {
-   display:flex;flex-wrap:wrap;align-items:center;
-   justify-content:space-between;gap:10px 16px;
+ /* Shared share/save control layout: two explicit steps rather than
+    separate flex groups that wrap unpredictably on compact screens. */
+ body.admin-new-ui #skillHistoryUnifiedControls {
+   display:grid;grid-template-columns:minmax(0,1fr);gap:10px;
+   width:100%;max-width:640px;margin:0 auto 10px;
  }
- body.admin-new-ui .admin-workspace-panel .skill-history-unified-select {
-   display:flex;flex:0 1 auto;flex-wrap:nowrap;
-   align-items:center;justify-content:flex-start;
-   gap:6px;margin:0;max-width:100%;
+ body.admin-new-ui #skillHistoryUnifiedControls .skill-history-control-row {
+   display:grid;grid-template-columns:76px minmax(0,1fr);
+   gap:12px;align-items:center;min-width:0;
+   padding:10px 12px;border:1px solid #30445c;
+   border-radius:10px;background:rgba(148,163,184,.045);
  }
- body.admin-new-ui .admin-workspace-panel .skill-history-unified-select > button {
-   flex:0 0 auto;width:78px;max-width:calc((100vw - 76px)/3);
-   padding:0 10px;white-space:nowrap;
+ body.admin-new-ui #skillHistoryUnifiedControls .skill-history-control-label {
+   color:#a8bdd4;font-size:12px;font-weight:900;white-space:nowrap;
  }
- body.admin-new-ui .admin-workspace-panel .skill-history-unified-actions {
-   display:flex;flex:0 1 auto;flex-wrap:wrap;
-   justify-content:flex-end;align-items:center;gap:8px;
+ body.admin-new-ui #skillHistoryUnifiedControls :is(.skill-history-unified-select,.skill-history-unified-actions) {
+   display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
+   gap:8px;width:100%;min-width:0;margin:0;
  }
- body.admin-new-ui .admin-workspace-panel .skill-history-unified-action {
-   flex:0 0 auto;width:max-content;max-width:100%;min-width:0;
-   padding:10px 14px;white-space:nowrap;
+ body.admin-new-ui #skillHistoryUnifiedControls :is(.skill-history-save-option,.skill-history-unified-action) {
+   box-sizing:border-box;width:100%;min-width:0;max-width:none;
+   min-height:42px;margin:0;padding:8px 4px;
+   font-size:12px;line-height:1.2;white-space:nowrap;
+ }
+ body.admin-new-ui.light-mode #skillHistoryUnifiedControls .skill-history-control-row {
+   background:rgba(100,116,139,.045);border-color:#cbd5e1;
+ }
+ body.admin-new-ui.light-mode #skillHistoryUnifiedControls .skill-history-control-label {color:#475569;}
+ @media (max-width:470px) {
+   body.admin-new-ui #skillHistoryUnifiedControls .skill-history-control-row {
+     grid-template-columns:minmax(0,1fr);gap:8px;
+   }
+   body.admin-new-ui #skillHistoryUnifiedControls :is(.skill-history-unified-select,.skill-history-unified-actions) {gap:6px;}
+   body.admin-new-ui #skillHistoryUnifiedControls :is(.skill-history-save-option,.skill-history-unified-action) {
+     font-size:11px;padding-inline:2px;
+   }
  }
  body.admin-new-ui .admin-workspace-panel #btnLoadSkillRanking {
    width:100%!important;padding:0 10px;
