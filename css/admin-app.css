@@ -822,6 +822,16 @@ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetail
    overflow:visible!important;box-sizing:border-box!important;
  }
 
+ /* In the desktop workspace, the mask is the sole vertical scroller.
+    The compact modal's nested scroll areas otherwise swallow wheel input
+    over the help text and catalog rows. Keep mobile modal scrolling intact. */
+ body.admin-new-ui :is(#howToMask .howto-body,#songCatalogMask .song-catalog-body) {
+   flex:0 0 auto;
+   overflow:visible;
+   overscroll-behavior:auto;
+   scrollbar-gutter:auto;
+ }
+
  body.admin-new-ui.light-mode :is(
    #mypageModal,#featureSettingsMask,#tagSettingsMask,#skillSyncMask,
    #allScoreSyncMask,#skillShareMask,#skillHistoryMask,

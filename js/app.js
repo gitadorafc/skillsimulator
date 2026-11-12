@@ -2606,7 +2606,10 @@ function openHowTo(sectionId = null) {
     section.classList.toggle('howto-active', contextualHowTo && section.id === sectionId);
   });
   mask.style.display = 'flex';
+  // The desktop admin workspace scrolls on the mask; compact dialogs
+  // retain their own scrollable help body.
   mask.querySelector('.howto-body').scrollTop = 0;
+  mask.scrollTop = 0;
 }
 function closeHowTo(returnToMenu = false) {
   $('howToMask').style.display = 'none';
@@ -2753,9 +2756,12 @@ $('howToMask').querySelector('.howto-index').addEventListener('click', event => 
   event.preventDefault();
   const section = document.getElementById(link.getAttribute('href').slice(1));
   if (!section) return;
-  const body = $('howToMask').querySelector('.howto-body');
-  body.scrollTo({
-    top: body.scrollTop + section.getBoundingClientRect().top - body.getBoundingClientRect().top - 8,
+  const mask = $('howToMask');
+  const body = mask.querySelector('.howto-body');
+  const scroller = document.body.classList.contains('admin-new-ui')
+    && window.matchMedia('(min-width: 1100px)').matches ? mask : body;
+  scroller.scrollTo({
+    top: scroller.scrollTop + section.getBoundingClientRect().top - scroller.getBoundingClientRect().top - 8,
     behavior: 'smooth'
   });
 });
