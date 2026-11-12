@@ -606,6 +606,73 @@ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetail
    -webkit-text-fill-color:#1e293b!important;border-color:#94a3b8!important;
  }
 
+/* Admin menu pages on compact viewports: use the same workspace panel and
+   common header as desktop instead of reverting to unrelated popup designs.
+   This is restricted to admin-new-ui; the public UI is left unchanged. */
+@media (max-width:1099px) {
+  body.admin-new-ui :is(
+    #mypageModal,#featureSettingsMask,#tagSettingsMask,#skillSyncMask,
+    #allScoreSyncMask,#skillShareMask,#skillHistoryMask,
+    #skillRankingMask,#officialSkillRankingMask,#rivalManageMask,
+    #songCatalogMask,#howToMask,#feedbackMask,#supportMask,
+    #accountSwitchMask
+  ) {
+    position:fixed!important;inset:0!important;
+    width:100%!important;height:100dvh!important;max-width:none!important;
+    margin:0!important;padding:8px!important;box-sizing:border-box!important;
+    align-items:flex-start!important;justify-content:flex-start!important;
+    overflow-x:hidden!important;overflow-y:auto!important;
+    background:var(--admin-work-surface,#0c1728)!important;
+    backdrop-filter:none!important;box-shadow:none!important;
+    overscroll-behavior:contain;
+  }
+  body.admin-new-ui :is(
+    #mypageModal,#featureSettingsMask,#tagSettingsMask,#skillSyncMask,
+    #allScoreSyncMask,#skillShareMask,#skillHistoryMask,
+    #skillRankingMask,#officialSkillRankingMask,#rivalManageMask,
+    #songCatalogMask,#howToMask,#feedbackMask,#supportMask,
+    #accountSwitchMask
+  ) > :first-child {
+    position:relative!important;flex:0 0 100%!important;
+    width:100%!important;max-width:none!important;
+    height:auto!important;min-height:calc(100dvh - 16px)!important;
+    max-height:none!important;margin:0!important;padding:16px!important;
+    border:1px solid #30445c!important;border-radius:8px!important;
+    background:#081327!important;color:#f8fafc!important;
+    box-shadow:none!important;overflow:visible!important;
+    box-sizing:border-box!important;
+  }
+  body.admin-new-ui .menu-screen-dialog {
+    display:flex;flex-direction:column;min-width:0;
+  }
+  body.admin-new-ui .admin-workspace-panel > .tag-settings-body {
+    padding:0;overflow:visible;
+  }
+  body.admin-new-ui .admin-workspace-panel .tag-settings-actions {
+    grid-template-columns:minmax(0,1fr);
+  }
+  body.admin-new-ui .admin-workspace-panel .tag-settings-actions > #btnCancelTagSettings {
+    display:none;
+  }
+  body.admin-new-ui .admin-workspace-panel .tag-settings-actions > #btnSaveTagSettings {
+    width:100%;
+  }
+  body.admin-new-ui .menu-screen-body {min-width:0;}
+  body.admin-new-ui.light-mode {
+    --admin-work-surface:#e5e7eb;
+  }
+  body.admin-new-ui.light-mode :is(
+    #mypageModal,#featureSettingsMask,#tagSettingsMask,#skillSyncMask,
+    #allScoreSyncMask,#skillShareMask,#skillHistoryMask,
+    #skillRankingMask,#officialSkillRankingMask,#rivalManageMask,
+    #songCatalogMask,#howToMask,#feedbackMask,#supportMask,
+    #accountSwitchMask
+  ) > :first-child {
+    background:#f8fafc!important;color:#17243a!important;
+    border-color:#cbd5e1!important;
+  }
+}
+
 @media (min-width:1100px) {
  body.admin-new-ui {--admin-side-width:208px;--admin-top-height:50px;}
  body.admin-new-ui #appRoot {display:block;width:100%;max-width:none;min-width:0;box-sizing:border-box;}
