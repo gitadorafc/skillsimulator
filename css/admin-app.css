@@ -131,6 +131,7 @@ body.admin-new-ui :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailReco
 body.admin-new-ui :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) :is(.ar-hot,.ar-part .p-badge,.ar-option .opt-badge){font-size:10px!important;line-height:1!important;height:19px!important;min-height:19px!important;max-height:19px!important;box-sizing:border-box;border-radius:3px!important;display:inline-flex!important;align-items:center;justify-content:center;padding:0 6px!important;font-weight:900;vertical-align:middle}
 body.admin-new-ui :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) :is(.ar-level,.ar-rate){white-space:nowrap;font-variant-numeric:tabular-nums}
 body.admin-new-ui :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-level{text-align:center}
+body.admin-new-ui :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-rate{display:block;text-align:right;justify-self:stretch;}
 body.admin-new-ui :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-level strong,body.admin-new-ui :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-rate strong{font-size:inherit}
 body.admin-new-ui :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-mini-label{display:none}
 body.admin-new-ui :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-skill{position:relative;width:65px!important;min-width:65px!important;max-width:65px!important;box-sizing:border-box;overflow:hidden;text-align:center;justify-self:center;padding:5px 0!important;font-weight:850;border-radius:5px;font-variant-numeric:tabular-nums}
@@ -151,7 +152,6 @@ body.admin-new-ui :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailReco
  animation:skill-sparkle-band-pulse var(--skill-sparkle-cycle,1.6s) ease-in-out infinite;
  animation-play-state:running!important;
 }
-
 
 /* Existing admin-only filter interaction; keep this separate from responsive layout. */
 body #searchArea #btnAdminRecordFilters{display:none;}
@@ -295,10 +295,8 @@ body.admin-new-ui :is(#viewSkill,#userDetailSkill) .sk-section{min-width:0}
 body.admin-new-ui :is(#viewSkill,#userDetailSkill) .list-container{display:block;min-width:0}
 body.admin-new-ui :is(#viewSkill,#userDetailSkill) .ar-record-grid{grid-template-columns:minmax(0,1fr)!important}
 
-
 /* Shared visibility. The sidebar is available only in the desktop range. */
 .admin-desktop-menu-tree{display:none;}
-body.admin-new-ui :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-rate{display:block;text-align:right;justify-self:stretch;}
 body.admin-new-ui #appScreen>.p-header{position:sticky;top:0;z-index:100;}
 /* OFF-mode constants shared by compact and desktop card grids. */
 body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-edit button{font-size:19px;}
