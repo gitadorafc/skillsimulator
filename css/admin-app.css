@@ -458,8 +458,8 @@ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetail
    width:100%;margin:0;text-align:center;font-size:10px;
  }
  body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetailSkill,#userDetailRecords) .ar-rate {
-   grid-column:2;grid-row:2;justify-self:stretch;
-   min-width:0;padding:0;box-sizing:border-box;text-align:right;
+   grid-column:2;grid-row:2;
+   min-width:0;padding:0;box-sizing:border-box;
    font-size:10px;
  }
  body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetailSkill,#userDetailRecords) .ar-option {
@@ -516,10 +516,10 @@ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetail
    order:1;flex:0 0 auto;justify-content:start;
  }
  body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetailSkill,#userDetailRecords) .ar-level {
-   order:2;flex:0 0 auto;text-align:left;white-space:nowrap;font-size:11px;
+   order:2;flex:0 0 auto;text-align:left;font-size:11px;
  }
  body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetailSkill,#userDetailRecords) .ar-rate {
-   order:3;flex:0 0 55px;min-width:55px;justify-self:auto;text-align:right;
+   order:3;flex:0 0 55px;min-width:55px;justify-self:auto;
    box-sizing:border-box;font-size:11px;
  }
  body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetailSkill,#userDetailRecords) .ar-fc-cell {
