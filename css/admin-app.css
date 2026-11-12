@@ -615,37 +615,92 @@ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetail
  /* Shared menu content uses a single panel padding and aligned header. */
  body.admin-new-ui .admin-workspace-panel {padding:16px!important;}
  body.admin-new-ui .admin-workspace-panel > .tag-settings-body {padding:0;overflow:visible;}
- /* Admin menu actions share compact sizing; full-width option selectors, tabs,
-    and inline list controls keep their own geometry. */
+ /* Admin menu action buttons have a content-sized width and align right.
+    Tabs/segmented selectors, expandable song rows, card editing buttons and
+    filter controls deliberately retain their own widths. */
  body.admin-new-ui .admin-workspace-panel :is(
    #btnSaveFeatureSettings,#btnSaveTagSettings,#btnSubmitFeedback,
    #btnExecuteSkillShare,#btnCopyOfficialRankingScript,
    #btnAddTagSetting,#btnAddSwitchAccount,#btnMypageUserSwitch,
-   #btnLogout,#btnDeleteAccount
+   #btnLogout,#btnDeleteAccount,#btnLoadMoreSkillHistory,
+   #btnLoadSkillRanking,#btnShowSongCatalog,#btnSaveSongCatalogFavoriteName,
+   #btnShareSkillHistory,#btnCopySkillSync,#btnCopyAllScoreSync,
+   #btnOpenEamusement,#btnOpenAllScoreSyncEamusement,
+   .support-ofuse-button,.official-ranking-import .btn-submit
  ) {
-   box-sizing:border-box;width:fit-content!important;max-width:100%;
-   min-width:120px;flex:0 0 auto!important;align-self:flex-end;
+   display:table;box-sizing:border-box;width:max-content!important;
+   max-width:100%!important;min-width:0;flex:0 0 auto!important;
    margin-left:auto;padding-left:18px;padding-right:18px;
  }
- /* One-row tag actions. Keep the modal and desktop workspace layouts separate. */
+ /* Links use flex for centered text; action containers are independent of inputs. */
+ body.admin-new-ui .admin-workspace-panel .support-ofuse-button {
+   display:inline-flex!important;align-items:center;justify-content:center;
+   align-self:flex-end;margin-top:4px!important;
+ }
+ body.admin-new-ui .admin-workspace-panel .skill-history-unified-actions {
+   display:flex;flex-wrap:wrap;justify-content:flex-end;gap:8px;
+ }
+ body.admin-new-ui .admin-workspace-panel .skill-history-unified-action {
+   flex:0 0 auto;width:max-content;max-width:100%;min-width:0;
+   padding:10px 14px;white-space:normal;
+ }
+ /* Tag actions: explicit rows prevent status, add, and save from sharing an
+    implicit grid cell. Gap is retained on narrow modal widths. */
  body.admin-new-ui .admin-workspace-panel > .tag-settings-body {
    display:grid;grid-template-columns:minmax(0,1fr) auto auto;
-   column-gap:8px;align-items:start;
+   column-gap:10px;row-gap:12px;align-items:center;
  }
- body.admin-new-ui .admin-workspace-panel .tag-settings-body > :is(p,.tag-settings-rows,.tag-settings-status) {
-   grid-column:1/-1;
+ body.admin-new-ui .admin-workspace-panel .tag-settings-body > p {
+   grid-column:1/-1;grid-row:1;margin-bottom:0;
+ }
+ body.admin-new-ui .admin-workspace-panel .tag-settings-body > .tag-settings-rows {
+   grid-column:1/-1;grid-row:2;
+ }
+ body.admin-new-ui .admin-workspace-panel .tag-settings-body > .tag-settings-status {
+   grid-column:1/-1;grid-row:3;margin:0;min-height:0;
  }
  body.admin-new-ui .admin-workspace-panel #btnAddTagSetting {
-   grid-column:2;grid-row:3;margin:0;align-self:center;
+   grid-column:2;grid-row:4;align-self:center;margin:0;
  }
  body.admin-new-ui .admin-workspace-panel .tag-settings-actions {
-   grid-column:3;grid-row:3;display:flex;justify-content:flex-end;
-   gap:8px;margin:0;
+   grid-column:3;grid-row:4;display:flex;align-items:center;
+   justify-content:flex-end;gap:10px;margin:0;
  }
  body.admin-new-ui .admin-workspace-panel .tag-settings-actions > #btnCancelTagSettings {display:none;}
- /* Standalone destructive/account actions align right; inline input actions stay inline. */
- body.admin-new-ui .admin-workspace-panel :is(#btnMypageUserSwitch,#btnLogout,#btnDeleteAccount) {
-   display:block;margin-left:auto;
+ body.admin-new-ui .admin-workspace-panel .tag-settings-actions #btnSaveTagSettings {margin:0;}
+ /* Mypage account operations form one right-aligned, wrapping action group.
+    Notes stay immediately under their respective buttons, aligned to the right. */
+ body.admin-new-ui .admin-workspace-panel .mypage-account-actions {
+   display:flex;justify-content:flex-end;align-items:flex-start;
+   flex-wrap:wrap;gap:12px 18px;margin-top:16px;padding-top:16px;
+   border-top:1px solid #334155;
+ }
+ body.admin-new-ui .admin-workspace-panel .mypage-account-actions > :is(
+   .mypage-user-switch,.mypage-logout-zone,.danger-zone
+ ) {
+   display:flex;flex:0 1 auto;flex-direction:column;align-items:flex-end;
+   justify-content:flex-start;gap:6px;min-width:0;max-width:100%;
+   margin:0;padding:0;border:0;text-align:right;
+ }
+ body.admin-new-ui .admin-workspace-panel .mypage-account-actions > .hidden {display:none!important;}
+ body.admin-new-ui .admin-workspace-panel .mypage-account-actions .section-note {
+   margin:0!important;text-align:right;
+ }
+ body.admin-new-ui .admin-workspace-panel .mypage-account-actions :is(
+   #btnMypageUserSwitch,#btnLogout,#btnDeleteAccount
+ ) {
+   display:inline-flex!important;align-items:center;justify-content:center;
+   width:max-content!important;max-width:100%!important;
+   margin:0!important;min-height:42px;padding:8px 18px;
+ }
+ /* Differentiate switching accounts from the primary save/update action. */
+ body.admin-new-ui #btnMypageUserSwitch,
+ body.admin-new-ui.light-mode #btnMypageUserSwitch {
+   background:#0e7490!important;border-color:#155e75!important;
+   color:#fff!important;-webkit-text-fill-color:#fff!important;
+ }
+ body.admin-new-ui.light-mode .admin-workspace-panel .mypage-account-actions {
+   border-top-color:#cbd5e1;
  }
  /* Three distinct action colors, scoped to the administrator's new UI. */
  body.admin-new-ui #btnUnifiedSkillShare {
