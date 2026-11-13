@@ -95,7 +95,7 @@ body.light-mode [class*="btn"][class*="primary"]{
   background:rgba(245,158,11,.12);color:#fbbf24;font-size:12px;font-weight:800;line-height:1.55;
 }
 .skill-sync-android-note{
-  margin-top:8px;padding:10px 12px;border:1px solid #3b82f6;border-radius:8px;
+  margin-top:8px;padding:10px 12px;border:1px solid var(--app-accent);border-radius:8px;
   background:rgba(59,130,246,.10);color:var(--text);font-size:12px;line-height:1.6;
 }
 .skill-sync-android-note strong{display:block;margin-bottom:4px;color:#60a5fa;font-size:12px;font-weight:900}
@@ -169,8 +169,8 @@ body.light-mode .skill-sync-dialog .skill-sync-encoding-note{
   line-height:1;
 }
 .user-pager-page.active{
-  background:#3b82f6;
-  border-color:#2563eb;
+  background:var(--app-accent);
+  border-color:var(--app-accent-pressed);
   color:#fff;
 }
 .user-pager-arrow:disabled{
@@ -198,10 +198,10 @@ body.light-mode .user-pager-arrow{
   border-color:#94a3b8 !important;
 }
 body.light-mode .user-pager-page.active{
-  background:#3b82f6 !important;
+  background:var(--app-accent) !important;
   color:#fff !important;
   -webkit-text-fill-color:#fff !important;
-  border-color:#2563eb !important;
+  border-color:var(--app-accent-pressed) !important;
 }
 body.light-mode .user-pager-ellipsis,
 body.light-mode .user-list-page-summary{
@@ -484,7 +484,7 @@ body.light-mode select:disabled{
 }
 .support-ofuse-button{
   border-radius:9px;
-  background:#3b82f6;
+  background:var(--app-accent);
   color:#fff !important;
   -webkit-text-fill-color:#fff !important;
   font-weight:900;
@@ -570,8 +570,8 @@ body.light-mode .support-ofuse-button{
 }
 body.light-mode #btnCloseSupport.menu-back-btn{
   background:transparent !important;
-  color:#2563eb !important;
-  -webkit-text-fill-color:#2563eb !important;
+  color:var(--app-accent-pressed) !important;
+  -webkit-text-fill-color:var(--app-accent-pressed) !important;
   border:0 !important;
   box-shadow:none !important;
 }
@@ -620,8 +620,8 @@ body.light-mode .skill-sync-head .menu-back-btn,
 body.light-mode .mypage-title-row .menu-back-btn,
 body.light-mode #btnCloseSupport.menu-back-btn{
   background:transparent !important;
-  color:#2563eb !important;
-  -webkit-text-fill-color:#2563eb !important;
+  color:var(--app-accent-pressed) !important;
+  -webkit-text-fill-color:var(--app-accent-pressed) !important;
   border:1px solid #94a3b8 !important;
   box-shadow:none !important;
 }
@@ -716,8 +716,8 @@ body.light-mode #btnCloseSongCatalog.menu-back-btn,
 body.light-mode #btnCloseSkillShare.menu-back-btn{
   border:1px solid #94a3b8 !important;
   background:#f8fafc !important;
-  color:#2563eb !important;
-  -webkit-text-fill-color:#2563eb !important;
+  color:var(--app-accent-pressed) !important;
+  -webkit-text-fill-color:var(--app-accent-pressed) !important;
   box-shadow:none !important;
 }
 
@@ -1317,8 +1317,8 @@ body.light-mode .score-tag-load-error{color:#b91c1c}
 body.light-mode .tag-settings-row input,
 body.light-mode .score-tag-choice span{background:#f8fafc;color:#0f172a}
 .score-tag-choice input:checked + span{
-  border-color:#2563eb;
-  background:#3b82f6;
+  border-color:var(--app-accent-pressed);
+  background:var(--app-accent);
   color:#fff !important;
   -webkit-text-fill-color:#fff !important;
 }
@@ -1338,7 +1338,7 @@ body.light-mode .score-tag-choice span{background:#f8fafc;color:#0f172a}
   line-height:normal !important;
 }
 #domModal #correctionLevel:focus{
-  border-color:#3b82f6 !important;
+  border-color:var(--app-accent) !important;
   box-shadow:0 0 0 2px rgba(59,130,246,.18) !important;
 }
 #domModal #btnSendLevelCorrection{
@@ -1475,7 +1475,7 @@ body.light-mode .rate-compare-section-title{
 .sync-browser-mark.safari{
   overflow:hidden;
   border:2px solid #e2e8f0;
-  background:radial-gradient(circle at 50% 50%,#e0f2fe 0 18%,#38bdf8 20% 54%,#2563eb 56% 100%);
+  background:radial-gradient(circle at 50% 50%,#e0f2fe 0 18%,#38bdf8 20% 54%,var(--app-accent-pressed) 56% 100%);
   box-shadow:inset 0 0 0 1px rgba(15,23,42,.22);
 }
 .sync-browser-mark.safari::before{
@@ -1506,7 +1506,7 @@ body.light-mode .rate-compare-section-title{
   height:8px;
   border:2px solid #dbeafe;
   border-radius:50%;
-  background:#3b82f6;
+  background:var(--app-accent);
 }
 .sync-visual-card{
   display:grid;
@@ -1526,7 +1526,7 @@ body.light-mode .rate-compare-section-title{
   width:26px;
   height:26px;
   border-radius:999px;
-  background:#3b82f6;
+  background:var(--app-accent);
   color:#fff;
   font-size:12px;
   font-weight:900;
@@ -1562,9 +1562,9 @@ body.light-mode .rate-compare-section-title{
   min-height:36px;
   margin-top:7px;
   padding:6px 8px;
-  border:1px solid #3b82f6;
+  border:1px solid var(--app-accent);
   border-radius:7px;
-  background:#3b82f6;
+  background:var(--app-accent);
   color:#fff;
   font-size:10px;
   font-weight:900;
@@ -1594,7 +1594,7 @@ body.light-mode .rate-compare-section-title{
   color:#e2e8f0;
 }
 .sync-mini-copy span{
-  color:#2563eb;
+  color:var(--app-accent-pressed);
   font-size:7px;
   font-weight:900;
 }
@@ -1610,7 +1610,7 @@ body.light-mode .rate-compare-section-title{
   height:27px;
   margin-top:3px;
   border-radius:5px;
-  background:#3b82f6;
+  background:var(--app-accent);
   color:#fff;
   font-style:normal;
 }
@@ -1667,7 +1667,7 @@ body.light-mode .rate-compare-section-title{
 .sync-mini-callout{
   margin:0 6px 6px;
   padding:5px 3px;
-  border:1px solid #3b82f6;
+  border:1px solid var(--app-accent);
   border-radius:5px;
   background:#172554;
   color:#bfdbfe;
@@ -1688,7 +1688,7 @@ body.light-mode .rate-compare-section-title{
   padding:3px 4px;
 }
 .sync-mini-menu strong{
-  border:1px solid #3b82f6;
+  border:1px solid var(--app-accent);
   border-radius:4px;
   color:#bfdbfe;
 }
@@ -1715,7 +1715,7 @@ body.light-mode .rate-compare-section-title{
 }
 .sync-mini-edit strong{
   margin-top:5px;
-  border-color:#3b82f6;
+  border-color:var(--app-accent);
   color:#bfdbfe;
 }
 .sync-mini-suggestion{
@@ -1724,7 +1724,7 @@ body.light-mode .rate-compare-section-title{
   gap:2px;
   margin:0 6px 6px;
   padding:6px;
-  border:1px solid #3b82f6;
+  border:1px solid var(--app-accent);
   border-radius:5px;
   background:#0f172a;
   font-size:6.5px;
@@ -2016,9 +2016,9 @@ body.light-mode .user-detail-sticky{
 .skill-ranking-load{
   height:34px;
   min-height:34px;
-  border:1px solid #3b82f6;
+  border:1px solid var(--app-accent);
   border-radius:7px;
-  background:#3b82f6;
+  background:var(--app-accent);
   color:#fff;
   font-size:11px;
   font-weight:900;
@@ -2276,7 +2276,7 @@ body.light-mode .skill-ranking-sort-wrap select{
 .song-catalog-head strong{font-size:16px;font-weight:900;}
 .song-catalog-favorite-name{display:flex;gap:7px;padding:9px 12px;border-bottom:1px solid #334155;background:#111827;}
 .song-catalog-favorite-name input{min-width:0;flex:1;height:36px;padding:0 9px;border:1px solid #475569;border-radius:8px;background:#0f172a;color:#f8fafc;font-size:13px;}
-.song-catalog-favorite-name button{height:36px;padding:0 10px;border:0;border-radius:8px;background:#3b82f6;color:white;font-size:12px;font-weight:900;white-space:nowrap;}
+.song-catalog-favorite-name button{height:36px;padding:0 10px;border:0;border-radius:8px;background:var(--app-accent);color:white;font-size:12px;font-weight:900;white-space:nowrap;}
 .song-catalog-version{margin-top:3px;color:#94a3b8;font-size:10px;font-weight:800;}
 .song-catalog-controls{
   display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
@@ -2294,7 +2294,7 @@ body.light-mode .skill-ranking-sort-wrap select{
 }
 .song-catalog-controls .song-catalog-action-row button{
   grid-column:auto;height:39px;width:100%;padding:0 17px;border:0;border-radius:8px;
-  background:#3b82f6;color:#fff;font-size:13px;font-weight:900;
+  background:var(--app-accent);color:#fff;font-size:13px;font-weight:900;
 }
 .song-catalog-controls button:disabled{opacity:.6;}
 .song-catalog-range{
@@ -2382,7 +2382,7 @@ body.light-mode .song-catalog-row summary::after{
   font-size:12px;font-weight:900;line-height:1;white-space:nowrap;cursor:pointer;
 }
 body.light-mode .menu-context-actions .menu-context-help{
-  border-color:#94a3b8;background:#f8fafc;color:#2563eb;-webkit-text-fill-color:#2563eb;
+  border-color:#94a3b8;background:#f8fafc;color:var(--app-accent-pressed);-webkit-text-fill-color:var(--app-accent-pressed);
 }
 .menu-context-actions .menu-back-btn{flex:0 0 auto;}
 .app-menu-head>strong,.song-catalog-head>div:first-child,.official-ranking-head>div:first-child,
@@ -2499,7 +2499,7 @@ body.light-mode .official-ranking-pager .user-pager-jump select{
   top:0;
   z-index:2;
   padding:7px 10px;
-  border:1px solid #3b82f6;
+  border:1px solid var(--app-accent);
   border-radius:7px;
   background:rgba(30,41,59,.96);
   color:#93c5fd;
@@ -2554,9 +2554,9 @@ body.light-mode .official-ranking-pager .user-pager-jump select{
   justify-content:center;
   min-height:38px;
   padding:7px;
-  border:1px solid #3b82f6;
+  border:1px solid var(--app-accent);
   border-radius:7px;
-  background:#3b82f6;
+  background:var(--app-accent);
   color:#fff;
   font-size:11px;
   font-weight:900;
@@ -2574,7 +2574,7 @@ body.light-mode .official-ranking-row,
 body.light-mode .official-ranking-import{background:#f8fafc;color:#111827;border-color:#94a3b8;}
 body.light-mode .official-ranking-body{background:#f1f5f9;}
 body.light-mode .official-ranking-fixed-controls{border-color:#94a3b8;background:#f1f5f9;}
-body.light-mode .official-ranking-refreshing{background:rgba(255,255,255,.96);color:#2563eb;}
+body.light-mode .official-ranking-refreshing{background:rgba(255,255,255,.96);color:var(--app-accent-pressed);}
 body.light-mode .official-ranking-tab-gf{border-color:#e8336a;background:#e8336a;color:#fff;}
 body.light-mode .official-ranking-tab-dm{border-color:#3caa2a;background:#3caa2a;color:#fff;}
 body.light-mode .official-ranking-file-label input{background:#fff;color:#111827;border-color:#94a3b8;}
@@ -2679,13 +2679,13 @@ body.skill-target-columns .record-column-placeholder {
 
 /* ダークモードの登録曲編集ボタンは、通常・横並びとも青背景＋白文字に統一。 */
 body:not(.light-mode) #viewAllManage .dc-edit .m-action-btn.btn-e {
-  background:#3b82f6 !important;
+  background:var(--app-accent) !important;
   color:#ffffff !important;
   -webkit-text-fill-color:#ffffff !important;
   border:1px solid #1d4ed8 !important;
 }
 body:not(.light-mode) #viewAllManage .dc-edit .m-action-btn.btn-e:active {
-  background:#2563eb !important;
+  background:var(--app-accent-pressed) !important;
 }
 
 /* 自分のスキル対象から開いた詳細だけ、4段目に編集ボタンを表示する。 */
@@ -2695,20 +2695,20 @@ body:not(.light-mode) #viewAllManage .dc-edit .m-action-btn.btn-e:active {
 .rate-compare-edit-button {
   border:0;
   border-radius:8px;
-  background:#3b82f6;
+  background:var(--app-accent);
   color:#ffffff;
   font-weight:900;
 }
 .rate-compare-edit-button:active {
-  background:#2563eb;
+  background:var(--app-accent-pressed);
 }
 body.light-mode .rate-compare-edit-area {
   border-top-color:#cbd5e1;
 }
 body.light-mode .rate-compare-edit-button {
   background:#f3f4f6 !important;
-  color:#2563eb !important;
-  -webkit-text-fill-color:#2563eb !important;
+  color:var(--app-accent-pressed) !important;
+  -webkit-text-fill-color:var(--app-accent-pressed) !important;
   border:1px solid #94a3b8 !important;
 }
 body.light-mode .rate-compare-edit-button:active {
@@ -2718,8 +2718,8 @@ body.light-mode .rate-compare-edit-button:active {
 /* ライトモードの登録曲編集ボタンも、白背景・青文字・枠ありに統一。 */
 body.light-mode #viewAllManage .dc-edit .m-action-btn.btn-e {
   background:#f3f4f6 !important;
-  color:#2563eb !important;
-  -webkit-text-fill-color:#2563eb !important;
+  color:var(--app-accent-pressed) !important;
+  -webkit-text-fill-color:var(--app-accent-pressed) !important;
   border:1px solid #94a3b8 !important;
   box-shadow:none !important;
 }
@@ -2752,8 +2752,8 @@ body.light-mode .admin-master-pager {
 }
 body.light-mode .admin-close {
   background:#ffffff !important;
-  color:#2563eb !important;
-  -webkit-text-fill-color:#2563eb !important;
+  color:var(--app-accent-pressed) !important;
+  -webkit-text-fill-color:var(--app-accent-pressed) !important;
   border:1px solid #94a3b8 !important;
 }
 body.light-mode .admin-tab {
@@ -2763,10 +2763,10 @@ body.light-mode .admin-tab {
   border:1px solid transparent !important;
 }
 body.light-mode .admin-tab.active {
-  background:#3b82f6 !important;
+  background:var(--app-accent) !important;
   color:#ffffff !important;
   -webkit-text-fill-color:#ffffff !important;
-  border-color:#2563eb !important;
+  border-color:var(--app-accent-pressed) !important;
 }
 body.light-mode .admin-toolbar input {
   background:#ffffff !important;
@@ -2783,10 +2783,10 @@ body.light-mode .admin-toolbar input::placeholder {
 }
 body.light-mode .admin-toolbar input:focus {
   outline:2px solid rgba(37,99,235,.20) !important;
-  border-color:#2563eb !important;
+  border-color:var(--app-accent-pressed) !important;
 }
 body.light-mode .admin-toolbar button {
-  background:#3b82f6 !important;
+  background:var(--app-accent) !important;
   color:#ffffff !important;
   -webkit-text-fill-color:#ffffff !important;
 }
@@ -2942,7 +2942,7 @@ body.light-mode #viewAllManage .dc-edit .m-action-btn.btn-e {
 }
 .skill-share-option.active {
   border-color:#60a5fa;
-  background:#3b82f6;
+  background:var(--app-accent);
   color:#fff;
   box-shadow:0 0 0 1px rgba(96,165,250,.25);
 }
@@ -2951,7 +2951,7 @@ body.light-mode #viewAllManage .dc-edit .m-action-btn.btn-e {
   min-height:44px;
   border:0;
   border-radius:9px;
-  background:#3b82f6;
+  background:var(--app-accent);
   color:#fff;
   font-size:13px;
   font-weight:900;
@@ -2974,8 +2974,8 @@ body.light-mode .skill-share-option {
   color:#0f172a;
 }
 body.light-mode .skill-share-option.active {
-  border-color:#2563eb;
-  background:#3b82f6;
+  border-color:var(--app-accent-pressed);
+  background:var(--app-accent);
   color:#fff;
 }
 
@@ -3169,7 +3169,7 @@ body.text-size-up .skill-ranking-empty{
 .app-primary-button,
 body.light-mode button.app-primary-button{
   border-color:#1d4ed8 !important;
-  background:#3b82f6 !important;
+  background:var(--app-accent) !important;
   color:#ffffff !important;
   -webkit-text-fill-color:#ffffff !important;
 }
@@ -3224,7 +3224,7 @@ body.light-mode .feature-setting-select{
   background:#111827;
 }
 .account-switch-row.current{
-  border-color:#2563eb;
+  border-color:var(--app-accent-pressed);
   background:#172554;
 }
 .account-switch-row > div:first-child{
@@ -3253,9 +3253,9 @@ body.light-mode .feature-setting-select{
 .account-switch-actions button{
   min-height:32px;
   padding:5px 9px;
-  border:1px solid #2563eb;
+  border:1px solid var(--app-accent-pressed);
   border-radius:7px;
-  background:#3b82f6;
+  background:var(--app-accent);
   color:#ffffff;
   font-size:11px;
   font-weight:900;
@@ -3296,7 +3296,7 @@ body.light-mode .feature-setting-select{
   min-height:42px;
   border:0;
   border-radius:8px;
-  background:#3b82f6;
+  background:var(--app-accent);
   color:#ffffff;
   font-weight:900;
 }
@@ -3314,7 +3314,7 @@ body.light-mode .account-switch-row{
   background:#ffffff;
 }
 body.light-mode .account-switch-row.current{
-  border-color:#2563eb;
+  border-color:var(--app-accent-pressed);
   background:#eff6ff;
 }
 body.light-mode .account-switch-row strong,
@@ -3401,7 +3401,7 @@ body.text-size-up :is(
   padding:5px 10px;
   border:0;
   border-radius:7px;
-  background:#3b82f6;
+  background:var(--app-accent);
   color:#ffffff;
   font-size:11px;
   font-weight:900;
@@ -3480,8 +3480,8 @@ body.text-size-up :is(
 }
 .admin-version-heading button{
   padding:0 12px;
-  background:#3b82f6;
-  border-color:#2563eb;
+  background:var(--app-accent);
+  border-color:var(--app-accent-pressed);
 }
 .admin-version-list{
   display:flex;
@@ -3513,7 +3513,7 @@ body.text-size-up :is(
 .admin-version-current{
   padding:2px 6px;
   border-radius:999px;
-  background:#2563eb;
+  background:var(--app-accent-pressed);
   color:#fff;
   font-size:9px;
   font-weight:900;
@@ -3664,7 +3664,7 @@ body.light-mode .admin-usage-card{
   min-height:46px;
   border:0;
   border-radius:9px;
-  background:#3b82f6;
+  background:var(--app-accent);
   color:#fff;
   font-size:14px;
   font-weight:900;
@@ -3691,8 +3691,8 @@ body.light-mode .admin-usage-card{
 }
 .skill-history-save-option.active,
 .skill-history-save-submit{
-  border-color:#2563eb;
-  background:#3b82f6;
+  border-color:var(--app-accent-pressed);
+  background:var(--app-accent);
   color:#fff;
 }
 .skill-history-status{
@@ -3763,7 +3763,7 @@ body.light-mode .admin-usage-card{
   font-weight:900;
 }
 .skill-history-display{
-  border:1px solid #3b82f6;
+  border:1px solid var(--app-accent);
   background:#172554;
   color:#bfdbfe;
 }
@@ -3777,7 +3777,7 @@ body.light-mode .admin-usage-card{
   height:34px;
   min-height:34px;
   padding:0 5px;
-  border:1px solid #3b82f6;
+  border:1px solid var(--app-accent);
   border-radius:7px;
   background:#172554;
   color:#bfdbfe;
@@ -3819,9 +3819,9 @@ body.light-mode .admin-usage-card{
   min-width:0;
   min-height:42px;
   padding:5px 3px;
-  border:1px solid #2563eb;
+  border:1px solid var(--app-accent-pressed);
   border-radius:8px;
-  background:#3b82f6;
+  background:var(--app-accent);
   color:#fff;
   font-size:11px;
   font-weight:900;
@@ -3877,7 +3877,7 @@ body.light-mode .skill-history-list-title{color:#334155;}
 body.light-mode #btnCloseSkillHistory.menu-back-btn{
   border-color:#94a3b8;
   background:#f8fafc;
-  color:#2563eb;
+  color:var(--app-accent-pressed);
 }
 body.light-mode .skill-history-summary{
   border-color:#9aacc4;
@@ -3893,8 +3893,8 @@ body.light-mode .skill-history-save-option{
 }
 body.light-mode .skill-history-save-option.active,
 body.light-mode .skill-history-save-submit{
-  border-color:#2563eb;
-  background:#3b82f6;
+  border-color:var(--app-accent-pressed);
+  background:var(--app-accent);
   color:#fff;
 }
 body.light-mode .skill-history-delete{
@@ -3904,17 +3904,17 @@ body.light-mode .skill-history-delete{
 body.light-mode .skill-history-display,
 body.light-mode .skill-history-compare{
   background:#eff6ff;
-  color:#2563eb;
+  color:var(--app-accent-pressed);
 }
 body.light-mode .skill-history-unified-action{
-  border-color:#2563eb;
-  background:#3b82f6;
+  border-color:var(--app-accent-pressed);
+  background:var(--app-accent);
   color:#fff;
 }
 body.light-mode .skill-history-more{
   border-color:#9aacc4;
   background:#fff;
-  color:#2563eb;
+  color:var(--app-accent-pressed);
 }
 body.light-mode .skill-history-preview-actions{background:#f3f4f6;}
 body.light-mode .skill-history-preview-image{border-color:#94a3b8;}
@@ -4067,8 +4067,8 @@ body.light-mode #btnAdminSaveAllSongs{
   font-weight:900;
 }
 .admin-master-pager button.admin-master-page.active{
-  background:#3b82f6;
-  border-color:#2563eb;
+  background:var(--app-accent);
+  border-color:var(--app-accent-pressed);
   color:#fff;
 }
 .admin-master-jump{
@@ -4099,10 +4099,10 @@ body.light-mode .admin-master-jump select{
   border-color:#94a3b8 !important;
 }
 body.light-mode .admin-master-pager button.admin-master-page.active{
-  background:#3b82f6 !important;
+  background:var(--app-accent) !important;
   color:#fff !important;
   -webkit-text-fill-color:#fff !important;
-  border-color:#2563eb !important;
+  border-color:var(--app-accent-pressed) !important;
 }
 @media (max-width:520px){
   .admin-master-nearby{ display:none; }
@@ -4360,7 +4360,7 @@ body:not(.admin-new-ui) #searchArea.search-bar-container{
 
 /* === APP VERSION 4.12.5: 管理画面 曲マスターCSV入出力 === */
 #btnAdminCsvDownload{
-  background:#3b82f6;
+  background:var(--app-accent);
   white-space:nowrap;
 }
 #btnAdminCsvUpload{
@@ -4430,7 +4430,7 @@ body.light-mode :is(#btnAdminCsvDownload,#btnAdminCsvUpload){
   width:18px !important;
   min-height:18px !important;
   height:18px !important;
-  accent-color:#2563eb;
+  accent-color:var(--app-accent-pressed);
 }
 .admin-csv-status{
   min-height:18px;
@@ -4451,7 +4451,7 @@ body.light-mode :is(#btnAdminCsvDownload,#btnAdminCsvUpload){
   border-radius:7px;
   font-weight:900;
 }
-#btnAdminCsvImport{ background:#3b82f6;color:#fff; }
+#btnAdminCsvImport{ background:var(--app-accent);color:#fff; }
 #btnAdminCsvCancel{ background:#334155;color:#e2e8f0; }
 body.light-mode .admin-csv-sheet{
   background:#f8fafc !important;
@@ -5029,7 +5029,7 @@ body.light-mode .howto-body section ul{color:#334155;}
   display:flex;align-items:center;justify-content:center;flex:0 0 auto;
   width:26px;height:28px;cursor:pointer;
 }
-.admin-user-select input{width:18px;height:18px;margin:0;accent-color:#3b82f6;}
+.admin-user-select input{width:18px;height:18px;margin:0;accent-color:var(--app-accent);}
 .admin-user-skills{
   display:flex;align-items:center;gap:8px;flex:0 0 auto;margin-left:auto;
   color:#cbd5e1;font-size:10px;font-weight:900;white-space:nowrap;
@@ -5467,7 +5467,7 @@ body.light-mode #menuMask .app-menu-head{
 .admin-board-existing-item{display:block!important;margin:0!important;padding:6px;border:1px solid #334155;border-radius:8px;background:#111827;}
 .admin-board-existing-item span{display:flex;align-items:center;gap:4px;margin-top:5px;color:#fca5a5;font-size:10px;font-weight:900;}
 .admin-board-editor-status{min-height:16px;margin-top:7px;color:#94a3b8;font-size:10px;line-height:1.4;}
-.admin-board-report-card>button{margin-top:8px;border:0;border-radius:7px;background:#2563eb;color:#fff;padding:7px 10px;font-weight:900;}
+.admin-board-report-card>button{margin-top:8px;border:0;border-radius:7px;background:var(--app-accent-pressed);color:#fff;padding:7px 10px;font-weight:900;}
 .admin-board-report-details{margin-top:7px;font-size:11px;line-height:1.5;}
 .admin-board-block{border:0;border-radius:6px;background:#92400e;color:#fff;padding:6px 8px;font-size:10px;font-weight:900;white-space:nowrap;}
 .admin-board-block.is-blocked{background:#166534;}
@@ -5803,7 +5803,7 @@ body.light-mode .admin-board-rule-note{background:#fff7ed;color:#9a3412;border-c
 }
 .admin-board-image-nav.prev{left:10px;}
 .admin-board-image-nav.next{right:10px;}
-.admin-board-report-card>button{margin-top:8px;border:0;border-radius:7px;background:#2563eb;color:#fff;padding:7px 10px;font-weight:900;}
+.admin-board-report-card>button{margin-top:8px;border:0;border-radius:7px;background:var(--app-accent-pressed);color:#fff;padding:7px 10px;font-weight:900;}
 .admin-board-report-details{margin-top:7px;font-size:11px;line-height:1.5;}
 
 body.light-mode .admin-board-thread-sheet,
@@ -5876,8 +5876,8 @@ body.light-mode .admin-board-file-button{background:#fff;color:#111827!important
   font-weight:900;
 }
 .board-main-toolbar .btn-submit{
-  border-color:#3b82f6;
-  background:#3b82f6;
+  border-color:var(--app-accent);
+  background:var(--app-accent);
   color:#fff;
 }
 .board-main-body{min-height:160px;}
@@ -5916,7 +5916,7 @@ body.light-mode .admin-board-file-button{background:#fff;color:#111827!important
   cursor:pointer;
 }
 .admin-board-post-highlight{
-  box-shadow:0 0 0 2px #3b82f6 inset, 0 0 18px rgba(59,130,246,.28);
+  box-shadow:0 0 0 2px var(--app-accent) inset, 0 0 18px rgba(59,130,246,.28);
 }
 .admin-board-image-nav{
   display:flex;
@@ -5969,14 +5969,14 @@ body.light-mode .board-main-toolbar button{
   border-color:#94a3b8!important;
 }
 body.light-mode .board-main-toolbar .btn-submit{
-  background:#3b82f6!important;
+  background:var(--app-accent)!important;
   color:#fff!important;
   -webkit-text-fill-color:#fff!important;
-  border-color:#3b82f6!important;
+  border-color:var(--app-accent)!important;
 }
 body.light-mode .admin-board-thread-dates{color:#64748b!important;}
 body.light-mode .admin-board-post-number{color:#475569!important;}
-body.light-mode .admin-board-quote-link{color:#2563eb!important;-webkit-text-fill-color:#2563eb!important;}
+body.light-mode .admin-board-quote-link{color:var(--app-accent-pressed)!important;-webkit-text-fill-color:var(--app-accent-pressed)!important;}
 body.light-mode .admin-board-editor-body input::placeholder,
 body.light-mode .admin-board-editor-body textarea::placeholder,
 body.light-mode .admin-board-reply-form textarea::placeholder{
@@ -6075,7 +6075,7 @@ body.light-mode .admin-board-report-top{
   color:#6d28d9!important;
   -webkit-text-fill-color:#6d28d9!important;
 }
-body.light-mode .admin-board-report-user{color:#2563eb!important;-webkit-text-fill-color:#2563eb!important;}
+body.light-mode .admin-board-report-user{color:var(--app-accent-pressed)!important;-webkit-text-fill-color:var(--app-accent-pressed)!important;}
 body.light-mode .admin-board-storage-usage{background:#fff;color:#64748b;border-color:#cbd5e1;}
 body.light-mode .admin-board-storage-usage.warning{background:#fff7ed;color:#b45309;border-color:#f59e0b;}
 body.light-mode .admin-board-storage-usage.danger{background:#fef2f2;color:#b91c1c;border-color:#ef4444;}
@@ -6284,8 +6284,8 @@ body.light-mode:not(.admin-new-ui) #boardMainFixed .board-main-toolbar{backgroun
 }
 .admin-board-reply-bottom .btn-submit,
 .admin-board-editor-actions .btn-submit{
-  border:1px solid #3b82f6!important;
-  background:#3b82f6!important;
+  border:1px solid var(--app-accent)!important;
+  background:var(--app-accent)!important;
   color:#fff!important;
   -webkit-text-fill-color:#fff!important;
 }
@@ -6396,9 +6396,9 @@ body:not(.admin-new-ui) #btnBoardNewThread{
   min-width:136px!important;
   padding:0 14px!important;
   margin:0!important;
-  border:1px solid #3b82f6!important;
+  border:1px solid var(--app-accent)!important;
   border-radius:8px!important;
-  background:#3b82f6!important;
+  background:var(--app-accent)!important;
   color:#fff!important;
   -webkit-text-fill-color:#fff!important;
   font:inherit!important;
@@ -6615,7 +6615,7 @@ body.light-mode .admin-board-thread-summary{color:#64748b!important;}
   color:#e2e8f0!important;
 }
 .admin-master-mobile-hot input{
-  accent-color:#3b82f6;
+  accent-color:var(--app-accent);
 }
 .admin-master-mobile-actions{
   position:sticky;
@@ -6637,8 +6637,8 @@ body.light-mode .admin-board-thread-summary{color:#64748b!important;}
   font-weight:900;
 }
 #btnAdminMasterMobileSave{
-  background:#3b82f6;
-  border-color:#3b82f6;
+  background:var(--app-accent);
+  border-color:var(--app-accent);
   color:#fff;
 }
 #btnAdminMasterMobileDelete{

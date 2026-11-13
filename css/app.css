@@ -78,21 +78,21 @@
 
     .p-tabs { display: flex; background: #111827; width: 100%; padding: 2px; gap: 2px; }
     .p-tab-btn { flex: 1; padding: 10px 0; text-align: center; font-size: 13px; font-weight: bold; color: #9ca3af; background: #1f2937; cursor: pointer; }
-    .p-tab-btn.active { background: #3b82f6; color: #ffffff; }
+    .p-tab-btn.active { background: var(--app-accent); color: #ffffff; }
     .search-bar-container { display: flex; gap: 6px; width: 100%; padding: 6px 4px 4px 4px; background: #111827; }
     .search-input { flex: 1; padding: 8px; border: 1px solid #4b5563; background: #1f2937; color: white; font-size: 14px; outline: none; border-radius: 4px; }
-    .btn-add-inline { padding: 0 14px; font-size: 13px; font-weight: bold; background: #3b82f6; color: white; border: none; border-radius: 4px; cursor: pointer; display: flex; align-items: center; justify-content: center; white-space: nowrap; }
-    .btn-add-inline:active { background: #2563eb; }
+    .btn-add-inline { padding: 0 14px; font-size: 13px; font-weight: bold; background: var(--app-accent); color: white; border: none; border-radius: 4px; cursor: pointer; display: flex; align-items: center; justify-content: center; white-space: nowrap; }
+    .btn-add-inline:active { background: var(--app-accent-pressed); }
 
     /* === 4. リスト＆カード共通デザイン === */
     .p-container { padding: 4px; width: 100%; }
     .sk-section { margin-bottom: 12px; }
-    .sk-section h2 { font-size: 13px; font-weight: 900; color: #38bdf8; margin: 6px 0 4px 0; padding-left: 4px; border-left: 3px solid #2563eb; }
+    .sk-section h2 { font-size: 13px; font-weight: 900; color: #38bdf8; margin: 6px 0 4px 0; padding-left: 4px; border-left: 3px solid var(--app-accent-pressed); }
     .list-container { display: flex; flex-direction: column; gap: 4px; }
     
     /* 曲カードの外枠・配置はlayout-canonical.cssの.dc-cardで一元管理する。 */
     .m-action-btn { font-size: 11px; font-weight: bold; border: none; cursor: pointer; padding: 3px 8px; border-radius: 4px; transition: background 0.1s; }
-    .btn-e { color: #2563eb; background: #f3f4f6; }
+    .btn-e { color: var(--app-accent-pressed); background: #f3f4f6; }
     .btn-e:active { background: #e5e7eb; }
     .btn-d { color: #dc2626; background: #fee2e2; }
     .btn-d:active { background: #fca5a5; }
@@ -104,7 +104,7 @@
     .f-group label { display: block; font-size: 11px; font-weight: bold; margin-bottom: 2px; color: #4b5563; }
     .f-group input, .f-group select { width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #ccc; font-size: 16px; outline: none; }
     .btn-block { display: flex; gap: 6px; margin-top: 10px; }
-    .btn-submit { flex: 1; padding: 10px; background: #3b82f6; color: white; border: none; border-radius: 4px; font-weight: bold; font-size: 13px; }
+    .btn-submit { flex: 1; padding: 10px; background: var(--app-accent); color: white; border: none; border-radius: 4px; font-weight: bold; font-size: 13px; }
     .btn-cancel { flex: 1; padding: 10px; background: #e5e7eb; color: #4b5563; border: none; border-radius: 4px; font-weight: bold; font-size: 13px; }
   
 .auth-screen { min-height: 100vh; display:flex; align-items:center; justify-content:center; padding:20px; background:#111827; }
@@ -112,7 +112,7 @@
 .auth-card h1 { font-size:20px; margin-bottom:16px; text-align:center; }
 .auth-card label { display:block; font-size:12px; font-weight:bold; color:#9ca3af; margin:10px 0 4px; }
 .auth-card input { width:100%; padding:10px; border:1px solid #4b5563; border-radius:4px; background:#111827; color:#fff; font-size:16px; }
-.auth-card button { width:100%; margin-top:14px; padding:10px; border:0; border-radius:4px; background:#3b82f6; color:#fff; font-weight:bold; }
+.auth-card button { width:100%; margin-top:14px; padding:10px; border:0; border-radius:4px; background:var(--app-accent); color:#fff; font-weight:bold; }
 
 .auth-register-notice { margin:12px 0 2px; padding:10px 11px; border:1px solid #f59e0b; border-radius:6px; background:rgba(245,158,11,.08); color:#e5e7eb; font-size:12px; line-height:1.65; }
 .auth-register-notice strong { display:block; margin-bottom:3px; color:#fbbf24; font-size:13px; }
@@ -200,10 +200,10 @@ body { background:#0b1220; }
 .admin-close { border:0; background:#334155; color:#fff; border-radius:7px; padding:8px 11px; font-weight:bold; }
 .admin-tabs { display:flex; gap:6px; margin-top:10px; }
 .admin-tab { flex:1; min-height:40px; border:0; border-radius:7px; background:#1e293b; color:#94a3b8; font-weight:900; }
-.admin-tab.active { background:#3b82f6; color:#fff; }
+.admin-tab.active { background:var(--app-accent); color:#fff; }
 .admin-toolbar { display:flex; gap:6px; margin-top:8px; }
 .admin-toolbar input { flex:1; min-height:42px; background:#111827; border:1px solid #334155; color:#fff; border-radius:7px; padding:8px; }
-.admin-toolbar button { border:0; border-radius:7px; background:#3b82f6; color:#fff; padding:0 12px; font-weight:900; }
+.admin-toolbar button { border:0; border-radius:7px; background:var(--app-accent); color:#fff; padding:0 12px; font-weight:900; }
 .admin-body { flex:1 1 auto; min-height:0; padding:8px; overflow-y:auto; overscroll-behavior:contain; -webkit-overflow-scrolling:touch; }
 .admin-card { background:#fff; color:#111827; border-radius:8px; padding:10px; margin-bottom:7px; box-shadow:0 1px 3px rgba(0,0,0,.25); }
 .admin-card-top { display:flex; align-items:center; gap:6px; }
@@ -231,7 +231,7 @@ body { background:#0b1220; }
   border:0;
   border-radius:8px;
   padding:0 15px;
-  background:#3b82f6;
+  background:var(--app-accent);
   color:#fff;
   font-weight:900;
 }
@@ -605,14 +605,14 @@ body.light-mode .user-list-row-sparkle-rainbow:active {
   min-height: 46px;
   border: 0;
   border-radius: 9px;
-  background: #3b82f6;
+  background: var(--app-accent);
   color: #fff;
   font-size: 14px;
   font-weight: 900;
   cursor: pointer;
 }
 .site-dialog-ok:active {
-  background: #2563eb;
+  background: var(--app-accent-pressed);
 }
 
 /* === v14.9 スコア登録モーダルを中央表示 === */
@@ -713,7 +713,7 @@ body.light-mode .user-list-row-sparkle-rainbow:active {
 
 .mdl-sheet .f-group input:focus,
 .mdl-sheet .f-group select:focus {
-  border-color: #3b82f6 !important;
+  border-color: var(--app-accent) !important;
   box-shadow: 0 0 0 2px rgba(59, 130, 246, .18);
 }
 
@@ -754,7 +754,7 @@ body.light-mode .user-list-row-sparkle-rainbow:active {
 }
 
 .mdl-sheet .btn-submit {
-  background: #3b82f6 !important;
+  background: var(--app-accent) !important;
   color: #ffffff !important;
 }
 
@@ -1098,7 +1098,7 @@ body.light-mode .user-list-row-sparkle-rainbow:active {
 
 #mypageModal .btn-name-change,
 #mypageModal .btn-submit {
-  background: #3b82f6 !important;
+  background: var(--app-accent) !important;
   color: #fff !important;
 }
 
@@ -1414,9 +1414,9 @@ body.light-mode .record-rank-filter-field {
 #btnOpenLevelCorrection,
 #btnSendLevelCorrection {
   flex-shrink: 0;
-  border: 1px solid #3b82f6;
+  border: 1px solid var(--app-accent);
   border-radius: 6px;
-  background: #3b82f6;
+  background: var(--app-accent);
   color: #fff;
   font-weight: 900;
 }
@@ -1569,7 +1569,7 @@ body.light-mode .record-rank-filter-field {
   position: sticky;
   bottom: 0;
   z-index: 3;
-  border-top: 1px solid #2563eb !important;
+  border-top: 1px solid var(--app-accent-pressed) !important;
   border-bottom: 0 !important;
   background: #172554 !important;
   color: #bfdbfe !important;
@@ -1591,9 +1591,9 @@ body.light-mode .record-rank-filter-field {
   width:100%;
   min-height:44px;
   margin-top:8px;
-  border:1px solid #2563eb;
+  border:1px solid var(--app-accent-pressed);
   border-radius:8px;
-  background:#3b82f6;
+  background:var(--app-accent);
   color:#fff;
   font-weight:900;
 }
@@ -1655,7 +1655,7 @@ body.light-mode .record-rank-filter-field {
   width:26px;
   height:26px;
   border-radius:999px;
-  background:#3b82f6;
+  background:var(--app-accent);
   color:#fff;
   font-size:12px;
   font-weight:900;
@@ -2466,7 +2466,7 @@ html.ios-viewport-repair {
 /* === v21 FIX22: 導入 / MENU / SHARE === */
 .intro-screen{min-height:100dvh;background:radial-gradient(circle at 50% 0,#172554 0,#0b1220 42%,#060b14 100%);color:#f8fafc;padding:42px 20px 24px;box-sizing:border-box}
 .intro-hero{max-width:520px;margin:0 auto;text-align:center}.intro-logo{font-size:12px;letter-spacing:.35em;font-weight:900;color:#93c5fd}.intro-hero h1{font-size:34px;margin:6px 0 10px}.intro-hero p{font-size:13px;line-height:1.7;color:#cbd5e1;margin:0 auto 24px;max-width:360px}
-.intro-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}.intro-actions button{min-height:48px;border-radius:10px;font-size:14px;font-weight:900}.intro-primary{border:0;background:#3b82f6;color:#fff}.intro-secondary{border:1px solid #475569;background:#111827;color:#fff}
+.intro-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}.intro-actions button{min-height:48px;border-radius:10px;font-size:14px;font-weight:900}.intro-primary{border:0;background:var(--app-accent);color:#fff}.intro-secondary{border:1px solid #475569;background:#111827;color:#fff}
 .intro-features{max-width:520px;margin:28px auto 0;display:grid;gap:9px}.intro-features div{display:grid;grid-template-columns:64px 1fr;align-items:center;padding:13px;border:1px solid #1e293b;border-radius:10px;background:rgba(15,23,42,.78)}.intro-features strong{font-size:11px;color:#60a5fa}.intro-features span{font-size:12px;color:#e2e8f0}.intro-note{text-align:center;font-size:9px;color:#64748b;margin-top:24px}
 .menu-entry{border:1px solid #334155;background:#1e293b;color:#fff;border-radius:7px;min-width:38px;height:34px;font-size:20px;font-weight:900}
 .app-menu-sheet{width:min(88vw,380px);background:#0f172a;color:#fff;border:1px solid #334155;border-radius:14px;padding:14px;position:absolute;top:58px;right:10px;box-shadow:0 20px 50px rgba(0,0,0,.45)}
@@ -3499,7 +3499,7 @@ body:not(.admin-new-ui) .users-toolbar{display:block !important;position:sticky;
   border-color:#60a5fa !important;
 }
 .master-new-row .master-row-save{
-  background:#3b82f6 !important;
+  background:var(--app-accent) !important;
   color:#fff !important;
 }
 .master-new-row .master-row-delete{
@@ -3548,7 +3548,7 @@ body:not(.admin-new-ui) .users-toolbar{display:block !important;position:sticky;
 .feature-setting-row input[type="checkbox"]{
   width:22px;
   height:22px;
-  accent-color:#2563eb;
+  accent-color:var(--app-accent-pressed);
 }
 .feature-settings-status{
   min-height:18px;
@@ -3600,7 +3600,7 @@ body:not(.admin-new-ui) .users-toolbar{display:block !important;position:sticky;
   font-size:12px;
 }
 .user-detail-tab.active{
-  background:#3b82f6;
+  background:var(--app-accent);
   color:#fff;
 }
 .dc-card-public .dc-edit{ display:none !important; }
@@ -3643,7 +3643,7 @@ body.light-mode .feature-setting-row{
 }
 body.light-mode .p-tab-btn.active,
 body.light-mode .user-detail-tab.active{
-  background:#3b82f6 !important;
+  background:var(--app-accent) !important;
   color:#fff !important;
 }
 body.light-mode .user-detail-tab{
@@ -3725,7 +3725,7 @@ body.light-mode .p-tab-btn{
   color:#111827 !important;
 }
 body.light-mode .p-tab-btn.active{
-  background:#3b82f6 !important;
+  background:var(--app-accent) !important;
   color:#ffffff !important;
 }
 
@@ -4241,7 +4241,7 @@ body.light-mode #viewAllManage .m-edit-btn{
   margin:0 !important;
   border:1px solid #1d4ed8 !important;
   border-radius:6px !important;
-  background:#3b82f6 !important;
+  background:var(--app-accent) !important;
   color:#ffffff !important;
   -webkit-text-fill-color:#ffffff !important;
   font-weight:900 !important;
@@ -4260,7 +4260,7 @@ body.light-mode #viewAllManage .m-btn-edit{
   margin:0 !important;
   border:1px solid #1d4ed8 !important;
   border-radius:6px !important;
-  background:#3b82f6 !important;
+  background:var(--app-accent) !important;
   color:#fff !important;
   -webkit-text-fill-color:#fff !important;
   box-shadow:0 1px 2px rgba(15,23,42,.18) !important;
@@ -4291,9 +4291,9 @@ body.light-mode .p-tab-btn{
   box-shadow:0 1px 1px rgba(15,23,42,.05) !important;
 }
 body.light-mode .p-tab-btn.active{
-  background:#3b82f6 !important;
+  background:var(--app-accent) !important;
   color:#ffffff !important;
-  border-color:#2563eb !important;
+  border-color:var(--app-accent-pressed) !important;
 }
 
 /* RAN等は淡い文字ではなく濃い色で */
@@ -4400,7 +4400,7 @@ body.light-mode #domModal .master-request-note{
 /* 難易度報告ボタンは青のまま、周囲だけライト化 */
 body.light-mode #domModal .btn-request-master,
 body.light-mode #domModal [data-request-level-correction]{
-  background:#3b82f6 !important;
+  background:var(--app-accent) !important;
   color:#ffffff !important;
   -webkit-text-fill-color:#ffffff !important;
 }
@@ -4456,7 +4456,7 @@ body.light-mode #domModal .level-correction-note{
 
 body.light-mode #domModal #btnOpenLevelCorrection,
 body.light-mode #domModal #btnSendLevelCorrection{
-  background:#3b82f6 !important;
+  background:var(--app-accent) !important;
   color:#ffffff !important;
   -webkit-text-fill-color:#ffffff !important;
   border:1px solid #1d4ed8 !important;
@@ -4693,7 +4693,7 @@ body.light-mode .site-dialog button{
 }
 body.light-mode .site-dialog .site-dialog-confirm,
 body.light-mode .site-dialog .btn-primary{
-  background:#3b82f6 !important;
+  background:var(--app-accent) !important;
   color:#ffffff !important;
   -webkit-text-fill-color:#ffffff !important;
 }
@@ -4775,8 +4775,8 @@ body.light-mode #mypageModal #mypageXIdInput::placeholder{
 }
 body.light-mode #mypageModal .mypage-close{
   background:transparent !important;
-  color:#2563eb !important;
-  -webkit-text-fill-color:#2563eb !important;
+  color:var(--app-accent-pressed) !important;
+  -webkit-text-fill-color:var(--app-accent-pressed) !important;
 }
 
 /* 2. 登録曲詳細：上部サマリー/オプション欄/比較ヘッダーをライト化 */
@@ -4819,10 +4819,10 @@ body.light-mode .rate-compare-dialog [class*="rate-"][class*="head"]:not(.rate-c
 /* 3. 機能設定：主要アクションの文字色は他ボタン同様に白 */
 body.light-mode #btnSaveFeatureSettings,
 body.light-mode .feature-settings-save{
-  background:#3b82f6 !important;
+  background:var(--app-accent) !important;
   color:#ffffff !important;
   -webkit-text-fill-color:#ffffff !important;
-  border-color:#2563eb !important;
+  border-color:var(--app-accent-pressed) !important;
 }
 
 /* 4. スキル対象同期：旧ダーク固定部を全てライト化 */
@@ -4848,7 +4848,7 @@ body.light-mode .skill-sync-dialog .skill-sync-status.running{
   background:#dbeafe !important;
   color:#1d4ed8 !important;
   -webkit-text-fill-color:#1d4ed8 !important;
-  border-color:#3b82f6 !important;
+  border-color:var(--app-accent) !important;
 }
 body.light-mode .skill-sync-dialog .skill-sync-status.success{
   background:#dcfce7 !important;
@@ -5038,7 +5038,7 @@ body.light-mode .rival-manage-dialog .favorite-user-open:active{
 .feedback-history-reply{
   margin-top:8px;
   padding:8px;
-  border-left:3px solid #2563eb;
+  border-left:3px solid var(--app-accent-pressed);
   border-radius:5px;
   background:#0b1220;
 }
@@ -5098,7 +5098,7 @@ body.light-mode .rival-manage-dialog .favorite-user-open:active{
   padding:0 12px;
   border:1px solid #1d4ed8;
   border-radius:6px;
-  background:#3b82f6;
+  background:var(--app-accent);
   color:#fff;
   font-size:10px;
   font-weight:900;
@@ -5106,7 +5106,7 @@ body.light-mode .rival-manage-dialog .favorite-user-open:active{
 .feedback-admin-replied{
   margin-top:8px;
   padding:8px;
-  border-left:3px solid #2563eb;
+  border-left:3px solid var(--app-accent-pressed);
   border-radius:5px;
   background:#eff6ff;
   color:#1e293b;
@@ -5147,7 +5147,7 @@ body.light-mode .feedback-history-message{
 }
 body.light-mode .feedback-history-reply{
   background:#dbeafe !important;
-  border-left-color:#2563eb !important;
+  border-left-color:var(--app-accent-pressed) !important;
 }
 body.light-mode .feedback-history-reply-label{
   color:#1d4ed8 !important;
@@ -5379,8 +5379,8 @@ body.light-mode #btnCloseRivalManage.menu-back-btn,
 body.light-mode #btnCloseHowTo.menu-back-btn,
 body.light-mode #btnCloseFeedback.menu-back-btn{
   background:transparent !important;
-  color:#2563eb !important;
-  -webkit-text-fill-color:#2563eb !important;
+  color:var(--app-accent-pressed) !important;
+  -webkit-text-fill-color:var(--app-accent-pressed) !important;
   border:0 !important;
   box-shadow:none !important;
 }
@@ -5454,7 +5454,7 @@ body.light-mode .feedback-history-env{
   border:1px solid #cbd5e1;border-radius:6px;background:#fff;
   color:#111827;font-size:13px;font-weight:900
 }
-.request-title-edit:focus{outline:2px solid rgba(37,99,235,.22);border-color:#2563eb}
+.request-title-edit:focus{outline:2px solid rgba(37,99,235,.22);border-color:var(--app-accent-pressed)}
 body.light-mode .request-title-edit{
   background:#fff!important;color:#111827!important;
   -webkit-text-fill-color:#111827!important;border-color:#94a3b8!important

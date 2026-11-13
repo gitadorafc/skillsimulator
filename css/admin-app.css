@@ -1,3 +1,16 @@
+/* Admin action palette: one source of truth for existing blue primary controls.
+   Public UI keeps its original :root --app-accent values. Semantic GF/DM,
+   share/save colors, danger, medals and rainbow skill effects are unchanged. */
+body.admin-new-ui {
+ --app-accent:#246b82;
+ --app-accent-pressed:#19566a;
+ --app-accent-soft:#dceff2;
+}
+body.admin-new-ui.light-mode {
+ --app-accent:#236d83;
+ --app-accent-pressed:#195568;
+ --app-accent-soft:#e4f1f3;
+}
 /* Admin registered rows: layout only; reuse public UI color, badge, and skill tokens. */
 body.admin-new-ui :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords){width:100%;max-width:none;display:block;--ar-cols:40px 70px minmax(160px,1fr) 82px 55px 87px 74px 62px 76px 48px}
 body.admin-new-ui :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords).hidden{display:none!important}
@@ -176,7 +189,7 @@ body.admin-new-ui #searchArea.admin-filters-expanded .record-filter-row label{mi
 body.admin-new-ui #searchArea.admin-filters-expanded .record-filter-row select{width:100%;min-width:0;}
 body.admin-new-ui :is(#searchArea #btnAdminRecordFilters,#userListHeaderSlot #btnAdminUserFilters,.admin-filter-toggle-button) svg{width:21px;height:21px;display:block;}
 @media(max-width:650px){body.admin-new-ui #searchArea.admin-filters-expanded .record-filter-row{grid-template-columns:repeat(2,minmax(0,1fr))!important;}}
-body.admin-new-ui :is(#searchArea.admin-filters-expanded #btnAdminRecordFilters,#userListHeaderSlot.admin-user-filters-expanded #btnAdminUserFilters,#songCatalogMask .song-catalog-controls.admin-catalog-filters-open > .admin-catalog-filter-toggle){border-color:#3b82f6;background:#254d86;}
+body.admin-new-ui :is(#searchArea.admin-filters-expanded #btnAdminRecordFilters,#userListHeaderSlot.admin-user-filters-expanded #btnAdminUserFilters,#songCatalogMask .song-catalog-controls.admin-catalog-filters-open > .admin-catalog-filter-toggle){border-color:var(--app-accent);background:#254d86;}
 body.admin-new-ui #searchArea .admin-bulk-delete-area{margin-top:0;}
 body.admin-new-ui #btnHeaderAdd{white-space:nowrap;}
 
@@ -261,7 +274,7 @@ body.admin-new-ui .admin-filter-toggle-button {
 }
 body.admin-new-ui #boardMainFixed #btnBoardNewThread,
 body.admin-new-ui #searchArea #btnHeaderAdd {
-  background:#3b82f6;border-color:#3b82f6;color:white;-webkit-text-fill-color:white;
+  background:var(--app-accent);border-color:var(--app-accent);color:white;-webkit-text-fill-color:white;
 }
 body.admin-new-ui #boardMainFixed #btnBoardNewThread {white-space:nowrap;}
 /* Board toolbar uses shared search geometry; retain its bottom spacing. */
