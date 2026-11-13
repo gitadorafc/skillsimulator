@@ -939,8 +939,8 @@ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetail
 
  /* In the desktop workspace, the mask is the sole vertical scroller.
     The compact modal's nested scroll areas otherwise swallow wheel input
-    over the help text and catalog rows. Keep mobile modal scrolling intact. */
- body.admin-new-ui :is(#howToMask .howto-body,#songCatalogMask .song-catalog-body) {
+    over help text, catalog rows and official ranking entries. Keep mobile modal scrolling intact. */
+ body.admin-new-ui :is(#howToMask .howto-body,#songCatalogMask .song-catalog-body,#officialSkillRankingMask .official-ranking-body) {
    flex:0 0 auto;
    overflow:visible;
    overscroll-behavior:auto;
