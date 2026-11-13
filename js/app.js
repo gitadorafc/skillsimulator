@@ -5192,7 +5192,6 @@ async function checkAdminAccess() {
   if (!adminNewUi) restoreAdminUnifiedMenuScreens();
   if (adminNewUi) {
     initAdminUnifiedMenuScreens();
-    requestAnimationFrame(ensureDesktopMenuTree);
     // Start the same users RPC while the first tab is being prepared, so
     // the first user-list visit can reuse its result or its in-flight promise.
     void fetchAdminUserListCached('', activeInstrument, activeVersionId)
@@ -5244,6 +5243,9 @@ async function checkAdminAccess() {
   $('adminBulkDeleteArea')?.classList.toggle('hidden', !primaryAdminEnabled);
   $('btnMenuOfficialSkillRanking')?.classList.remove('hidden');
   $('officialRankingAdminControls')?.classList.toggle('hidden', !adminEnabled);
+  // Build the PC menu only after all source entries have their final visibility.
+  // Otherwise the initially-hidden official ranking entry is omitted from the cloned tree.
+  if (adminNewUi) requestAnimationFrame(ensureDesktopMenuTree);
 
   try {
     await loadTagData();
