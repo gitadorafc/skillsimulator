@@ -1295,6 +1295,27 @@ const DISPLAY_CUSTOMIZATION_KEYS = Object.freeze({
   textSizeUp: 'gitadora_text_size_up'
 });
 
+// 未保存のテーマ変更はログイン時のDB同期で上書きしない。ユーザー別に保持し、
+// 「保存する」が成功した時点でのみ未保存フラグを消す。
+const LIGHT_MODE_PENDING_PREFIX = 'gitadora_light_mode_pending:';
+function pendingLightModeKey() {
+  return currentUserId ? `${LIGHT_MODE_PENDING_PREFIX}${currentUserId}` : null;
+}
+function getPendingLightMode() {
+  const key = pendingLightModeKey();
+  if (!key) return null;
+  const value = localStorage.getItem(key);
+  return value === '1' ? true : value === '0' ? false : null;
+}
+function setPendingLightMode(enabled) {
+  const key = pendingLightModeKey();
+  if (key) localStorage.setItem(key, enabled ? '1' : '0');
+}
+function clearPendingLightMode() {
+  const key = pendingLightModeKey();
+  if (key) localStorage.removeItem(key);
+}
+
 const GF_DEFAULT_OPTIONS = Object.freeze(['NORMAL','RAN','SRA','RAN+','SRA+']);
 const GF_DEFAULT_OPTION_STORAGE_PREFIX = 'gitadora_gf_default_option:';
 
@@ -1377,6 +1398,8 @@ async function syncMyDisplaySettings() {
   if (!currentUserId) return readLocalDisplaySettings();
 
   const localSettings = readLocalDisplaySettings();
+  const pendingLightMode = getPendingLightMode();
+  if (pendingLightMode !== null) localSettings.lightMode = pendingLightMode;
 
   try {
     const { data, error } = await supabase.rpc('get_my_display_settings');
@@ -1388,12 +1411,14 @@ async function syncMyDisplaySettings() {
     // DBの初期値で既存設定を上書きしない。
     if (!row?.has_settings) {
       await saveMyDisplaySettingsToSupabase(localSettings);
+      clearPendingLightMode();
       return writeLocalDisplaySettings(localSettings);
     }
 
-    // 移行後はSupabaseを正として別端末にも同じ設定を反映する。
+    // 保存済み設定はDBを正とする。ただし端末で切り替えた未保存のテーマは
+    // 再読み込み後も優先し、「保存する」を押した時点でDBへ確定する。
     return writeLocalDisplaySettings({
-      lightMode: Boolean(row.light_mode),
+      lightMode: pendingLightMode ?? Boolean(row.light_mode),
       skillTargetColumns: Boolean(row.skill_target_columns),
       textSizeUp: Boolean(row.text_size_up),
       gfDefaultOption: row.gf_default_option || 'NORMAL'
@@ -1636,6 +1661,7 @@ async function saveFeatureSettings() {
       gfDefaultOption: $('settingGfDefaultOption')?.value || 'NORMAL'
     });
     await saveMyDisplaySettingsToSupabase(displaySettings);
+    clearPendingLightMode();
     if (skillTargetColumns && $('recordTypeFilter')) $('recordTypeFilter').value = '';
     render();
 
@@ -8152,6 +8178,7 @@ $('settingLightMode').addEventListener('change', e => {
   // サーバー上の他の表示設定は「保存する」でまとめて確定する。
   const enabled = e.target.checked;
   localStorage.setItem('gitadora_light_mode', enabled ? '1' : '0');
+  setPendingLightMode(enabled);
   applyLightMode(enabled);
 });
 $('btnSaveXId').addEventListener('click', saveMyXId);
