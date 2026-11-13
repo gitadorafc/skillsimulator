@@ -7,12 +7,12 @@ body.admin-new-ui :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailReco
 body.admin-new-ui :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-table-head{padding:9px;margin-bottom:5px;background:#09324f;border:1px solid #1b678a;border-radius:7px;color:#9be9fc;font-size:12px;font-weight:800;text-align:center}
 body.admin-new-ui :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-table-head span{white-space:nowrap;min-width:0}
 body.admin-new-ui :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-table-head span:nth-child(3){text-align:left}
-body.admin-new-ui :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-record{position:relative;padding:7px;min-height:80px;border:2px solid transparent;border-radius:7px;background:linear-gradient(90deg,#112c55,#281531 15%,#0c1728 65%) padding-box,var(--admin-song-border-image,linear-gradient(#475569,#475569)) border-box !important;color:#edf8ff;font-size:13px}
+body.admin-new-ui :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-record{position:relative;padding:7px;min-height:80px;border:2px solid transparent;border-radius:7px;background:linear-gradient(90deg,#112c55,#281531 15%,#0c1728 65%) padding-box,linear-gradient(rgba(255,255,255,var(--admin-border-pulse-alpha)),rgba(255,255,255,var(--admin-border-pulse-alpha))) border-box,var(--admin-song-border-image,linear-gradient(#475569,#475569)) border-box !important;color:#edf8ff;font-size:13px}
 body.admin-new-ui :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-record>*{min-width:0}
 /* Light theme: explicit contrast for admin cards. Layout, skill-color border,
    and the shared public sparkle animation remain identical in both themes. */
 body.admin-new-ui.light-mode :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-record{
- background:linear-gradient(#f3f4f6,#f3f4f6) padding-box,var(--admin-song-border-image,linear-gradient(#475569,#475569)) border-box !important;color:#17243a;
+ background:linear-gradient(#f3f4f6,#f3f4f6) padding-box,linear-gradient(rgba(255,255,255,var(--admin-border-pulse-alpha)),rgba(255,255,255,var(--admin-border-pulse-alpha))) border-box,var(--admin-song-border-image,linear-gradient(#475569,#475569)) border-box !important;color:#17243a;
 }
 body.admin-new-ui.light-mode :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) :is(.ar-song-name,.ar-level,.ar-rate),
 body.admin-new-ui.light-mode :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) :is(.ar-level,.ar-rate) strong{
@@ -97,11 +97,22 @@ body.admin-new-ui.light-mode :is(#viewSkill,#viewAllManage,#userDetailSkill,#use
   filter:drop-shadow(0 1px 1px rgba(30,41,59,.72));
 }
 
-/* Admin card border: two background layers, clipped by the native rounded
-   2px border. The opaque padding-box fill prevents the color layer from
-   bleeding into card content. The image token is normalized at render time
-   so that both solid and gradient skill tiers are valid CSS background images.
-   Keep this declaration above; never revive the retired masks/border-image. */
+/* The opaque padding-box protects the existing card fill. The second layer
+   brightens only the transparent 2px border during the sparkle cycle; the
+   third layer paints the skill gradient. All use native rounded backgrounds,
+   avoiding the previous mask / border-image rasterization problems. */
+@property --admin-border-pulse-alpha {
+ syntax:"<number>";
+ inherits:false;
+ initial-value:0;
+}
+@keyframes admin-song-border-pulse {
+ 0%,100% { --admin-border-pulse-alpha:0; }
+ 50% { --admin-border-pulse-alpha:.56; }
+}
+body.admin-new-ui :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-record.skill-row-sparkle-rainbow {
+ animation:admin-song-border-pulse var(--skill-sparkle-cycle,1.6s) ease-in-out infinite;
+}
 body.admin-new-ui :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-metrics{display:contents}
 body.admin-new-ui :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-no{font-size:12px;color:#84b5d0;text-align:center;font-variant-numeric:tabular-nums}
 body.admin-new-ui :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-art{width:70px;height:70px;display:grid;place-items:center;background:#0b2d49;border-radius:5px;overflow:hidden}

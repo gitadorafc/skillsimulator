@@ -3965,7 +3965,7 @@ function syncAdminPublicPulsePhase() {
   const phase = glow.currentTime;
   const names = new Set([
     'skill-sparkle-text-glow', 'skill-sparkle-text-sweep',
-    'skill-sparkle-border-pulse', 'skill-sparkle-band-pulse'
+    'skill-sparkle-border-pulse', 'skill-sparkle-band-pulse', 'admin-song-border-pulse'
   ]);
   const align = animation => {
     if (!names.has(animation.animationName) || animation.currentTime == null) return;
