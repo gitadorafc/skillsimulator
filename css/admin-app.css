@@ -7,12 +7,12 @@ body.admin-new-ui :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailReco
 body.admin-new-ui :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-table-head{padding:9px;margin-bottom:5px;background:#09324f;border:1px solid #1b678a;border-radius:7px;color:#9be9fc;font-size:12px;font-weight:800;text-align:center}
 body.admin-new-ui :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-table-head span{white-space:nowrap;min-width:0}
 body.admin-new-ui :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-table-head span:nth-child(3){text-align:left}
-body.admin-new-ui :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-record{position:relative;padding:8px;min-height:80px;border:1px solid transparent;border-radius:7px;background:linear-gradient(90deg,#112c55,#281531 15%,#0c1728 65%);color:#edf8ff;font-size:13px}
+body.admin-new-ui :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-record{position:relative;padding:7px;min-height:80px;border:2px solid transparent;border-radius:7px;background:linear-gradient(90deg,#112c55,#281531 15%,#0c1728 65%) padding-box,linear-gradient(rgba(255,255,255,var(--admin-skill-border-flash,0)),rgba(255,255,255,var(--admin-skill-border-flash,0))) border-box,var(--song-skill-border,#475569) border-box;color:#edf8ff;font-size:13px}
 body.admin-new-ui :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-record>*{min-width:0}
 /* Light theme: explicit contrast for admin cards. Layout, skill-color border,
    and the shared public sparkle animation remain identical in both themes. */
 body.admin-new-ui.light-mode :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-record{
- background:#f3f4f6 !important;color:#17243a;
+ background:linear-gradient(#f3f4f6,#f3f4f6) padding-box,linear-gradient(rgba(255,255,255,var(--admin-skill-border-flash,0)),rgba(255,255,255,var(--admin-skill-border-flash,0))) border-box,var(--song-skill-border,#475569) border-box !important;color:#17243a;
 }
 body.admin-new-ui.light-mode :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) :is(.ar-song-name,.ar-level,.ar-rate),
 body.admin-new-ui.light-mode :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) :is(.ar-level,.ar-rate) strong{
@@ -97,27 +97,19 @@ body.admin-new-ui.light-mode :is(#viewSkill,#viewAllManage,#userDetailSkill,#use
   filter:drop-shadow(0 1px 1px rgba(30,41,59,.72));
 }
 
-/* Single admin-only skill border. Exact 2px inset and rounded cutout;
-   no border-image (which does not follow border-radius). Card background is untouched. */
-body.admin-new-ui :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-record::before{
- content:"";position:absolute;inset:0;box-sizing:border-box;
- padding:2px;
- border-radius:inherit;
- background:var(--song-skill-border,#475569);
- -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
- -webkit-mask-composite:xor;
- mask-composite:exclude;
- pointer-events:none;z-index:2;
+/* The border and opaque card fill are separate background layers on the SAME
+   rounded border box. Unlike border-image, this follows border-radius; unlike
+   masked pseudo-elements, it cannot introduce independent subpixel edges.
+   The first padding-box layer is fully opaque so border colors never bleed
+   into the card fill. Admin only; the public UI retains its own styling. */
+@property --admin-skill-border-flash {
+ syntax:"<number>";inherits:false;initial-value:0;
 }
-/* Keep the skill-color outline at a visually consistent 2px. The public
-   animation adds a 1-4px drop shadow which makes individual rainbow edges
-   appear thicker at different colors and animation phases. Preserve the
-   synchronized brightness/opacity pulse, without expanding the outline. */
 @keyframes admin-skill-border-pulse {
-  0%,100% {opacity:.78;filter:brightness(1.05)}
-  50% {opacity:1;filter:brightness(1.85)}
+ 0%,100% {--admin-skill-border-flash:0}
+ 50% {--admin-skill-border-flash:.25}
 }
-body.admin-new-ui :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-record.skill-row-sparkle-rainbow::before {
+body.admin-new-ui :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-record.skill-row-sparkle-rainbow {
  animation:admin-skill-border-pulse var(--skill-sparkle-cycle,1.6s) ease-in-out infinite;
 }
 body.admin-new-ui :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-metrics{display:contents}
@@ -320,7 +312,7 @@ body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill,#user
  body.admin-new-ui:not(.skill-target-columns) #viewAllManage .ar-table-head{display:none;}
  body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-record{
    grid-template-columns:40px minmax(0,1fr) 67px 32px;
-   grid-template-rows:20px 20px;gap:3px 2px;padding:5px;min-height:53px;
+   grid-template-rows:20px 20px;gap:3px 2px;padding:4px;min-height:53px;
  }
  body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-no{display:none;}
  body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-art{
@@ -448,7 +440,7 @@ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetail
  body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetailSkill,#userDetailRecords) .ar-record {
    grid-template-columns:40px minmax(0,1fr) 20px;
    grid-template-rows:20px 20px 20px;
-   column-gap:2px;row-gap:2px;min-height:76px;padding:5px;
+   column-gap:2px;row-gap:2px;min-height:76px;padding:4px;
    -webkit-text-size-adjust:100%;text-size-adjust:100%;
  }
  body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetailSkill,#userDetailRecords) .ar-art {
@@ -519,7 +511,7 @@ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetail
  body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetailSkill,#userDetailRecords) .ar-record {
    grid-template-columns:48px minmax(0,1fr) 28px;
    grid-template-rows:24px 24px;column-gap:4px;row-gap:2px;
-   min-height:60px;padding:5px 6px;
+   min-height:60px;padding:4px 5px;
  }
  body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetailSkill,#userDetailRecords) .ar-art {
    width:45px;height:45px;align-self:center;
@@ -893,7 +885,7 @@ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetail
  body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) {--ar-cols:30px 64px minmax(125px,1fr) 80px 54px 92px 52px 78px 82px 42px;}
  body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-record,
  body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-table-head {column-gap:8px;}
- body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-record {grid-template-rows:46px;min-height:54px;padding:3px 6px;overflow:hidden;}
+ body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-record {grid-template-rows:46px;min-height:54px;padding:2px 5px;overflow:hidden;}
  body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-no {grid-column:1;grid-row:1;}
  body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-art {grid-column:2;grid-row:1;width:44px;height:44px;justify-self:start;}
  body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-title {grid-column:3;grid-row:1;}
