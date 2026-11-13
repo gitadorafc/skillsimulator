@@ -4025,7 +4025,17 @@ function ensureAdminPulseObserver() {
   adminPulseObserver = new MutationObserver(mutations => {
     if (mutations.some(mutation => mutation.addedNodes.length)) scheduleAdminPublicPulsePhase();
   });
-  for (const root of roots) adminPulseObserver.observe(root,{childList:true,subtree:true});
+  for (const root of roots) adminPulseObserver.observe(root,{
+    childList:true,subtree:true,attributes:true,attributeFilter:['class']
+  });
+  // When a recycled card starts animating during a scroll, its new clock
+  // otherwise starts at zero while the fixed header continues running.
+  // Reuse the existing coalesced phase alignment, never a polling loop.
+  for (const root of roots) root.addEventListener('animationstart', event => {
+    if (event.target.closest?.('.ar-record.skill-row-sparkle-rainbow')) {
+      scheduleAdminPublicPulsePhase();
+    }
+  });
 }
 
 function render() {
@@ -8486,6 +8496,9 @@ window.addEventListener('resize', () => {
   $('adminBody')
 ].filter(Boolean).forEach(scroller => {
   scroller.addEventListener('scroll', markAppScrolling, { passive:true });
+  // Scrolling can recycle/restart skill-row animations without inserting
+  // new DOM nodes; keep them phase-locked to the header during scroll.
+  scroller.addEventListener('scroll', scheduleAdminPublicPulsePhase, { passive:true });
 });
 applyLightMode();
 
