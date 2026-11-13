@@ -702,18 +702,19 @@ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetail
  }
  body.admin-new-ui .admin-workspace-panel .tag-settings-actions > #btnCancelTagSettings {display:none;}
  body.admin-new-ui .admin-workspace-panel .tag-settings-actions #btnSaveTagSettings {margin:0;}
- /* Mypage account operations form one right-aligned, wrapping action group.
-    Notes stay immediately under their respective buttons, aligned to the right. */
+ /* Desktop mypage: three equal action columns keep their buttons and notes
+    aligned without long warning text pushing buttons apart. */
  body.admin-new-ui .admin-workspace-panel .mypage-account-actions {
-   display:flex;justify-content:flex-end;align-items:flex-start;
-   flex-wrap:wrap;gap:12px 18px;margin-top:16px;padding-top:16px;
+   display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
+   align-items:start;gap:12px;max-width:720px;
+   margin:16px 0 0 auto;padding-top:16px;
    border-top:1px solid #334155;
  }
  body.admin-new-ui .admin-workspace-panel .mypage-account-actions > :is(
    .mypage-user-switch,.mypage-logout-zone,.danger-zone
  ) {
    display:flex;flex:0 1 auto;flex-direction:column;align-items:flex-end;
-   justify-content:flex-start;gap:6px;min-width:0;max-width:100%;
+   justify-content:flex-start;gap:6px;min-width:0;width:100%;
    margin:0;padding:0;border:0;text-align:right;
  }
  body.admin-new-ui .admin-workspace-panel .mypage-account-actions > .hidden {display:none!important;}
