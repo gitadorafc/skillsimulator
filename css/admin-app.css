@@ -1034,8 +1034,8 @@ body.admin-new-ui.light-mode #songCatalogMask .admin-catalog-jacket {
 /* Read-only user-detail cards: the editing slot does not exist in the layout. */
 body.admin-new-ui :is(#userDetailSkill,#userDetailRecords) .ar-record.ar-readonly .ar-edit {display:none;}
 
-/* Admin rival rows: a single card surface, not nested bordered cards.
-   Scoped to the admin UI; the public rival layout remains untouched. */
+/* Admin rival rows: independent user-info and delete surfaces.
+   Public rival cards retain the original layout. */
 body.admin-new-ui #rivalManageMask {
   --admin-rival-surface:#162235;
   --admin-rival-border:#3a4e67;
@@ -1046,33 +1046,39 @@ body.admin-new-ui.light-mode #rivalManageMask {
   --admin-rival-border:#b3c3d6;
   --admin-rival-hover:#dce7f2;
 }
-body.admin-new-ui #rivalManageMask .favorite-user-list {display:grid;gap:7px;}
-body.admin-new-ui #rivalManageMask .favorite-user-row {
-  margin:0;
-  padding:6px 8px;
-  min-height:52px;
+body.admin-new-ui #rivalManageMask .favorite-user-list {
   display:grid;
+  gap:6px;
+}
+body.admin-new-ui #rivalManageMask .favorite-user-row {
+  display:grid!important;
   grid-template-columns:minmax(0,1fr) auto!important;
+  align-items:stretch!important;
+  gap:8px!important;
+  min-height:0;
+  margin:0!important;
+  padding:0!important;
+  border:0!important;
+  border-radius:0;
+  background:transparent!important;
+  box-shadow:none!important;
+}
+body.admin-new-ui #rivalManageMask .favorite-user-open {
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) 76px!important;
+  grid-template-areas:"name skill"!important;
   align-items:center;
-  gap:10px!important;
+  column-gap:8px;
+  min-width:0;
+  min-height:40px;
+  width:100%;
+  margin:0;
+  padding:5px 12px;
   background:var(--admin-rival-surface)!important;
   border:1px solid var(--admin-rival-border)!important;
   border-radius:8px;
   box-shadow:none!important;
-}
-body.admin-new-ui #rivalManageMask .favorite-user-open {
-  min-width:0;
-  min-height:38px;
-  width:100%;
-  display:grid;
-  grid-template-columns:minmax(0,1fr) auto;
-  align-items:center;
-  gap:12px;
-  padding:4px 8px;
-  border:0!important;
-  box-shadow:none!important;
-  background:transparent!important;
-  border-radius:5px;
+  text-align:left;
 }
 body.admin-new-ui #rivalManageMask .favorite-user-open:hover,
 body.admin-new-ui #rivalManageMask .favorite-user-open:focus-visible,
@@ -1080,58 +1086,51 @@ body.admin-new-ui #rivalManageMask .favorite-user-open:active {
   background:var(--admin-rival-hover)!important;
 }
 body.admin-new-ui #rivalManageMask .favorite-user-open .name {
+  grid-area:name;
   min-width:0;
   overflow:hidden;
   text-overflow:ellipsis;
   white-space:nowrap;
 }
-body.admin-new-ui #rivalManageMask .favorite-user-skill-meta {
-  display:flex;
-  flex-direction:column;
-  align-items:flex-end;
-  justify-content:center;
-  gap:2px;
-  min-width:84px;
+body.admin-new-ui #rivalManageMask .favorite-user-skill {
+  grid-area:skill;
+  width:76px!important;
+  min-width:76px!important;
+  max-width:76px!important;
+  justify-self:end!important;
+  text-align:right!important;
+  white-space:nowrap;
   line-height:1;
 }
-body.admin-new-ui #rivalManageMask .favorite-user-skill-label {
-  font-size:10px;
-  font-weight:800;
-  letter-spacing:.04em;
-  opacity:.78;
-}
-body.admin-new-ui #rivalManageMask .favorite-user-skill {
-  white-space:nowrap;
-}
-body.admin-new-ui #rivalManageMask .favorite-user-arrow {display:none!important;}
 body.admin-new-ui #rivalManageMask .favorite-user-row > .remove {
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
   min-width:64px;
-  min-height:38px;
-  padding:7px 12px;
+  min-height:40px;
+  margin:0;
+  padding:5px 12px;
   align-self:stretch;
-  border-radius:7px;
+  border-radius:8px;
 }
 body.admin-new-ui.light-mode #rivalManageMask .favorite-user-open,
 body.admin-new-ui.light-mode #rivalManageMask .favorite-user-open .name {
   color:#17243a!important;
   -webkit-text-fill-color:#17243a!important;
 }
-body.admin-new-ui.light-mode #rivalManageMask .favorite-user-skill-label {
-  color:#526780!important;
-  -webkit-text-fill-color:#526780!important;
-}
-@media (max-width:640px){
-  body.admin-new-ui #rivalManageMask .favorite-user-row {
-    grid-template-columns:minmax(0,1fr) auto!important;
-    gap:8px!important;
-  }
+@media(max-width:520px) {
   body.admin-new-ui #rivalManageMask .favorite-user-open {
-    gap:10px;
-    padding:4px 6px;
+    grid-template-columns:minmax(0,1fr) 72px!important;
+    column-gap:6px;
+    padding:5px 8px;
   }
-  body.admin-new-ui #rivalManageMask .favorite-user-skill-meta {min-width:74px;}
+  body.admin-new-ui #rivalManageMask .favorite-user-skill {
+    width:72px!important;
+    min-width:72px!important;
+    max-width:72px!important;
+  }
   body.admin-new-ui #rivalManageMask .favorite-user-row > .remove {
     min-width:58px;
-    padding:7px 10px;
+    padding:5px 9px;
   }
 }

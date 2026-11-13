@@ -156,10 +156,7 @@ export function renderFavoriteRows({
           data-favorite-name="${escapeHtml(favorite.username)}"
           data-favorite-view-instrument="${instrument}">
           <span class="name">${escapeHtml(favorite.username)}</span>
-          <span class="favorite-user-skill-meta">
-            <span class="favorite-user-skill-label">${instrument} TOTAL</span>
-            <span class="favorite-user-skill ${skillClass}">${hasSkill ? formatSkill(total) : '-'}</span>
-          </span>
+          <span class="favorite-user-skill ${skillClass}">${hasSkill ? formatSkill(total) : '-'}</span>
         </button>
         <button type="button"
           class="remove"

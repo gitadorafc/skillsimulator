@@ -15,7 +15,7 @@ import {
   renderUserDetailSkillSections,
   renderUserListPager,
   renderUserListRow
-} from './user-renderer.js?v=4_40_34';
+} from './user-renderer.js?v=4_40_36';
 import {
   renderAdminCsvVersionOptions as renderAdminCsvVersionOptionsMarkup,
   renderAdminFeedbackList,
