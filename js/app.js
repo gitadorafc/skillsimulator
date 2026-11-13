@@ -8015,13 +8015,24 @@ function toggleAdminDesktopMenu() {
     button.type = 'button';
     button.className = 'admin-menu-tree-item';
     button.textContent = original.textContent.replace(/\s*›\s*$/, '').trim();
+    const target = original.id || original.dataset.menuFavoriteSlot || button.textContent;
+    button.dataset.adminMenuTarget = target;
+    if (adminDesktopWorkspaceSelection === target) {
+      button.classList.add('is-selected');
+      button.setAttribute('aria-current', 'page');
+    }
     button.addEventListener('click', () => {
-      const target = original.id || original.dataset.menuFavoriteSlot || button.textContent;
       const sameOpen = adminDesktopWorkspaceSelection === target &&
         ADMIN_DESKTOP_WORKSPACE_MASK_IDS.some(id => isOverlayVisible($(id)));
       if (!closeAdminDesktopWorkspace()) return;
       // Only a repeated click on the same *visible* destination closes it.
       adminDesktopWorkspaceSelection = sameOpen ? null : target;
+      for (const item of desktopMenuTree.querySelectorAll('.admin-menu-tree-item')) {
+        const selected = item.dataset.adminMenuTarget === adminDesktopWorkspaceSelection;
+        item.classList.toggle('is-selected', selected);
+        if (selected) item.setAttribute('aria-current', 'page');
+        else item.removeAttribute('aria-current');
+      }
       if (!sameOpen) original.click();
     });
     current.appendChild(button);

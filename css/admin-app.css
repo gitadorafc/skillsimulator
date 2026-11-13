@@ -800,6 +800,7 @@ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetail
  body.admin-new-ui .admin-menu-group[open]>summary {background:#263e59;border-bottom:1px solid #405772;}
  body.admin-new-ui .admin-menu-tree-item {display:block;width:100%;padding:9px 10px;border:0;border-top:1px solid #30445c;background:transparent;color:#e2eaf5;text-align:left;cursor:pointer;font-size:12px;}
  body.admin-new-ui .admin-menu-tree-item:hover {background:#284a75;}
+ body.admin-new-ui .admin-menu-tree-item.is-selected {background:#284a75;color:#fff;}
  /* Desktop light theme: the admin sidebar should follow the page theme.
     These are the light counterparts of the sidebar's dark-only rules above. */
  body.admin-new-ui.light-mode #appScreen>.p-header>.admin-desktop-menu-tree {
@@ -822,6 +823,9 @@ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetail
  }
  body.admin-new-ui.light-mode .admin-menu-tree-item:hover {
    background:#dbeafe;
+ }
+ body.admin-new-ui.light-mode .admin-menu-tree-item.is-selected {
+   background:#bfdbfe;color:#17243a;
  }
  body.admin-new-ui.light-mode .admin-desktop-version-area {
    border-top-color:#94a3b8;
