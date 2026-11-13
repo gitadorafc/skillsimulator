@@ -100,13 +100,15 @@ body.admin-new-ui.light-mode :is(#viewSkill,#viewAllManage,#userDetailSkill,#use
 /* Single admin-only skill border. Paint is derived from the SAME skill-color table
    as the existing user-facing card; no rank colors are duplicated here. */
 body.admin-new-ui :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-record::before{
- content:"";position:absolute;inset:0;border-radius:inherit;
- padding:2px;box-sizing:border-box;
- background:var(--song-skill-border,#475569);
+ content:"";position:absolute;inset:0;box-sizing:border-box;
+ border:2px solid #475569;
+ /* Solid skill colors use border-color; gradient tiers use border-image. */
+ border-color:var(--song-skill-border,#475569);
+ border-image-source:var(--song-skill-border);
+ border-image-slice:1;
+ border-radius:inherit;
+ clip-path:inset(0 round 7px);
  pointer-events:none;z-index:2;
- -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
- -webkit-mask-composite:xor;
- mask-composite:exclude;
 }
 /* Keep the skill-color outline at a visually consistent 2px. The public
    animation adds a 1-4px drop shadow which makes individual rainbow edges
