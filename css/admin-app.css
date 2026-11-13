@@ -108,10 +108,16 @@ body.admin-new-ui :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailReco
  -webkit-mask-composite:xor;
  mask-composite:exclude;
 }
-/* Reuse the public UI animations directly. Do not animate the whole app screen
-   or disable the header's existing text sweep and glow. */
+/* Keep the skill-color outline at a visually consistent 2px. The public
+   animation adds a 1-4px drop shadow which makes individual rainbow edges
+   appear thicker at different colors and animation phases. Preserve the
+   synchronized brightness/opacity pulse, without expanding the outline. */
+@keyframes admin-skill-border-pulse {
+  0%,100% {opacity:.78;filter:brightness(1.05)}
+  50% {opacity:1;filter:brightness(1.85)}
+}
 body.admin-new-ui :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-record.skill-row-sparkle-rainbow::before {
- animation:skill-sparkle-border-pulse var(--skill-sparkle-cycle,1.6s) ease-in-out infinite;
+ animation:admin-skill-border-pulse var(--skill-sparkle-cycle,1.6s) ease-in-out infinite;
 }
 body.admin-new-ui :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-metrics{display:contents}
 body.admin-new-ui :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-no{font-size:12px;color:#84b5d0;text-align:center;font-variant-numeric:tabular-nums}
