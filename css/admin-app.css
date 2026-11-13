@@ -1033,3 +1033,48 @@ body.admin-new-ui.light-mode #songCatalogMask .admin-catalog-jacket {
 
 /* Read-only user-detail cards: the editing slot does not exist in the layout. */
 body.admin-new-ui :is(#userDetailSkill,#userDetailRecords) .ar-record.ar-readonly .ar-edit {display:none;}
+
+/* Admin rival rows: a single card surface, not nested bordered cards.
+   Scoped to the admin UI; the public rival layout remains untouched. */
+body.admin-new-ui #rivalManageMask {
+  --admin-rival-surface:#162235;
+  --admin-rival-border:#3a4e67;
+  --admin-rival-hover:#223450;
+}
+body.admin-new-ui.light-mode #rivalManageMask {
+  --admin-rival-surface:#edf2f7;
+  --admin-rival-border:#b3c3d6;
+  --admin-rival-hover:#dce7f2;
+}
+body.admin-new-ui #rivalManageMask .favorite-user-list {display:grid;gap:7px;}
+body.admin-new-ui #rivalManageMask .favorite-user-row {
+  margin:0;padding:5px 7px;min-height:50px;
+  background:var(--admin-rival-surface)!important;
+  border:1px solid var(--admin-rival-border)!important;
+  border-radius:8px;box-shadow:none!important;
+  grid-template-columns:minmax(0,1fr) auto!important;
+  gap:8px!important;
+}
+body.admin-new-ui #rivalManageMask .favorite-user-open {
+  min-width:0;min-height:38px;padding:4px 6px;
+  border:0!important;box-shadow:none!important;
+  background:transparent!important;
+  border-radius:5px;
+}
+body.admin-new-ui #rivalManageMask .favorite-user-open:hover,
+body.admin-new-ui #rivalManageMask .favorite-user-open:focus-visible,
+body.admin-new-ui #rivalManageMask .favorite-user-open:active {
+  background:var(--admin-rival-hover)!important;
+}
+body.admin-new-ui #rivalManageMask .favorite-user-row > .remove {
+  min-width:64px;padding:7px 12px;align-self:center;
+  border-radius:7px;
+}
+body.admin-new-ui.light-mode #rivalManageMask .favorite-user-open,
+body.admin-new-ui.light-mode #rivalManageMask .favorite-user-open .name {
+  color:#17243a!important;-webkit-text-fill-color:#17243a!important;
+}
+body.admin-new-ui.light-mode #rivalManageMask .favorite-user-skill-label,
+body.admin-new-ui.light-mode #rivalManageMask .favorite-user-arrow {
+  color:#526780!important;-webkit-text-fill-color:#526780!important;
+}
