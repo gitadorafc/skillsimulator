@@ -8138,7 +8138,11 @@ $('featureSettingsMask').addEventListener('click', e => {
 });
 $('btnSaveFeatureSettings').addEventListener('click', saveFeatureSettings);
 $('settingLightMode').addEventListener('change', e => {
-  applyLightMode(e.target.checked);
+  // 画面への即時反映と端末内の設定値を同期する。
+  // サーバー上の他の表示設定は「保存する」でまとめて確定する。
+  const enabled = e.target.checked;
+  localStorage.setItem('gitadora_light_mode', enabled ? '1' : '0');
+  applyLightMode(enabled);
 });
 $('btnSaveXId').addEventListener('click', saveMyXId);
 $('btnMypageUserSwitch')?.addEventListener('click', openAccountSwitch);
