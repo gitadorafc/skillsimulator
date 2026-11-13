@@ -702,39 +702,65 @@ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetail
  }
  body.admin-new-ui .admin-workspace-panel .tag-settings-actions > #btnCancelTagSettings {display:none;}
  body.admin-new-ui .admin-workspace-panel .tag-settings-actions #btnSaveTagSettings {margin:0;}
- /* Desktop mypage: three equal action columns keep their buttons and notes
-    aligned without long warning text pushing buttons apart. */
- body.admin-new-ui .admin-workspace-panel .mypage-account-actions {
-   display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
-   align-items:start;gap:12px;max-width:720px;
-   margin:16px 0 0 auto;padding-top:16px;
-   border-top:1px solid #334155;
+ /* My Page actions: keep labels with their respective buttons. The desktop
+    workspace uses a compact right-aligned group; narrow modal layouts are
+    defined separately below, never inheriting the desktop three-column grid. */
+ body.admin-new-ui #mypageModal .mypage-account-actions {
+   display:grid;align-items:start;column-gap:14px;row-gap:14px;
+   padding-top:16px;margin-top:16px;border-top:1px solid #334155;
  }
- body.admin-new-ui .admin-workspace-panel .mypage-account-actions > :is(
+ body.admin-new-ui #mypageModal .mypage-account-actions > :is(
    .mypage-user-switch,.mypage-logout-zone,.danger-zone
  ) {
-   display:flex;flex:0 1 auto;flex-direction:column;align-items:flex-end;
-   justify-content:flex-start;gap:6px;min-width:0;width:100%;
+   display:flex;flex-direction:column;align-items:flex-end;
+   justify-content:flex-start;gap:6px;min-width:0;
    margin:0;padding:0;border:0;text-align:right;
  }
- body.admin-new-ui .admin-workspace-panel .mypage-account-actions > .hidden {display:none!important;}
- body.admin-new-ui .admin-workspace-panel .mypage-account-actions .section-note {
-   margin:0!important;text-align:right;
+ body.admin-new-ui #mypageModal .mypage-account-actions > .hidden {display:none!important;}
+ body.admin-new-ui #mypageModal .mypage-account-actions .section-note {
+   margin:0!important;text-align:right;overflow-wrap:anywhere;
  }
- body.admin-new-ui .admin-workspace-panel .mypage-account-actions :is(
+ body.admin-new-ui #mypageModal .mypage-account-actions :is(
    #btnMypageUserSwitch,#btnLogout,#btnDeleteAccount
  ) {
    display:inline-flex!important;align-items:center;justify-content:center;
+   flex:none!important;box-sizing:border-box;
    width:max-content!important;max-width:100%!important;
-   margin:0!important;min-height:42px;padding:8px 18px;
+   margin:0!important;min-height:42px;padding:8px 16px;
+   white-space:nowrap!important;word-break:keep-all;
  }
- /* Differentiate switching accounts from the primary save/update action. */
+ @media (min-width:1100px) {
+   body.admin-new-ui #mypageModal .mypage-account-actions {
+     grid-template-columns:190px 136px 238px;
+     justify-content:end;
+   }
+ }
+ @media (max-width:1099px) {
+   body.admin-new-ui #mypageModal .mypage-account-actions {
+     grid-template-columns:repeat(2,minmax(0,1fr));
+   }
+   body.admin-new-ui #mypageModal .mypage-account-actions > .danger-zone {
+     grid-column:1/-1;
+   }
+   body.admin-new-ui #mypageModal .mypage-account-actions > .danger-zone .section-note {
+     max-width:260px;
+   }
+ }
+ @media (max-width:420px) {
+   body.admin-new-ui #mypageModal .mypage-account-actions {
+     grid-template-columns:minmax(0,1fr);
+   }
+   body.admin-new-ui #mypageModal .mypage-account-actions > .danger-zone {
+     grid-column:auto;
+   }
+ }
+ /* Account switch is a distinct action, not a primary save button. */
  body.admin-new-ui #btnMypageUserSwitch,
  body.admin-new-ui.light-mode #btnMypageUserSwitch {
    background:#0e7490!important;border-color:#155e75!important;
    color:#fff!important;-webkit-text-fill-color:#fff!important;
  }
- body.admin-new-ui.light-mode .admin-workspace-panel .mypage-account-actions {
+ body.admin-new-ui.light-mode #mypageModal .mypage-account-actions {
    border-top-color:#cbd5e1;
  }
  /* Three distinct action colors, scoped to the administrator's new UI. */
