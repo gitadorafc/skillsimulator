@@ -346,7 +346,7 @@ body.light-mode .dc-card {
   content: "";
   position: absolute;
   inset: 0;
-  padding: 2.3px;
+  padding: 3.3px;
   border-radius: inherit;
   background: var(--song-skill-border, #475569);
   pointer-events: none;

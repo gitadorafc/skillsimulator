@@ -6493,10 +6493,19 @@ body.light-mode .admin-board-thread-summary{color:#64748b!important;}
   min-width:0;
 }
 .user-detail-back{
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
   flex:0 0 auto !important;
   min-width:62px;
+  height:32px;
+  min-height:32px;
+  padding:0 10px;
+  font-size:13px;
+  line-height:1;
   white-space:nowrap;
   writing-mode:horizontal-tb;
+  box-sizing:border-box;
 }
 .user-detail-instrument-switch{
   flex:0 0 auto !important;
