@@ -5390,24 +5390,57 @@ body.light-mode #menuMask .app-menu-head{
 }
 
 
-/* === APP VERSION 4.27.26: ライバル比較バッジ位置固定 === */
-.rate-badges{
-  display:grid !important;
-  grid-template-columns:48px 48px;
-  align-items:center;
-  justify-content:start;
-  gap:5px;
+/* 曲詳細ライバル比較：各列を独立した固定幅で管理。欠損時も詰めない。 */
+.rate-compare-dialog .rate-rival-grid > :not(.rate-user-name){min-width:0;justify-self:end;}
+.rate-compare-dialog .rate-rival-grid .rate-user-name{
+  min-width:0;
+  width:100%;
+  text-align:left;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
 }
-.rate-badge-slot{
+.rate-compare-dialog .rate-rival-grid .rate-rival-option,
+.rate-compare-dialog .rate-rival-grid .rate-rival-fc{
   display:flex;
+  width:100%;
+  height:28px;
+  align-items:center;
+  justify-content:flex-end;
+}
+.rate-compare-dialog .rate-rival-grid .rate-rival-option .opt-badge{
+  display:inline-flex;
   align-items:center;
   justify-content:center;
-  width:48px;
-  min-width:48px;
-  min-height:1px;
-}
-.rate-badge-slot :is(.fc-unified-badge,.opt-badge){
+  width:52px;
+  min-width:0;
   margin:0 !important;
+  padding:2px 3px !important;
+  font-size:9px;
+  box-sizing:border-box;
+}
+.rate-compare-dialog .rate-rival-grid .rate-rival-fc .ar-bear-medal{
+  display:block;
+  width:26px;
+  height:26px;
+  flex:none;
+  filter:drop-shadow(0 1px 2px rgba(0,0,0,.3));
+}
+.rate-compare-dialog .rate-rival-grid .rate-value{
+  width:100%;
+  white-space:nowrap;
+  text-align:right !important;
+}
+.rate-compare-dialog .rate-rival-grid .rate-skill{
+  margin-left:auto;
+}
+@media (min-width:640px){
+  .rate-compare-dialog .rate-row.rate-rival-grid{
+    grid-template-columns:minmax(0,1fr) 64px 76px 30px 72px !important;
+    column-gap:8px !important;
+  }
+  .rate-compare-dialog .rate-rival-grid .rate-rival-option .opt-badge{width:64px;}
+  .rate-compare-dialog .rate-rival-grid .rate-rival-fc .ar-bear-medal{width:28px;height:28px;}
 }
 
 /* === APP VERSION 4.28.0: 管理者向け掲示板 === */

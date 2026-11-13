@@ -2941,10 +2941,16 @@ body:not(.admin-new-ui) .users-toolbar{display:block !important;position:sticky;
 }
 
 /* ライバル比較: 項目行 + コンパクト */
-.rate-table-head,
-.rate-row {
+.rate-table-head {
   display:grid !important;
   grid-template-columns:minmax(0,1fr) 78px 72px !important;
+  column-gap:5px !important;
+  align-items:center !important;
+}
+/* Rival comparison uses five stable columns even when FC or option is empty. */
+.rate-compare-dialog .rate-row.rate-rival-grid {
+  display:grid !important;
+  grid-template-columns:minmax(0,1fr) 52px 60px 26px 70px !important;
   column-gap:5px !important;
   align-items:center !important;
 }
@@ -2978,7 +2984,7 @@ body:not(.admin-new-ui) .users-toolbar{display:block !important;position:sticky;
   gap:3px !important;
 }
 .rate-value {
-  text-align:center !important;
+  text-align:right !important;
   font-size:10px !important;
   font-weight:900 !important;
 }

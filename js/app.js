@@ -2,7 +2,7 @@
 import {
   getSkillColorRowByTotalValue
 } from './skill-colors.js?v=4_14_33';
-import { renderAdminRegisteredRecords, loadAdminRegisteredJackets, getAdminJacketUrls } from './admin-register-ui.js?v=4_40_29';
+import { renderAdminRegisteredRecords, loadAdminRegisteredJackets, getAdminJacketUrls } from './admin-register-ui.js?v=4_40_38';
 import {
   createCard,
   getPartColorClass
@@ -54,7 +54,7 @@ import {
   renderOptionSummary,
   renderPersonalBest,
   renderRateComparisonRows
-} from './score-detail-renderer.js?v=4_27_26';
+} from './score-detail-renderer.js?v=4_40_38';
 import { createSiteDialogController } from './site-dialog.js?v=4_15_3';
 import { createTutorialController } from './tutorial.js?v=4_36_1';
 import { selectSkillTargetRows, calcTargetTotals, compareSkillRows } from './skill-targets.js?v=4_36_2';
@@ -4001,6 +4001,11 @@ function syncAdminPublicPulsePhase() {
     try { animation.currentTime = phase; } catch (_) { /* detached animation */ }
   };
   for (const header of headers) header.getAnimations({subtree:false}).forEach(align);
+  // User detail displays the same score-val animation, but its elements are
+  // created after the persistent header. Keep their sweep and glow on the
+  // header clock instead of restarting independently on every profile open.
+  document.querySelectorAll('#userDetailPage.user-detail-open .user-detail-summary .score-val.score-rank-sparkle-rainbow')
+    .forEach(value => value.getAnimations({subtree:false}).forEach(align));
   document.querySelectorAll('body.admin-new-ui .ar-record.skill-row-sparkle-rainbow')
     .forEach(card => card.getAnimations({subtree:true}).forEach(align));
 }
@@ -4062,6 +4067,14 @@ function ensureAdminPulseObserver() {
       scheduleAdminPublicPulsePhase();
     }
   });
+  // Header animations can restart after instrument changes or browser layer
+  // recycling, even though no card nodes were inserted.
+  $('userDetailPage')?.querySelector('.user-detail-summary')
+    ?.addEventListener('animationstart', event => {
+      if (event.target.matches?.('.user-detail-skill-value')) {
+        scheduleAdminPublicPulsePhase();
+      }
+    });
 }
 
 function render() {
@@ -4724,6 +4737,10 @@ function renderViewedUserSkill() {
     el.className = `score-val user-detail-skill-value ${rankClass}`;
   });
 
+  // The header lives outside the user-detail view, so class changes in
+  // this header are not seen by the card observer. Align on the first frame.
+  scheduleAdminPublicPulsePhase();
+
   $('userDetailSkill').innerHTML = renderUserDetailSkillSections({
     hotCards: document.body.classList.contains('admin-new-ui')
       ? renderAdminRegisteredRecords(target.hotRows, 'SKILL', true)
@@ -4802,6 +4819,7 @@ async function openUserDetail(userId, username, returnTarget = null) {
   const detailPage = $('userDetailPage');
   detailPage.classList.add('user-detail-open');
   detailPage.style.display = 'flex';
+  scheduleAdminPublicPulsePhase();
   refreshUserDetailBoardBan(userId).catch(console.error);
 
   try {

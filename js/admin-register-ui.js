@@ -100,7 +100,7 @@ if (typeof document !== 'undefined') document.addEventListener('error', event =>
 }, true);
 
 let bearMedalId = 0;
-function bearMedal(type) {
+export function bearMedal(type) {
   const cls = type === 'EXC' ? 'ar-exc' : 'ar-fc';
   bearMedalId += 1;
   const gradientId = `ar-bear-grad-${cls}-${bearMedalId}`;

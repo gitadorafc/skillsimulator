@@ -4,6 +4,7 @@ import {
   getSongSkillRank
 } from './card-renderer.js?v=4_14_34';
 import { formatRate, formatSkill } from './scores.js?v=3_18_4';
+import { bearMedal } from './admin-register-ui.js?v=4_40_38';
 
 const escapeHtml = value => String(value ?? '').replace(/[&<>"']/g, character => ({
   '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'
@@ -81,16 +82,17 @@ export function renderRateComparisonRows(rows) {
 
   return rows.map(row => {
     const skillClass = `skill-box-${getSongSkillRank(Number(row.skill) || 0)}`;
+    // Same bear-medal icon as the registered-song cards. Empty FCs keep their column.
+    const fcType = Number(row.achievement_rate) === 100
+      ? 'EXC'
+      : String(row.fc || '').toUpperCase();
+    const fcMarkup = fcType === 'EXC' || fcType === 'FC' ? bearMedal(fcType) : '';
     return `
-      <div class="rate-row ${row.is_self ? 'self' : ''}">
-        <div class="rate-user">
-          <div class="rate-user-name">${escapeHtml(row.username)}${row.is_self ? '（自分）' : ''}</div>
-          <div class="rate-badges">
-            <span class="rate-badge-slot rate-fc-badge-slot">${getFcBadgeMarkup(row.fc, row.achievement_rate)}</span>
-            <span class="rate-badge-slot rate-option-badge-slot">${getOptionBadgeMarkup(row.play_option)}</span>
-          </div>
-        </div>
+      <div class="rate-row rate-rival-grid ${row.is_self ? 'self' : ''}">
+        <div class="rate-user-name" title="${escapeHtml(row.username)}">${escapeHtml(row.username)}${row.is_self ? '（自分）' : ''}</div>
+        <div class="rate-rival-option">${getOptionBadgeMarkup(row.play_option)}</div>
         <div class="rate-value">${formatRate(row.achievement_rate)}%</div>
+        <div class="rate-rival-fc">${fcMarkup}</div>
         <div class="rate-skill ${skillClass}"><span class="dc-skill-value">${formatSkill(row.skill)}</span></div>
       </div>`;
   }).join('');
