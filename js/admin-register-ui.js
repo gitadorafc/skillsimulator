@@ -170,7 +170,7 @@ function recordCard(record, index, mode = 'RECORDS', readOnly = false) {
   const option = record.play_option === 'BASS_MIRROR'
     ? originalOption.replace(/>[^<>]*</, '>B-MIR<')
     : originalOption;
-  return `<article class="ar-record${readOnly ? ' ar-readonly' : ''} skill-row-${skillRank}" style="--song-skill-border:${esc(borderPaint)}" data-score-id="${esc(record.score_id)}"${compareAttributes}>
+  return `<article class="ar-record${readOnly ? ' ar-readonly' : ''} skill-row-${skillRank}" style="--song-skill-border:${esc(borderPaint)};--admin-song-border-image:${esc(colorRow.type === 'solid' ? `linear-gradient(${colorRow.color}, ${colorRow.color})` : borderPaint)}" data-score-id="${esc(record.score_id)}"${compareAttributes}>
     <div class="ar-no">${String(index + 1).padStart(3,'0')}</div>
     <div class="ar-art">${artwork}</div>
     <div class="ar-title">${record.is_hot ? '<span class="hot-tag ar-hot">HOT</span>' : ''}<span class="ar-song-name" title="${title}">${title}</span>${pendingBadge}</div>

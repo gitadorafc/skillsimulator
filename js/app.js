@@ -2,7 +2,7 @@
 import {
   getSkillColorRowByTotalValue
 } from './skill-colors.js?v=4_14_33';
-import { renderAdminRegisteredRecords, loadAdminRegisteredJackets, getAdminJacketUrls } from './admin-register-ui.js?v=4_40_0';
+import { renderAdminRegisteredRecords, loadAdminRegisteredJackets, getAdminJacketUrls } from './admin-register-ui.js?v=4_40_29';
 import {
   createCard,
   getPartColorClass
