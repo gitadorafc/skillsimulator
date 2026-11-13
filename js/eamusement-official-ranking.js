@@ -6,7 +6,7 @@
   const START_SKILL = 9700;
   const BAND_SIZE = 100;
   const MAX_ROWS = 1000;
-  // 公式のライバル検索では自分自身が検索結果に含まれないため、運営のスキルを補完する。
+  // 公式のライバル検索では本人が検索結果に含まれないため、公式ページに表示された本人のスキルを補完する。
   const OPERATOR_NAME = 'FIZZ';
   const MAX_REQUESTS = 320;
   const MIN_REQUEST_INTERVAL_MS = 350;
@@ -26,7 +26,7 @@
       function finish(error, data) {
         clearTimeout(timeout);
         window.removeEventListener('message', receive);
-        error ? reject(error) : resolve({ token: data.token, operatorSkills: data.operatorSkills });
+        error ? reject(error) : resolve({ token: data.token });
       }
       function receive(event) {
         if (event.source !== popup || event.origin !== 'https://gitadorafc.github.io' || event.data?.type !== 'GITADORA_RANKING_TOKEN' || event.data?.nonce !== nonce) return;
@@ -142,6 +142,23 @@
     }).filter(Boolean);
   }
 
+  function readOfficialOwnSkill(doc, instrument) {
+    // 「スキル検索」内の「あなたのGF/DMスキル」を参照する。
+    // 検索フォームの初期値や他のプレーヤーのスキルは本人の値として使わない。
+    const panels = [...doc.querySelectorAll('.setting_frame_white')];
+    const searchPanel = panels.find(panel =>
+      cleanText(panel.textContent).includes('スキル検索')
+    );
+    if (!searchPanel) throw new Error(`${instrument}の公式スキル表示欄が見つかりませんでした。`);
+    const values = [...searchPanel.querySelectorAll('.common_frame_date')].map(item => cleanText(item.textContent));
+    const pattern = new RegExp(String.raw`あなたの\s*${instrument}\s*スキル\s*[：:]?\s*([0-9]{1,5}(?:\.[0-9]{1,2})?)`);
+    const matches = values.map(text => text.match(pattern)).filter(Boolean);
+    if (matches.length !== 1) throw new Error(`${instrument}の公式スキル値を特定できませんでした。ログイン状態と表示内容を確認してください。`);
+    const skill = Number(matches[0][1]);
+    if (!Number.isFinite(skill) || skill < 0) throw new Error(`${instrument}の公式スキル値が不正です。`);
+    return skill;
+  }
+
   async function prepareInstrument(instrument) {
     const pageUrl = baseUrl(instrument);
     const response = await fetch(pageUrl, { credentials: 'include' });
@@ -149,7 +166,7 @@
     const doc = new DOMParser().parseFromString(await response.text(), 'text/html');
     const form = findSearchForm(doc);
     if (!form) throw new Error(`${instrument}のスキル検索フォームを検出できませんでした。ログイン状態を確認してください。`);
-    return { pageUrl, form };
+    return { pageUrl, form, ownSkill: readOfficialOwnSkill(doc, instrument) };
   }
 
   async function search(prepared, skill) {
@@ -210,9 +227,10 @@
     if (found.size < MAX_ROWS && requestCount >= MAX_REQUESTS) {
       throw new Error(`${instrument}は通信上限に達したため保存しませんでした（${found.size}名）。`);
     }
-    return [...found.values()]
-      .sort((a, b) => b.skill - a.skill)
-      .slice(0, MAX_ROWS);
+    return {
+      rows: [...found.values()].sort((a, b) => b.skill - a.skill).slice(0, MAX_ROWS),
+      ownSkill: prepared.ownSkill
+    };
   }
 
   function includeOperator(rows, instrument, operatorSkill) {
@@ -262,15 +280,11 @@
       const authorization = await awaitRankingToken();
       importToken = authorization?.token;
       if (!/^[0-9a-f-]{36}$/i.test(importToken || '')) throw new Error('取込トークンを取得できませんでした。');
-      const operatorSkills = authorization?.operatorSkills;
-      if (!operatorSkills || !['GF', 'DM'].every(instrument =>
-        Number.isFinite(operatorSkills[instrument]) && operatorSkills[instrument] >= 0
-      )) throw new Error('サイトのユーザーリストからFIZZ(運営)のスキルを取得できませんでした。');
       const rankings = {};
       for (const instrument of ['GF', 'DM']) {
-        const collected = await collect(instrument);
-        if (!collected.length) throw new Error(`${instrument}の検索結果を取得できませんでした。`);
-        rankings[instrument] = includeOperator(collected, instrument, operatorSkills[instrument]);
+        const { rows, ownSkill } = await collect(instrument);
+        if (!rows.length) throw new Error(`${instrument}の検索結果を取得できませんでした。`);
+        rankings[instrument] = includeOperator(rows, instrument, ownSkill);
       }
       const data = { schemaVersion: 1, versionSlug: VERSION_SLUG, capturedAt: new Date().toISOString(), rankings };
       updateProgress({ status: 'サイトへ反映中', detail: 'GF・DMの取得結果を保存しています。', percent: 99 });
