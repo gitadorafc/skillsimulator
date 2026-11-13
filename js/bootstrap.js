@@ -1,7 +1,7 @@
 const PARTIAL_URLS = [
   '../partials/app.html?v=4_38_40',
   '../partials/menu.html?v=4_37_1',
-  '../partials/dialogs.html?v=4_40_20',
+  '../partials/dialogs.html?v=4_40_22',
   '../partials/admin.html?v=4_38_40',
   '../partials/board.html?v=4_37_1',
   '../partials/tutorial.html?v=4_37_1',

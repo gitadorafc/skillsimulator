@@ -295,7 +295,7 @@
 <div id="accountSwitchMask" class="site-dialog-mask">
   <div class="feature-settings-dialog account-switch-dialog menu-screen-dialog">
     <div class="app-menu-head">
-      <strong>ユーザー切り替え</strong>
+      <strong>ユーザー切替</strong>
       <button id="btnCloseAccountSwitch" type="button" class="menu-back-btn">戻る</button>
     </div>
     <div class="account-switch-body menu-screen-body">
@@ -370,7 +370,7 @@
           <a href="#howto-tags">タグ設定</a><a href="#howto-catalog">曲データ一覧</a>
           <a href="#howto-favorites">お気に入りリスト</a><a href="#howto-official">公式スキルランキング</a>
           <a href="#howto-board">掲示板</a><a href="#howto-mypage">マイページ</a><a href="#howto-settings">機能設定</a>
-          <a href="#howto-accounts">ユーザー切り替え</a><a href="#howto-feedback">要望・不具合報告</a>
+          <a href="#howto-accounts">ユーザー切替</a><a href="#howto-feedback">要望・不具合報告</a>
           <a href="#howto-tutorial">チュートリアル</a><a href="#howto-support">運営を支援する</a>
         </div>
       </nav>
@@ -450,7 +450,7 @@
       </section>
       <section id="howto-accounts">
         <b>ユーザーを切り替える</b>
-        <p>マイページの「ユーザー切り替え」で、この端末に追加したアカウントへ切り替えられます。追加時にログインが必要です。パスワードは端末に保存しません。</p>
+        <p>マイページの「ユーザー切替」で、この端末に追加したアカウントへ切り替えられます。追加時にログインが必要です。パスワードは端末に保存しません。</p>
       </section>
       <section id="howto-feedback">
         <b>要望・不具合を報告する</b>
@@ -517,16 +517,14 @@
     </div>
 
     <div class="mypage-account-actions">
-      <div id="mypageUserSwitchBlock" class="mypage-user-switch hidden">
-        <button id="btnMypageUserSwitch" type="button" class="btn-name-change mypage-user-switch-button app-primary-button">ユーザー切り替え</button>
-        <div class="section-note">この端末に保存したユーザーを切り替えます。</div>
+      <div class="danger-zone">
+        <button id="btnDeleteAccount" class="btn-danger-wide">ユーザー削除</button>
       </div>
       <div class="mypage-logout-zone">
         <button id="btnLogout" class="btn-cancel mypage-logout">ログアウト</button>
       </div>
-      <div class="danger-zone">
-        <button id="btnDeleteAccount" class="btn-danger-wide">ユーザー削除</button>
-        <div class="section-note">登録したスコアも削除されます。この操作は元に戻せません。</div>
+      <div id="mypageUserSwitchBlock" class="mypage-user-switch hidden">
+        <button id="btnMypageUserSwitch" type="button" class="btn-name-change mypage-user-switch-button app-primary-button">ユーザー切替</button>
       </div>
     </div>
   </div>
