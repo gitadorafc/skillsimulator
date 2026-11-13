@@ -97,17 +97,16 @@ body.admin-new-ui.light-mode :is(#viewSkill,#viewAllManage,#userDetailSkill,#use
   filter:drop-shadow(0 1px 1px rgba(30,41,59,.72));
 }
 
-/* Single admin-only skill border. Paint is derived from the SAME skill-color table
-   as the existing user-facing card; no rank colors are duplicated here. */
+/* Single admin-only skill border. Exact 2px inset and rounded cutout;
+   no border-image (which does not follow border-radius). Card background is untouched. */
 body.admin-new-ui :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-record::before{
  content:"";position:absolute;inset:0;box-sizing:border-box;
- border:2px solid #475569;
- /* Solid skill colors use border-color; gradient tiers use border-image. */
- border-color:var(--song-skill-border,#475569);
- border-image-source:var(--song-skill-border);
- border-image-slice:1;
+ padding:2px;
  border-radius:inherit;
- clip-path:inset(0 round 7px);
+ background:var(--song-skill-border,#475569);
+ -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+ -webkit-mask-composite:xor;
+ mask-composite:exclude;
  pointer-events:none;z-index:2;
 }
 /* Keep the skill-color outline at a visually consistent 2px. The public
