@@ -687,7 +687,7 @@ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetail
    display:flex;align-items:center;justify-content:center;
  }
  body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-record:not(.ar-readonly) .ar-edit {
-   position:absolute;bottom:4px;right:4px;width:26px;height:24px;
+   position:absolute;bottom:10px;right:4px;width:26px;height:24px;
    display:flex;align-items:center;justify-content:center;
  }
  body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-record:not(.ar-readonly) .ar-edit button {
@@ -755,27 +755,78 @@ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetail
    display:flex;flex-direction:column;min-width:0;
    border:1px solid #30445c;background:#081327;
  }
- /* Admin compact menu sheets all share the MENU surface width and padding.
-    Keep wide desktop workspace pages and specialized editors unchanged. */
- @media (max-width:1099px) {
-   body.admin-new-ui :is(#menuMask,#mypageModal,#featureSettingsMask,#tagSettingsMask,#howToMask) {
-     box-sizing:border-box;
-     padding:16px!important;
-     align-items:center!important;
-     justify-content:center!important;
-   }
-   body.admin-new-ui #menuMask .app-menu-sheet,
-   body.admin-new-ui :is(#mypageModal .mypage-sheet,#featureSettingsMask .feature-settings-dialog,#tagSettingsMask .tag-settings-dialog,#howToMask .howto-dialog) {
-     position:relative!important;
-     width:100%!important;
-     max-width:520px!important;
-     max-height:calc(100dvh - 32px)!important;
-     margin:0 auto!important;
-     padding:16px!important;
-     border-radius:14px!important;
-     box-sizing:border-box!important;
-   }
- }
+ /* All administrator MENU destinations follow the same compact geometry as
+    the MENU list itself. Keep desktop work-area pages and unrelated dialogs untouched. */
+  @media (max-width:1099px) {
+    body.admin-new-ui :is(
+      #menuMask,#mypageModal,#featureSettingsMask,#tagSettingsMask,
+      #skillSyncMask,#allScoreSyncMask,#skillShareMask,#skillHistoryMask,
+      #skillRankingMask,#officialSkillRankingMask,#rivalManageMask,
+      #songCatalogMask,#howToMask,#feedbackMask,#supportMask,#accountSwitchMask
+    ) {
+      box-sizing:border-box;
+      padding:16px!important;
+      align-items:center!important;
+      justify-content:center!important;
+    }
+    body.admin-new-ui :is(
+      #menuMask > .app-menu-sheet,
+      #mypageModal > .mypage-sheet,
+      #featureSettingsMask > .menu-screen-dialog,
+      #tagSettingsMask > .menu-screen-dialog,
+      #skillSyncMask > .menu-screen-dialog,
+      #allScoreSyncMask > .menu-screen-dialog,
+      #skillShareMask > .menu-screen-dialog,
+      #skillHistoryMask > .menu-screen-dialog,
+      #skillRankingMask > .menu-screen-dialog,
+      #officialSkillRankingMask > .menu-screen-dialog,
+      #rivalManageMask > .menu-screen-dialog,
+      #songCatalogMask > .menu-screen-dialog,
+      #howToMask > .menu-screen-dialog,
+      #feedbackMask > .menu-screen-dialog,
+      #supportMask > .menu-screen-dialog,
+      #accountSwitchMask > .menu-screen-dialog
+    ) {
+      position:relative!important;
+      flex-shrink:1;
+      width:100%!important;
+      max-width:520px!important;
+      max-height:calc(100dvh - 32px)!important;
+      margin:0 auto!important;
+      padding:16px!important;
+      border-radius:14px!important;
+      box-sizing:border-box!important;
+    }
+  }
+  @media (max-width:600px) {
+    body.admin-new-ui :is(
+      #menuMask,#mypageModal,#featureSettingsMask,#tagSettingsMask,
+      #skillSyncMask,#allScoreSyncMask,#skillShareMask,#skillHistoryMask,
+      #skillRankingMask,#officialSkillRankingMask,#rivalManageMask,
+      #songCatalogMask,#howToMask,#feedbackMask,#supportMask,#accountSwitchMask
+    ) {padding:12px!important;}
+    body.admin-new-ui :is(
+      #menuMask > .app-menu-sheet,
+      #mypageModal > .mypage-sheet,
+      #featureSettingsMask > .menu-screen-dialog,
+      #tagSettingsMask > .menu-screen-dialog,
+      #skillSyncMask > .menu-screen-dialog,
+      #allScoreSyncMask > .menu-screen-dialog,
+      #skillShareMask > .menu-screen-dialog,
+      #skillHistoryMask > .menu-screen-dialog,
+      #skillRankingMask > .menu-screen-dialog,
+      #officialSkillRankingMask > .menu-screen-dialog,
+      #rivalManageMask > .menu-screen-dialog,
+      #songCatalogMask > .menu-screen-dialog,
+      #howToMask > .menu-screen-dialog,
+      #feedbackMask > .menu-screen-dialog,
+      #supportMask > .menu-screen-dialog,
+      #accountSwitchMask > .menu-screen-dialog
+    ) {
+      max-width:460px!important;
+      max-height:calc(100dvh - 24px)!important;
+    }
+  }
  /* The help screen uses the same readable body typography as other admin
     menu descriptions; the old 11px rule was defined in common app.css. */
  body.admin-new-ui #howToMask .howto-body :is(p,li) {
