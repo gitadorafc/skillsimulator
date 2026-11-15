@@ -3963,15 +3963,28 @@ function syncRegisteredEditButtonWidths() {
 }
 
 
-// The public CSS effects are unchanged. Align their actual playback positions
-// after records are inserted; do not animate the whole app or run a frame loop.
-// Both the own page and a viewed profile use the same CSS animations and
-// exactly the same clock alignment.  A viewed profile is aligned once when
-// its records have been rendered; scrolling must never seek its clock.
+// One animation clock for the own header and every admin song list, including
+// viewed-user lists. The identical collector works for both screens; there is
+// no profile-specific CSS animation or timing correction.
 let adminPulseObserver = null;
 let adminPulseFramePending = false;
-let adminPulseDetailPending = false;
-function syncAdminPublicPulsePhase(includeUserDetail = false) {
+const ADMIN_PULSE_ANIMATION_NAMES = new Set([
+  'skill-sparkle-text-glow', 'skill-sparkle-text-sweep',
+  'skill-sparkle-border-pulse', 'skill-sparkle-band-pulse', 'admin-song-border-pulse'
+]);
+const ADMIN_PULSE_TARGET_SELECTOR = [
+  '.score-val.score-rank-sparkle-rainbow',
+  '.ar-record.skill-row-sparkle-rainbow',
+  '.dc-card:has(.skill-box-sparkle-rainbow)'
+].join(',');
+function getAdminPulseRoots() {
+  const ownHeader = document.querySelector('#appScreen > .p-header');
+  const ids = ['viewSkill', 'viewAllManage', 'userDetailSkill', 'userDetailRecords'];
+  // CSS display:none suppresses animations for inactive screens.
+  const viewedHeader = document.querySelector('#userDetailPage .user-detail-summary');
+  return [ownHeader, viewedHeader, ...ids.map(id => $(id))].filter(Boolean);
+}
+function syncAdminPublicPulsePhase() {
   if (!document.body.classList.contains('admin-new-ui')) return;
   const ownHeader = document.querySelector('#appScreen > .p-header');
   const master = [...(ownHeader?.querySelectorAll('.score-val.score-rank-sparkle-rainbow') || [])]
@@ -3979,28 +3992,14 @@ function syncAdminPublicPulsePhase(includeUserDetail = false) {
     .find(animation => animation.animationName === 'skill-sparkle-text-glow' && animation.currentTime != null);
   if (!master) return;
   const phase = Number(master.currentTime);
-  const names = new Set([
-    'skill-sparkle-text-glow', 'skill-sparkle-text-sweep',
-    'skill-sparkle-border-pulse', 'skill-sparkle-band-pulse', 'admin-song-border-pulse'
-  ]);
-  const syncRoot = root => {
-    if (!root) return;
-    // The same collector serves own header/cards and viewed header/cards.
-    root.querySelectorAll('.score-val.score-rank-sparkle-rainbow, .ar-record.skill-row-sparkle-rainbow, .dc-card:has(.skill-box-sparkle-rainbow)')
-      .forEach(element => element.getAnimations({subtree:true}).forEach(animation => {
-        if (!names.has(animation.animationName) || animation.currentTime == null) return;
+  for (const root of getAdminPulseRoots()) {
+    root.querySelectorAll(ADMIN_PULSE_TARGET_SELECTOR).forEach(element => {
+      element.getAnimations({subtree:true}).forEach(animation => {
+        if (!ADMIN_PULSE_ANIMATION_NAMES.has(animation.animationName) || animation.currentTime == null) return;
         if (Math.abs(Number(animation.currentTime) - phase) < 12) return;
         try { animation.currentTime = phase; } catch (_) { /* detached animation */ }
-      }));
-  };
-  syncRoot(ownHeader);
-  syncRoot(document.getElementById('viewSkill'));
-  syncRoot(document.getElementById('viewAllManage'));
-  // Only on the explicit profile-render pass, not on scroll/observer updates.
-  if (includeUserDetail) {
-    syncRoot(document.querySelector('#userDetailPage.user-detail-open .user-detail-summary'));
-    syncRoot(document.getElementById('userDetailSkill'));
-    syncRoot(document.getElementById('userDetailRecords'));
+      });
+    });
   }
 }
 
@@ -4032,39 +4031,31 @@ function scheduleAdminBoardHeaderAlignment() {
   if (!document.body.classList.contains('admin-new-ui')) return;
   requestAnimationFrame(alignAdminBoardHeaderToThreads);
 }
-function scheduleAdminPublicPulsePhase(includeUserDetail = false) {
-  if (!document.body.classList.contains('admin-new-ui')) return;
-  adminPulseDetailPending ||= includeUserDetail === true;
-  if (adminPulseFramePending) return;
+function scheduleAdminPublicPulsePhase() {
+  if (!document.body.classList.contains('admin-new-ui') || adminPulseFramePending) return;
   adminPulseFramePending = true;
-  // New CSS animations can still be pending on their first frame.
-  // Run once after the browser has committed their start times.
+  // Match the fixed own-header clock after the new CSS animations exist.
   requestAnimationFrame(() => requestAnimationFrame(() => {
     adminPulseFramePending = false;
-    const alignDetail = adminPulseDetailPending;
-    adminPulseDetailPending = false;
-    syncAdminPublicPulsePhase(alignDetail);
+    syncAdminPublicPulsePhase();
   }));
 }
 function ensureAdminPulseObserver() {
   if (adminPulseObserver || !document.body.classList.contains('admin-new-ui')) return;
-  const roots = ['viewSkill','viewAllManage']
+  // Observe the own and viewed-user lists via exactly the same path.
+  const roots = ['viewSkill','viewAllManage','userDetailSkill','userDetailRecords']
     .map(id => $(id)).filter(Boolean);
   if (!roots.length) return;
   adminPulseObserver = new MutationObserver(mutations => {
     if (mutations.some(mutation => mutation.addedNodes.length)) scheduleAdminPublicPulsePhase();
   });
-  for (const root of roots) adminPulseObserver.observe(root,{
-    childList:true,subtree:true,attributes:true,attributeFilter:['class']
-  });
-  // When a recycled card starts animating during a scroll, its new clock
-  // otherwise starts at zero while the fixed header continues running.
-  // Reuse the existing coalesced phase alignment, never a polling loop.
-  for (const root of roots) root.addEventListener('animationstart', event => {
-    if (event.target.closest?.('.ar-record.skill-row-sparkle-rainbow')) {
-      scheduleAdminPublicPulsePhase();
-    }
-  });
+  for (const root of roots) {
+    adminPulseObserver.observe(root, {childList:true,subtree:true});
+    root.addEventListener('animationstart', event => {
+      if (!ADMIN_PULSE_ANIMATION_NAMES.has(event.animationName)) return;
+      if (event.target.closest?.(ADMIN_PULSE_TARGET_SELECTOR)) scheduleAdminPublicPulsePhase();
+    });
+  }
 }
 
 function render() {
@@ -4743,7 +4734,7 @@ function renderViewedUserSkill() {
       ? renderAdminRegisteredRecords(target.otherRows, 'SKILL', true)
       : target.otherRows.map((r,i) => createCard(r,i+1,'SKILL')).join('')
   });
-  scheduleAdminPublicPulsePhase(true);
+  scheduleAdminPublicPulsePhase();
 }
 
 function setUserDetailTab(tab) {
@@ -4774,6 +4765,7 @@ function renderViewedUserRegisteredScores() {
       : renderRegisteredCardList(visibleRows, 'PUBLIC'),
     hasMore
   });
+  scheduleAdminPublicPulsePhase();
 }
 
 async function loadViewedUserRegisteredScores() {

@@ -11,18 +11,18 @@ body.admin-new-ui.light-mode {
  --app-accent-pressed:#195568;
  --app-accent-soft:#e4f1f3;
 }
-/* The shared scroll optimization pauses cards inside user-detail-body, but
-   not the fixed own header. On iPhone WebKit that splits their clock phase.
-   Exempt *only* admin viewed-user details so both play continuously. */
-body.admin-new-ui.app-scroll-layout.app-scrolling #userDetailPage.user-detail-open .user-detail-body :is(
- .score-rank-sparkle-rainbow,.user-list-row-sparkle-rainbow,.skill-box-sparkle-rainbow,
- .ar-record.skill-row-sparkle-rainbow
+/* All admin skill-card lists follow the same running animation clock while
+   scrolling. The shared public scroll optimization stays unchanged.
+   No viewed-profile-specific animation keyframes or Safari overrides. */
+body.admin-new-ui.app-scroll-layout.app-scrolling :is(#viewSkill,#viewAllManage,#userDetailSkill,#userDetailRecords) :is(
+  .score-rank-sparkle-rainbow,.user-list-row-sparkle-rainbow,
+  .skill-box-sparkle-rainbow,.ar-record.skill-row-sparkle-rainbow
 ){animation-play-state:running!important;}
-body.admin-new-ui.app-scroll-layout.app-scrolling #userDetailPage.user-detail-open .user-detail-body .skill-box-sparkle-rainbow::before,
-body.admin-new-ui.app-scroll-layout.app-scrolling #userDetailPage.user-detail-open .user-detail-body .skill-box-sparkle-rainbow::after {animation-play-state:running!important;}
-body.admin-new-ui.app-scroll-layout.app-scrolling #userDetailPage.user-detail-open .user-detail-body .dc-card:has(.skill-box-sparkle-rainbow)::before,
-body.admin-new-ui.app-scroll-layout.app-scrolling #userDetailPage.user-detail-open .user-detail-body .ar-record.skill-row-sparkle-rainbow::before,
-body.admin-new-ui.app-scroll-layout.app-scrolling #userDetailPage.user-detail-open .user-detail-body .ar-record.skill-row-sparkle-rainbow::after
+body.admin-new-ui.app-scroll-layout.app-scrolling :is(#viewSkill,#viewAllManage,#userDetailSkill,#userDetailRecords) .skill-box-sparkle-rainbow::before,
+body.admin-new-ui.app-scroll-layout.app-scrolling :is(#viewSkill,#viewAllManage,#userDetailSkill,#userDetailRecords) .skill-box-sparkle-rainbow::after,
+body.admin-new-ui.app-scroll-layout.app-scrolling :is(#viewSkill,#viewAllManage,#userDetailSkill,#userDetailRecords) .dc-card:has(.skill-box-sparkle-rainbow)::before,
+body.admin-new-ui.app-scroll-layout.app-scrolling :is(#viewSkill,#viewAllManage,#userDetailSkill,#userDetailRecords) .ar-record.skill-row-sparkle-rainbow::before,
+body.admin-new-ui.app-scroll-layout.app-scrolling :is(#viewSkill,#viewAllManage,#userDetailSkill,#userDetailRecords) .ar-record.skill-row-sparkle-rainbow::after
 {animation-play-state:running!important;}
 /* Admin registered rows: layout only; reuse public UI color, badge, and skill tokens. */
 body.admin-new-ui :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords){width:100%;max-width:none;display:block;--ar-cols:40px 70px minmax(160px,1fr) 82px 55px 87px 74px 62px 76px 48px}
