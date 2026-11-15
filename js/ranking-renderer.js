@@ -79,7 +79,7 @@ export function renderSkillRankingRows(rows, getPartColorClass) {
           <div class="skill-ranking-metric">
             <small>スキル値平均</small>
             <strong>${Number(row.average_skill).toFixed(2)}</strong>
-            <em>対象入りユーザー平均</em>
+            
           </div>
           <div class="skill-ranking-metric">
             <small>平均との比較</small>

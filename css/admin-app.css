@@ -591,8 +591,8 @@ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetail
  }
  body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetailSkill,#userDetailRecords) .ar-bear-medal {width:16px;height:16px;}
  body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetailSkill,#userDetailRecords) .ar-skill {
-   /* Align the 19px skill badge with the first-row part/option badges. */
-   top:3px;right:5px;
+   /* Restore the pre-4.40.79 vertical position on narrow ON cards. */
+   top:5px;right:5px;
    width:51px!important;max-width:51px!important;
    border-radius:3px;font-size:10px;
  }

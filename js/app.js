@@ -3805,7 +3805,10 @@ function syncAdminTwoColumnViewport() {
   if (!screen) return;
   const adminNewUi = document.body.classList.contains('admin-new-ui');
   const viewportWidth = document.documentElement.clientWidth || window.innerWidth;
-  const viewportHeight = window.visualViewport?.height || window.innerHeight;
+  // iOS Safari changes the visual viewport as its browser chrome moves.
+  // Use the layout viewport here so a transient visualViewport shrink does
+  // not leave a blank strip below the zoomed app when scrolling.
+  const viewportHeight = window.innerHeight || document.documentElement.clientHeight;
   const logicalWidth = 400;
   const scale = adminNewUi && viewportWidth < logicalWidth ? viewportWidth / logicalWidth : 1;
 
@@ -8559,13 +8562,19 @@ GLOBAL_SCROLL_LOCK_OVERLAYS.forEach(selector => {
 });
 requestAnimationFrame(syncGlobalModalScrollLock);
 
-window.addEventListener('resize', () => {
+const refreshAdminViewport = () => {
   if (document.body.classList.contains('admin-new-ui')) {
     syncAdminTwoColumnViewport();
     clampAdminTwoColumnTitles();
     scheduleAdminBoardHeaderAlignment();
   } else syncRegisteredEditButtonWidths();
-});
+};
+window.addEventListener('resize', refreshAdminViewport);
+// Safari can resize its visual viewport without issuing a window resize.
+// Keep the 400px logical screen geometry in step with the browser UI.
+if (/iP(?:hone|ad|od)/.test(navigator.userAgent || '')) {
+  window.visualViewport?.addEventListener('resize', refreshAdminViewport, {passive:true});
+}
 
 [
   document.querySelector('#appScreen > .p-container'),
