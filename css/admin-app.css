@@ -11,6 +11,59 @@ body.admin-new-ui.light-mode {
  --app-accent-pressed:#195568;
  --app-accent-soft:#e4f1f3;
 }
+/* Admin-only destructive actions: one theme palette for all delete controls.
+   Replaces the disparate tag/account/rival styles without touching public UI.
+   Geometry (size/spacing) stays owned by each component. */
+body.admin-new-ui {
+  --admin-delete-bg:#2b1017;
+  --admin-delete-border:#7f1d1d;
+  --admin-delete-ink:#fca5a5;
+}
+body.admin-new-ui.light-mode {
+  --admin-delete-bg:#fee2e2;
+  --admin-delete-border:#ef4444;
+  --admin-delete-ink:#b91c1c;
+}
+body.admin-new-ui :is(
+  #btnDeleteAccount,
+  #tagSettingsMask .tag-settings-row button[data-delete-tag],
+  #rivalManageMask .favorite-user-row > .remove,
+  .account-switch-remove,
+  #btnDeleteEditingScore,
+  .skill-history-delete,
+  .admin-board-post-actions button.danger,
+  #btnAdminBulkDeleteScores,
+  #btnAdminDeleteSelectedUsers,
+  #btnAdminMasterMobileDelete,
+  .admin-delete,
+  .btn-version-delete,
+  button.master-row-delete[data-admin-delete-master-row]
+) {
+  background:var(--admin-delete-bg)!important;
+  border:1px solid var(--admin-delete-border)!important;
+  color:var(--admin-delete-ink)!important;
+  -webkit-text-fill-color:var(--admin-delete-ink)!important;
+  border-radius:8px;
+  box-shadow:none!important;
+}
+body.admin-new-ui :is(
+  #btnDeleteAccount,
+  #tagSettingsMask .tag-settings-row button[data-delete-tag],
+  #rivalManageMask .favorite-user-row > .remove,
+  .account-switch-remove,
+  #btnDeleteEditingScore,
+  .skill-history-delete,
+  .admin-board-post-actions button.danger,
+  #btnAdminBulkDeleteScores,
+  #btnAdminDeleteSelectedUsers,
+  #btnAdminMasterMobileDelete,
+  .admin-delete,
+  .btn-version-delete,
+  button.master-row-delete[data-admin-delete-master-row]
+):not(:disabled):hover {
+  filter:brightness(1.08);
+}
+
 /* All admin skill-card lists follow the same running animation clock while
    scrolling. The shared public scroll optimization stays unchanged.
    No viewed-profile-specific animation keyframes or Safari overrides. */
@@ -97,19 +150,27 @@ body.admin-new-ui.light-mode .favorite-toggle.active {
 
 /* Light-mode card badges: identical palette in SKILL and registered tabs.
    Use the public registered-card tokens, without changing the dark theme. */
-body.admin-new-ui.light-mode :is(#viewSkill,#viewAllManage,#userDetailSkill,#userDetailRecords) .ar-option .opt-ran {
+body.admin-new-ui.light-mode :is(#viewSkill,#viewAllManage,#userDetailSkill,#userDetailRecords) .ar-option .opt-ran,
+body.admin-new-ui.light-mode #rateCompareMask .opt-ran,
+body.admin-new-ui.light-mode #userDetailPage .opt-ran {
   color:#15803d!important;-webkit-text-fill-color:#15803d!important;
   background:#ecfdf5!important;border-color:#15803d!important;
 }
-body.admin-new-ui.light-mode :is(#viewSkill,#viewAllManage,#userDetailSkill,#userDetailRecords) .ar-option .opt-sra {
+body.admin-new-ui.light-mode :is(#viewSkill,#viewAllManage,#userDetailSkill,#userDetailRecords) .ar-option .opt-sra,
+body.admin-new-ui.light-mode #rateCompareMask .opt-sra,
+body.admin-new-ui.light-mode #userDetailPage .opt-sra {
   color:#c2410c!important;-webkit-text-fill-color:#c2410c!important;
   background:#fff7ed!important;border-color:#c2410c!important;
 }
-body.admin-new-ui.light-mode :is(#viewSkill,#viewAllManage,#userDetailSkill,#userDetailRecords) .ar-option .opt-ran-plus {
+body.admin-new-ui.light-mode :is(#viewSkill,#viewAllManage,#userDetailSkill,#userDetailRecords) .ar-option .opt-ran-plus,
+body.admin-new-ui.light-mode #rateCompareMask .opt-ran-plus,
+body.admin-new-ui.light-mode #userDetailPage .opt-ran-plus {
   color:#0369a1!important;-webkit-text-fill-color:#0369a1!important;
   background:#f0f9ff!important;border-color:#0369a1!important;
 }
-body.admin-new-ui.light-mode :is(#viewSkill,#viewAllManage,#userDetailSkill,#userDetailRecords) .ar-option .opt-sra-plus {
+body.admin-new-ui.light-mode :is(#viewSkill,#viewAllManage,#userDetailSkill,#userDetailRecords) .ar-option .opt-sra-plus,
+body.admin-new-ui.light-mode #rateCompareMask .opt-sra-plus,
+body.admin-new-ui.light-mode #userDetailPage .opt-sra-plus {
   color:#be123c!important;-webkit-text-fill-color:#be123c!important;
   background:#fff1f2!important;border-color:#be123c!important;
 }
