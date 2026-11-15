@@ -429,8 +429,11 @@ export async function renderAdminJacketSkillShareFile({
   });
   const hotRows = isComparison ? selectImproved(target.hotRows) : (target.hotRows || []).slice(0, 25);
   const otherRows = isComparison ? selectImproved(target.otherRows) : (target.otherRows || []).slice(0, 25);
-  const maxRows = Math.max(hotRows.length, otherRows.length);
-  const H = isComparison ? Math.max(540, 256 + 46 + maxRows * rowH + 130) : 2180;
+  const comparisonRows = isComparison ? [
+    ...hotRows.map(row => ({row, section:'HOT'})),
+    ...otherRows.map(row => ({row, section:'OTHER'}))
+  ] : [];
+  const H = isComparison ? 256 + 52 + Math.max(comparisonRows.length, 1) * 100 + 100 : 2180;
   // Export at higher pixel density so small jackets, labels and medal artwork
   // remain sharp when viewing the full saved PNG. Logical layout is unchanged.
   const exportScale = 1.5;
@@ -593,29 +596,25 @@ export async function renderAdminJacketSkillShareFile({
       const partStyle = part.startsWith('MAS') ? ['#cf2ce4', '#fff']
         : part.startsWith('EXT') ? ['#f43f46', '#fff']
         : part.startsWith('ADV') ? ['#eab308', '#0b1020'] : ['#3b9ff2', '#fff'];
-      // Fixed-column layout with equal 8px gaps. The achievement column is
-      // sized for 100.00%, so a 2-digit value cannot shift FC or options.
-      const detailGap = 8;
-      const partW = 58, levelW = 44, rateW = 76, medalW = 28, optionW = 53;
+      // Measure the *visible glyphs*, not their padded columns. Every
+      // adjacent item has the same optical gap, even when the rate is 99.xx%.
+      // The achievement is reserved at its maximum 100.00% width.
+      const detailGap = 10;
+      const partW = 58, medalW = 26, optionW = 53;
+      c.font = '800 16px sans-serif';
+      const levelText = Number(r.level || 0).toFixed(2);
+      const rateText = `${Number(r.achievement_rate || 0).toFixed(2)}%`;
+      const levelW = Math.ceil(c.measureText(levelText).width);
+      const rateW = Math.ceil(c.measureText('100.00%').width);
       const levelX = contentX + partW + detailGap;
       const rateX = levelX + levelW + detailGap;
       const medalX = rateX + rateW + detailGap;
       const optionX = medalX + medalW + detailGap;
       drawPill(part, contentX, pillTop, partW, 19, ...partStyle, null, 13);
       c.font = '800 16px sans-serif'; c.fillStyle = '#e2e8f0';
-      c.textAlign = 'center'; c.textBaseline = 'middle';
-      c.fillText(Number(r.level || 0).toFixed(2), levelX + levelW / 2, pillTop + 10);
-      c.fillText(`${Number(r.achievement_rate || 0).toFixed(2)}%`, rateX + rateW / 2, pillTop + 10);
-      if (isComparison) {
-        const comparison = previousByKey.get(compareKey(r));
-        const rateDelta = comparison ? deltaLabel(r.achievement_rate, comparison.achievement_rate, false) : '';
-        if (rateDelta) {
-          c.font = '800 12px sans-serif';
-          c.fillStyle = deltaColor(r.achievement_rate, comparison.achievement_rate, false);
-          c.textAlign = 'center'; c.textBaseline = 'middle';
-          c.fillText(rateDelta + '%', rateX + rateW / 2, y + 74);
-        }
-      }
+      c.textAlign = 'left'; c.textBaseline = 'middle';
+      c.fillText(levelText, levelX, pillTop + 10);
+      c.fillText(rateText, rateX, pillTop + 10);
       const type = Number(r.achievement_rate) === 100 ? 'EXC' : String(r.fc || '').toUpperCase() === 'FC' ? 'FC' : '';
       drawMedal(type, medalX + medalW / 2, pillTop + 9);
       const option = String(r.play_option || 'NORMAL').toUpperCase();
@@ -653,12 +652,73 @@ export async function renderAdminJacketSkillShareFile({
       }
     });
   };
-  drawTable(isComparison ? `HOT 上昇・新規 ${hotRows.length}曲` : 'HOT TOP 25', hotRows, 54, '#e94b88');
-  drawTable(isComparison ? `OTHER 上昇・新規 ${otherRows.length}曲` : 'OTHER TOP 25', otherRows, 54 + colW + gap, '#83c63d');
-  if (isComparison && !maxRows) {
-    c.fillStyle = '#cbd5e1'; c.font = '700 23px sans-serif';
-    c.textAlign = 'center'; c.textBaseline = 'middle';
-    c.fillText('前回からスキル値が上昇した曲・新規対象入りした曲はありません', W / 2, 375);
+  if (isComparison) {
+    // A change log, not a mostly empty HOT/OTHER table. Only improved/new
+    // songs appear, with their previous and current skill side by side.
+    c.fillStyle = '#243248'; c.fillRect(54, tableTop, W - 108, 44);
+    c.fillStyle = '#f8fafc'; c.font = '900 23px sans-serif';
+    c.textAlign = 'left'; c.textBaseline = 'middle';
+    c.fillText(`スキル更新曲  ${comparisonRows.length}曲`, 70, tableTop + 22);
+    const listLeft = 54, listWidth = W - 108, rightX = listLeft + listWidth - 300;
+    comparisonRows.forEach(({row:r, section}, i) => {
+      const y = tableTop + 52 + i * 100;
+      const old = previousByKey.get(compareKey(r));
+      const skill = Number(r.skill || 0);
+      const isNew = !old;
+      c.fillStyle = i % 2 ? '#0c1628' : '#111e31';
+      c.fillRect(listLeft, y, listWidth, 94);
+      c.strokeStyle = section === 'HOT' ? '#e94b88' : '#83c63d';
+      c.lineWidth = 2; c.strokeRect(listLeft + 1, y + 1, listWidth - 2, 92);
+      const jacketSize = 76, jacketX = listLeft + 12, jacketY = y + 9;
+      const img = jacketMap.get(String(r.title || ''));
+      c.fillStyle = '#22354c'; c.fillRect(jacketX, jacketY, jacketSize, jacketSize);
+      if (img) {
+        const sw = img.naturalWidth || img.width, sh = img.naturalHeight || img.height;
+        const size = Math.min(sw, sh);
+        c.save(); c.beginPath(); c.roundRect(jacketX, jacketY, jacketSize, jacketSize, 4); c.clip();
+        c.drawImage(img, (sw - size) / 2, (sh - size) / 2, size, size, jacketX, jacketY, jacketSize, jacketSize);
+        c.restore();
+      }
+      const textX = jacketX + jacketSize + 16;
+      c.fillStyle = '#f8fafc'; c.font = '900 23px sans-serif';
+      c.textAlign = 'left'; c.textBaseline = 'middle';
+      c.fillText(fitText(r.title, rightX - textX - 28, '900 23px sans-serif'), textX, y + 26);
+      drawPill(section, textX, y + 53, 62, 24, section === 'HOT' ? '#67142e' : '#294a1b', '#fff', null, 14);
+      const part = String(r.part || '');
+      drawPill(part, textX + 72, y + 53, 76, 24, '#c52add', '#fff', null, 15);
+      c.fillStyle = '#cbd5e1'; c.font = '700 18px sans-serif';
+      c.textAlign = 'left'; c.fillText(`Lv ${Number(r.level || 0).toFixed(2)}    ${Number(r.achievement_rate || 0).toFixed(2)}%`, textX + 162, y + 66);
+      if (!isNew) {
+        const rateChange = Number(r.achievement_rate || 0) - Number(old.achievement_rate || 0);
+        if (Math.abs(rateChange) >= .005) {
+          c.fillStyle = rateChange > 0 ? '#86efac' : '#93c5fd';
+          c.font = '800 16px sans-serif';
+          c.fillText(`(${rateChange > 0 ? '+' : ''}${rateChange.toFixed(2)}%)`, textX + 345, y + 66);
+        }
+      }
+      if (isNew) {
+        c.fillStyle = '#fdba74'; c.font = '900 19px sans-serif';
+        c.textAlign = 'right'; c.fillText('NEW', listLeft + listWidth - 18, y + 26);
+        c.fillStyle = '#f8fafc'; c.font = '900 28px sans-serif';
+        c.fillText(skill.toFixed(2), listLeft + listWidth - 18, y + 65);
+      } else {
+        const diff = skill - Number(old.skill || 0);
+        c.fillStyle = '#94a3b8'; c.font = '700 21px sans-serif'; c.textAlign = 'right';
+        c.fillText(`${Number(old.skill || 0).toFixed(2)} →`, rightX + 94, y + 33);
+        c.fillStyle = '#f8fafc'; c.font = '900 28px sans-serif';
+        c.fillText(skill.toFixed(2), listLeft + listWidth - 18, y + 33);
+        c.fillStyle = '#86efac'; c.font = '900 20px sans-serif';
+        c.fillText(`+${diff.toFixed(2)}`, listLeft + listWidth - 18, y + 66);
+      }
+    });
+    if (!comparisonRows.length) {
+      c.fillStyle = '#cbd5e1'; c.font = '700 23px sans-serif';
+      c.textAlign = 'center'; c.textBaseline = 'middle';
+      c.fillText('スキル値が上昇した曲・新規対象入りした曲はありません', W / 2, tableTop + 105);
+    }
+  } else {
+    drawTable('HOT TOP 25', hotRows, 54, '#e94b88');
+    drawTable('OTHER TOP 25', otherRows, 54 + colW + gap, '#83c63d');
   }
   c.fillStyle = '#0b1424'; c.fillRect(54, H - 62, W - 108, 30);
   c.fillStyle = '#94a3b8'; c.font = '700 24px sans-serif'; c.textAlign = 'left'; c.textBaseline = 'alphabetic';
