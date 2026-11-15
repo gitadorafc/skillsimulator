@@ -616,7 +616,7 @@ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetail
    width:28px;height:28px;font-size:17px;
  }
  body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-record:not(.ar-readonly) .ar-skill {
-   right:6px;justify-self:end;
+   top:2px;right:6px;justify-self:end;
  }
  body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-record:not(.ar-readonly) .ar-title {
    padding-right:116px;
