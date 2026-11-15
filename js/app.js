@@ -4172,7 +4172,70 @@ async function switchTab(tab) {
   render();
 }
 
+// 管理者新UIだけ: 操作行と入力グループを構築する。
+// 一般ユーザーには従来のDOM構造・文言・スタイルをそのまま残す。
+function prepareAdminScoreEditor() {
+  const isAdminUi = document.body.classList.contains('admin-new-ui');
+  const sheet = $('domModal')?.querySelector('.mdl-sheet');
+  const footer = sheet?.querySelector('.btn-block');
+  const deleteArea = $('editDeleteArea');
+  if (!sheet || !footer || !deleteArea) return;
+
+  // Restore the original public DOM if the account changed without reloading.
+  if (!isAdminUi && sheet.classList.contains('admin-score-editor')) {
+    const sections = sheet.querySelectorAll(':scope > .admin-score-edit-section');
+    for (const section of sections) {
+      for (const child of [...section.children]) {
+        if (child.classList.contains('admin-score-edit-section-title')) continue;
+        sheet.insertBefore(child, section);
+      }
+      section.remove();
+    }
+    sheet.insertBefore(deleteArea, footer);
+    sheet.classList.remove('admin-score-editor');
+    $('adminScoreTitleField')?.removeAttribute('id');
+    $('adminScorePartField')?.removeAttribute('id');
+    $('btnDeleteEditingScore').textContent = 'この登録データを削除';
+  }
+  if (!isAdminUi) return;
+
+  if (!sheet.classList.contains('admin-score-editor')) {
+    const group = (title, className, ids) => {
+      const section = document.createElement('section');
+      section.className = `admin-score-edit-section ${className}`;
+      const head = document.createElement('h4');
+      head.className = 'admin-score-edit-section-title';
+      head.textContent = title;
+      section.append(head);
+      for (const id of ids) {
+        const element = $(id);
+        if (element) section.append(element);
+      }
+      sheet.insertBefore(section, footer);
+    };
+    const titleField = $('formTitle')?.closest('.f-group');
+    const partField = $('partSelect')?.closest('.form-grid-two');
+    // Move existing nodes instead of rebuilding inputs: events, values and suggestions survive.
+    if (titleField) titleField.id = 'adminScoreTitleField';
+    if (partField) partField.id = 'adminScorePartField';
+    group('曲情報', 'admin-score-edit-song', [
+      'adminScoreTitleField','adminScorePartField','masterRequestArea','levelCorrectionArea'
+    ]);
+    group('スコア情報', 'admin-score-edit-result', [
+      'rateSkillFields','scoreExtraFields'
+    ]);
+    group('メモ・タグ', 'admin-score-edit-extra', [
+      'scorePrivateCommentGroup','scoreTagGroup'
+    ]);
+    footer.insertBefore(deleteArea, $('btnSubmitForm'));
+    sheet.classList.add('admin-score-editor');
+  }
+  $('btnDeleteEditingScore').textContent = '削除';
+  $('btnSubmitForm').textContent = '保存';
+}
+
 function openScoreModal(score = null, skipInitialFocus = false) {
+  prepareAdminScoreEditor();
   previousScoreSettingsRequestSeq++;
   editingScoreId = score?.score_id || null;
   autoLoadedExistingScore = false;
@@ -4211,7 +4274,7 @@ function openScoreModal(score = null, skipInitialFocus = false) {
   $('songSuggestions').innerHTML = '';
   if ($('adminSongInitialFilter')) $('adminSongInitialFilter').value = '';
   if ($('adminSongCandidate')) $('adminSongCandidate').value = '';
-  $('btnSubmitForm').textContent = '保存';
+  $('btnSubmitForm').textContent = document.body.classList.contains('admin-new-ui') ? '保存' : '保存する';
   $('editDeleteArea').classList.toggle('hidden', !score);
   hide('masterRequestArea');
   hide('levelCorrectionArea');
@@ -4422,7 +4485,7 @@ async function refreshSelectedPart() {
       selectedSong = song;
       $('formLevel').value = formatLevel(song.level);
       $('formLevel').readOnly = true;
-      $('btnSubmitForm').textContent = '保存';
+      $('btnSubmitForm').textContent = document.body.classList.contains('admin-new-ui') ? '保存' : '保存する';
       hide('masterRequestArea');
       show('levelCorrectionArea');
 
@@ -6827,11 +6890,11 @@ $('btnSubmitForm').addEventListener('click', async () => {
     // モーダルがまだ開いている場合だけ元の表示へ戻す
     if ($('domModal').style.display !== 'none') {
       if (selectedSong) {
-        button.textContent = '保存';
+        button.textContent = document.body.classList.contains('admin-new-ui') ? '保存' : '保存する';
       } else {
         button.textContent = originalText.includes('登録依頼')
           ? '登録依頼して保存'
-          : '保存';
+          : (document.body.classList.contains('admin-new-ui') ? '保存' : '保存する');
       }
     }
   }

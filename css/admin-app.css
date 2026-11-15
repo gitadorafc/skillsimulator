@@ -1,16 +1,3 @@
-/* Admin action palette: one source of truth for existing blue primary controls.
-   Public UI keeps its original :root --app-accent values. Semantic GF/DM,
-   share/save colors, danger, medals and rainbow skill effects are unchanged. */
-body.admin-new-ui {
- --app-accent:#246b82;
- --app-accent-pressed:#19566a;
- --app-accent-soft:#dceff2;
-}
-body.admin-new-ui.light-mode {
- --app-accent:#236d83;
- --app-accent-pressed:#195568;
- --app-accent-soft:#e4f1f3;
-}
 /* Admin registered rows: layout only; reuse public UI color, badge, and skill tokens. */
 body.admin-new-ui :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords){width:100%;max-width:none;display:block;--ar-cols:40px 70px minmax(160px,1fr) 82px 55px 87px 74px 62px 76px 48px}
 body.admin-new-ui :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords).hidden{display:none!important}
@@ -20,12 +7,12 @@ body.admin-new-ui :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailReco
 body.admin-new-ui :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-table-head{padding:9px;margin-bottom:5px;background:#09324f;border:1px solid #1b678a;border-radius:7px;color:#9be9fc;font-size:12px;font-weight:800;text-align:center}
 body.admin-new-ui :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-table-head span{white-space:nowrap;min-width:0}
 body.admin-new-ui :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-table-head span:nth-child(3){text-align:left}
-body.admin-new-ui :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-record{position:relative;padding:7px;min-height:80px;border:2px solid transparent;border-radius:7px;background:linear-gradient(90deg,#112c55,#281531 15%,#0c1728 65%) padding-box,linear-gradient(rgba(255,255,255,var(--admin-border-pulse-alpha)),rgba(255,255,255,var(--admin-border-pulse-alpha))) border-box,var(--admin-song-border-image,linear-gradient(#475569,#475569)) border-box !important;color:#edf8ff;font-size:13px}
+body.admin-new-ui :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-record{position:relative;padding:8px;min-height:80px;border:1px solid transparent;border-radius:7px;background:linear-gradient(90deg,#112c55,#281531 15%,#0c1728 65%);color:#edf8ff;font-size:13px}
 body.admin-new-ui :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-record>*{min-width:0}
 /* Light theme: explicit contrast for admin cards. Layout, skill-color border,
    and the shared public sparkle animation remain identical in both themes. */
 body.admin-new-ui.light-mode :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-record{
- background:linear-gradient(#f3f4f6,#f3f4f6) padding-box,linear-gradient(rgba(255,255,255,var(--admin-border-pulse-alpha)),rgba(255,255,255,var(--admin-border-pulse-alpha))) border-box,var(--admin-song-border-image,linear-gradient(#475569,#475569)) border-box !important;color:#17243a;
+ background:#f3f4f6 !important;color:#17243a;
 }
 body.admin-new-ui.light-mode :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) :is(.ar-song-name,.ar-level,.ar-rate),
 body.admin-new-ui.light-mode :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) :is(.ar-level,.ar-rate) strong{
@@ -110,21 +97,21 @@ body.admin-new-ui.light-mode :is(#viewSkill,#viewAllManage,#userDetailSkill,#use
   filter:drop-shadow(0 1px 1px rgba(30,41,59,.72));
 }
 
-/* The opaque padding-box protects the existing card fill. The second layer
-   brightens only the transparent 2px border during the sparkle cycle; the
-   third layer paints the skill gradient. All use native rounded backgrounds,
-   avoiding the previous mask / border-image rasterization problems. */
-@property --admin-border-pulse-alpha {
- syntax:"<number>";
- inherits:false;
- initial-value:0;
+/* Single admin-only skill border. Paint is derived from the SAME skill-color table
+   as the existing user-facing card; no rank colors are duplicated here. */
+body.admin-new-ui :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-record::before{
+ content:"";position:absolute;inset:0;border-radius:inherit;
+ padding:2px;box-sizing:border-box;
+ background:var(--song-skill-border,#475569);
+ pointer-events:none;z-index:2;
+ -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+ -webkit-mask-composite:xor;
+ mask-composite:exclude;
 }
-@keyframes admin-song-border-pulse {
- 0%,100% { --admin-border-pulse-alpha:0; }
- 50% { --admin-border-pulse-alpha:.56; }
-}
-body.admin-new-ui :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-record.skill-row-sparkle-rainbow {
- animation:admin-song-border-pulse var(--skill-sparkle-cycle,1.6s) ease-in-out infinite;
+/* Reuse the public UI animations directly. Do not animate the whole app screen
+   or disable the header's existing text sweep and glow. */
+body.admin-new-ui :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-record.skill-row-sparkle-rainbow::before {
+ animation:skill-sparkle-border-pulse var(--skill-sparkle-cycle,1.6s) ease-in-out infinite;
 }
 body.admin-new-ui :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-metrics{display:contents}
 body.admin-new-ui :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-no{font-size:12px;color:#84b5d0;text-align:center;font-variant-numeric:tabular-nums}
@@ -189,7 +176,7 @@ body.admin-new-ui #searchArea.admin-filters-expanded .record-filter-row label{mi
 body.admin-new-ui #searchArea.admin-filters-expanded .record-filter-row select{width:100%;min-width:0;}
 body.admin-new-ui :is(#searchArea #btnAdminRecordFilters,#userListHeaderSlot #btnAdminUserFilters,.admin-filter-toggle-button) svg{width:21px;height:21px;display:block;}
 @media(max-width:650px){body.admin-new-ui #searchArea.admin-filters-expanded .record-filter-row{grid-template-columns:repeat(2,minmax(0,1fr))!important;}}
-body.admin-new-ui :is(#searchArea.admin-filters-expanded #btnAdminRecordFilters,#userListHeaderSlot.admin-user-filters-expanded #btnAdminUserFilters,#songCatalogMask .song-catalog-controls.admin-catalog-filters-open > .admin-catalog-filter-toggle){border-color:var(--app-accent);background:#254d86;}
+body.admin-new-ui :is(#searchArea.admin-filters-expanded #btnAdminRecordFilters,#userListHeaderSlot.admin-user-filters-expanded #btnAdminUserFilters,#songCatalogMask .song-catalog-controls.admin-catalog-filters-open > .admin-catalog-filter-toggle){border-color:#3b82f6;background:#254d86;}
 body.admin-new-ui #searchArea .admin-bulk-delete-area{margin-top:0;}
 body.admin-new-ui #btnHeaderAdd{white-space:nowrap;}
 
@@ -274,7 +261,7 @@ body.admin-new-ui .admin-filter-toggle-button {
 }
 body.admin-new-ui #boardMainFixed #btnBoardNewThread,
 body.admin-new-ui #searchArea #btnHeaderAdd {
-  background:var(--app-accent);border-color:var(--app-accent);color:white;-webkit-text-fill-color:white;
+  background:#3b82f6;border-color:#3b82f6;color:white;-webkit-text-fill-color:white;
 }
 body.admin-new-ui #boardMainFixed #btnBoardNewThread {white-space:nowrap;}
 /* Board toolbar uses shared search geometry; retain its bottom spacing. */
@@ -326,7 +313,7 @@ body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill,#user
  body.admin-new-ui:not(.skill-target-columns) #viewAllManage .ar-table-head{display:none;}
  body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-record{
    grid-template-columns:40px minmax(0,1fr) 67px 32px;
-   grid-template-rows:20px 20px;gap:3px 2px;padding:4px;min-height:53px;
+   grid-template-rows:20px 20px;gap:3px 2px;padding:5px;min-height:53px;
  }
  body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-no{display:none;}
  body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-art{
@@ -412,7 +399,6 @@ body.admin-new-ui.light-mode :is(#viewSkill,#viewAllManage,#userDetailSkill,#use
 body.admin-new-ui.skill-target-columns #viewAllManage .ar-table-head,
 body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetailSkill,#userDetailRecords) .ar-no,
 body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetailSkill,#userDetailRecords) .ar-title .ar-hot,
-body.admin-new-ui :is(#viewSkill,#userDetailSkill) .ar-title .ar-hot,
 body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetailSkill,#userDetailRecords) .ar-mini-label {display:none!important;}
 body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetailSkill,#userDetailRecords) .ar-record {
  min-width:0;width:100%;overflow:hidden;
@@ -454,7 +440,7 @@ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetail
  body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetailSkill,#userDetailRecords) .ar-record {
    grid-template-columns:40px minmax(0,1fr) 20px;
    grid-template-rows:20px 20px 20px;
-   column-gap:2px;row-gap:2px;min-height:76px;padding:4px;
+   column-gap:2px;row-gap:2px;min-height:76px;padding:5px;
    -webkit-text-size-adjust:100%;text-size-adjust:100%;
  }
  body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetailSkill,#userDetailRecords) .ar-art {
@@ -525,7 +511,7 @@ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetail
  body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetailSkill,#userDetailRecords) .ar-record {
    grid-template-columns:48px minmax(0,1fr) 28px;
    grid-template-rows:24px 24px;column-gap:4px;row-gap:2px;
-   min-height:60px;padding:4px 5px;
+   min-height:60px;padding:5px 6px;
  }
  body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetailSkill,#userDetailRecords) .ar-art {
    width:45px;height:45px;align-self:center;
@@ -619,159 +605,8 @@ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetail
    -webkit-text-fill-color:#1e293b!important;border-color:#94a3b8!important;
  }
 
-/* Admin menu presentation shared across desktop workspace pages and compact
-   modal sheets. Placement and dimensions are intentionally NOT shared. */
- body.admin-new-ui .menu-screen-dialog {
-   display:flex;flex-direction:column;min-width:0;
-   border:1px solid #30445c;background:#081327;
- }
- /* Shared menu content uses a single panel padding and aligned header. */
- body.admin-new-ui .admin-workspace-panel {padding:16px!important;}
- body.admin-new-ui .admin-workspace-panel > .tag-settings-body {padding:0;overflow:visible;}
- /* Admin menu action buttons have a content-sized width and align right.
-    Tabs/segmented selectors, expandable song rows, card editing buttons and
-    filter controls deliberately retain their own widths. */
- body.admin-new-ui .admin-workspace-panel :is(
-   #btnSaveFeatureSettings,#btnSaveTagSettings,#btnSubmitFeedback,
-   #btnExecuteSkillShare,#btnCopyOfficialRankingScript,
-   #btnAddTagSetting,#btnAddSwitchAccount,#btnMypageUserSwitch,
-   #btnLogout,#btnDeleteAccount,#btnLoadMoreSkillHistory,
-   #btnLoadSkillRanking,#btnShowSongCatalog,#btnSaveSongCatalogFavoriteName,
-   #btnShareSkillHistory,#btnCopySkillSync,#btnCopyAllScoreSync,
-   #btnOpenEamusement,#btnOpenAllScoreSyncEamusement,
-   .support-ofuse-button,.official-ranking-import .btn-submit
- ) {
-   display:table;box-sizing:border-box;width:max-content!important;
-   max-width:100%!important;min-width:0;flex:0 0 auto!important;
-   margin-left:auto;padding-left:18px;padding-right:18px;
- }
- /* Links use flex for centered text; action containers are independent of inputs. */
- body.admin-new-ui .admin-workspace-panel .support-ofuse-button {
-   display:inline-flex!important;align-items:center;justify-content:center;
-   align-self:flex-end;margin-top:4px!important;
- }
- /* Shared share/save control layout: two explicit steps rather than
-    separate flex groups that wrap unpredictably on compact screens. */
- body.admin-new-ui #skillHistoryUnifiedControls {
-   display:grid;grid-template-columns:minmax(0,1fr);gap:10px;
-   width:100%;max-width:640px;margin:0 auto 10px;
- }
- body.admin-new-ui #skillHistoryUnifiedControls .skill-history-control-row {
-   display:grid;grid-template-columns:76px minmax(0,1fr);
-   gap:12px;align-items:center;min-width:0;
-   padding:10px 12px;border:1px solid #30445c;
-   border-radius:10px;background:rgba(148,163,184,.045);
- }
- body.admin-new-ui #skillHistoryUnifiedControls .skill-history-control-label {
-   color:#a8bdd4;font-size:12px;font-weight:900;white-space:nowrap;
- }
- body.admin-new-ui #skillHistoryUnifiedControls :is(.skill-history-unified-select,.skill-history-unified-actions) {
-   display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
-   gap:8px;width:100%;min-width:0;margin:0;
- }
- body.admin-new-ui #skillHistoryUnifiedControls :is(.skill-history-save-option,.skill-history-unified-action) {
-   box-sizing:border-box;width:100%;min-width:0;max-width:none;
-   min-height:42px;margin:0;padding:8px 4px;
-   font-size:12px;line-height:1.2;white-space:nowrap;
- }
- body.admin-new-ui.light-mode #skillHistoryUnifiedControls .skill-history-control-row {
-   background:rgba(100,116,139,.045);border-color:#cbd5e1;
- }
- body.admin-new-ui.light-mode #skillHistoryUnifiedControls .skill-history-control-label {color:#475569;}
- @media (max-width:470px) {
-   body.admin-new-ui #skillHistoryUnifiedControls .skill-history-control-row {
-     grid-template-columns:minmax(0,1fr);gap:8px;
-   }
-   body.admin-new-ui #skillHistoryUnifiedControls :is(.skill-history-unified-select,.skill-history-unified-actions) {gap:6px;}
-   body.admin-new-ui #skillHistoryUnifiedControls :is(.skill-history-save-option,.skill-history-unified-action) {
-     font-size:11px;padding-inline:2px;
-   }
- }
- body.admin-new-ui .admin-workspace-panel #btnLoadSkillRanking {
-   width:100%!important;padding:0 10px;
-   white-space:nowrap;text-align:center;
- }
- /* Tag actions: explicit rows prevent status, add, and save from sharing an
-    implicit grid cell. Gap is retained on narrow modal widths. */
- body.admin-new-ui .admin-workspace-panel > .tag-settings-body {
-   display:grid;grid-template-columns:minmax(0,1fr) auto auto;
-   column-gap:10px;row-gap:12px;align-items:center;
- }
- body.admin-new-ui .admin-workspace-panel .tag-settings-body > p {
-   grid-column:1/-1;grid-row:1;margin-bottom:0;
- }
- body.admin-new-ui .admin-workspace-panel .tag-settings-body > .tag-settings-rows {
-   grid-column:1/-1;grid-row:2;
- }
- body.admin-new-ui .admin-workspace-panel .tag-settings-body > .tag-settings-status {
-   grid-column:1/-1;grid-row:3;margin:0;min-height:0;
- }
- body.admin-new-ui .admin-workspace-panel #btnAddTagSetting {
-   grid-column:2;grid-row:4;align-self:center;margin:0;
- }
- body.admin-new-ui .admin-workspace-panel .tag-settings-actions {
-   grid-column:3;grid-row:4;display:flex;align-items:center;
-   justify-content:flex-end;gap:10px;margin:0;
- }
- body.admin-new-ui .admin-workspace-panel .tag-settings-actions > #btnCancelTagSettings {display:none;}
- body.admin-new-ui .admin-workspace-panel .tag-settings-actions #btnSaveTagSettings {margin:0;}
- /* My Page: compact action row, identical order on desktop and modal.
-    The three buttons are intentionally independent of descriptive text. */
- body.admin-new-ui #mypageModal .mypage-account-actions {
-   display:flex;flex-wrap:nowrap;justify-content:flex-end;align-items:center;
-   gap:10px;padding-top:16px;margin-top:16px;border-top:1px solid #334155;
- }
- body.admin-new-ui #mypageModal .mypage-account-actions > :is(
-   .danger-zone,.mypage-logout-zone,.mypage-user-switch
- ) {
-   display:flex;flex:0 0 auto;align-items:center;justify-content:center;
-   min-width:0;margin:0;padding:0;border:0;
- }
- body.admin-new-ui #mypageModal .mypage-account-actions > .hidden {display:none!important;}
- body.admin-new-ui #mypageModal .mypage-account-actions :is(
-   #btnDeleteAccount,#btnLogout,#btnMypageUserSwitch
- ) {
-   display:inline-flex!important;flex:0 0 auto!important;
-   align-items:center;justify-content:center;
-   box-sizing:border-box;width:auto!important;max-width:100%!important;
-   margin:0!important;min-height:42px;padding:8px 15px;
-   white-space:nowrap!important;word-break:keep-all;
- }
- @media (max-width:600px) {
-   body.admin-new-ui #mypageModal .mypage-account-actions {gap:8px;}
-   body.admin-new-ui #mypageModal .mypage-account-actions :is(
-     #btnDeleteAccount,#btnLogout,#btnMypageUserSwitch
-   ) {padding:8px 10px;font-size:12px;}
- }
- /* Account switch is a distinct action, not a primary save button. */
- body.admin-new-ui #btnMypageUserSwitch,
- body.admin-new-ui.light-mode #btnMypageUserSwitch {
-   background:#0e7490!important;border-color:#155e75!important;
-   color:#fff!important;-webkit-text-fill-color:#fff!important;
- }
- body.admin-new-ui.light-mode #mypageModal .mypage-account-actions {
-   border-top-color:#cbd5e1;
- }
- /* Three distinct action colors, scoped to the administrator's new UI. */
- body.admin-new-ui #btnUnifiedSkillShare {
-   background:#6d28d9;border-color:#5b21b6;color:#fff;
- }
- body.admin-new-ui #btnUnifiedSkillSave {
-   background:#b45309;border-color:#92400e;color:#fff;
- }
- body.admin-new-ui #btnUnifiedSkillSaveShare {
-   background:#047857;border-color:#065f46;color:#fff;
- }
- body.admin-new-ui .menu-screen-body {min-width:0;}
- body.admin-new-ui.light-mode .menu-screen-dialog {
-   border-color:#cbd5e1;background:#f8fafc;
- }
- body.admin-new-ui.light-mode {
-   --admin-work-surface:#e5e7eb;
- }
-
 @media (min-width:1100px) {
- body.admin-new-ui {--admin-side-width:290px;--admin-top-height:50px;}
+ body.admin-new-ui {--admin-side-width:208px;--admin-top-height:50px;}
  body.admin-new-ui #appRoot {display:block;width:100%;max-width:none;min-width:0;box-sizing:border-box;}
  body.admin-new-ui #appScreen:not(.hidden) {
    display:grid;grid-template-columns:minmax(0,1fr);
@@ -816,7 +651,6 @@ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetail
  body.admin-new-ui .admin-menu-group[open]>summary {background:#263e59;border-bottom:1px solid #405772;}
  body.admin-new-ui .admin-menu-tree-item {display:block;width:100%;padding:9px 10px;border:0;border-top:1px solid #30445c;background:transparent;color:#e2eaf5;text-align:left;cursor:pointer;font-size:12px;}
  body.admin-new-ui .admin-menu-tree-item:hover {background:#284a75;}
- body.admin-new-ui .admin-menu-tree-item.is-selected {background:#284a75;color:#fff;}
  /* Desktop light theme: the admin sidebar should follow the page theme.
     These are the light counterparts of the sidebar's dark-only rules above. */
  body.admin-new-ui.light-mode #appScreen>.p-header>.admin-desktop-menu-tree {
@@ -839,9 +673,6 @@ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetail
  }
  body.admin-new-ui.light-mode .admin-menu-tree-item:hover {
    background:#dbeafe;
- }
- body.admin-new-ui.light-mode .admin-menu-tree-item.is-selected {
-   background:#bfdbfe;color:#17243a;
  }
  body.admin-new-ui.light-mode .admin-desktop-version-area {
    border-top-color:#94a3b8;
@@ -899,7 +730,7 @@ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetail
  body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) {--ar-cols:30px 64px minmax(125px,1fr) 80px 54px 92px 52px 78px 82px 42px;}
  body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-record,
  body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-table-head {column-gap:8px;}
- body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-record {grid-template-rows:46px;min-height:54px;padding:2px 5px;overflow:hidden;}
+ body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-record {grid-template-rows:46px;min-height:54px;padding:3px 6px;overflow:hidden;}
  body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-no {grid-column:1;grid-row:1;}
  body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-art {grid-column:2;grid-row:1;width:44px;height:44px;justify-self:start;}
  body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-title {grid-column:3;grid-row:1;}
@@ -957,16 +788,23 @@ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetail
    overflow:visible!important;box-sizing:border-box!important;
  }
 
- /* In the desktop workspace, the mask is the sole vertical scroller.
-    The compact modal's nested scroll areas otherwise swallow wheel input
-    over help text, catalog rows and official ranking entries. Keep mobile modal scrolling intact. */
- body.admin-new-ui :is(#howToMask .howto-body,#songCatalogMask .song-catalog-body,#officialSkillRankingMask .official-ranking-body) {
-   flex:0 0 auto;
-   overflow:visible;
-   overscroll-behavior:auto;
-   scrollbar-gutter:auto;
+ body.admin-new-ui .menu-screen-dialog {
+   display:flex;flex-direction:column;min-width:0;
+   border:1px solid #30445c;background:#081327;
  }
-
+ /* Desktop menu content uses a single panel padding and aligned header. */
+ body.admin-new-ui .admin-workspace-panel {padding:16px!important;}
+ body.admin-new-ui .admin-workspace-panel > .tag-settings-body {padding:0;overflow:visible;}
+ body.admin-new-ui .admin-workspace-panel .tag-settings-actions {grid-template-columns:minmax(0,1fr);}
+ body.admin-new-ui .admin-workspace-panel .tag-settings-actions > #btnCancelTagSettings {display:none;}
+ body.admin-new-ui .admin-workspace-panel .tag-settings-actions > #btnSaveTagSettings {width:100%;}
+ body.admin-new-ui .menu-screen-body {min-width:0;}
+ body.admin-new-ui.light-mode .menu-screen-dialog {
+   border-color:#cbd5e1;background:#f8fafc;
+ }
+ body.admin-new-ui.light-mode {
+   --admin-work-surface:#e5e7eb;
+ }
  body.admin-new-ui.light-mode :is(
    #mypageModal,#featureSettingsMask,#tagSettingsMask,#skillSyncMask,
    #allScoreSyncMask,#skillShareMask,#skillHistoryMask,
@@ -1034,103 +872,122 @@ body.admin-new-ui.light-mode #songCatalogMask .admin-catalog-jacket {
 /* Read-only user-detail cards: the editing slot does not exist in the layout. */
 body.admin-new-ui :is(#userDetailSkill,#userDetailRecords) .ar-record.ar-readonly .ar-edit {display:none;}
 
-/* Admin rival rows: independent user-info and delete surfaces.
-   Public rival cards retain the original layout. */
-body.admin-new-ui #rivalManageMask {
-  --admin-rival-surface:#162235;
-  --admin-rival-border:#3a4e67;
-  --admin-rival-hover:#223450;
+/* === 管理者新UI: 登録編集モーダル (v4.40.43) ===
+   通常ユーザーのDOM・CSSは従来のまま。操作ボタンは共通寸法で統一。 */
+body.admin-new-ui #domModal .mdl-sheet.admin-score-editor {
+  --score-edit-divider: #34465d;
+  --score-edit-panel: #111e31;
+  --score-edit-ink: #dbeafe;
+  --score-edit-submit: #246b82;
+  padding-bottom: 0;
 }
-body.admin-new-ui.light-mode #rivalManageMask {
-  --admin-rival-surface:#edf2f7;
-  --admin-rival-border:#b3c3d6;
-  --admin-rival-hover:#dce7f2;
+body.admin-new-ui.light-mode #domModal .mdl-sheet.admin-score-editor {
+  --score-edit-divider: #bac9d9;
+  --score-edit-panel: #f0f5fb;
+  --score-edit-ink: #334f6c;
+  --score-edit-submit: #236d83;
 }
-body.admin-new-ui #rivalManageMask .favorite-user-list {
-  display:grid;
-  gap:6px;
+body.admin-new-ui #domModal .admin-score-edit-section {
+  border-top: 1px solid var(--score-edit-divider);
+  padding: 11px 0 7px;
+  margin: 0;
+  min-width: 0;
 }
-body.admin-new-ui #rivalManageMask .favorite-user-row {
-  display:grid!important;
-  grid-template-columns:minmax(0,1fr) auto!important;
-  align-items:stretch!important;
-  gap:8px!important;
-  min-height:0;
-  margin:0!important;
-  padding:0!important;
-  border:0!important;
-  border-radius:0;
-  background:transparent!important;
-  box-shadow:none!important;
+body.admin-new-ui #domModal .admin-score-edit-section-title {
+  margin: 0 0 9px;
+  color: var(--score-edit-ink);
+  font-size: 12px;
+  font-weight: 900;
+  line-height: 1.25;
 }
-body.admin-new-ui #rivalManageMask .favorite-user-open {
-  display:grid!important;
-  grid-template-columns:minmax(0,1fr) 76px!important;
-  grid-template-areas:"name skill"!important;
-  align-items:center;
-  column-gap:8px;
-  min-width:0;
-  min-height:40px;
-  width:100%;
-  margin:0;
-  padding:5px 12px;
-  background:var(--admin-rival-surface)!important;
-  border:1px solid var(--admin-rival-border)!important;
-  border-radius:8px;
-  box-shadow:none!important;
-  text-align:left;
+body.admin-new-ui #domModal .admin-score-edit-section > .form-grid-two { margin-bottom: 6px; }
+body.admin-new-ui #domModal .admin-score-edit-section .f-group { min-width: 0; }
+body.admin-new-ui #domModal .admin-score-edit-song #levelCorrectionArea {
+  margin-top: 8px;
+  padding: 6px 8px;
 }
-body.admin-new-ui #rivalManageMask .favorite-user-open:hover,
-body.admin-new-ui #rivalManageMask .favorite-user-open:focus-visible,
-body.admin-new-ui #rivalManageMask .favorite-user-open:active {
-  background:var(--admin-rival-hover)!important;
+body.admin-new-ui #domModal .admin-score-edit-song #levelCorrectionArea .level-correction-head {
+  gap: 8px;
 }
-body.admin-new-ui #rivalManageMask .favorite-user-open .name {
-  grid-area:name;
-  min-width:0;
-  overflow:hidden;
-  text-overflow:ellipsis;
-  white-space:nowrap;
+body.admin-new-ui #domModal .admin-score-edit-song #levelCorrectionArea .level-correction-title {
+  font-size: 11px;
 }
-body.admin-new-ui #rivalManageMask .favorite-user-skill {
-  grid-area:skill;
-  width:76px!important;
-  min-width:76px!important;
-  max-width:76px!important;
-  justify-self:end!important;
-  text-align:right!important;
-  white-space:nowrap;
-  line-height:1;
+body.admin-new-ui #domModal .admin-score-edit-song #levelCorrectionArea .level-correction-note {
+  font-size: 10px;
 }
-body.admin-new-ui #rivalManageMask .favorite-user-row > .remove {
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  min-width:64px;
-  min-height:40px;
-  margin:0;
-  padding:5px 12px;
-  align-self:stretch;
-  border-radius:8px;
+/* 編集中の操作行はモーダル最下部に固定。背景と区切って連続操作を明確化。 */
+body.admin-new-ui #domModal .mdl-sheet.admin-score-editor > .btn-block {
+  position: sticky;
+  bottom: 0;
+  z-index: 8;
+  display: flex;
+  align-items: stretch;
+  justify-content: flex-end;
+  gap: 8px !important;
+  margin: 10px -12px 0 !important;
+  padding: 10px 12px max(10px, env(safe-area-inset-bottom));
+  background: var(--score-edit-panel);
+  border-top: 1px solid var(--score-edit-divider);
 }
-body.admin-new-ui.light-mode #rivalManageMask .favorite-user-open,
-body.admin-new-ui.light-mode #rivalManageMask .favorite-user-open .name {
-  color:#17243a!important;
-  -webkit-text-fill-color:#17243a!important;
+body.admin-new-ui #domModal .mdl-sheet.admin-score-editor > .btn-block > :is(button, .edit-delete-area:not(.hidden)) {
+  flex: 1 1 0;
+  width: auto !important;
+  min-width: 0;
+  margin: 0 !important;
 }
-@media(max-width:520px) {
-  body.admin-new-ui #rivalManageMask .favorite-user-open {
-    grid-template-columns:minmax(0,1fr) 72px!important;
-    column-gap:6px;
-    padding:5px 8px;
+body.admin-new-ui #domModal .mdl-sheet.admin-score-editor > .btn-block > .edit-delete-area {
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+}
+body.admin-new-ui #domModal .mdl-sheet.admin-score-editor > .btn-block :is(.btn-cancel, .btn-submit, .btn-delete-editing-score) {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100% !important;
+  height: 42px !important;
+  min-height: 42px !important;
+  margin: 0 !important;
+  padding: 0 8px !important;
+  border-radius: 9px !important;
+  font-size: 13px !important;
+  font-weight: 900 !important;
+  line-height: 1 !important;
+  white-space: nowrap;
+  box-shadow: none !important;
+}
+body.admin-new-ui #domModal .mdl-sheet.admin-score-editor > .btn-block .btn-cancel {
+  background: #334155 !important;
+  border: 1px solid #52627a !important;
+  color: #f8fafc !important;
+}
+body.admin-new-ui #domModal .mdl-sheet.admin-score-editor > .btn-block .btn-delete-editing-score {
+  background: #3d141d !important;
+  border: 1px solid #aa3547 !important;
+  color: #ffb5bd !important;
+}
+body.admin-new-ui #domModal .mdl-sheet.admin-score-editor > .btn-block .btn-submit {
+  background: var(--score-edit-submit) !important;
+  border: 1px solid var(--score-edit-submit) !important;
+  color: #fff !important;
+}
+body.admin-new-ui.light-mode #domModal .mdl-sheet.admin-score-editor > .btn-block .btn-cancel {
+  background: #e2e8f0 !important;
+  border-color: #94a3b8 !important;
+  color: #1e293b !important;
+}
+body.admin-new-ui.light-mode #domModal .mdl-sheet.admin-score-editor > .btn-block .btn-delete-editing-score {
+  background: #fff1f2 !important;
+  border-color: #f87171 !important;
+  color: #991b1b !important;
+}
+@media (max-width: 480px) {
+  body.admin-new-ui #domModal .mdl-sheet.admin-score-editor > .btn-block {
+    gap: 6px !important;
   }
-  body.admin-new-ui #rivalManageMask .favorite-user-skill {
-    width:72px!important;
-    min-width:72px!important;
-    max-width:72px!important;
-  }
-  body.admin-new-ui #rivalManageMask .favorite-user-row > .remove {
-    min-width:58px;
-    padding:5px 9px;
+  body.admin-new-ui #domModal .mdl-sheet.admin-score-editor > .btn-block :is(.btn-cancel,.btn-submit,.btn-delete-editing-score) {
+    font-size: 12px !important;
+    padding: 0 4px !important;
   }
 }
