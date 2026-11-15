@@ -1668,6 +1668,8 @@ async function saveFeatureSettings() {
     $('featureSettingsStatus').textContent = '';
     delete $('featureSettingsStatus').dataset.state;
 
+    // Capture the UI variant before render(), which can re-evaluate display state.
+    const keepAdminMenuOpen = document.body.classList.contains('admin-new-ui');
     const light = $('settingLightMode').checked;
     const skillTargetColumns = Boolean($('settingSkillTargetColumns')?.checked);
     const textSizeUp = !document.body.classList.contains('admin-new-ui') && Boolean($('settingTextSizeUp')?.checked);
@@ -1688,7 +1690,8 @@ async function saveFeatureSettings() {
     });
     if (error) throw error;
 
-    if (document.body.classList.contains('admin-new-ui')) {
+    if (keepAdminMenuOpen) {
+      $('featureSettingsMask').style.display = 'flex';
       showAdminMenuSaveStatus('featureSettingsStatus', '機能設定を保存しました。');
     } else {
       closeFeatureSettings();
