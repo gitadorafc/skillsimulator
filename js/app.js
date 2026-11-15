@@ -36,7 +36,7 @@ import {
   sortSkillRankingRows
 } from './ranking-renderer.js?v=4_14_43';
 import { shareGeneratedSkillFiles } from './skill-share.js?v=4_14_44';
-import { renderSkillShareFile } from './skill-share-renderer.js?v=4_40_41';
+import { renderSkillShareFile, renderAdminJacketSkillShareFile } from './skill-share-renderer.js?v=4_40_78';
 import {
   formatSkillHistoryDate,
   renderSkillHistoryRows,
@@ -3500,14 +3500,22 @@ async function copyOfficialRankingScript() {
 }
 
 async function createSkillShareFile(instrument, snapshot = null, comparisonBaseline = null) {
-  return renderSkillShareFile({
+  const data = {
     instrument,
     snapshot,
     comparisonBaseline,
     currentTotals: totals(instrument),
     currentVersionName: activeVersion?.name || '',
     username: $('headerUsername')?.textContent || ''
-  });
+  };
+  // The image redesign belongs to the named admin account only. Never change
+  // generated images for ordinary users or other privileged accounts.
+  if (adminEnabled && document.body.classList.contains('admin-new-ui') &&
+      $('headerUsername')?.textContent?.trim() === 'admin') {
+    await loadAdminRegisteredJackets(supabase);
+    return renderAdminJacketSkillShareFile({...data, getJacketUrls:getAdminJacketUrls});
+  }
+  return renderSkillShareFile(data);
 }
 async function shareSkillImage(selection = activeInstrument) {
   const instruments = selection === 'BOTH' ? ['GF', 'DM'] : [selection];

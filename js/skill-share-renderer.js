@@ -404,3 +404,228 @@ export async function renderSkillShareFile({
 
   return new File([blob], `GITADORA_${instrument}_skill.png`, { type: 'image/png' });
 }
+
+
+/* Admin-only image format. The public image renderer above is deliberately
+   unchanged. Layout is shared by normal and comparison exports. */
+export async function renderAdminJacketSkillShareFile({
+  instrument, snapshot = null, comparisonBaseline = null, currentTotals,
+  currentVersionName = '', username = '', getJacketUrls = () => []
+}) {
+  const validSnapshot = snapshot && typeof snapshot === 'object' && !Array.isArray(snapshot) ? snapshot : null;
+  const target = validSnapshot || currentTotals;
+  const isComparison = Boolean(comparisonBaseline);
+  const rowH = isComparison ? 78 : 70;
+  const W = 1400;
+  const H = isComparison ? 2400 : 2180;
+  const canvas = document.createElement('canvas');
+  canvas.width = W; canvas.height = H;
+  const ctx = canvas.getContext('2d');
+  const c = ctx;
+
+  // The same jacket candidates as the admin registered-song cards, with a
+  // fallback for records without artwork or cross-origin canvas permissions.
+  const titles = [...new Set([...(target.hotRows || []), ...(target.otherRows || [])]
+    .slice(0, 50).map(row => String(row.title || '')))];
+  const jacketMap = new Map();
+  await Promise.all(titles.map(async title => {
+    for (const url of getJacketUrls(title) || []) {
+      try {
+        const img = await new Promise((resolve, reject) => {
+          const image = new Image();
+          image.crossOrigin = 'anonymous';
+          const timer = setTimeout(() => { image.src = ''; reject(new Error('jacket timeout')); }, 3500);
+          image.onload = () => { clearTimeout(timer); resolve(image); };
+          image.onerror = () => { clearTimeout(timer); reject(new Error('jacket unavailable')); };
+          image.src = url;
+        });
+        jacketMap.set(title, img);
+        break;
+      } catch (_) { /* try the next image or draw the default square */ }
+    }
+  }));
+
+  c.fillStyle = '#07101d'; c.fillRect(0, 0, W, H);
+  c.fillStyle = '#0f1a2d'; c.fillRect(28, 28, W - 56, H - 56);
+  c.fillStyle = '#f8fafc'; c.textAlign = 'left'; c.textBaseline = 'alphabetic';
+  c.font = '900 42px sans-serif';
+  c.fillText(instrument === 'GF' ? 'GITADORA GuitarFreaks Skill' : 'GITADORA DrumMania Skill', 54, 82);
+  c.fillStyle = '#94a3b8'; c.font = '700 24px sans-serif';
+  c.fillText(validSnapshot?.versionName || currentVersionName, 54, 118);
+
+  const name = String(validSnapshot?.username || username || 'USER').trim() || 'USER';
+  const total = Number(target.total || 0);
+  const totalText = total.toFixed(2);
+  c.font = '900 42px sans-serif';
+  let clippedName = name;
+  while (c.measureText(clippedName).width > 700 && clippedName.length > 2) clippedName = clippedName.slice(0, -1);
+  if (clippedName !== name) clippedName = clippedName.slice(0, -1) + '…';
+  const nameW = c.measureText(clippedName).width;
+  const totalX = 54 + nameW + 28;
+  const totalW = c.measureText(totalText).width;
+  const totalRow = getSkillColorRowByTotalValue(total);
+  c.fillStyle = skillColorCanvasShareTextPaint(c, totalRow, 54, 132, nameW, 52);
+  c.fillText(clippedName, 54, 174);
+  c.fillStyle = skillColorCanvasShareTextPaint(c, totalRow, totalX, 132, totalW, 52);
+  c.fillText(totalText, totalX, 174);
+  drawShareTotalSparkles(c, totalRow, 54, nameW, totalX, totalW, 132, 52);
+  c.fillStyle = '#94a3b8'; c.font = '800 26px sans-serif';
+  c.fillText(`HOT ${Number(target.hot || 0).toFixed(2)}   OTHER ${Number(target.other || 0).toFixed(2)}`, 54, 220);
+  if (isComparison) {
+    c.textAlign = 'right'; c.font = '800 18px sans-serif';
+    c.fillText(`比較: ${formatSkillHistoryDate(comparisonBaseline.savedAt)}`, W - 54, 220);
+    c.textAlign = 'left';
+  }
+
+  const drawPill = (label, left, top, width, height, bg, fg, border = null, font = 15) => {
+    c.beginPath(); c.roundRect(left, top, width, height, 3);
+    c.fillStyle = bg; c.fill();
+    if (border) { c.strokeStyle = border; c.lineWidth = 1; c.stroke(); }
+    c.font = `900 ${font}px sans-serif`; c.fillStyle = fg;
+    c.textAlign = 'center'; c.textBaseline = 'middle';
+    c.fillText(label, left + width / 2, top + height / 2 + .5);
+  };
+  const fitText = (value, maxWidth, font) => {
+    c.font = font;
+    const source = String(value || '');
+    if (c.measureText(source).width <= maxWidth) return source;
+    let result = source;
+    while (result.length > 1 && c.measureText(result + '…').width > maxWidth) result = result.slice(0, -1);
+    return result + '…';
+  };
+  const drawMedal = (type, centerX, centerY) => {
+    if (type !== 'EXC' && type !== 'FC') return;
+    const gold = type === 'EXC';
+    const edge = gold ? '#a65d00' : '#657d99';
+    const grad = c.createLinearGradient(centerX - 11, centerY - 12, centerX + 11, centerY + 12);
+    if (gold) { grad.addColorStop(0, '#fff3ac'); grad.addColorStop(.5, '#eaa824'); grad.addColorStop(1, '#9e6108'); }
+    else { grad.addColorStop(0, '#fff'); grad.addColorStop(.5, '#cddced'); grad.addColorStop(1, '#7189ab'); }
+    c.fillStyle = grad; c.strokeStyle = edge; c.lineWidth = 1.5;
+    for (const dx of [-7, 7]) { c.beginPath(); c.arc(centerX + dx, centerY - 10, 5, 0, Math.PI * 2); c.fill(); c.stroke(); }
+    c.beginPath(); c.arc(centerX, centerY, 10, 0, Math.PI * 2); c.fill(); c.stroke();
+    c.strokeStyle = 'rgba(255,255,255,.8)'; c.lineWidth = 1.5;
+    c.beginPath(); c.arc(centerX - 1, centerY - 1, 7, Math.PI * .65, Math.PI * 1.8); c.stroke();
+  };
+  const deltaLabel = (current, prior, newRow) => {
+    if (newRow) return 'new';
+    const value = Number(current || 0) - Number(prior || 0);
+    if (Math.abs(value) < .0001) return '±0.00';
+    return `${value > 0 ? '+' : ''}${value.toFixed(2)}`;
+  };
+  const deltaColor = (current, prior, newRow) => {
+    if (newRow) return '#fdba74';
+    const diff = Number(current || 0) - Number(prior || 0);
+    return diff > .0001 ? '#86efac' : diff < -.0001 ? '#93c5fd' : '#94a3b8';
+  };
+  const compareKey = row => `${normalizeSongTitleForMatch(String(row?.title || ''))}\u0000${String(row?.part || '').toUpperCase()}`;
+  const gap = 24, colW = (W - 108 - gap) / 2, tableTop = 256;
+  const drawTable = (caption, rows, left, accent, baselineRows = []) => {
+    const baseline = new Map();
+    baselineRows.slice(0, 25).forEach((row, index) => {
+      const key = compareKey(row);
+      if (!baseline.has(key)) baseline.set(key, { row, index });
+    });
+    c.fillStyle = accent; c.fillRect(left, tableTop, colW, 40);
+    c.fillStyle = '#0b1020'; c.font = '900 21px sans-serif';
+    c.textAlign = 'left'; c.textBaseline = 'alphabetic';
+    c.fillText(caption, left + 10, tableTop + 27);
+    rows.slice(0, 25).forEach((r, i) => {
+      const y = tableTop + 46 + i * rowH;
+      const skill = Number(r.skill || 0);
+      const border = skillColorCanvasVerticalPaint(c, getSkillColorRowByTotalValue(skill * 50), left, y, colW, rowH - 4);
+      c.fillStyle = i % 2 ? '#0d1627' : '#111827';
+      c.fillRect(left, y, colW, rowH - 4);
+      c.strokeStyle = border; c.lineWidth = 2;
+      c.strokeRect(left + 1, y + 1, colW - 2, rowH - 6);
+      // Use a fixed left jacket area; missing jackets never change alignment.
+      const jacketX = left + 9, jacketY = y + 7, jacketSize = rowH - 18;
+      c.fillStyle = '#23354d'; c.fillRect(jacketX, jacketY, jacketSize, jacketSize);
+      const img = jacketMap.get(String(r.title || ''));
+      if (img) {
+        const sourceSize = Math.min(img.naturalWidth || img.width, img.naturalHeight || img.height);
+        const sx = ((img.naturalWidth || img.width) - sourceSize) / 2;
+        const sy = ((img.naturalHeight || img.height) - sourceSize) / 2;
+        c.save(); c.beginPath(); c.roundRect(jacketX, jacketY, jacketSize, jacketSize, 3); c.clip();
+        c.drawImage(img, sx, sy, sourceSize, sourceSize, jacketX, jacketY, jacketSize, jacketSize);
+        c.restore();
+      } else {
+        c.font = '700 24px sans-serif'; c.textAlign = 'center'; c.textBaseline = 'middle';
+        c.fillStyle = '#94a3b8'; c.fillText('♫', jacketX + jacketSize / 2, jacketY + jacketSize / 2);
+      }
+      const contentX = jacketX + jacketSize + 10;
+      const skillW = 99, skillX = left + colW - skillW - 7;
+      const titleTop = y + (isComparison ? 22 : 20);
+      c.fillStyle = '#f8fafc'; c.textAlign = 'left'; c.textBaseline = 'middle';
+      c.font = '900 19px sans-serif';
+      c.fillText(fitText(r.title, skillX - contentX - 8, '900 19px sans-serif'), contentX, titleTop);
+
+      // Details occupy the second line, matching the 2-row admin song cards.
+      const pillTop = y + (isComparison ? 44 : 41);
+      const part = String(r.part || '');
+      const partStyle = part.startsWith('MAS') ? ['#cf2ce4', '#fff']
+        : part.startsWith('EXT') ? ['#f43f46', '#fff']
+        : part.startsWith('ADV') ? ['#eab308', '#0b1020'] : ['#3b9ff2', '#fff'];
+      drawPill(part, contentX, pillTop, 58, 19, ...partStyle, null, 13);
+      let point = contentX + 63;
+      c.font = '800 16px sans-serif'; c.fillStyle = '#e2e8f0';
+      c.textAlign = 'left'; c.textBaseline = 'middle';
+      c.fillText(Number(r.level || 0).toFixed(2), point, pillTop + 10);
+      point += 48;
+      c.fillText(`${Number(r.achievement_rate || 0).toFixed(2)}%`, point, pillTop + 10);
+      if (isComparison) {
+        const comparison = baseline.get(compareKey(r));
+        c.font = '800 11px sans-serif';
+        c.fillStyle = deltaColor(r.achievement_rate, comparison?.row?.achievement_rate, !comparison);
+        c.fillText(deltaLabel(r.achievement_rate, comparison?.row?.achievement_rate, !comparison) + (comparison ? '%' : ''), point, y + 69);
+      }
+      point += 92;
+      const type = Number(r.achievement_rate) === 100 ? 'EXC' : String(r.fc || '').toUpperCase() === 'FC' ? 'FC' : '';
+      drawMedal(type, point + 10, pillTop + 9);
+      point += 31;
+      const option = String(r.play_option || 'NORMAL').toUpperCase();
+      const optLabel = option === 'BASS_MIRROR' ? 'B-MIR' : option;
+      const visibleOption = part.endsWith('-D') ? option === 'BASS_MIRROR' : option !== 'NORMAL';
+      const optPalette = {
+        'RAN':['#153326','#86efac','#15803d'], 'RAN+':['#123340','#67e8f9','#0369a1'],
+        'SRA':['#302017','#fdba74','#c2410c'], 'SRA+':['#361b29','#fecdd3','#be123c'],
+        'BASS_MIRROR':['#302044','#c4b5fd','#7c3aed']
+      };
+      if (visibleOption && point + 53 < skillX - 2) {
+        const palette = optPalette[option] || ['#1e293b','#cbd5e1','#475569'];
+        drawPill(optLabel, point, pillTop, 53, 19, ...palette, 12);
+      }
+
+      // Skill is its own right-hand cell spanning both title and details lines.
+      // In comparison mode, its delta is directly below the skill value.
+      const skillCellTop = y + 6, skillCellH = rowH - 16;
+      c.fillStyle = '#101827'; c.fillRect(skillX, skillCellTop, skillW, skillCellH);
+      const paintRow = getSkillColorRowByTotalValue(skill * 50);
+      for (const barX of [skillX, skillX + skillW - 5]) {
+        c.fillStyle = skillColorCanvasVerticalPaint(c, paintRow, barX, skillCellTop, 5, skillCellH);
+        c.fillRect(barX, skillCellTop, 5, skillCellH);
+      }
+      c.textAlign = 'center'; c.textBaseline = 'middle';
+      c.fillStyle = '#ffffff'; c.font = '900 21px sans-serif';
+      const middleY = y + (rowH - 4) / 2;
+      c.fillText(skill.toFixed(2), skillX + skillW / 2, isComparison ? middleY - 9 : middleY);
+      if (isComparison) {
+        const previous = baseline.get(compareKey(r));
+        c.fillStyle = deltaColor(skill, previous?.row?.skill, !previous);
+        c.font = '900 13px sans-serif';
+        c.fillText(deltaLabel(skill, previous?.row?.skill, !previous), skillX + skillW / 2, middleY + 14);
+      }
+    });
+  };
+  drawTable('HOT TOP 25', target.hotRows || [], 54, '#e94b88', comparisonBaseline?.hotRows || []);
+  drawTable('OTHER TOP 25', target.otherRows || [], 54 + colW + gap, '#83c63d', comparisonBaseline?.otherRows || []);
+  c.fillStyle = '#0b1424'; c.fillRect(54, H - 62, W - 108, 30);
+  c.fillStyle = '#94a3b8'; c.font = '700 24px sans-serif'; c.textAlign = 'left'; c.textBaseline = 'alphabetic';
+  c.fillText('GITADORA Skill Simulator', 64, H - 41);
+  c.textAlign = 'right';
+  c.fillText(new Date(validSnapshot?.savedAt || Date.now()).toLocaleDateString('ja-JP'), W - 64, H - 41);
+
+  const blob = await new Promise((resolve, reject) => {
+    canvas.toBlob(result => result ? resolve(result) : reject(new Error('共有画像の生成に失敗しました。')), 'image/png');
+  });
+  return new File([blob], `GITADORA_${instrument}_skill.png`, {type:'image/png'});
+}
