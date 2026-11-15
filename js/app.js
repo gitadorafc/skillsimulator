@@ -1447,7 +1447,7 @@ function applyDisplayCustomization(skillTargetColumns = null, textSizeUp = null)
 
   // 対象コンテナ側で表示中かを判定するため、設定値は他ユーザー画面でも維持する。
   document.body.classList.toggle('skill-target-columns', columnsEnabled);
-  document.body.classList.toggle('text-size-up', textSizeEnabled);
+  document.body.classList.toggle('text-size-up', textSizeEnabled && !document.body.classList.contains('admin-new-ui'));
 
   return {
     skillTargetColumns: columnsEnabled,
@@ -1617,7 +1617,8 @@ async function openFeatureSettings() {
       localStorage.getItem(DISPLAY_CUSTOMIZATION_KEYS.skillTargetColumns) === '1';
   }
   if (textSizeInput) {
-    textSizeInput.disabled = false;
+    textSizeInput.closest('.feature-setting-row')?.toggleAttribute('hidden', document.body.classList.contains('admin-new-ui'));
+    textSizeInput.disabled = document.body.classList.contains('admin-new-ui');
     textSizeInput.checked =
       localStorage.getItem(DISPLAY_CUSTOMIZATION_KEYS.textSizeUp) === '1';
   }
@@ -1656,7 +1657,7 @@ async function saveFeatureSettings() {
 
     const light = $('settingLightMode').checked;
     const skillTargetColumns = Boolean($('settingSkillTargetColumns')?.checked);
-    const textSizeUp = Boolean($('settingTextSizeUp')?.checked);
+    const textSizeUp = !document.body.classList.contains('admin-new-ui') && Boolean($('settingTextSizeUp')?.checked);
     const displaySettings = writeLocalDisplaySettings({
       lightMode: light,
       skillTargetColumns,

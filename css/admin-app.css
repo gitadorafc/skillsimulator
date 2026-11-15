@@ -866,6 +866,39 @@ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetail
  }
  body.admin-new-ui .admin-workspace-panel .tag-settings-actions > #btnCancelTagSettings {display:none;}
  body.admin-new-ui .admin-workspace-panel .tag-settings-actions #btnSaveTagSettings {margin:0!important;}
+/* Admin-only feature settings: text size is now fixed, not a per-user toggle.
+   Public UI keeps its own display setting and CSS unchanged. */
+body.admin-new-ui #featureSettingsMask .feature-setting-row:has(#settingTextSizeUp) {
+  display:none!important;
+}
+
+/* Consistent legible help text throughout the admin menus, in both themes.
+   Avoid song-card metrics/badges: their fixed layout is intentionally unchanged. */
+body.admin-new-ui :is(
+  .feature-setting-row small,
+  .feature-settings-status,
+  .mypage-sheet .section-note,
+  .mypage-x-block .section-note,
+  .tag-settings-body > p,
+  .tag-settings-status,
+  .account-switch-note,
+  .account-switch-status,
+  .feedback-env-note,
+  .feedback-history-head span,
+  .feedback-history-date,
+  .feedback-history-status,
+  .skill-sync-note,
+  .skill-sync-status,
+  .skill-share-note,
+  .section-note
+) {
+  font-size:14px!important;
+  line-height:1.55;
+}
+body.admin-new-ui .feature-setting-row > span {gap:5px;}
+body.admin-new-ui .feature-setting-row strong {font-size:15px;}
+body.admin-new-ui .admin-workspace-panel .tag-settings-body > p {font-size:14px;line-height:1.55;}
+
 /* Admin standard text-field geometry: match the registered-song search (42px).
    This belongs to admin only; public fields and specialty controls are untouched. */
 body.admin-new-ui { --admin-form-control-height:42px; }
