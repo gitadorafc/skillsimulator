@@ -1,0 +1,26 @@
+<!-- 管理者新UI専用。一般ユーザーの登録フォームとはDOM構造を共有しない。 -->
+<template id="adminScoreEditorTemplate">
+  <div class="admin-score-editor-content">
+    <section class="admin-score-fields admin-score-song-fields" aria-label="曲情報">
+      <div class="admin-score-mini-label">曲情報</div>
+      <div data-admin-score-slot="title"></div>
+      <div data-admin-score-slot="part"></div>
+      <div data-admin-score-slot="master"></div>
+      <details class="admin-score-correction">
+        <summary>難易度を報告</summary>
+        <div data-admin-score-slot="correction"></div>
+      </details>
+    </section>
+    <section class="admin-score-fields admin-score-result-fields" aria-label="スコア情報">
+      <div class="admin-score-mini-label">スコア情報</div>
+      <div data-admin-score-slot="rate"></div>
+      <div data-admin-score-slot="extra"></div>
+    </section>
+    <details class="admin-score-details">
+      <summary>コメント・タグ</summary>
+      <div data-admin-score-slot="comment"></div>
+      <div data-admin-score-slot="tags"></div>
+    </details>
+  </div>
+  <div class="admin-score-footer"></div>
+</template>
