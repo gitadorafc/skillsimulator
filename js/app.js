@@ -1,3 +1,4 @@
+import { alignAdminIosDetailPulse, isAdminIosWebKit } from './admin-ios-detail-pulse.js?v=4_40_51';
 import { installAdminMenuBackReset, isAdminConfirmedSongPartChange } from './admin-menu-behavior.js?v=4_40_49';
 import { prepareAdminScoreEditor, restorePublicScoreEditor, resolveAdminComparisonScoreId } from './admin-score-editor.js?v=4_40_48';
 
@@ -4011,11 +4012,20 @@ function syncAdminPublicPulsePhase(includeUserDetail = false) {
   // animations on every scroll/mutation: repeated currentTime writes make
   // the light sweep visibly jump on some mobile browsers.
   if (includeUserDetail) {
-    document.querySelectorAll('#userDetailPage.user-detail-open .user-detail-summary .score-val.score-rank-sparkle-rainbow')
-      .forEach(value => value.getAnimations({subtree:false}).forEach(align));
+    if (isAdminIosWebKit()) {
+      // Read the own-header clock once, then let CSS run continuously.
+      // Never write currentTime to the profile's sticky-layer animations.
+      alignAdminIosDetailPulse();
+    } else {
+      document.querySelectorAll('#userDetailPage.user-detail-open .user-detail-summary .score-val.score-rank-sparkle-rainbow')
+        .forEach(value => value.getAnimations({subtree:false}).forEach(align));
+    }
   }
   document.querySelectorAll('body.admin-new-ui .ar-record.skill-row-sparkle-rainbow')
-    .forEach(card => card.getAnimations({subtree:true}).forEach(align));
+    .forEach(card => {
+      if (isAdminIosWebKit() && card.closest('#userDetailPage')) return;
+      card.getAnimations({subtree:true}).forEach(align);
+    });
 }
 
 // The board toolbar is in the fixed header, while threads are inside the
