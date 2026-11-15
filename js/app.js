@@ -1,3 +1,4 @@
+import { installAdminMenuBackReset, isAdminConfirmedSongPartChange } from './admin-menu-behavior.js?v=4_40_49';
 import { prepareAdminScoreEditor, restorePublicScoreEditor, resolveAdminComparisonScoreId } from './admin-score-editor.js?v=4_40_48';
 
 import {
@@ -4378,6 +4379,12 @@ function scheduleSongSuggestions() {
 }
 
 async function selectSongTitle(title) {
+  // A committed title supersedes any pending suggestion request.
+  // Keep the existing public selection behavior unchanged.
+  if (document.body.classList.contains('admin-new-ui')) {
+    ++songSuggestRequestSeq;
+    clearTimeout(songSuggestTimer);
+  }
   $('formTitle').value = title;
   $('songSuggestions').innerHTML = '';
   await refreshSelectedPart();
@@ -6804,9 +6811,15 @@ $('formTitle').addEventListener('compositionend', () => {
   suggestSongs();
 });
 $('partSelect').addEventListener('change', async () => {
+  const confirmedAdminTitle = isAdminConfirmedSongPartChange(selectedSong, $('formTitle').value);
   ++songSuggestRequestSeq;
   clearTimeout(songSuggestTimer);
-  if ($('formTitle').value.trim()) await suggestSongs();
+  if (confirmedAdminTitle) {
+    // Changing only the part of a selected song must not reopen the title picker.
+    $('songSuggestions').replaceChildren();
+  } else if ($('formTitle').value.trim()) {
+    await suggestSongs();
+  }
   await refreshSelectedPart();
 });
 $('formLevel').addEventListener('input', updateSkillPreview);
@@ -7989,6 +8002,13 @@ function collapseAdminDesktopMenu() {
 }
 const adminDesktopMenuLabels = ['アカウント設定','スキル機能','曲データ','ヘルプ・運営'];
 let adminDesktopWorkspaceSelection = null;
+installAdminMenuBackReset(() => {
+  adminDesktopWorkspaceSelection = null;
+  for (const item of desktopMenuTree?.querySelectorAll('.admin-menu-tree-item.is-selected') || []) {
+    item.classList.remove('is-selected');
+    item.removeAttribute('aria-current');
+  }
+});
 /* Desktop navigation is a single workspace, not a stack of dialogs.
    Use the existing close hooks so previews, form state, and modal scroll locks
    are cleaned up. The in-progress synchronization dialogs cannot be dismissed. */
