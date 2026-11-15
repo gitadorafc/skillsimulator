@@ -44,7 +44,13 @@ body.admin-new-ui #domModal .admin-score-mini-label {
   line-height:1.2;margin:0 0 5px;white-space:nowrap;
 }
 body.admin-new-ui #domModal .admin-score-mini-label::after {
-  content:'';height:1px;min-width:0;flex:1;background:var(--ase-rule);
+  content:'';
+  min-width:0;
+  flex:1;
+  height:0;
+  box-sizing:border-box;
+  border-top:1px solid var(--ase-rule);
+  background:none;
 }
 body.admin-new-ui #domModal .admin-score-result-fields {padding-top:4px;}
 body.admin-new-ui #domModal .admin-score-fields [data-admin-score-slot] {min-width:0;}
