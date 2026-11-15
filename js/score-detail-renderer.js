@@ -1,5 +1,4 @@
 import {
-  getFcBadgeMarkup,
   getOptionBadgeMarkup,
   getSongSkillRank
 } from './card-renderer.js?v=4_14_34';
@@ -36,10 +35,9 @@ function formatOptionPercentage(value) {
 export function renderPersonalBest(personalBest, part) {
   if (!personalBest) return '';
 
-  const badges = [
-    getFcBadgeMarkup(personalBest.fc, personalBest.achievement_rate),
-    getHistoricalOptionMarkup(personalBest.play_option, part)
-  ].filter(Boolean).join('');
+  // The historical personal best shows the achievement and play option only;
+  // FC medal belongs to each rival comparison row, not this summary.
+  const badges = getHistoricalOptionMarkup(personalBest.play_option, part);
   const badgesMarkup = badges
     ? `<span class="rate-personal-best-badges">${badges}</span>`
     : '';

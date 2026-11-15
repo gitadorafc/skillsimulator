@@ -54,7 +54,7 @@ import {
   renderOptionSummary,
   renderPersonalBest,
   renderRateComparisonRows
-} from './score-detail-renderer.js?v=4_40_38';
+} from './score-detail-renderer.js?v=4_40_39';
 import { createSiteDialogController } from './site-dialog.js?v=4_15_3';
 import { createTutorialController } from './tutorial.js?v=4_36_1';
 import { selectSkillTargetRows, calcTargetTotals, compareSkillRows } from './skill-targets.js?v=4_36_2';
@@ -3982,7 +3982,8 @@ function syncRegisteredEditButtonWidths() {
 // after records are inserted; do not animate the whole app or run a frame loop.
 let adminPulseObserver = null;
 let adminPulseFramePending = false;
-function syncAdminPublicPulsePhase() {
+let adminPulseDetailPending = false;
+function syncAdminPublicPulsePhase(includeUserDetail = false) {
   if (!document.body.classList.contains('admin-new-ui')) return;
   const headers = [...document.querySelectorAll('#appScreen>.p-header .score-val.score-rank-sparkle-rainbow')];
   const glow = headers.flatMap(element => element.getAnimations({subtree:false}))
@@ -4004,8 +4005,13 @@ function syncAdminPublicPulsePhase() {
   // User detail displays the same score-val animation, but its elements are
   // created after the persistent header. Keep their sweep and glow on the
   // header clock instead of restarting independently on every profile open.
-  document.querySelectorAll('#userDetailPage.user-detail-open .user-detail-summary .score-val.score-rank-sparkle-rainbow')
-    .forEach(value => value.getAnimations({subtree:false}).forEach(align));
+  // The profile header runs continuously once aligned. Do not seek its
+  // animations on every scroll/mutation: repeated currentTime writes make
+  // the light sweep visibly jump on some mobile browsers.
+  if (includeUserDetail) {
+    document.querySelectorAll('#userDetailPage.user-detail-open .user-detail-summary .score-val.score-rank-sparkle-rainbow')
+      .forEach(value => value.getAnimations({subtree:false}).forEach(align));
+  }
   document.querySelectorAll('body.admin-new-ui .ar-record.skill-row-sparkle-rainbow')
     .forEach(card => card.getAnimations({subtree:true}).forEach(align));
 }
@@ -4038,14 +4044,18 @@ function scheduleAdminBoardHeaderAlignment() {
   if (!document.body.classList.contains('admin-new-ui')) return;
   requestAnimationFrame(alignAdminBoardHeaderToThreads);
 }
-function scheduleAdminPublicPulsePhase() {
-  if (adminPulseFramePending || !document.body.classList.contains('admin-new-ui')) return;
+function scheduleAdminPublicPulsePhase(includeUserDetail = false) {
+  if (!document.body.classList.contains('admin-new-ui')) return;
+  adminPulseDetailPending ||= includeUserDetail === true;
+  if (adminPulseFramePending) return;
   adminPulseFramePending = true;
   // New CSS animations can still be pending on their first frame.
   // Run once after the browser has committed their start times.
   requestAnimationFrame(() => requestAnimationFrame(() => {
     adminPulseFramePending = false;
-    syncAdminPublicPulsePhase();
+    const alignDetail = adminPulseDetailPending;
+    adminPulseDetailPending = false;
+    syncAdminPublicPulsePhase(alignDetail);
   }));
 }
 function ensureAdminPulseObserver() {
@@ -4072,7 +4082,7 @@ function ensureAdminPulseObserver() {
   $('userDetailPage')?.querySelector('.user-detail-summary')
     ?.addEventListener('animationstart', event => {
       if (event.target.matches?.('.user-detail-skill-value')) {
-        scheduleAdminPublicPulsePhase();
+        scheduleAdminPublicPulsePhase(true);
       }
     });
 }
@@ -4737,9 +4747,8 @@ function renderViewedUserSkill() {
     el.className = `score-val user-detail-skill-value ${rankClass}`;
   });
 
-  // The header lives outside the user-detail view, so class changes in
-  // this header are not seen by the card observer. Align on the first frame.
-  scheduleAdminPublicPulsePhase();
+  // Align the profile header once after its values/class are refreshed.
+  scheduleAdminPublicPulsePhase(true);
 
   $('userDetailSkill').innerHTML = renderUserDetailSkillSections({
     hotCards: document.body.classList.contains('admin-new-ui')
@@ -4819,7 +4828,7 @@ async function openUserDetail(userId, username, returnTarget = null) {
   const detailPage = $('userDetailPage');
   detailPage.classList.add('user-detail-open');
   detailPage.style.display = 'flex';
-  scheduleAdminPublicPulsePhase();
+  scheduleAdminPublicPulsePhase(true);
   refreshUserDetailBoardBan(userId).catch(console.error);
 
   try {
