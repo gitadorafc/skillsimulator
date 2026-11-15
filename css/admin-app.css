@@ -189,7 +189,7 @@ body.admin-new-ui #searchArea.admin-filters-expanded .record-filter-row label{mi
 body.admin-new-ui #searchArea.admin-filters-expanded .record-filter-row select{width:100%;min-width:0;}
 body.admin-new-ui :is(#searchArea #btnAdminRecordFilters,#userListHeaderSlot #btnAdminUserFilters,.admin-filter-toggle-button) svg{width:21px;height:21px;display:block;}
 @media(max-width:650px){body.admin-new-ui #searchArea.admin-filters-expanded .record-filter-row{grid-template-columns:repeat(2,minmax(0,1fr))!important;}}
-body.admin-new-ui :is(#searchArea.admin-filters-expanded #btnAdminRecordFilters,#userListHeaderSlot.admin-user-filters-expanded #btnAdminUserFilters,#songCatalogMask .song-catalog-controls.admin-catalog-filters-open > .admin-catalog-filter-toggle){border-color:var(--app-accent);background:#254d86;}
+body.admin-new-ui :is(#searchArea.admin-filters-expanded #btnAdminRecordFilters,#userListHeaderSlot.admin-user-filters-expanded #btnAdminUserFilters,#songCatalogMask .admin-catalog-filter-toggle[aria-expanded="true"]){border-color:var(--app-accent);background:#254d86;}
 body.admin-new-ui #searchArea .admin-bulk-delete-area{margin-top:0;}
 body.admin-new-ui #btnHeaderAdd{white-space:nowrap;}
 
@@ -484,7 +484,7 @@ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetail
    justify-self:stretch;margin:0;
  }
  body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-record:not(.ar-readonly) .ar-fc-cell {
-   position:absolute;top:29px;right:4px;width:28px;height:17px;
+   position:absolute;top:22px;right:4px;width:28px;height:17px;
    display:flex;align-items:center;justify-content:center;
    padding:0;margin:0;
  }
@@ -579,9 +579,10 @@ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetail
    width:72px!important;max-width:72px!important;
    font-size:12px;
  }
- /* Both right-hand controls use the same 30px alignment column. */
+ /* Desktop FC belongs to the metrics row, between the rate and option.
+    Only the edit action occupies the far-right column. */
  body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-record:not(.ar-readonly) .ar-fc-cell {
-   position:absolute;top:4px;right:4px;width:30px;height:22px;
+   position:static;top:auto;right:auto;width:20px;height:auto;
    display:flex;align-items:center;justify-content:center;
  }
  body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-record:not(.ar-readonly) .ar-edit {
@@ -1112,41 +1113,85 @@ body.admin-new-ui.light-mode #adminBoardEditorMask #btnAdminBoardSave {
   }
 }
 
-/* iPhone Safari: detail is a separate sticky scroll layer. Align only when
-   opening/updating the profile using CSS delay, not frame-by-frame WAAPI seeks.
-   Header animation names and keyframes remain shared with the own page. */
-html.ios-webkit body.admin-new-ui #userDetailPage.user-detail-open
-  .user-detail-summary .score-val.score-rank-sparkle-rainbow {
-  animation-delay:var(--admin-detail-pulse-offset,0ms),var(--admin-detail-pulse-offset,0ms)!important;
+/* iPhone Safari: the user-detail header is its own rendering layer. Keep
+   the CSS effects identical to the own page and let the compositor advance
+   their timeline without resetting animation-delay during scrolling. */
+html.ios-webkit body.admin-new-ui #userDetailPage.user-detail-open .user-detail-sticky {
+  -webkit-backface-visibility:hidden;
+  backface-visibility:hidden;
+  transform:translateZ(0);
 }
 html.ios-webkit body.admin-new-ui #userDetailPage.user-detail-open
-  .ar-record.skill-row-sparkle-rainbow {
-  animation-delay:var(--admin-detail-pulse-offset,0ms)!important;
-}
+  :is(.user-detail-summary .score-val.score-rank-sparkle-rainbow,.ar-record.skill-row-sparkle-rainbow),
 html.ios-webkit body.admin-new-ui #userDetailPage.user-detail-open
-  .ar-skill.skill-box-sparkle-rainbow::after {
-  animation-delay:var(--admin-detail-pulse-offset,0ms)!important;
-}
+  .ar-skill.skill-box-sparkle-rainbow::after {animation-play-state:running;}
 
-/* Admin-only song catalog: the controls remain compact until the shared
-   filter button is opened. Public catalog markup and styling are unchanged. */
+/* Admin catalog/favorites use the same anchored filter popover as user list.
+   The existing public form markup is not touched. The panel overlays the
+   catalog instead of occupying the entire width or shifting list rows. */
 body.admin-new-ui #songCatalogMask .song-catalog-controls {
-  display:grid;grid-template-columns:42px;justify-content:end;gap:0;
-  padding:9px 12px;position:relative;
+  display:block;position:relative;flex:none;min-height:52px;
+  padding:6px 12px;border-bottom:1px solid #30445c;
+  background:transparent;overflow:visible;z-index:30;
 }
-body.admin-new-ui #songCatalogMask .song-catalog-controls > :not(.admin-catalog-filter-toggle) {display:none;}
+body.admin-new-ui #songCatalogMask .song-catalog-controls.admin-catalog-favorite-controls {
+  min-height:0;height:0;padding:0;border:0;z-index:30;
+}
+body.admin-new-ui #songCatalogMask .song-catalog-controls.admin-catalog-favorite-controls .admin-catalog-filter-panel {
+  top:2px;
+}
+body.admin-new-ui #songCatalogMask .song-catalog-favorite-name {
+  align-items:center;position:relative;flex:none;overflow:visible;z-index:31;
+}
+body.admin-new-ui #songCatalogMask .admin-catalog-filter-toggle {
+  display:flex;align-items:center;justify-content:center;
+  flex:0 0 42px;width:42px;height:42px;min-height:42px;
+  border:1px solid #415671;border-radius:7px;
+  background:#23344a;color:#eaf3ff;cursor:pointer;
+}
 body.admin-new-ui #songCatalogMask .song-catalog-controls > .admin-catalog-filter-toggle {
-  display:inline-flex;align-items:center;justify-content:center;
-  justify-self:end;
+  margin-left:auto;
 }
-body.admin-new-ui #songCatalogMask .song-catalog-controls.admin-catalog-filters-open {
-  grid-template-columns:repeat(2,minmax(0,1fr));justify-content:stretch;gap:8px;
+body.admin-new-ui #songCatalogMask .song-catalog-favorite-name > .admin-catalog-filter-toggle {
+  height:36px;min-height:36px;flex-basis:40px;width:40px;
+  background:#23344a;color:#eaf3ff;border:1px solid #415671;
 }
-body.admin-new-ui #songCatalogMask .song-catalog-controls.admin-catalog-filters-open > .admin-catalog-filter-toggle {grid-column:1/-1;justify-self:end;}
-body.admin-new-ui #songCatalogMask .song-catalog-controls.admin-catalog-filters-open > label {display:block;}
-body.admin-new-ui #songCatalogMask .song-catalog-controls.admin-catalog-filters-open > .song-catalog-range {display:grid;}
-body.admin-new-ui #songCatalogMask .song-catalog-controls.admin-catalog-filters-open > .song-catalog-range.hidden {display:none;}
-body.admin-new-ui #songCatalogMask .song-catalog-controls.admin-catalog-filters-open > .song-catalog-action-row {display:grid;}
+body.admin-new-ui #songCatalogMask .admin-catalog-filter-toggle[aria-expanded="true"] {
+  border-color:var(--app-accent);background:#246b82;color:#fff;
+}
+body.admin-new-ui #songCatalogMask .admin-catalog-filter-panel {
+  display:none;position:absolute;top:calc(100% + 2px);right:12px;
+  z-index:40;width:min(460px,calc(100% - 24px));box-sizing:border-box;
+  grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;
+  padding:12px;border:1px solid #3c6385;border-radius:8px;
+  background:#152438;box-shadow:0 8px 25px #0009;
+}
+body.admin-new-ui #songCatalogMask .song-catalog-controls.admin-catalog-filters-open .admin-catalog-filter-panel {
+  display:grid;
+}
+body.admin-new-ui #songCatalogMask .admin-catalog-filter-panel > label {display:block;min-width:0;}
+body.admin-new-ui #songCatalogMask .admin-catalog-filter-panel .song-catalog-range {
+  display:grid;grid-column:1/-1;
+}
+body.admin-new-ui #songCatalogMask .admin-catalog-filter-panel .song-catalog-range.hidden {display:none;}
+body.admin-new-ui #songCatalogMask .admin-catalog-filter-panel .song-catalog-action-row {
+  display:grid;grid-column:1/-1;
+}
+body.admin-new-ui #songCatalogMask .admin-catalog-filter-panel :is(select,input) {width:100%;min-width:0;}
+body.admin-new-ui.light-mode #songCatalogMask .admin-catalog-filter-panel {
+  background:#f8fafc;border-color:#94a3b8;box-shadow:0 8px 24px #0f172a30;
+}
+body.admin-new-ui.light-mode #songCatalogMask .admin-catalog-filter-toggle {
+  background:#e2e8f0;color:#17243a;border-color:#94a3b8;
+}
+body.admin-new-ui.light-mode #songCatalogMask .admin-catalog-filter-toggle[aria-expanded="true"] {
+  background:#246b82;color:#fff;border-color:#246b82;
+}
+@media(max-width:430px){
+  body.admin-new-ui #songCatalogMask .admin-catalog-filter-panel {
+    right:6px;width:calc(100% - 12px);padding:9px;gap:7px;
+  }
+}
 body.admin-new-ui #songCatalogMask .song-catalog-row summary {
   grid-template-columns:36px minmax(0,1fr) 16px;
 }
