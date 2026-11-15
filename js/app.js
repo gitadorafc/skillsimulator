@@ -3943,6 +3943,7 @@ function renderManage() {
   if (document.body.classList.contains('admin-new-ui')) requestAnimationFrame(() => {
     syncAdminTwoColumnViewport();
     clampAdminTwoColumnTitles();
+    scheduleAdminPublicPulsePhase();
   });
   else requestAnimationFrame(syncRegisteredEditButtonWidths);
 }
@@ -3967,7 +3968,6 @@ function syncRegisteredEditButtonWidths() {
 // One animation clock for the own header and every admin song list, including
 // viewed-user lists. The identical collector works for both screens; there is
 // no profile-specific CSS animation or timing correction.
-let adminPulseObserver = null;
 let adminPulseFramePending = false;
 const ADMIN_PULSE_ANIMATION_NAMES = new Set([
   'skill-sparkle-text-glow', 'skill-sparkle-text-sweep',
@@ -4041,23 +4041,6 @@ function scheduleAdminPublicPulsePhase() {
     syncAdminPublicPulsePhase();
   }));
 }
-function ensureAdminPulseObserver() {
-  if (adminPulseObserver || !document.body.classList.contains('admin-new-ui')) return;
-  // Observe the own and viewed-user lists via exactly the same path.
-  const roots = ['viewSkill','viewAllManage','userDetailSkill','userDetailRecords']
-    .map(id => $(id)).filter(Boolean);
-  if (!roots.length) return;
-  adminPulseObserver = new MutationObserver(mutations => {
-    if (mutations.some(mutation => mutation.addedNodes.length)) scheduleAdminPublicPulsePhase();
-  });
-  for (const root of roots) {
-    adminPulseObserver.observe(root, {childList:true,subtree:true});
-    root.addEventListener('animationstart', event => {
-      if (!ADMIN_PULSE_ANIMATION_NAMES.has(event.animationName)) return;
-      if (event.target.closest?.(ADMIN_PULSE_TARGET_SELECTOR)) scheduleAdminPublicPulsePhase();
-    });
-  }
-}
 
 function render() {
   // 表示設定を再評価する。管理者UIのスキル対象・登録・閲覧画面では
@@ -4095,7 +4078,6 @@ function render() {
     show('viewSkill');
     renderSkill();
   }
-  ensureAdminPulseObserver();
   requestAnimationFrame(() => { syncAdminTwoColumnViewport(); clampAdminTwoColumnTitles(); syncAdminPublicPulsePhase(); });
 }
 
@@ -8543,9 +8525,6 @@ window.addEventListener('resize', () => {
   $('adminBody')
 ].filter(Boolean).forEach(scroller => {
   scroller.addEventListener('scroll', markAppScrolling, { passive:true });
-  // Scrolling can recycle/restart skill-row animations without inserting
-  // new DOM nodes; keep them phase-locked to the header during scroll.
-  if (!scroller.closest('#userDetailPage')) scroller.addEventListener('scroll', scheduleAdminPublicPulsePhase, { passive:true });
 });
 applyLightMode();
 
