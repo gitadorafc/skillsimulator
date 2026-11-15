@@ -931,7 +931,6 @@ body.admin-new-ui :is(
   .account-switch-note,
   .account-switch-status,
   .feedback-env-note,
-  .feedback-history-head span,
   .feedback-history-date,
   .feedback-history-status,
   .skill-sync-note,
@@ -962,9 +961,21 @@ body.admin-new-ui #mypageModal .mypage-name-row > .btn-name-change {
   flex:0 0 auto;padding:0 14px!important;border-radius:6px!important;
 }
 body.admin-new-ui #tagSettingsMask .tag-settings-row {align-items:center;}
-body.admin-new-ui #feedbackMask .feedback-env-grid {gap:12px 10px;align-items:start;}
+body.admin-new-ui #feedbackMask .feedback-env-grid {gap:12px 10px;align-items:start;margin-top:14px;}
 body.admin-new-ui #feedbackMask .feedback-env-grid > * {min-width:0;margin:0!important;}
 body.admin-new-ui #feedbackMask .feedback-env-grid label {margin:0 0 7px!important;}
+/* Feedback history hierarchy: heading > supporting note > empty state.
+   Keep these styles scoped to the admin report dialog and both themes. */
+body.admin-new-ui #feedbackMask .feedback-history-head strong {
+  font-size:16px;line-height:1.4;font-weight:900;
+}
+body.admin-new-ui #feedbackMask .feedback-history-head span {
+  font-size:12px;line-height:1.45;font-weight:700;
+}
+body.admin-new-ui #feedbackMask .feedback-history-empty {
+  font-size:12px;line-height:1.5;
+}
+
 /* One height rule for ordinary admin input and its adjacent action button. */
 body.admin-new-ui :is(
   #mypageModal .mypage-name-row > input,
