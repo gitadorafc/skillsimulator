@@ -1025,6 +1025,24 @@ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetail
  }
  body.admin-new-ui .admin-workspace-panel .tag-settings-actions > #btnCancelTagSettings {display:none;}
  body.admin-new-ui .admin-workspace-panel .tag-settings-actions #btnSaveTagSettings {margin:0!important;}
+/* In-place completion feedback for administrator menu screens.
+   The content screen remains mounted after a successful save. */
+body.admin-new-ui :is(#featureSettingsStatus,#tagSettingsStatus,#mypageSaveStatus)[data-state="success"] {
+  color:#86efac!important;
+  -webkit-text-fill-color:#86efac!important;
+  font-weight:700;
+}
+body.admin-new-ui.light-mode :is(#featureSettingsStatus,#tagSettingsStatus,#mypageSaveStatus)[data-state="success"] {
+  color:#166534!important;
+  -webkit-text-fill-color:#166534!important;
+}
+body.admin-new-ui #mypageSaveStatus:empty {display:none;}
+body.admin-new-ui #mypageSaveStatus:not(:empty) {
+  margin-top:12px;
+  font-size:14px;
+  line-height:1.5;
+}
+
 /* Admin-only feature settings: text size is now fixed, not a per-user toggle.
    Public UI keeps its own display setting and CSS unchanged. */
 body.admin-new-ui #featureSettingsMask .feature-setting-row:has(#settingTextSizeUp) {
@@ -1683,4 +1701,5 @@ body.admin-new-ui.light-mode #rateCompareMask .rate-compare-edit-button:not(.hid
 body.admin-new-ui.light-mode #rateCompareMask .rate-compare-edit-area:not(.hidden) {
   border-top-color:#cbd5e1;
 }
+
 

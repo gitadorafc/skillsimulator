@@ -1599,6 +1599,7 @@ async function openFeatureSettings() {
   closeMenu();
   if (document.body.classList.contains('admin-new-ui')) $('featureSettingsMask').style.display = 'flex';
   $('featureSettingsStatus').textContent = '';
+  delete $('featureSettingsStatus').dataset.state;
 
   const lightInput = $('settingLightMode');
   lightInput.disabled = false;
@@ -1647,6 +1648,17 @@ function closeFeatureSettings(returnToMenu = false) {
   if (returnToMenu) openMenu();
 }
 
+// Admin menu saves report success in the currently open screen.
+// Public UI retains its existing confirmation dialogs and navigation behavior.
+function showAdminMenuSaveStatus(elementId, message) {
+  const status = $(elementId);
+  if (!status) return;
+  status.textContent = message;
+  status.dataset.state = 'success';
+  status.setAttribute('role', 'status');
+  status.setAttribute('aria-live', 'polite');
+}
+
 async function saveFeatureSettings() {
   const button = $('btnSaveFeatureSettings');
   const original = button.textContent;
@@ -1654,6 +1666,7 @@ async function saveFeatureSettings() {
     button.disabled = true;
     button.textContent = '保存中';
     $('featureSettingsStatus').textContent = '';
+    delete $('featureSettingsStatus').dataset.state;
 
     const light = $('settingLightMode').checked;
     const skillTargetColumns = Boolean($('settingSkillTargetColumns')?.checked);
@@ -1675,10 +1688,15 @@ async function saveFeatureSettings() {
     });
     if (error) throw error;
 
-    closeFeatureSettings();
-    await showSiteDialog('機能設定を保存しました。', '保存完了');
+    if (document.body.classList.contains('admin-new-ui')) {
+      showAdminMenuSaveStatus('featureSettingsStatus', '機能設定を保存しました。');
+    } else {
+      closeFeatureSettings();
+      await showSiteDialog('機能設定を保存しました。', '保存完了');
+    }
   } catch (e) {
     $('featureSettingsStatus').textContent = '保存に失敗しました。';
+    delete $('featureSettingsStatus').dataset.state;
     await showSiteDialog(e?.message || '機能設定の保存に失敗しました。', 'エラー');
   } finally {
     button.disabled = false;
@@ -1701,10 +1719,11 @@ async function saveMyXId() {
     if (error) throw error;
 
     $('mypageXIdInput').value = xId;
-    await showSiteDialog(
-      xId ? 'X IDを保存しました。' : 'X IDを削除しました。',
-      '保存完了'
-    );
+    if (document.body.classList.contains('admin-new-ui')) {
+      showAdminMenuSaveStatus('mypageSaveStatus', xId ? 'X IDを保存しました。' : 'X IDを削除しました。');
+    } else {
+      await showSiteDialog(xId ? 'X IDを保存しました。' : 'X IDを削除しました。', '保存完了');
+    }
   } catch (e) {
     await showSiteDialog(e?.message || 'X IDの保存に失敗しました。', 'エラー');
   } finally {
@@ -3673,6 +3692,7 @@ function openTagSettings() {
   closeMenu();
   editingTagRows = myTags.map(tag => ({ id: tag.id, name: tag.name }));
   $('tagSettingsStatus').textContent = '';
+  delete $('tagSettingsStatus').dataset.state;
   renderTagSettingsRows();
   $('tagSettingsMask').style.display = 'flex';
   syncGlobalModalScrollLock();
@@ -3702,8 +3722,12 @@ async function saveTagSettings() {
     button.textContent = '保存中';
     await replaceMyTags(editingTagRows);
     await loadTagData();
-    closeTagSettings();
-    await showSiteDialog('タグ設定を保存しました。', '保存完了');
+    if (document.body.classList.contains('admin-new-ui')) {
+      showAdminMenuSaveStatus('tagSettingsStatus', 'タグ設定を保存しました。');
+    } else {
+      closeTagSettings();
+      await showSiteDialog('タグ設定を保存しました。', '保存完了');
+    }
   } finally {
     button.disabled = false;
     button.textContent = original;
@@ -5125,6 +5149,10 @@ async function openMyPage(fromMenu = false) {
   $('mypageUsernameInput').value = data.user?.user_metadata?.username || $('headerUsername').textContent || '';
   $('newPassword').value = '';
   $('mypageXIdInput').value = '';
+  if ($('mypageSaveStatus')) {
+    $('mypageSaveStatus').textContent = '';
+    delete $('mypageSaveStatus').dataset.state;
+  }
   $('mypageModal').style.display = 'flex';
 
   try {
@@ -5144,7 +5172,11 @@ async function changeOwnUsername() {
   $('mypageUsernameInput').value = data.username;
   $('headerUsername').textContent = data.username;
   $('authUsername').value = data.username;
-  await showSiteDialog('ユーザー名を変更しました。\n次回から新しいユーザー名でログインしてください。', '変更完了');
+  if (document.body.classList.contains('admin-new-ui')) {
+    showAdminMenuSaveStatus('mypageSaveStatus', 'ユーザー名を変更しました。次回から新しいユーザー名でログインしてください。');
+  } else {
+    await showSiteDialog('ユーザー名を変更しました。\n次回から新しいユーザー名でログインしてください。', '変更完了');
+  }
 }
 
 function closeMyPage(returnToPrevious = false) {
@@ -7008,7 +7040,11 @@ $('btnChangePassword').addEventListener('click', async () => {
     await changePassword(password);
     $('newPassword').value = '';
 
-    await showSiteDialog('パスワードを変更しました。', '変更完了');
+    if (document.body.classList.contains('admin-new-ui')) {
+      showAdminMenuSaveStatus('mypageSaveStatus', 'パスワードを変更しました。');
+    } else {
+      await showSiteDialog('パスワードを変更しました。', '変更完了');
+    }
   } catch (e) {
     await showSiteDialog(e.message || 'パスワード変更に失敗しました。', 'エラー');
   } finally {
@@ -8165,9 +8201,11 @@ $('tagSettingsRows').addEventListener('click', event => {
 $('btnSaveTagSettings').addEventListener('click', async () => {
   try {
     $('tagSettingsStatus').textContent = '';
+    delete $('tagSettingsStatus').dataset.state;
     await saveTagSettings();
   } catch (e) {
     $('tagSettingsStatus').textContent = e.message || 'タグを保存できませんでした。';
+    delete $('tagSettingsStatus').dataset.state;
   }
 });
 $('btnCloseFeatureSettings').addEventListener('click', () => closeFeatureSettings(true));
