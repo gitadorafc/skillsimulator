@@ -1,4 +1,3 @@
-import { alignAdminIosDetailPulse, isAdminIosWebKit, resetAdminIosDetailPulse } from './admin-ios-detail-pulse.js?v=4_40_53';
 import { setupAdminCatalogFilters } from './admin-catalog-filters.js?v=4_40_52';
 import { installAdminMenuBackReset, isAdminConfirmedSongPartChange } from './admin-menu-behavior.js?v=4_40_49';
 import { prepareAdminScoreEditor, restorePublicScoreEditor, resolveAdminComparisonScoreId } from './admin-score-editor.js?v=4_40_48';
@@ -3995,14 +3994,12 @@ function syncAdminPublicPulsePhase(includeUserDetail = false) {
   // animations on every scroll/mutation: repeated currentTime writes make
   // the light sweep visibly jump on some mobile browsers.
   if (includeUserDetail) {
-    if (!isAdminIosWebKit()) {
-      document.querySelectorAll('#userDetailPage.user-detail-open .user-detail-summary .score-val.score-rank-sparkle-rainbow')
-        .forEach(value => value.getAnimations({subtree:false}).forEach(align));
-    }
+    document.querySelectorAll('#userDetailPage.user-detail-open .user-detail-summary .score-val.score-rank-sparkle-rainbow')
+      .forEach(value => value.getAnimations({subtree:false}).forEach(align));
   }
   document.querySelectorAll('body.admin-new-ui .ar-record.skill-row-sparkle-rainbow')
     .forEach(card => {
-      if (isAdminIosWebKit() && card.closest('#userDetailPage')) return;
+      if (card.closest('#userDetailPage') && !includeUserDetail) return;
       card.getAnimations({subtree:true}).forEach(align);
     });
 }
@@ -4068,14 +4065,6 @@ function ensureAdminPulseObserver() {
       scheduleAdminPublicPulsePhase();
     }
   });
-  // Header animations can restart after instrument changes or browser layer
-  // recycling, even though no card nodes were inserted.
-  $('userDetailPage')?.querySelector('.user-detail-summary')
-    ?.addEventListener('animationstart', event => {
-      if (event.target.matches?.('.user-detail-skill-value')) {
-        scheduleAdminPublicPulsePhase(true);
-      }
-    });
 }
 
 function render() {
@@ -4745,8 +4734,6 @@ function renderViewedUserSkill() {
     el.className = `score-val user-detail-skill-value ${rankClass}`;
   });
 
-  // Align the profile header once after its values/class are refreshed.
-  scheduleAdminPublicPulsePhase(true);
 
   $('userDetailSkill').innerHTML = renderUserDetailSkillSections({
     hotCards: document.body.classList.contains('admin-new-ui')
@@ -4756,7 +4743,7 @@ function renderViewedUserSkill() {
       ? renderAdminRegisteredRecords(target.otherRows, 'SKILL', true)
       : target.otherRows.map((r,i) => createCard(r,i+1,'SKILL')).join('')
   });
-  if (isAdminIosWebKit()) requestAnimationFrame(() => requestAnimationFrame(alignAdminIosDetailPulse));
+  scheduleAdminPublicPulsePhase(true);
 }
 
 function setUserDetailTab(tab) {
@@ -4825,10 +4812,9 @@ async function openUserDetail(userId, username, returnTarget = null) {
   $('userDetailXLink').removeAttribute('href');
   setUserDetailTab('skill');
   const detailPage = $('userDetailPage');
-  resetAdminIosDetailPulse();
   detailPage.classList.add('user-detail-open');
   detailPage.style.display = 'flex';
-  if (!isAdminIosWebKit()) scheduleAdminPublicPulsePhase(true);
+  scheduleAdminPublicPulsePhase(true);
   refreshUserDetailBoardBan(userId).catch(console.error);
 
   try {

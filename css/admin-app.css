@@ -11,6 +11,19 @@ body.admin-new-ui.light-mode {
  --app-accent-pressed:#195568;
  --app-accent-soft:#e4f1f3;
 }
+/* The shared scroll optimization pauses cards inside user-detail-body, but
+   not the fixed own header. On iPhone WebKit that splits their clock phase.
+   Exempt *only* admin viewed-user details so both play continuously. */
+body.admin-new-ui.app-scroll-layout.app-scrolling #userDetailPage.user-detail-open .user-detail-body :is(
+ .score-rank-sparkle-rainbow,.user-list-row-sparkle-rainbow,.skill-box-sparkle-rainbow,
+ .ar-record.skill-row-sparkle-rainbow
+){animation-play-state:running!important;}
+body.admin-new-ui.app-scroll-layout.app-scrolling #userDetailPage.user-detail-open .user-detail-body .skill-box-sparkle-rainbow::before,
+body.admin-new-ui.app-scroll-layout.app-scrolling #userDetailPage.user-detail-open .user-detail-body .skill-box-sparkle-rainbow::after {animation-play-state:running!important;}
+body.admin-new-ui.app-scroll-layout.app-scrolling #userDetailPage.user-detail-open .user-detail-body .dc-card:has(.skill-box-sparkle-rainbow)::before,
+body.admin-new-ui.app-scroll-layout.app-scrolling #userDetailPage.user-detail-open .user-detail-body .ar-record.skill-row-sparkle-rainbow::before,
+body.admin-new-ui.app-scroll-layout.app-scrolling #userDetailPage.user-detail-open .user-detail-body .ar-record.skill-row-sparkle-rainbow::after
+{animation-play-state:running!important;}
 /* Admin registered rows: layout only; reuse public UI color, badge, and skill tokens. */
 body.admin-new-ui :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords){width:100%;max-width:none;display:block;--ar-cols:40px 70px minmax(160px,1fr) 82px 55px 87px 74px 62px 76px 48px}
 body.admin-new-ui :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords).hidden{display:none!important}
@@ -815,17 +828,26 @@ body.admin-new-ui #tagSettingsMask .tag-settings-rows input {
 }
 body.admin-new-ui #mypageModal .mypage-name-row {align-items:center;}
 body.admin-new-ui #tagSettingsMask .tag-settings-row {align-items:center;}
-body.admin-new-ui #feedbackMask .feedback-env-grid {gap:8px 10px;align-items:start;}
+body.admin-new-ui #feedbackMask .feedback-env-grid {gap:12px 10px;align-items:start;}
 body.admin-new-ui #feedbackMask .feedback-env-grid > * {min-width:0;margin:0!important;}
-body.admin-new-ui #feedbackMask .feedback-env-grid label {margin:0 0 3px!important;}
+body.admin-new-ui #feedbackMask .feedback-env-grid label {margin:0 0 7px!important;}
 body.admin-new-ui #feedbackMask :is(#feedbackDevice,#feedbackBrowser) {
   height:44px!important;min-height:44px!important;max-height:44px!important;
   padding:0 12px!important;box-sizing:border-box!important;
 }
 /* Keep equal spacing when the optional device/browser pair stacks. */
 @media (max-width:420px) {
- body.admin-new-ui #feedbackMask .feedback-env-grid {grid-template-columns:minmax(0,1fr)!important;row-gap:2px;}
+ body.admin-new-ui #feedbackMask .feedback-env-grid {grid-template-columns:minmax(0,1fr)!important;row-gap:12px;}
 }
+/* Admin feedback: the label-to-field rhythm matches other admin forms.
+   Status has no footprint until there is a message to display. */
+body.admin-new-ui #feedbackMask .feedback-body > label {margin:14px 0 7px!important;}
+body.admin-new-ui #feedbackMask .feedback-body > label:first-child {margin-top:0!important;}
+body.admin-new-ui #feedbackMask #feedbackCategory {height:44px;min-height:44px;box-sizing:border-box;}
+body.admin-new-ui #feedbackMask .feedback-env-note {margin-top:8px;}
+body.admin-new-ui #feedbackMask #feedbackStatus:empty {display:none!important;}
+body.admin-new-ui #feedbackMask #btnSubmitFeedback {margin-top:10px!important;}
+/* The actual input rectangles remain 44px across My Page and Tags. */
 /* New thread editor: compact right-aligned buttons with consistent heights. */
 body.admin-new-ui #adminBoardEditorMask .admin-board-editor-actions {
   display:flex!important; align-items:center!important; justify-content:flex-end!important;
