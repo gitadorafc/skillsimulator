@@ -63,7 +63,7 @@
     .opt-sra      { color: #ffedd5; border: 1px solid #c2410c; } 
     .opt-ran-plus { color: #67e8f9; border: 1px solid #0369a1; } 
     .opt-sra-plus { color: #fecdd3; border: 1px solid #be123c; } 
-    .opt-bass-mirror { color: #c4b5fd; border: 1px solid #7c3aed; width:54px; }
+    .opt-bass-mirror { color: #c4b5fd; border: 1px solid #7c3aed; width:44px; }
 
     /* === 3. ヘッダー＆スクロール固定エリア === */
     .p-header { background: #1f2937; position: sticky; top: 0; z-index: 100; width: 100%; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }

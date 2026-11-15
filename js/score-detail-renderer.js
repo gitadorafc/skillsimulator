@@ -1,7 +1,7 @@
 import {
   getOptionBadgeMarkup,
   getSongSkillRank
-} from './card-renderer.js?v=4_14_34';
+} from './card-renderer.js?v=4_40_41';
 import { formatRate, formatSkill } from './scores.js?v=3_18_4';
 import { bearMedal } from './admin-register-ui.js?v=4_40_38';
 
@@ -16,7 +16,7 @@ function getOptionDisplayName(option, part = '') {
     case 'SRA': return 'SRA';
     case 'RAN+': return 'RAN+';
     case 'SRA+': return 'SRA+';
-    case 'BASS_MIRROR': return 'バスミラー';
+    case 'BASS_MIRROR': return 'B-MIR';
     default: return String(option || '');
   }
 }

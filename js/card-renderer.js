@@ -40,7 +40,7 @@ export function getOptionBadgeMarkup(option) {
     value === 'SRA+' ? 'opt-sra-plus' :
     value === 'BASS_MIRROR' ? 'opt-bass-mirror' : '';
   if (!cls) return '';
-  const label = value === 'BASS_MIRROR' ? 'バスミラー' : value;
+  const label = value === 'BASS_MIRROR' ? 'B-MIR' : value;
   return `<span class="opt-badge ${cls}">${escapeHtml(label)}</span>`;
 }
 

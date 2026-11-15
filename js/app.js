@@ -6,7 +6,7 @@ import { renderAdminRegisteredRecords, loadAdminRegisteredJackets, getAdminJacke
 import {
   createCard,
   getPartColorClass
-} from './card-renderer.js?v=4_14_34';
+} from './card-renderer.js?v=4_40_41';
 import {
   renderAccountSwitchRows,
   renderFavoriteRows,
@@ -33,7 +33,7 @@ import {
   sortSkillRankingRows
 } from './ranking-renderer.js?v=4_14_43';
 import { shareGeneratedSkillFiles } from './skill-share.js?v=4_14_44';
-import { renderSkillShareFile } from './skill-share-renderer.js?v=4_15_6';
+import { renderSkillShareFile } from './skill-share-renderer.js?v=4_40_41';
 import {
   formatSkillHistoryDate,
   renderSkillHistoryRows,
@@ -54,7 +54,7 @@ import {
   renderOptionSummary,
   renderPersonalBest,
   renderRateComparisonRows
-} from './score-detail-renderer.js?v=4_40_39';
+} from './score-detail-renderer.js?v=4_40_41';
 import { createSiteDialogController } from './site-dialog.js?v=4_15_3';
 import { createTutorialController } from './tutorial.js?v=4_36_1';
 import { selectSkillTargetRows, calcTargetTotals, compareSkillRows } from './skill-targets.js?v=4_36_2';

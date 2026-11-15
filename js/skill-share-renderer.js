@@ -220,7 +220,7 @@ export async function renderSkillShareFile({
       const partText = String(r.part || '');
       const partX = pos[1] + 8;
       const optionText = String(r.play_option || 'NORMAL').toUpperCase();
-      const optionLabel = optionText === 'BASS_MIRROR' ? 'バスミラー' : optionText;
+      const optionLabel = optionText === 'BASS_MIRROR' ? 'B-MIR' : optionText;
       const showOption =
         (partText.endsWith('-D') && optionText === 'BASS_MIRROR') ||
         (!partText.endsWith('-D') && optionText !== 'NORMAL');
