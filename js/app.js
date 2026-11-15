@@ -5,7 +5,7 @@ import { prepareAdminScoreEditor, restorePublicScoreEditor, resolveAdminComparis
 import {
   getSkillColorRowByTotalValue
 } from './skill-colors.js?v=4_14_33';
-import { renderAdminRegisteredRecords, loadAdminRegisteredJackets, getAdminJacketUrls } from './admin-register-ui.js?v=4_40_38';
+import { renderAdminRegisteredRecords, loadAdminRegisteredJackets, getAdminJacketUrls, bearMedal } from './admin-register-ui.js?v=4_40_38';
 import {
   createCard,
   getPartColorClass
@@ -36,7 +36,7 @@ import {
   sortSkillRankingRows
 } from './ranking-renderer.js?v=4_14_43';
 import { shareGeneratedSkillFiles } from './skill-share.js?v=4_14_44';
-import { renderSkillShareFile, renderAdminJacketSkillShareFile } from './skill-share-renderer.js?v=4_40_78';
+import { renderSkillShareFile, renderAdminJacketSkillShareFile } from './skill-share-renderer.js?v=4_40_80';
 import {
   formatSkillHistoryDate,
   renderSkillHistoryRows,
@@ -3513,7 +3513,7 @@ async function createSkillShareFile(instrument, snapshot = null, comparisonBasel
   if (adminEnabled && document.body.classList.contains('admin-new-ui') &&
       $('headerUsername')?.textContent?.trim() === 'admin') {
     await loadAdminRegisteredJackets(supabase);
-    return renderAdminJacketSkillShareFile({...data, getJacketUrls:getAdminJacketUrls});
+    return renderAdminJacketSkillShareFile({...data, getJacketUrls:getAdminJacketUrls, getMedalSvg:bearMedal});
   }
   return renderSkillShareFile(data);
 }

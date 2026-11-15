@@ -410,17 +410,24 @@ export async function renderSkillShareFile({
    unchanged. Layout is shared by normal and comparison exports. */
 export async function renderAdminJacketSkillShareFile({
   instrument, snapshot = null, comparisonBaseline = null, currentTotals,
-  currentVersionName = '', username = '', getJacketUrls = () => []
+  currentVersionName = '', username = '', getJacketUrls = () => [], getMedalSvg = () => ''
 }) {
   const validSnapshot = snapshot && typeof snapshot === 'object' && !Array.isArray(snapshot) ? snapshot : null;
   const target = validSnapshot || currentTotals;
   const isComparison = Boolean(comparisonBaseline);
-  const rowH = isComparison ? 78 : 70;
+  const rowH = isComparison ? 90 : 70;
   const W = 1400;
-  const H = isComparison ? 2400 : 2180;
+  const H = isComparison ? 2720 : 2180;
+  // Export at higher pixel density so small jackets, labels and medal artwork
+  // remain sharp when viewing the full saved PNG. Logical layout is unchanged.
+  const exportScale = 1.5;
   const canvas = document.createElement('canvas');
-  canvas.width = W; canvas.height = H;
+  canvas.width = Math.round(W * exportScale);
+  canvas.height = Math.round(H * exportScale);
   const ctx = canvas.getContext('2d');
+  ctx.scale(exportScale, exportScale);
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = 'high';
   const c = ctx;
 
   // The same jacket candidates as the admin registered-song cards, with a
@@ -443,6 +450,25 @@ export async function renderAdminJacketSkillShareFile({
         break;
       } catch (_) { /* try the next image or draw the default square */ }
     }
+  }));
+
+  // Render the exact same SVG medal that admin cards use, not an imitation.
+  // Each icon is loaded once and reused throughout both generated tables.
+  const medalImages = new Map();
+  await Promise.all(['EXC', 'FC'].map(async type => {
+    const svg = getMedalSvg(type);
+    if (!svg) return;
+    const url = URL.createObjectURL(new Blob([svg], {type:'image/svg+xml;charset=utf-8'}));
+    try {
+      const img = await new Promise((resolve, reject) => {
+        const image = new Image();
+        image.onload = () => resolve(image);
+        image.onerror = () => reject(new Error('medal SVG load failed'));
+        image.src = url;
+      });
+      medalImages.set(type, img);
+    } catch (error) { console.warn('[admin share] medal SVG unavailable:', error); }
+    finally { URL.revokeObjectURL(url); }
   }));
 
   c.fillStyle = '#07101d'; c.fillRect(0, 0, W, H);
@@ -494,22 +520,13 @@ export async function renderAdminJacketSkillShareFile({
     return result + '…';
   };
   const drawMedal = (type, centerX, centerY) => {
-    if (type !== 'EXC' && type !== 'FC') return;
-    const gold = type === 'EXC';
-    const edge = gold ? '#a65d00' : '#657d99';
-    const grad = c.createLinearGradient(centerX - 11, centerY - 12, centerX + 11, centerY + 12);
-    if (gold) { grad.addColorStop(0, '#fff3ac'); grad.addColorStop(.5, '#eaa824'); grad.addColorStop(1, '#9e6108'); }
-    else { grad.addColorStop(0, '#fff'); grad.addColorStop(.5, '#cddced'); grad.addColorStop(1, '#7189ab'); }
-    c.fillStyle = grad; c.strokeStyle = edge; c.lineWidth = 1.5;
-    for (const dx of [-7, 7]) { c.beginPath(); c.arc(centerX + dx, centerY - 10, 5, 0, Math.PI * 2); c.fill(); c.stroke(); }
-    c.beginPath(); c.arc(centerX, centerY, 10, 0, Math.PI * 2); c.fill(); c.stroke();
-    c.strokeStyle = 'rgba(255,255,255,.8)'; c.lineWidth = 1.5;
-    c.beginPath(); c.arc(centerX - 1, centerY - 1, 7, Math.PI * .65, Math.PI * 1.8); c.stroke();
+    const icon = medalImages.get(type);
+    if (icon) c.drawImage(icon, centerX - 13, centerY - 13, 26, 26);
   };
   const deltaLabel = (current, prior, newRow) => {
     if (newRow) return 'new';
     const value = Number(current || 0) - Number(prior || 0);
-    if (Math.abs(value) < .0001) return '±0.00';
+    if (Math.abs(value) < .005) return '';
     return `${value > 0 ? '+' : ''}${value.toFixed(2)}`;
   };
   const deltaColor = (current, prior, newRow) => {
@@ -532,13 +549,17 @@ export async function renderAdminJacketSkillShareFile({
     rows.slice(0, 25).forEach((r, i) => {
       const y = tableTop + 46 + i * rowH;
       const skill = Number(r.skill || 0);
-      const border = skillColorCanvasVerticalPaint(c, getSkillColorRowByTotalValue(skill * 50), left, y, colW, rowH - 4);
+      // Match the site's 170-degree song-card border rather than a flat
+      // vertical rainbow. Reuse the canonical skill-color stop definitions.
+      const skillColor = getSkillColorRowByTotalValue(skill * 50);
+      const border = skillColor.type === 'solid' ? skillColor.color
+        : skillColorCanvasShareTextPaint(c, skillColor, left, y, colW, rowH - 4);
       c.fillStyle = i % 2 ? '#0d1627' : '#111827';
       c.fillRect(left, y, colW, rowH - 4);
       c.strokeStyle = border; c.lineWidth = 2;
       c.strokeRect(left + 1, y + 1, colW - 2, rowH - 6);
       // Use a fixed left jacket area; missing jackets never change alignment.
-      const jacketX = left + 9, jacketY = y + 7, jacketSize = rowH - 18;
+      const jacketX = left + 9, jacketSize = 52, jacketY = y + (rowH - 4 - jacketSize) / 2;
       c.fillStyle = '#23354d'; c.fillRect(jacketX, jacketY, jacketSize, jacketSize);
       const img = jacketMap.get(String(r.title || ''));
       if (img) {
@@ -560,7 +581,7 @@ export async function renderAdminJacketSkillShareFile({
       c.fillText(fitText(r.title, skillX - contentX - 8, '900 19px sans-serif'), contentX, titleTop);
 
       // Details occupy the second line, matching the 2-row admin song cards.
-      const pillTop = y + (isComparison ? 44 : 41);
+      const pillTop = y + (isComparison ? 43 : 41);
       const part = String(r.part || '');
       const partStyle = part.startsWith('MAS') ? ['#cf2ce4', '#fff']
         : part.startsWith('EXT') ? ['#f43f46', '#fff']
@@ -574,14 +595,17 @@ export async function renderAdminJacketSkillShareFile({
       c.fillText(`${Number(r.achievement_rate || 0).toFixed(2)}%`, point, pillTop + 10);
       if (isComparison) {
         const comparison = baseline.get(compareKey(r));
-        c.font = '800 11px sans-serif';
-        c.fillStyle = deltaColor(r.achievement_rate, comparison?.row?.achievement_rate, !comparison);
-        c.fillText(deltaLabel(r.achievement_rate, comparison?.row?.achievement_rate, !comparison) + (comparison ? '%' : ''), point, y + 69);
+        const rateDelta = deltaLabel(r.achievement_rate, comparison?.row?.achievement_rate, !comparison);
+        if (rateDelta) {
+          c.font = '800 12px sans-serif';
+          c.fillStyle = deltaColor(r.achievement_rate, comparison?.row?.achievement_rate, !comparison);
+          c.fillText(rateDelta + (comparison ? '%' : ''), point, y + 76);
+        }
       }
       point += 92;
       const type = Number(r.achievement_rate) === 100 ? 'EXC' : String(r.fc || '').toUpperCase() === 'FC' ? 'FC' : '';
       drawMedal(type, point + 10, pillTop + 9);
-      point += 31;
+      point += 38; // breathing room between the FC medal and option badge
       const option = String(r.play_option || 'NORMAL').toUpperCase();
       const optLabel = option === 'BASS_MIRROR' ? 'B-MIR' : option;
       const visibleOption = part.endsWith('-D') ? option === 'BASS_MIRROR' : option !== 'NORMAL';
@@ -612,7 +636,8 @@ export async function renderAdminJacketSkillShareFile({
         const previous = baseline.get(compareKey(r));
         c.fillStyle = deltaColor(skill, previous?.row?.skill, !previous);
         c.font = '900 13px sans-serif';
-        c.fillText(deltaLabel(skill, previous?.row?.skill, !previous), skillX + skillW / 2, middleY + 14);
+        const skillDelta = deltaLabel(skill, previous?.row?.skill, !previous);
+        if (skillDelta) c.fillText(skillDelta, skillX + skillW / 2, middleY + 14);
       }
     });
   };
