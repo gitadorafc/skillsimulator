@@ -1,4 +1,4 @@
-import { prepareAdminScoreEditor, restorePublicScoreEditor } from './admin-score-editor.js?v=4_40_46';
+import { prepareAdminScoreEditor, restorePublicScoreEditor } from './admin-score-editor.js?v=4_40_47';
 
 import {
   getSkillColorRowByTotalValue
