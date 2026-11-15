@@ -148,31 +148,48 @@ body.admin-new-ui.light-mode .favorite-toggle.active {
   -webkit-text-fill-color:#eab308 !important;
 }
 
-/* Light-mode card badges: identical palette in SKILL and registered tabs.
-   Use the public registered-card tokens, without changing the dark theme. */
-body.admin-new-ui.light-mode :is(#viewSkill,#viewAllManage,#userDetailSkill,#userDetailRecords) .ar-option .opt-ran,
-body.admin-new-ui.light-mode #rateCompareMask .opt-ran,
-body.admin-new-ui.light-mode #userDetailPage .opt-ran {
-  color:#15803d!important;-webkit-text-fill-color:#15803d!important;
-  background:#ecfdf5!important;border-color:#15803d!important;
+/* Admin option badges: one palette for registered/skill cards, user details,
+   and song detail comparison/history in both themes. The view/overlay scope
+   gives this canonical rule precedence over older shared/public CSS without
+   changing the general-user UI. */
+body.admin-new-ui :is(#appRoot,#rateCompareMask,#domModal) :is(.opt-badge,.history-option-badge):is(.opt-ran,.opt-ran-plus,.opt-sra,.opt-sra-plus,.opt-bass-mirror) {
+  color:var(--admin-option-fg)!important;
+  -webkit-text-fill-color:var(--admin-option-fg)!important;
+  background:var(--admin-option-bg)!important;
+  border:1px solid var(--admin-option-border)!important;
+  font-weight:900!important;
 }
-body.admin-new-ui.light-mode :is(#viewSkill,#viewAllManage,#userDetailSkill,#userDetailRecords) .ar-option .opt-sra,
-body.admin-new-ui.light-mode #rateCompareMask .opt-sra,
-body.admin-new-ui.light-mode #userDetailPage .opt-sra {
-  color:#c2410c!important;-webkit-text-fill-color:#c2410c!important;
-  background:#fff7ed!important;border-color:#c2410c!important;
+/* Dark-mode canonical option colors. */
+body.admin-new-ui :is(.opt-badge,.history-option-badge).opt-ran {
+  --admin-option-fg:#86efac;--admin-option-bg:transparent;--admin-option-border:#15803d;
 }
-body.admin-new-ui.light-mode :is(#viewSkill,#viewAllManage,#userDetailSkill,#userDetailRecords) .ar-option .opt-ran-plus,
-body.admin-new-ui.light-mode #rateCompareMask .opt-ran-plus,
-body.admin-new-ui.light-mode #userDetailPage .opt-ran-plus {
-  color:#0369a1!important;-webkit-text-fill-color:#0369a1!important;
-  background:#f0f9ff!important;border-color:#0369a1!important;
+body.admin-new-ui :is(.opt-badge,.history-option-badge).opt-ran-plus {
+  --admin-option-fg:#67e8f9;--admin-option-bg:rgba(8,81,103,.24);--admin-option-border:#0369a1;
 }
-body.admin-new-ui.light-mode :is(#viewSkill,#viewAllManage,#userDetailSkill,#userDetailRecords) .ar-option .opt-sra-plus,
-body.admin-new-ui.light-mode #rateCompareMask .opt-sra-plus,
-body.admin-new-ui.light-mode #userDetailPage .opt-sra-plus {
-  color:#be123c!important;-webkit-text-fill-color:#be123c!important;
-  background:#fff1f2!important;border-color:#be123c!important;
+body.admin-new-ui :is(.opt-badge,.history-option-badge).opt-sra {
+  --admin-option-fg:#fdba74;--admin-option-bg:transparent;--admin-option-border:#c2410c;
+}
+body.admin-new-ui :is(.opt-badge,.history-option-badge).opt-sra-plus {
+  --admin-option-fg:#fecdd3;--admin-option-bg:rgba(136,19,55,.22);--admin-option-border:#be123c;
+}
+body.admin-new-ui :is(.opt-badge,.history-option-badge).opt-bass-mirror {
+  --admin-option-fg:#c4b5fd;--admin-option-bg:rgba(76,29,149,.28);--admin-option-border:#7c3aed;
+}
+/* Light-mode canonical option colors; shared by all admin views. */
+body.admin-new-ui.light-mode :is(.opt-badge,.history-option-badge).opt-ran {
+  --admin-option-fg:#15803d;--admin-option-bg:#ecfdf5;--admin-option-border:#15803d;
+}
+body.admin-new-ui.light-mode :is(.opt-badge,.history-option-badge).opt-ran-plus {
+  --admin-option-fg:#0369a1;--admin-option-bg:#f0f9ff;--admin-option-border:#0369a1;
+}
+body.admin-new-ui.light-mode :is(.opt-badge,.history-option-badge).opt-sra {
+  --admin-option-fg:#c2410c;--admin-option-bg:#fff7ed;--admin-option-border:#c2410c;
+}
+body.admin-new-ui.light-mode :is(.opt-badge,.history-option-badge).opt-sra-plus {
+  --admin-option-fg:#be123c;--admin-option-bg:#fff1f2;--admin-option-border:#be123c;
+}
+body.admin-new-ui.light-mode :is(.opt-badge,.history-option-badge).opt-bass-mirror {
+  --admin-option-fg:#6d28d9;--admin-option-bg:#f5f3ff;--admin-option-border:#7c3aed;
 }
 /* Light cards already have a skill-colored border; remove the medal drop shadow. */
 body.admin-new-ui.light-mode :is(#viewSkill,#viewAllManage,#userDetailSkill,#userDetailRecords) .ar-bear-medal {
