@@ -766,7 +766,8 @@ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetail
       #menuMask,#mypageModal,#featureSettingsMask,#tagSettingsMask,
       #skillSyncMask,#allScoreSyncMask,#skillShareMask,#skillHistoryMask,
       #skillRankingMask,#officialSkillRankingMask,#rivalManageMask,
-      #songCatalogMask,#howToMask,#feedbackMask,#supportMask,#accountSwitchMask
+      #songCatalogMask,#howToMask,#feedbackMask,#supportMask,#accountSwitchMask,
+      #rateCompareMask,#domModal
     ) {
       box-sizing:border-box;
       background:rgba(2,6,23,.72)!important;
@@ -780,7 +781,8 @@ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetail
       #menuMask,#mypageModal,#featureSettingsMask,#tagSettingsMask,
       #skillSyncMask,#allScoreSyncMask,#skillShareMask,#skillHistoryMask,
       #skillRankingMask,#officialSkillRankingMask,#rivalManageMask,
-      #songCatalogMask,#howToMask,#feedbackMask,#supportMask,#accountSwitchMask
+      #songCatalogMask,#howToMask,#feedbackMask,#supportMask,#accountSwitchMask,
+      #rateCompareMask,#domModal
     ) {background:rgba(15,23,42,.25)!important;}
     body.admin-new-ui :is(
       #menuMask > .app-menu-sheet,
@@ -816,7 +818,8 @@ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetail
       #menuMask,#mypageModal,#featureSettingsMask,#tagSettingsMask,
       #skillSyncMask,#allScoreSyncMask,#skillShareMask,#skillHistoryMask,
       #skillRankingMask,#officialSkillRankingMask,#rivalManageMask,
-      #songCatalogMask,#howToMask,#feedbackMask,#supportMask,#accountSwitchMask
+      #songCatalogMask,#howToMask,#feedbackMask,#supportMask,#accountSwitchMask,
+      #rateCompareMask,#domModal
     ) {padding:12px!important;}
     body.admin-new-ui :is(
       #menuMask > .app-menu-sheet,
@@ -840,19 +843,9 @@ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetail
       max-height:calc(100dvh - 24px)!important;
     }
   }
- /* Full content dialogs also use the MENU sheet geometry in compact mode.
-    Small alerts and delete confirmations keep their purpose-built size. */
+ /* Full content dialogs use the same MENU mask paint above; only the sheet
+    geometry remains separate. Alert and delete-confirmation masks are unchanged. */
  @media (max-width:1099px) {
-   body.admin-new-ui :is(#rateCompareMask,#domModal) {
-     box-sizing:border-box;
-     padding:16px!important;
-     align-items:center!important;justify-content:center!important;
-     background:rgba(2,6,23,.72)!important;
-     -webkit-backdrop-filter:blur(2px)!important;backdrop-filter:blur(2px)!important;
-   }
-   body.admin-new-ui.light-mode :is(#rateCompareMask,#domModal) {
-     background:rgba(15,23,42,.25)!important;
-   }
    body.admin-new-ui #rateCompareMask > .rate-compare-dialog,
    body.admin-new-ui #domModal > .mdl-sheet {
      width:100%!important;max-width:520px!important;
@@ -862,7 +855,6 @@ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetail
    }
  }
  @media (max-width:600px) {
-   body.admin-new-ui :is(#rateCompareMask,#domModal) {padding:12px!important;}
    body.admin-new-ui #rateCompareMask > .rate-compare-dialog,
    body.admin-new-ui #domModal > .mdl-sheet {
      max-width:460px!important;max-height:calc(100dvh - 24px)!important;
@@ -876,12 +868,14 @@ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetail
  }
  /* Administrator menu text hierarchy: heading > subheading > explanation.
     Do not change dense song-card numerics, badges or public UI. */
+ /* Menu form hierarchy: primary page title > field headings > help text.
+    app.css and the legacy inline label style must not shrink admin labels. */
  body.admin-new-ui :is(
    #featureSettingsMask .feature-setting-row strong,
    #mypageModal .mypage-sheet label,
    #tagSettingsMask .tag-settings-body label,
    #feedbackMask .feedback-body label
- ) {font-size:15px;}
+ ) {font-size:16px!important;line-height:1.4;}
  body.admin-new-ui :is(
    #featureSettingsMask .feature-setting-row small,
    #mypageModal .section-note,
@@ -1072,7 +1066,6 @@ body.admin-new-ui :is(
   line-height:1.55;
 }
 body.admin-new-ui .feature-setting-row > span {gap:5px;}
-body.admin-new-ui .feature-setting-row strong {font-size:15px;}
 body.admin-new-ui .admin-workspace-panel .tag-settings-body > p {font-size:14px;line-height:1.55;}
 
 /* Admin standard text-field geometry: match the registered-song search (42px).
