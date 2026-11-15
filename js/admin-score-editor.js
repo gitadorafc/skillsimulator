@@ -1,5 +1,15 @@
 // Admin-only score editor. Public nodes and their listeners are restored intact.
 // No global style or public markup changes are performed here.
+
+// The score detail editor is available only for the logged-in user's own record.
+export function resolveAdminComparisonScoreId({songId, part, editScoreId, scores}) {
+  if (!document.body.classList.contains('admin-new-ui')) return editScoreId || null;
+  const ownScores = Array.isArray(scores) ? scores : [];
+  const requested = editScoreId && ownScores.find(row => String(row.score_id) === String(editScoreId));
+  if (requested) return String(requested.score_id);
+  const own = ownScores.find(row => String(row.song_id) === String(songId) && String(row.part) === String(part));
+  return own ? String(own.score_id) : null;
+}
 const MOVES = [
   ['title', () => document.getElementById('formTitle')?.closest('.f-group')],
   ['part', () => document.getElementById('partSelect')?.closest('.form-grid-two')],
@@ -46,8 +56,30 @@ export function prepareAdminScoreEditor(score = null) {
     const content = fragment.querySelector('.admin-score-editor-content');
     // Append only the two actual nodes; template whitespace must not remain in the public DOM after restoration.
     sheet.append(content, footer);
+    const correctionArea = document.getElementById('levelCorrectionArea');
+    const correctionLayout = document.createElement('div');
+    correctionLayout.className = 'admin-correction-layout';
+    correctionLayout.innerHTML = '<div class="admin-correction-copy"></div><div class="admin-correction-field"></div><div class="admin-correction-action"></div>';
+    const correctionMoved = [];
+    const transfer = (selector, destination) => {
+      const node = correctionArea?.querySelector(selector);
+      if (!node) return;
+      const marker = document.createComment('public-correction-'+selector);
+      node.before(marker);
+      correctionMoved.push({node, marker});
+      destination.append(node);
+    };
+    const copy = correctionLayout.querySelector('.admin-correction-copy');
+    const field = correctionLayout.querySelector('.admin-correction-field');
+    const action = correctionLayout.querySelector('.admin-correction-action');
+    transfer('.level-correction-title', copy);
+    transfer('.level-correction-note', copy);
+    transfer('#levelCorrectionForm label', field);
+    transfer('#correctionLevel', field);
+    transfer('#btnSendLevelCorrection', action);
+    correctionArea?.append(correctionLayout);
     sheet.classList.add('admin-score-editor');
-    mounted = {sheet, moved, content, footer};
+    mounted = {sheet, moved, content, footer, correctionLayout, correctionMoved};
   }
   const del = document.getElementById('btnDeleteEditingScore');
   if (del) del.textContent = '削除';
@@ -63,7 +95,12 @@ export function prepareAdminScoreEditor(score = null) {
 }
 export function restorePublicScoreEditor() {
   if (!mounted) return;
-  const {sheet, moved, content, footer} = mounted;
+  const {sheet, moved, content, footer, correctionLayout, correctionMoved} = mounted;
+  for (const {node, marker} of correctionMoved) {
+    marker.before(node);
+    marker.remove();
+  }
+  correctionLayout.remove();
   for (const {node, marker} of moved) {
     marker.before(node);
     marker.remove();

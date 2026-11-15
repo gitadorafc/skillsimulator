@@ -1,4 +1,4 @@
-/* v4.40.47 — Admin-only score editor. Scope every selector to admin-new-ui. */
+/* v4.40.48 — Admin-only score editor. Scope every selector to admin-new-ui. */
 body.admin-new-ui #domModal .mdl-sheet.admin-score-editor {
   --ase-rule:#33465d;
   --ase-muted:#aac7d6;
@@ -87,3 +87,65 @@ body.admin-new-ui.light-mode #domModal .admin-score-footer .btn-cancel {
 body.admin-new-ui.light-mode #domModal .admin-score-footer .btn-delete-editing-score {
   background:#fff1f2!important;border-color:#f87171!important;color:#991b1b!important;
 }
+
+/* Admin-only: Level uses the same read-only preview treatment as Skill. */
+body.admin-new-ui #domModal .admin-score-editor-content #formLevel[readonly] {
+  height:38px!important;
+  min-height:38px!important;
+  box-sizing:border-box!important;
+  padding:5px 8px!important;
+  border:1px solid #334155!important;
+  border-radius:8px!important;
+  background:#1e293b!important;
+  color:#f8fafc!important;
+  -webkit-text-fill-color:#f8fafc!important;
+  text-align:center!important;
+  font-size:15px!important;
+  font-weight:900!important;
+  opacity:1!important;
+}
+body.admin-new-ui.light-mode #domModal .admin-score-editor-content #formLevel[readonly] {
+  background:#e5e7eb!important;
+  color:#111827!important;
+  -webkit-text-fill-color:#111827!important;
+  border-color:#94a3b8!important;
+}
+/* One admin-only report form: original public input/button elements are relocated here. */
+body.admin-new-ui #domModal .admin-score-correction .level-correction-head,
+body.admin-new-ui #domModal .admin-score-correction .level-correction-form {display:none!important;}
+body.admin-new-ui #domModal .admin-score-correction .admin-correction-layout {
+  display:grid;
+  grid-template-columns:minmax(0,1fr) minmax(112px, 42%);
+  gap:8px 12px;
+  align-items:start;
+  padding:6px 4px 9px;
+}
+body.admin-new-ui #domModal .admin-score-correction .admin-correction-copy {min-width:0;align-self:center;}
+body.admin-new-ui #domModal .admin-score-correction .admin-correction-copy .level-correction-title {
+  font-size:11px!important;font-weight:900;line-height:1.35!important;
+}
+body.admin-new-ui #domModal .admin-score-correction .admin-correction-copy .level-correction-note {
+  font-size:10px!important;line-height:1.4!important;margin-top:4px!important;
+}
+body.admin-new-ui #domModal .admin-score-correction .admin-correction-field {min-width:0;display:grid;gap:4px;}
+body.admin-new-ui #domModal .admin-score-correction .admin-correction-field label {
+  font-size:10px!important;font-weight:900;
+}
+body.admin-new-ui #domModal .admin-score-correction .admin-correction-field #correctionLevel {
+  width:100%!important;min-width:0;min-height:36px!important;height:36px!important;
+  box-sizing:border-box!important;
+}
+body.admin-new-ui #domModal .admin-score-correction .admin-correction-action {
+  grid-column:1/-1;display:flex;justify-content:flex-end;
+}
+body.admin-new-ui #domModal .admin-score-correction .admin-correction-action #btnSendLevelCorrection {
+  width:auto!important;min-width:110px!important;min-height:36px!important;
+  padding:0 12px!important;font-size:11px!important;
+}
+@media (max-width:360px) {
+  body.admin-new-ui #domModal .admin-score-correction .admin-correction-layout {
+    grid-template-columns:minmax(0,1fr) minmax(100px,42%);gap:6px;
+  }
+}
+
+body.admin-new-ui #domModal .admin-score-correction #btnOpenLevelCorrection {display:none!important;}

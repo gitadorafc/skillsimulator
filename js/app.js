@@ -1,4 +1,4 @@
-import { prepareAdminScoreEditor, restorePublicScoreEditor } from './admin-score-editor.js?v=4_40_47';
+import { prepareAdminScoreEditor, restorePublicScoreEditor, resolveAdminComparisonScoreId } from './admin-score-editor.js?v=4_40_48';
 
 import {
   getSkillColorRowByTotalValue
@@ -5104,8 +5104,9 @@ function renderFavorites() {
 
 async function openRateComparison(songId, title, part, editScoreId = null) {
   const requestSeq = ++rateComparisonRequestSeq;
-  rateComparisonEditScoreId = editScoreId && scores.some(row => String(row.score_id) === String(editScoreId))
-    ? String(editScoreId)
+  const candidateEditScoreId = resolveAdminComparisonScoreId({songId, part, editScoreId, scores});
+  rateComparisonEditScoreId = candidateEditScoreId && scores.some(row => String(row.score_id) === String(candidateEditScoreId))
+    ? String(candidateEditScoreId)
     : null;
   $('rateCompareTitle').textContent = `${title} / ${part}`;
   $('rateCompareEditArea')?.classList.toggle('hidden', !rateComparisonEditScoreId);

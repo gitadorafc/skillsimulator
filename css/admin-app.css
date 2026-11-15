@@ -1171,3 +1171,41 @@ body.admin-new-ui.light-mode #rivalManageMask .favorite-user-open .name {
     padding:5px 9px;
   }
 }
+
+/* v4.40.48: admin score-detail heading/action palette. Public detail stays unchanged. */
+body.admin-new-ui #rateCompareMask .rate-compare-label {
+  color:#a9c6d5!important;
+  -webkit-text-fill-color:#a9c6d5!important;
+}
+body.admin-new-ui.light-mode #rateCompareMask .rate-compare-label {
+  color:#48667a!important;
+  -webkit-text-fill-color:#48667a!important;
+}
+body.admin-new-ui #rateCompareMask .rate-compare-edit-area:not(.hidden) {
+  flex:0 0 auto;
+  padding:10px 14px max(12px,env(safe-area-inset-bottom));
+  border-top:1px solid #334155;
+  justify-content:flex-end;
+}
+body.admin-new-ui #rateCompareMask .rate-compare-edit-button:not(.hidden) {
+  width:auto!important;
+  min-width:156px;
+  min-height:38px;
+  padding:7px 14px;
+  border:1px solid #246b82!important;
+  border-radius:8px;
+  background:#246b82!important;
+  color:#fff!important;
+  -webkit-text-fill-color:#fff!important;
+  font-size:12px;
+  font-weight:900;
+}
+body.admin-new-ui.light-mode #rateCompareMask .rate-compare-edit-button:not(.hidden) {
+  border-color:#236d83!important;
+  background:#236d83!important;
+  color:#fff!important;
+  -webkit-text-fill-color:#fff!important;
+}
+body.admin-new-ui.light-mode #rateCompareMask .rate-compare-edit-area:not(.hidden) {
+  border-top-color:#cbd5e1;
+}
