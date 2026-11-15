@@ -11,10 +11,6 @@ const MOVES = [
   ['tags', () => document.getElementById('scoreTagGroup')]
 ];
 let mounted = null;
-export function adminScoreSubmitLabel(publicLabel) {
-  return document.body.classList.contains('admin-new-ui') && publicLabel === '保存する'
-    ? '保存' : publicLabel;
-}
 export function prepareAdminScoreEditor(score = null) {
   const sheet = document.querySelector('#domModal > .mdl-sheet');
   if (!sheet) return;
@@ -48,14 +44,15 @@ export function prepareAdminScoreEditor(score = null) {
       footer.append(node);
     }
     const content = fragment.querySelector('.admin-score-editor-content');
-    sheet.append(fragment);
+    // Append only the two actual nodes; template whitespace must not remain in the public DOM after restoration.
+    sheet.append(content, footer);
     sheet.classList.add('admin-score-editor');
     mounted = {sheet, moved, content, footer};
   }
   const del = document.getElementById('btnDeleteEditingScore');
   if (del) del.textContent = '削除';
   const submit = document.getElementById('btnSubmitForm');
-  if (submit?.textContent === '保存する') submit.textContent = '保存';
+  if (submit) submit.textContent = '保存';
   const details = mounted.sheet.querySelector('.admin-score-details');
   if (details) details.open = Boolean(
     document.getElementById('formPrivateComment')?.value.trim() ||
@@ -76,7 +73,7 @@ export function restorePublicScoreEditor() {
   sheet.classList.remove('admin-score-editor');
   const del = document.getElementById('btnDeleteEditingScore');
   const submit = document.getElementById('btnSubmitForm');
-  if (del) del.textContent = 'この登録データを削除';
-  if (submit?.textContent === '保存') submit.textContent = '保存する';
+  if (del) del.textContent = '削除';
+  if (submit) submit.textContent = '保存';
   mounted = null;
 }

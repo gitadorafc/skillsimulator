@@ -1,4 +1,4 @@
-import { prepareAdminScoreEditor, restorePublicScoreEditor, adminScoreSubmitLabel } from './admin-score-editor.js?v=4_40_45';
+import { prepareAdminScoreEditor, restorePublicScoreEditor } from './admin-score-editor.js?v=4_40_46';
 
 import {
   getSkillColorRowByTotalValue
@@ -4212,7 +4212,7 @@ function openScoreModal(score = null, skipInitialFocus = false) {
   $('songSuggestions').innerHTML = '';
   if ($('adminSongInitialFilter')) $('adminSongInitialFilter').value = '';
   if ($('adminSongCandidate')) $('adminSongCandidate').value = '';
-  $('btnSubmitForm').textContent = adminScoreSubmitLabel('保存する');
+  $('btnSubmitForm').textContent = '保存';
   $('editDeleteArea').classList.toggle('hidden', !score);
   hide('masterRequestArea');
   hide('levelCorrectionArea');
@@ -4424,7 +4424,7 @@ async function refreshSelectedPart() {
       selectedSong = song;
       $('formLevel').value = formatLevel(song.level);
       $('formLevel').readOnly = true;
-      $('btnSubmitForm').textContent = adminScoreSubmitLabel('保存する');
+      $('btnSubmitForm').textContent = '保存';
       hide('masterRequestArea');
       show('levelCorrectionArea');
 
@@ -6830,11 +6830,11 @@ $('btnSubmitForm').addEventListener('click', async () => {
     // モーダルがまだ開いている場合だけ元の表示へ戻す
     if ($('domModal').style.display !== 'none') {
       if (selectedSong) {
-        button.textContent = adminScoreSubmitLabel('保存する');
+        button.textContent = '保存';
       } else {
         button.textContent = originalText.includes('登録依頼')
           ? '登録依頼して保存'
-          : adminScoreSubmitLabel('保存する');
+          : '保存';
       }
     }
   }

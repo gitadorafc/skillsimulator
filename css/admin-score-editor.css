@@ -1,4 +1,4 @@
-/* v4.40.45 — Admin-only score editor. Scope every selector to admin-new-ui. */
+/* v4.40.46 — Admin-only score editor. Scope every selector to admin-new-ui. */
 body.admin-new-ui #domModal .mdl-sheet.admin-score-editor {
   --ase-rule:#33465d;
   --ase-muted:#aac7d6;
