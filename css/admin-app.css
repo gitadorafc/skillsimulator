@@ -584,7 +584,7 @@ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetail
    position:static;grid-column:1;grid-row:1;justify-content:center;
    justify-self:stretch;margin:0;
  }
- body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-record:not(.ar-readonly) .ar-fc-cell {
+ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetailSkill,#userDetailRecords) .ar-record .ar-fc-cell {
    position:absolute;top:26px;right:4px;width:28px;height:16px;
    display:flex;align-items:center;justify-content:center;
    padding:0;margin:0;
@@ -691,14 +691,14 @@ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetail
    display:flex;align-items:center;justify-content:center;
  }
  body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-record:not(.ar-readonly) .ar-edit {
-   position:absolute;bottom:7px;right:4px;width:26px;height:24px;
+   position:absolute;bottom:6px;right:4px;width:26px;height:24px;
    display:flex;align-items:center;justify-content:center;
  }
  body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-record:not(.ar-readonly) .ar-edit button {
    width:24px;height:24px;font-size:15px;
  }
  body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-record:not(.ar-readonly) .ar-skill {
-   top:2px;right:6px;justify-self:end;
+   justify-self:end;
  }
  body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-record:not(.ar-readonly) .ar-title {
    padding-right:116px;
@@ -840,6 +840,40 @@ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetail
       max-height:calc(100dvh - 24px)!important;
     }
   }
+ /* Full content dialogs also use the MENU sheet geometry in compact mode.
+    Small alerts and delete confirmations keep their purpose-built size. */
+ @media (max-width:1099px) {
+   body.admin-new-ui :is(#rateCompareMask,#domModal) {
+     box-sizing:border-box;
+     padding:16px!important;
+     align-items:center!important;justify-content:center!important;
+     background:rgba(2,6,23,.72)!important;
+     -webkit-backdrop-filter:blur(2px)!important;backdrop-filter:blur(2px)!important;
+   }
+   body.admin-new-ui.light-mode :is(#rateCompareMask,#domModal) {
+     background:rgba(15,23,42,.25)!important;
+   }
+   body.admin-new-ui #rateCompareMask > .rate-compare-dialog,
+   body.admin-new-ui #domModal > .mdl-sheet {
+     width:100%!important;max-width:520px!important;
+     box-sizing:border-box!important;margin:0 auto!important;
+     border-radius:14px!important;
+     max-height:calc(100dvh - 32px)!important;
+   }
+ }
+ @media (max-width:600px) {
+   body.admin-new-ui :is(#rateCompareMask,#domModal) {padding:12px!important;}
+   body.admin-new-ui #rateCompareMask > .rate-compare-dialog,
+   body.admin-new-ui #domModal > .mdl-sheet {
+     max-width:460px!important;max-height:calc(100dvh - 24px)!important;
+   }
+ }
+ @media (min-width:1100px) {
+   body.admin-new-ui #rateCompareMask > .rate-compare-dialog,
+   body.admin-new-ui #domModal > .mdl-sheet {
+     width:100%!important;max-width:520px!important;box-sizing:border-box!important;
+   }
+ }
  /* Administrator menu text hierarchy: heading > subheading > explanation.
     Do not change dense song-card numerics, badges or public UI. */
  body.admin-new-ui :is(
@@ -1508,7 +1542,7 @@ body.admin-new-ui.light-mode #songCatalogMask .admin-catalog-jacket {
   background:#e2e8f0;color:#64748b;
 }
 
-/* Read-only user-detail cards: the editing slot does not exist in the layout. */
+/* Read-only user-detail cards use the same geometry, without an edit button. */
 body.admin-new-ui :is(#userDetailSkill,#userDetailRecords) .ar-record.ar-readonly .ar-edit {display:none;}
 
 /* Admin rival rows: independent user-info and delete surfaces.
