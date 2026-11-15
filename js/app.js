@@ -3965,43 +3965,43 @@ function syncRegisteredEditButtonWidths() {
 
 // The public CSS effects are unchanged. Align their actual playback positions
 // after records are inserted; do not animate the whole app or run a frame loop.
+// Both the own page and a viewed profile use the same CSS animations and
+// exactly the same clock alignment.  A viewed profile is aligned once when
+// its records have been rendered; scrolling must never seek its clock.
 let adminPulseObserver = null;
 let adminPulseFramePending = false;
 let adminPulseDetailPending = false;
 function syncAdminPublicPulsePhase(includeUserDetail = false) {
   if (!document.body.classList.contains('admin-new-ui')) return;
-  const headers = [...document.querySelectorAll('#appScreen>.p-header .score-val.score-rank-sparkle-rainbow')];
-  const glow = headers.flatMap(element => element.getAnimations({subtree:false}))
+  const ownHeader = document.querySelector('#appScreen > .p-header');
+  const master = [...(ownHeader?.querySelectorAll('.score-val.score-rank-sparkle-rainbow') || [])]
+    .flatMap(element => element.getAnimations({subtree:false}))
     .find(animation => animation.animationName === 'skill-sparkle-text-glow' && animation.currentTime != null);
-  if (!glow) return;
-  const phase = glow.currentTime;
+  if (!master) return;
+  const phase = Number(master.currentTime);
   const names = new Set([
     'skill-sparkle-text-glow', 'skill-sparkle-text-sweep',
     'skill-sparkle-border-pulse', 'skill-sparkle-band-pulse', 'admin-song-border-pulse'
   ]);
-  const align = animation => {
-    if (!names.has(animation.animationName) || animation.currentTime == null) return;
-    // WAAPI currentTime is relative to animation playback and works without
-    // assuming that Safari exposes a writable document-timeline startTime.
-    if (Math.abs(Number(animation.currentTime) - Number(phase)) < 12) return;
-    try { animation.currentTime = phase; } catch (_) { /* detached animation */ }
+  const syncRoot = root => {
+    if (!root) return;
+    // The same collector serves own header/cards and viewed header/cards.
+    root.querySelectorAll('.score-val.score-rank-sparkle-rainbow, .ar-record.skill-row-sparkle-rainbow, .dc-card:has(.skill-box-sparkle-rainbow)')
+      .forEach(element => element.getAnimations({subtree:true}).forEach(animation => {
+        if (!names.has(animation.animationName) || animation.currentTime == null) return;
+        if (Math.abs(Number(animation.currentTime) - phase) < 12) return;
+        try { animation.currentTime = phase; } catch (_) { /* detached animation */ }
+      }));
   };
-  for (const header of headers) header.getAnimations({subtree:false}).forEach(align);
-  // User detail displays the same score-val animation, but its elements are
-  // created after the persistent header. Keep their sweep and glow on the
-  // header clock instead of restarting independently on every profile open.
-  // The profile header runs continuously once aligned. Do not seek its
-  // animations on every scroll/mutation: repeated currentTime writes make
-  // the light sweep visibly jump on some mobile browsers.
+  syncRoot(ownHeader);
+  syncRoot(document.getElementById('viewSkill'));
+  syncRoot(document.getElementById('viewAllManage'));
+  // Only on the explicit profile-render pass, not on scroll/observer updates.
   if (includeUserDetail) {
-    document.querySelectorAll('#userDetailPage.user-detail-open .user-detail-summary .score-val.score-rank-sparkle-rainbow')
-      .forEach(value => value.getAnimations({subtree:false}).forEach(align));
+    syncRoot(document.querySelector('#userDetailPage.user-detail-open .user-detail-summary'));
+    syncRoot(document.getElementById('userDetailSkill'));
+    syncRoot(document.getElementById('userDetailRecords'));
   }
-  document.querySelectorAll('body.admin-new-ui .ar-record.skill-row-sparkle-rainbow')
-    .forEach(card => {
-      if (card.closest('#userDetailPage') && !includeUserDetail) return;
-      card.getAnimations({subtree:true}).forEach(align);
-    });
 }
 
 // The board toolbar is in the fixed header, while threads are inside the
@@ -4048,7 +4048,7 @@ function scheduleAdminPublicPulsePhase(includeUserDetail = false) {
 }
 function ensureAdminPulseObserver() {
   if (adminPulseObserver || !document.body.classList.contains('admin-new-ui')) return;
-  const roots = ['viewSkill','viewAllManage','userDetailSkill','userDetailRecords']
+  const roots = ['viewSkill','viewAllManage']
     .map(id => $(id)).filter(Boolean);
   if (!roots.length) return;
   adminPulseObserver = new MutationObserver(mutations => {
@@ -4814,7 +4814,6 @@ async function openUserDetail(userId, username, returnTarget = null) {
   const detailPage = $('userDetailPage');
   detailPage.classList.add('user-detail-open');
   detailPage.style.display = 'flex';
-  scheduleAdminPublicPulsePhase(true);
   refreshUserDetailBoardBan(userId).catch(console.error);
 
   try {
@@ -8553,7 +8552,7 @@ window.addEventListener('resize', () => {
   scroller.addEventListener('scroll', markAppScrolling, { passive:true });
   // Scrolling can recycle/restart skill-row animations without inserting
   // new DOM nodes; keep them phase-locked to the header during scroll.
-  scroller.addEventListener('scroll', scheduleAdminPublicPulsePhase, { passive:true });
+  if (!scroller.closest('#userDetailPage')) scroller.addEventListener('scroll', scheduleAdminPublicPulsePhase, { passive:true });
 });
 applyLightMode();
 
