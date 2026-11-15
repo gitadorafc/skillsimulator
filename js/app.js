@@ -1,4 +1,4 @@
-import { alignAdminIosDetailPulse, isAdminIosWebKit } from './admin-ios-detail-pulse.js?v=4_40_52';
+import { alignAdminIosDetailPulse, isAdminIosWebKit, resetAdminIosDetailPulse } from './admin-ios-detail-pulse.js?v=4_40_53';
 import { setupAdminCatalogFilters } from './admin-catalog-filters.js?v=4_40_52';
 import { installAdminMenuBackReset, isAdminConfirmedSongPartChange } from './admin-menu-behavior.js?v=4_40_49';
 import { prepareAdminScoreEditor, restorePublicScoreEditor, resolveAdminComparisonScoreId } from './admin-score-editor.js?v=4_40_48';
@@ -3995,16 +3995,11 @@ function syncAdminPublicPulsePhase(includeUserDetail = false) {
   // animations on every scroll/mutation: repeated currentTime writes make
   // the light sweep visibly jump on some mobile browsers.
   if (includeUserDetail) {
-    if (isAdminIosWebKit()) {
-      // Read the own-header clock once, then let CSS run continuously.
-      // Never write currentTime to the profile's sticky-layer animations.
-      alignAdminIosDetailPulse();
-    } else {
+    if (!isAdminIosWebKit()) {
       document.querySelectorAll('#userDetailPage.user-detail-open .user-detail-summary .score-val.score-rank-sparkle-rainbow')
         .forEach(value => value.getAnimations({subtree:false}).forEach(align));
     }
   }
-  if (isAdminIosWebKit()) alignAdminIosDetailPulse();
   document.querySelectorAll('body.admin-new-ui .ar-record.skill-row-sparkle-rainbow')
     .forEach(card => {
       if (isAdminIosWebKit() && card.closest('#userDetailPage')) return;
@@ -4761,6 +4756,7 @@ function renderViewedUserSkill() {
       ? renderAdminRegisteredRecords(target.otherRows, 'SKILL', true)
       : target.otherRows.map((r,i) => createCard(r,i+1,'SKILL')).join('')
   });
+  if (isAdminIosWebKit()) requestAnimationFrame(() => requestAnimationFrame(alignAdminIosDetailPulse));
 }
 
 function setUserDetailTab(tab) {
@@ -4829,9 +4825,10 @@ async function openUserDetail(userId, username, returnTarget = null) {
   $('userDetailXLink').removeAttribute('href');
   setUserDetailTab('skill');
   const detailPage = $('userDetailPage');
+  resetAdminIosDetailPulse();
   detailPage.classList.add('user-detail-open');
   detailPage.style.display = 'flex';
-  scheduleAdminPublicPulsePhase(true);
+  if (!isAdminIosWebKit()) scheduleAdminPublicPulsePhase(true);
   refreshUserDetailBoardBan(userId).catch(console.error);
 
   try {

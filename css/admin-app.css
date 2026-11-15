@@ -236,6 +236,16 @@ body.admin-new-ui #userListHeaderSlot #userListSortControls select {
 body.admin-new-ui #userListHeaderSlot #userListSortControls .user-list-sort-field>span {
   color:#cce4f5;font-size:12px;font-weight:800;
 }
+body.admin-new-ui.light-mode #userListHeaderSlot #userListSortControls {
+  background:#edf2f7!important;border-color:#a6bad0!important;
+}
+body.admin-new-ui.light-mode #userListHeaderSlot #userListSortControls .user-list-sort-field>span {
+  color:#344c67!important;-webkit-text-fill-color:#344c67!important;
+}
+body.admin-new-ui.light-mode #userListHeaderSlot #userListSortControls select {
+  background:#fff!important;color:#17243a!important;-webkit-text-fill-color:#17243a!important;
+  border-color:#9db0c5!important;
+}
 /* Unified compact toolbar in all three admin tabs. Source of truth for the look. */
 body.admin-new-ui #searchArea .record-search-row,
 body.admin-new-ui #userListHeaderSlot .users-toolbar,
@@ -484,7 +494,7 @@ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetail
    justify-self:stretch;margin:0;
  }
  body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-record:not(.ar-readonly) .ar-fc-cell {
-   position:absolute;top:22px;right:4px;width:28px;height:17px;
+   position:absolute;top:26px;right:4px;width:28px;height:16px;
    display:flex;align-items:center;justify-content:center;
    padding:0;margin:0;
  }
@@ -524,7 +534,7 @@ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetail
  }
  body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetailSkill,#userDetailRecords) .ar-song-name {font-size:11px;line-height:19px;}
  body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-record:not(.ar-readonly) .ar-edit {
-   position:absolute;bottom:4px;right:4px;width:28px;height:25px;
+   position:absolute;bottom:2px;right:4px;width:28px;height:25px;
    display:flex;align-items:center;justify-content:center;
  }
  body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-record:not(.ar-readonly) .ar-edit button {
@@ -593,7 +603,7 @@ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetail
    width:28px;height:28px;font-size:17px;
  }
  body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-record:not(.ar-readonly) .ar-skill {
-   right:38px;
+   right:6px;justify-self:end;
  }
  body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-record:not(.ar-readonly) .ar-title {
    padding-right:116px;
@@ -788,13 +798,33 @@ body.admin-new-ui #mypageModal .mypage-name-row {
   display:flex; align-items:stretch; gap:8px; min-width:0;
 }
 body.admin-new-ui #mypageModal .mypage-name-row > input {
-  flex:1 1 auto; min-width:0; height:44px!important; min-height:44px!important;
+  flex:1 1 auto; min-width:0; height:44px!important; min-height:44px!important; max-height:44px!important;
   box-sizing:border-box!important; padding:0 12px!important;
 }
 body.admin-new-ui #mypageModal .mypage-name-row > .btn-name-change {
-  flex:0 0 auto; height:44px!important; min-height:44px!important;
+  flex:0 0 auto; height:44px!important; min-height:44px!important; max-height:44px!important;
   box-sizing:border-box!important; padding:0 14px!important;
   border-radius:8px!important;
+}
+/* Form geometry is admin-only. Keep input/button rows identical across
+   My Page, tags, and feedback rather than allowing global modal styles to grow. */
+body.admin-new-ui #tagSettingsMask .tag-settings-row > :is(input,button),
+body.admin-new-ui #tagSettingsMask .tag-settings-rows input {
+  height:44px!important;min-height:44px!important;max-height:44px!important;
+  box-sizing:border-box!important;
+}
+body.admin-new-ui #mypageModal .mypage-name-row {align-items:center;}
+body.admin-new-ui #tagSettingsMask .tag-settings-row {align-items:center;}
+body.admin-new-ui #feedbackMask .feedback-env-grid {gap:8px 10px;align-items:start;}
+body.admin-new-ui #feedbackMask .feedback-env-grid > * {min-width:0;margin:0!important;}
+body.admin-new-ui #feedbackMask .feedback-env-grid label {margin:0 0 3px!important;}
+body.admin-new-ui #feedbackMask :is(#feedbackDevice,#feedbackBrowser) {
+  height:44px!important;min-height:44px!important;max-height:44px!important;
+  padding:0 12px!important;box-sizing:border-box!important;
+}
+/* Keep equal spacing when the optional device/browser pair stacks. */
+@media (max-width:420px) {
+ body.admin-new-ui #feedbackMask .feedback-env-grid {grid-template-columns:minmax(0,1fr)!important;row-gap:2px;}
 }
 /* New thread editor: compact right-aligned buttons with consistent heights. */
 body.admin-new-ui #adminBoardEditorMask .admin-board-editor-actions {
@@ -1113,19 +1143,10 @@ body.admin-new-ui.light-mode #adminBoardEditorMask #btnAdminBoardSave {
   }
 }
 
-/* iPhone Safari: the user-detail header is its own rendering layer. Keep
-   the CSS effects identical to the own page and let the compositor advance
-   their timeline without resetting animation-delay during scrolling. */
-html.ios-webkit body.admin-new-ui #userDetailPage.user-detail-open .user-detail-sticky {
-  -webkit-backface-visibility:hidden;
-  backface-visibility:hidden;
-  transform:translateZ(0);
-}
-html.ios-webkit body.admin-new-ui #userDetailPage.user-detail-open
-  :is(.user-detail-summary .score-val.score-rank-sparkle-rainbow,.ar-record.skill-row-sparkle-rainbow),
-html.ios-webkit body.admin-new-ui #userDetailPage.user-detail-open
-  .ar-skill.skill-box-sparkle-rainbow::after {animation-play-state:running;}
-
+/* iPhone Safari user detail: do not create a separate GPU layer here.
+   Own header and viewed detail keep the same public sparkle declarations;
+   a forced transform on the nested sticky header caused WebKit to repaint
+   its filtered text and borders differently from the own header. */
 /* Admin catalog/favorites use the same anchored filter popover as user list.
    The existing public form markup is not touched. The panel overlays the
    catalog instead of occupying the entire width or shifting list rows. */
@@ -1228,7 +1249,7 @@ body.admin-new-ui.light-mode #rivalManageMask {
 }
 body.admin-new-ui #rivalManageMask .favorite-user-list {
   display:grid;
-  gap:6px;
+  gap:4px;
 }
 body.admin-new-ui #rivalManageMask .favorite-user-row {
   display:grid!important;
@@ -1250,10 +1271,10 @@ body.admin-new-ui #rivalManageMask .favorite-user-open {
   align-items:center;
   column-gap:8px;
   min-width:0;
-  min-height:40px;
+  min-height:36px;
   width:100%;
   margin:0;
-  padding:5px 12px;
+  padding:3px 10px;
   background:var(--admin-rival-surface)!important;
   border:1px solid var(--admin-rival-border)!important;
   border-radius:8px;
@@ -1287,9 +1308,9 @@ body.admin-new-ui #rivalManageMask .favorite-user-row > .remove {
   align-items:center;
   justify-content:center;
   min-width:64px;
-  min-height:40px;
+  min-height:36px;
   margin:0;
-  padding:5px 12px;
+  padding:3px 10px;
   align-self:stretch;
   border-radius:8px;
 }

@@ -159,10 +159,10 @@ body.admin-new-ui #domModal .admin-score-correction .admin-correction-field #cor
   box-sizing:border-box!important;
 }
 body.admin-new-ui #domModal .admin-score-correction .admin-correction-action {
-  grid-column:1/-1;display:flex;justify-content:flex-end;
+  grid-column:2;display:flex;justify-content:stretch;
 }
 body.admin-new-ui #domModal .admin-score-correction .admin-correction-action #btnSendLevelCorrection {
-  width:auto!important;min-width:110px!important;min-height:36px!important;
+  width:100%!important;min-width:0!important;min-height:36px!important;
   padding:0 12px!important;font-size:11px!important;
 }
 @media (max-width:360px) {
