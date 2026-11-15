@@ -417,7 +417,20 @@ export async function renderAdminJacketSkillShareFile({
   const isComparison = Boolean(comparisonBaseline);
   const rowH = isComparison ? 90 : 70;
   const W = 1400;
-  const H = isComparison ? 2720 : 2180;
+  // Compare across both categories so a HOT/OTHER reclassification is not
+  // mistakenly treated as a new entry. Only new entries and skill increases
+  // are meaningful in the compact comparison image.
+  const compareKey = row => `${normalizeSongTitleForMatch(String(row?.title || ''))}\u0000${String(row?.part || '').toUpperCase()}`;
+  const previousRows = [...(comparisonBaseline?.hotRows || []), ...(comparisonBaseline?.otherRows || [])];
+  const previousByKey = new Map(previousRows.map(row => [compareKey(row), row]));
+  const selectImproved = rows => (rows || []).slice(0, 25).filter(row => {
+    const prior = previousByKey.get(compareKey(row));
+    return !prior || Number(row.skill || 0) - Number(prior.skill || 0) >= 0.005;
+  });
+  const hotRows = isComparison ? selectImproved(target.hotRows) : (target.hotRows || []).slice(0, 25);
+  const otherRows = isComparison ? selectImproved(target.otherRows) : (target.otherRows || []).slice(0, 25);
+  const maxRows = Math.max(hotRows.length, otherRows.length);
+  const H = isComparison ? Math.max(540, 256 + 46 + maxRows * rowH + 130) : 2180;
   // Export at higher pixel density so small jackets, labels and medal artwork
   // remain sharp when viewing the full saved PNG. Logical layout is unchanged.
   const exportScale = 1.5;
@@ -432,8 +445,8 @@ export async function renderAdminJacketSkillShareFile({
 
   // The same jacket candidates as the admin registered-song cards, with a
   // fallback for records without artwork or cross-origin canvas permissions.
-  const titles = [...new Set([...(target.hotRows || []), ...(target.otherRows || [])]
-    .slice(0, 50).map(row => String(row.title || '')))];
+  const titles = [...new Set([...hotRows, ...otherRows]
+    .map(row => String(row.title || '')))];
   const jacketMap = new Map();
   await Promise.all(titles.map(async title => {
     for (const url of getJacketUrls(title) || []) {
@@ -534,14 +547,8 @@ export async function renderAdminJacketSkillShareFile({
     const diff = Number(current || 0) - Number(prior || 0);
     return diff > .0001 ? '#86efac' : diff < -.0001 ? '#93c5fd' : '#94a3b8';
   };
-  const compareKey = row => `${normalizeSongTitleForMatch(String(row?.title || ''))}\u0000${String(row?.part || '').toUpperCase()}`;
   const gap = 24, colW = (W - 108 - gap) / 2, tableTop = 256;
-  const drawTable = (caption, rows, left, accent, baselineRows = []) => {
-    const baseline = new Map();
-    baselineRows.slice(0, 25).forEach((row, index) => {
-      const key = compareKey(row);
-      if (!baseline.has(key)) baseline.set(key, { row, index });
-    });
+  const drawTable = (caption, rows, left, accent) => {
     c.fillStyle = accent; c.fillRect(left, tableTop, colW, 40);
     c.fillStyle = '#0b1020'; c.font = '900 21px sans-serif';
     c.textAlign = 'left'; c.textBaseline = 'alphabetic';
@@ -586,26 +593,31 @@ export async function renderAdminJacketSkillShareFile({
       const partStyle = part.startsWith('MAS') ? ['#cf2ce4', '#fff']
         : part.startsWith('EXT') ? ['#f43f46', '#fff']
         : part.startsWith('ADV') ? ['#eab308', '#0b1020'] : ['#3b9ff2', '#fff'];
-      drawPill(part, contentX, pillTop, 58, 19, ...partStyle, null, 13);
-      let point = contentX + 63;
+      // Fixed-column layout with equal 8px gaps. The achievement column is
+      // sized for 100.00%, so a 2-digit value cannot shift FC or options.
+      const detailGap = 8;
+      const partW = 58, levelW = 44, rateW = 76, medalW = 28, optionW = 53;
+      const levelX = contentX + partW + detailGap;
+      const rateX = levelX + levelW + detailGap;
+      const medalX = rateX + rateW + detailGap;
+      const optionX = medalX + medalW + detailGap;
+      drawPill(part, contentX, pillTop, partW, 19, ...partStyle, null, 13);
       c.font = '800 16px sans-serif'; c.fillStyle = '#e2e8f0';
-      c.textAlign = 'left'; c.textBaseline = 'middle';
-      c.fillText(Number(r.level || 0).toFixed(2), point, pillTop + 10);
-      point += 48;
-      c.fillText(`${Number(r.achievement_rate || 0).toFixed(2)}%`, point, pillTop + 10);
+      c.textAlign = 'center'; c.textBaseline = 'middle';
+      c.fillText(Number(r.level || 0).toFixed(2), levelX + levelW / 2, pillTop + 10);
+      c.fillText(`${Number(r.achievement_rate || 0).toFixed(2)}%`, rateX + rateW / 2, pillTop + 10);
       if (isComparison) {
-        const comparison = baseline.get(compareKey(r));
-        const rateDelta = deltaLabel(r.achievement_rate, comparison?.row?.achievement_rate, !comparison);
+        const comparison = previousByKey.get(compareKey(r));
+        const rateDelta = comparison ? deltaLabel(r.achievement_rate, comparison.achievement_rate, false) : '';
         if (rateDelta) {
           c.font = '800 12px sans-serif';
-          c.fillStyle = deltaColor(r.achievement_rate, comparison?.row?.achievement_rate, !comparison);
-          c.fillText(rateDelta + (comparison ? '%' : ''), point, y + 76);
+          c.fillStyle = deltaColor(r.achievement_rate, comparison.achievement_rate, false);
+          c.textAlign = 'center'; c.textBaseline = 'middle';
+          c.fillText(rateDelta + '%', rateX + rateW / 2, y + 74);
         }
       }
-      point += 92;
       const type = Number(r.achievement_rate) === 100 ? 'EXC' : String(r.fc || '').toUpperCase() === 'FC' ? 'FC' : '';
-      drawMedal(type, point + 10, pillTop + 9);
-      point += 38; // breathing room between the FC medal and option badge
+      drawMedal(type, medalX + medalW / 2, pillTop + 9);
       const option = String(r.play_option || 'NORMAL').toUpperCase();
       const optLabel = option === 'BASS_MIRROR' ? 'B-MIR' : option;
       const visibleOption = part.endsWith('-D') ? option === 'BASS_MIRROR' : option !== 'NORMAL';
@@ -614,9 +626,9 @@ export async function renderAdminJacketSkillShareFile({
         'SRA':['#302017','#fdba74','#c2410c'], 'SRA+':['#361b29','#fecdd3','#be123c'],
         'BASS_MIRROR':['#302044','#c4b5fd','#7c3aed']
       };
-      if (visibleOption && point + 53 < skillX - 2) {
+      if (visibleOption && optionX + optionW < skillX - 2) {
         const palette = optPalette[option] || ['#1e293b','#cbd5e1','#475569'];
-        drawPill(optLabel, point, pillTop, 53, 19, ...palette, 12);
+        drawPill(optLabel, optionX, pillTop, optionW, 19, ...palette, 12);
       }
 
       // Skill is its own right-hand cell spanning both title and details lines.
@@ -633,16 +645,21 @@ export async function renderAdminJacketSkillShareFile({
       const middleY = y + (rowH - 4) / 2;
       c.fillText(skill.toFixed(2), skillX + skillW / 2, isComparison ? middleY - 9 : middleY);
       if (isComparison) {
-        const previous = baseline.get(compareKey(r));
-        c.fillStyle = deltaColor(skill, previous?.row?.skill, !previous);
+        const previous = previousByKey.get(compareKey(r));
+        c.fillStyle = deltaColor(skill, previous?.skill, !previous);
         c.font = '900 13px sans-serif';
-        const skillDelta = deltaLabel(skill, previous?.row?.skill, !previous);
+        const skillDelta = deltaLabel(skill, previous?.skill, !previous);
         if (skillDelta) c.fillText(skillDelta, skillX + skillW / 2, middleY + 14);
       }
     });
   };
-  drawTable('HOT TOP 25', target.hotRows || [], 54, '#e94b88', comparisonBaseline?.hotRows || []);
-  drawTable('OTHER TOP 25', target.otherRows || [], 54 + colW + gap, '#83c63d', comparisonBaseline?.otherRows || []);
+  drawTable(isComparison ? `HOT 上昇・新規 ${hotRows.length}曲` : 'HOT TOP 25', hotRows, 54, '#e94b88');
+  drawTable(isComparison ? `OTHER 上昇・新規 ${otherRows.length}曲` : 'OTHER TOP 25', otherRows, 54 + colW + gap, '#83c63d');
+  if (isComparison && !maxRows) {
+    c.fillStyle = '#cbd5e1'; c.font = '700 23px sans-serif';
+    c.textAlign = 'center'; c.textBaseline = 'middle';
+    c.fillText('前回からスキル値が上昇した曲・新規対象入りした曲はありません', W / 2, 375);
+  }
   c.fillStyle = '#0b1424'; c.fillRect(54, H - 62, W - 108, 30);
   c.fillStyle = '#94a3b8'; c.font = '700 24px sans-serif'; c.textAlign = 'left'; c.textBaseline = 'alphabetic';
   c.fillText('GITADORA Skill Simulator', 64, H - 41);
