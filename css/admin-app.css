@@ -755,6 +755,36 @@ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetail
    display:flex;flex-direction:column;min-width:0;
    border:1px solid #30445c;background:#081327;
  }
+ /* Admin compact menu sheets all share the MENU surface width and padding.
+    Keep wide desktop workspace pages and specialized editors unchanged. */
+ @media (max-width:1099px) {
+   body.admin-new-ui :is(#menuMask,#mypageModal,#featureSettingsMask,#tagSettingsMask,#howToMask) {
+     box-sizing:border-box;
+     padding:16px!important;
+     align-items:center!important;
+     justify-content:center!important;
+   }
+   body.admin-new-ui #menuMask .app-menu-sheet,
+   body.admin-new-ui :is(#mypageModal .mypage-sheet,#featureSettingsMask .feature-settings-dialog,#tagSettingsMask .tag-settings-dialog,#howToMask .howto-dialog) {
+     position:relative!important;
+     width:100%!important;
+     max-width:520px!important;
+     max-height:calc(100dvh - 32px)!important;
+     margin:0 auto!important;
+     padding:16px!important;
+     border-radius:14px!important;
+     box-sizing:border-box!important;
+   }
+ }
+ /* The help screen uses the same readable body typography as other admin
+    menu descriptions; the old 11px rule was defined in common app.css. */
+ body.admin-new-ui #howToMask .howto-body :is(p,li) {
+   font-size:14px!important;
+   line-height:1.65;
+ }
+ body.admin-new-ui #howToMask .howto-body section b {font-size:15px;}
+ body.admin-new-ui #howToMask .howto-index > strong {font-size:14px;}
+ body.admin-new-ui #howToMask .howto-index-links a {font-size:13px;line-height:1.45;}
  /* Shared menu content uses a single panel padding and aligned header. */
  body.admin-new-ui .admin-workspace-panel {padding:16px!important;}
  body.admin-new-ui .admin-workspace-panel > .tag-settings-body {padding:0;overflow:visible;}
@@ -921,6 +951,9 @@ body.admin-new-ui .admin-workspace-panel .tag-settings-body > p {font-size:14px;
 body.admin-new-ui { --admin-form-control-height:42px; }
 body.admin-new-ui #mypageModal .mypage-name-row {
   display:flex;align-items:center;gap:8px;min-width:0;
+}
+body.admin-new-ui #mypageModal .mypage-x-block {
+  border-top:0;
 }
 body.admin-new-ui #mypageModal .mypage-name-row > input {
   flex:1 1 auto;min-width:0;padding:0 12px!important;
