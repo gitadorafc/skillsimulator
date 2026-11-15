@@ -1,6 +1,5 @@
-// GITADORA admin-only registered-score editor. Public editor is never modified
-// until admin-new-ui is active. Original nodes are moved (not cloned) so that
-// existing handlers and form values survive account changes and modal reopening.
+// Admin-only score editor. Public nodes and their listeners are restored intact.
+// No global style or public markup changes are performed here.
 const MOVES = [
   ['title', () => document.getElementById('formTitle')?.closest('.f-group')],
   ['part', () => document.getElementById('partSelect')?.closest('.form-grid-two')],
@@ -11,71 +10,73 @@ const MOVES = [
   ['comment', () => document.getElementById('scorePrivateCommentGroup')],
   ['tags', () => document.getElementById('scoreTagGroup')]
 ];
-let current = null;
-export function scoreSubmitLabel(label) {
-  if (!document.body.classList.contains('admin-new-ui')) return label;
-  return label === '保存する' ? '保存' : label;
+let mounted = null;
+export function adminScoreSubmitLabel(publicLabel) {
+  return document.body.classList.contains('admin-new-ui') && publicLabel === '保存する'
+    ? '保存' : publicLabel;
 }
 export function prepareAdminScoreEditor(score = null) {
-  const modal = document.getElementById('domModal');
-  const sheet = modal?.querySelector('.mdl-sheet');
-  const isAdmin = document.body.classList.contains('admin-new-ui');
+  const sheet = document.querySelector('#domModal > .mdl-sheet');
   if (!sheet) return;
-  if (!isAdmin) {
+  if (!document.body.classList.contains('admin-new-ui')) {
     restorePublicScoreEditor();
     return;
   }
-  if (!current) {
+  if (!mounted) {
     const template = document.getElementById('adminScoreEditorTemplate');
-    const footer = sheet.querySelector(':scope > .btn-block');
+    const oldFooter = sheet.querySelector(':scope > .btn-block');
     const deleteArea = document.getElementById('editDeleteArea');
-    if (!template?.content || !footer || !deleteArea) return;
+    if (!template?.content || !oldFooter || !deleteArea) return;
     const fragment = template.content.cloneNode(true);
-    const content = fragment.querySelector('.admin-score-editor-content');
-    const adminFooter = fragment.querySelector('.admin-score-footer');
-    const saved = [];
+    const moved = [];
+    // Relocate the nodes, not clones, to retain all user data and event listeners.
     for (const [slot, find] of MOVES) {
       const node = find();
       const destination = fragment.querySelector(`[data-admin-score-slot="${slot}"]`);
       if (!node || !destination) continue;
-      const marker = document.createComment(`score-public-${slot}`);
-      node.parentNode.insertBefore(marker, node);
-      saved.push({node, marker});
-      destination.appendChild(node);
+      const marker = document.createComment('public-score-'+slot);
+      node.before(marker);
+      moved.push({node, marker});
+      destination.append(node);
     }
-    for (const node of [document.getElementById('btnCancelForm'), deleteArea, document.getElementById('btnSubmitForm')]) {
-      const marker = document.createComment('score-public-action');
-      node.parentNode.insertBefore(marker, node);
-      saved.push({node, marker});
-      adminFooter.appendChild(node);
+    const footer = fragment.querySelector('.admin-score-footer');
+    const actions = [document.getElementById('btnCancelForm'), deleteArea, document.getElementById('btnSubmitForm')];
+    for (const node of actions) {
+      const marker = document.createComment('public-score-action');
+      node.before(marker);
+      moved.push({node, marker});
+      footer.append(node);
     }
+    const content = fragment.querySelector('.admin-score-editor-content');
     sheet.append(fragment);
     sheet.classList.add('admin-score-editor');
-    current = {sheet, saved, content, footer:adminFooter};
+    mounted = {sheet, moved, content, footer};
   }
-  const btnDelete = document.getElementById('btnDeleteEditingScore');
-  const btnSubmit = document.getElementById('btnSubmitForm');
-  if (btnDelete) btnDelete.textContent = '削除';
-  if (btnSubmit) btnSubmit.textContent = scoreSubmitLabel(btnSubmit.textContent);
-  const comment = document.getElementById('formPrivateComment')?.value.trim();
-  const details = current.sheet.querySelector('.admin-score-details');
-  // Show existing comments/tags rather than hide data that needs editing.
-  if (details) details.open = Boolean(comment);
-  const correction = current.sheet.querySelector('.admin-score-correction');
+  const del = document.getElementById('btnDeleteEditingScore');
+  if (del) del.textContent = '削除';
+  const submit = document.getElementById('btnSubmitForm');
+  if (submit?.textContent === '保存する') submit.textContent = '保存';
+  const details = mounted.sheet.querySelector('.admin-score-details');
+  if (details) details.open = Boolean(
+    document.getElementById('formPrivateComment')?.value.trim() ||
+    document.querySelector('#scoreTagChoices input:checked')
+  );
+  const correction = mounted.sheet.querySelector('.admin-score-correction');
   if (correction) correction.open = false;
 }
 export function restorePublicScoreEditor() {
-  if (!current) return;
-  const {sheet, saved, content, footer} = current;
-  for (const {node, marker} of saved) {
-    if (marker.parentNode) marker.parentNode.insertBefore(node, marker);
+  if (!mounted) return;
+  const {sheet, moved, content, footer} = mounted;
+  for (const {node, marker} of moved) {
+    marker.before(node);
     marker.remove();
   }
-  content.remove(); footer.remove();
+  content.remove();
+  footer.remove();
   sheet.classList.remove('admin-score-editor');
   const del = document.getElementById('btnDeleteEditingScore');
   const submit = document.getElementById('btnSubmitForm');
   if (del) del.textContent = 'この登録データを削除';
-  if (submit && submit.textContent === '保存') submit.textContent = '保存する';
-  current = null;
+  if (submit?.textContent === '保存') submit.textContent = '保存する';
+  mounted = null;
 }

@@ -1,0 +1,89 @@
+/* v4.40.45 — Admin-only score editor. Scope every selector to admin-new-ui. */
+body.admin-new-ui #domModal .mdl-sheet.admin-score-editor {
+  --ase-rule:#33465d;
+  --ase-muted:#aac7d6;
+  --ase-primary:#246b82;
+  --ase-primary-hover:#2d8198;
+  padding-bottom:0;
+}
+body.admin-new-ui.light-mode #domModal .mdl-sheet.admin-score-editor {
+  --ase-rule:#b7c7d7;
+  --ase-muted:#3e6076;
+  --ase-primary:#236d83;
+  --ase-primary-hover:#2c8199;
+}
+body.admin-new-ui #domModal .mdl-sheet.admin-score-editor > .btn-block {display:none!important;}
+body.admin-new-ui #domModal .admin-score-editor-content {min-width:0;}
+body.admin-new-ui #domModal .admin-score-fields {min-width:0;margin:0;padding:0;}
+body.admin-new-ui #domModal .admin-score-mini-label {
+  display:flex;align-items:center;gap:7px;
+  color:var(--ase-muted);font-size:10px;font-weight:800;
+  line-height:1.2;margin:0 0 5px;white-space:nowrap;
+}
+body.admin-new-ui #domModal .admin-score-mini-label::after {
+  content:'';height:1px;min-width:0;flex:1;background:var(--ase-rule);
+}
+body.admin-new-ui #domModal .admin-score-result-fields {padding-top:4px;}
+body.admin-new-ui #domModal .admin-score-fields [data-admin-score-slot] {min-width:0;}
+body.admin-new-ui #domModal .admin-score-editor-content .f-group {margin-bottom:5px!important;min-width:0;}
+body.admin-new-ui #domModal .admin-score-editor-content .form-grid-two {gap:7px!important;margin-bottom:3px!important;}
+body.admin-new-ui #domModal .admin-score-editor-content .f-group label {margin-bottom:2px!important;}
+body.admin-new-ui #domModal .admin-score-editor-content :is(#masterRequestArea,#levelCorrectionArea) {margin:2px 0!important;}
+body.admin-new-ui #domModal :is(.admin-score-details,.admin-score-correction) {
+  margin:3px 0 5px;border-top:1px solid var(--ase-rule);padding:0;min-width:0;
+}
+body.admin-new-ui #domModal :is(.admin-score-details,.admin-score-correction) > summary {
+  cursor:pointer;display:list-item;list-style-position:inside;
+  min-height:27px;padding:6px 2px 4px;color:var(--ase-muted);
+  font-size:11px;font-weight:800;line-height:1.2;
+}
+body.admin-new-ui #domModal :is(.admin-score-details,.admin-score-correction) > [data-admin-score-slot] {min-width:0;}
+body.admin-new-ui #domModal .admin-score-details .f-group {margin-bottom:6px!important;}
+body.admin-new-ui #domModal .admin-score-details textarea {min-height:38px!important;height:38px!important;}
+body.admin-new-ui #domModal .admin-score-correction > [data-admin-score-slot] {padding-top:2px;}
+body.admin-new-ui #domModal .admin-score-correction :is(#btnOpenLevelCorrection,#btnSendLevelCorrection) {
+  border:1px solid var(--ase-primary)!important;background:var(--ase-primary)!important;
+  color:#fff!important;-webkit-text-fill-color:#fff!important;border-radius:7px;
+}
+body.admin-new-ui #domModal .admin-score-correction :is(#btnOpenLevelCorrection,#btnSendLevelCorrection):hover {
+  background:var(--ase-primary-hover)!important;
+}
+body.admin-new-ui #domModal .admin-score-footer {
+  position:sticky;bottom:0;z-index:8;display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));align-items:stretch;
+  gap:7px!important;min-width:0;
+  padding:8px 0 max(8px,env(safe-area-inset-bottom));
+  margin:6px 0 0;border-top:1px solid var(--ase-rule);
+  background:#0f172a;
+}
+body.admin-new-ui.light-mode #domModal .admin-score-footer {background:#f8fafc;}
+body.admin-new-ui #domModal .admin-score-footer:has(>.edit-delete-area.hidden) {grid-template-columns:repeat(2,minmax(0,1fr));}
+body.admin-new-ui #domModal .admin-score-footer > :is(button,.edit-delete-area) {
+  min-width:0;width:100%!important;margin:0!important;padding:0!important;
+}
+body.admin-new-ui #domModal .admin-score-footer > .edit-delete-area {
+  display:flex;align-items:stretch;border:0!important;background:none!important;
+}
+body.admin-new-ui #domModal .admin-score-footer > .edit-delete-area.hidden {display:none!important;}
+body.admin-new-ui #domModal .admin-score-footer :is(button,.btn-delete-editing-score) {
+  display:inline-flex!important;align-items:center!important;justify-content:center!important;
+  box-sizing:border-box!important;width:100%!important;min-width:0!important;
+  height:40px!important;min-height:40px!important;padding:0 4px!important;
+  border-radius:8px!important;font-size:12px!important;font-weight:900!important;
+  line-height:1!important;white-space:nowrap;box-shadow:none!important;
+}
+body.admin-new-ui #domModal .admin-score-footer .btn-cancel {
+  background:#334155!important;border:1px solid #52627a!important;color:#fff!important;
+}
+body.admin-new-ui #domModal .admin-score-footer .btn-delete-editing-score {
+  background:#3d141d!important;border:1px solid #aa3547!important;color:#ffb5bd!important;
+}
+body.admin-new-ui #domModal .admin-score-footer .btn-submit {
+  background:var(--ase-primary)!important;border:1px solid var(--ase-primary)!important;color:#fff!important;
+}
+body.admin-new-ui.light-mode #domModal .admin-score-footer .btn-cancel {
+  background:#e2e8f0!important;border-color:#94a3b8!important;color:#1e293b!important;
+}
+body.admin-new-ui.light-mode #domModal .admin-score-footer .btn-delete-editing-score {
+  background:#fff1f2!important;border-color:#f87171!important;color:#991b1b!important;
+}

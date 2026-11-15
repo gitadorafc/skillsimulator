@@ -1,4 +1,4 @@
-import { prepareAdminScoreEditor, scoreSubmitLabel } from './admin-score-editor.js?v=4_40_44';
+import { prepareAdminScoreEditor, restorePublicScoreEditor, adminScoreSubmitLabel } from './admin-score-editor.js?v=4_40_45';
 
 import {
   getSkillColorRowByTotalValue
@@ -4212,7 +4212,7 @@ function openScoreModal(score = null, skipInitialFocus = false) {
   $('songSuggestions').innerHTML = '';
   if ($('adminSongInitialFilter')) $('adminSongInitialFilter').value = '';
   if ($('adminSongCandidate')) $('adminSongCandidate').value = '';
-  $('btnSubmitForm').textContent = scoreSubmitLabel('保存する');
+  $('btnSubmitForm').textContent = adminScoreSubmitLabel('保存する');
   $('editDeleteArea').classList.toggle('hidden', !score);
   hide('masterRequestArea');
   hide('levelCorrectionArea');
@@ -4424,7 +4424,7 @@ async function refreshSelectedPart() {
       selectedSong = song;
       $('formLevel').value = formatLevel(song.level);
       $('formLevel').readOnly = true;
-      $('btnSubmitForm').textContent = scoreSubmitLabel('保存する');
+      $('btnSubmitForm').textContent = adminScoreSubmitLabel('保存する');
       hide('masterRequestArea');
       show('levelCorrectionArea');
 
@@ -5253,6 +5253,7 @@ async function checkAdminAccess() {
   const adminNewUi = adminEnabled && $('headerUsername')?.textContent?.trim() === 'admin';
   document.body.classList.remove('admin-responsive-preview');
   document.body.classList.toggle('admin-new-ui', adminNewUi);
+  if (!adminNewUi) restorePublicScoreEditor();
   updateAdminUiVersion(adminNewUi);
   if (!adminNewUi) restoreAdminUnifiedMenuScreens();
   if (adminNewUi) {
@@ -6829,11 +6830,11 @@ $('btnSubmitForm').addEventListener('click', async () => {
     // モーダルがまだ開いている場合だけ元の表示へ戻す
     if ($('domModal').style.display !== 'none') {
       if (selectedSong) {
-        button.textContent = scoreSubmitLabel('保存する');
+        button.textContent = adminScoreSubmitLabel('保存する');
       } else {
         button.textContent = originalText.includes('登録依頼')
           ? '登録依頼して保存'
-          : scoreSubmitLabel('保存する');
+          : adminScoreSubmitLabel('保存する');
       }
     }
   }
