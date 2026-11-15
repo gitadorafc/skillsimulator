@@ -12,6 +12,29 @@ body.admin-new-ui.light-mode #domModal .mdl-sheet.admin-score-editor {
   --ase-primary:#236d83;
   --ase-primary-hover:#2c8199;
 }
+/* The form scrolls independently; the footer is a separate non-scrolling row.
+   This prevents expanded comments/tags from passing underneath the buttons. */
+body.admin-new-ui #domModal .mdl-sheet.admin-score-editor {
+  display:flex!important;
+  flex-direction:column!important;
+  overflow:hidden!important;
+  max-height:calc(100dvh - 24px)!important;
+}
+body.admin-new-ui #domModal .mdl-sheet.admin-score-editor > #domModalTitle {
+  flex:0 0 auto!important;
+}
+body.admin-new-ui #domModal .mdl-sheet.admin-score-editor > .admin-score-editor-content {
+  flex:1 1 auto!important;
+  min-height:0!important;
+  overflow-y:auto!important;
+  overscroll-behavior:contain;
+  -webkit-overflow-scrolling:touch;
+  padding-bottom:12px!important;
+}
+body.admin-new-ui #domModal .mdl-sheet.admin-score-editor > .admin-score-footer {
+  flex:0 0 auto!important;
+  margin-top:0!important;
+}
 body.admin-new-ui #domModal .mdl-sheet.admin-score-editor > .btn-block {display:none!important;}
 body.admin-new-ui #domModal .admin-score-editor-content {min-width:0;}
 body.admin-new-ui #domModal .admin-score-fields {min-width:0;margin:0;padding:0;}
@@ -49,7 +72,7 @@ body.admin-new-ui #domModal .admin-score-correction :is(#btnOpenLevelCorrection,
   background:var(--ase-primary-hover)!important;
 }
 body.admin-new-ui #domModal .admin-score-footer {
-  position:sticky;bottom:0;z-index:8;display:grid;
+  position:relative;bottom:auto;z-index:8;display:grid;
   grid-template-columns:repeat(3,minmax(0,1fr));align-items:stretch;
   gap:7px!important;min-width:0;
   padding:8px 0 max(8px,env(safe-area-inset-bottom));
@@ -149,3 +172,14 @@ body.admin-new-ui #domModal .admin-score-correction .admin-correction-action #bt
 }
 
 body.admin-new-ui #domModal .admin-score-correction #btnOpenLevelCorrection {display:none!important;}
+
+/* Correction input placeholder follows the same muted tone as other inputs. */
+body.admin-new-ui #domModal .admin-score-correction #correctionLevel::placeholder {
+  color:#64748b!important;
+  -webkit-text-fill-color:#64748b!important;
+  opacity:1!important;
+}
+body.admin-new-ui.light-mode #domModal .admin-score-correction #correctionLevel::placeholder {
+  color:#64748b!important;
+  -webkit-text-fill-color:#64748b!important;
+}

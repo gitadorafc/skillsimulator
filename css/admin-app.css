@@ -745,6 +745,52 @@ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetail
  }
  body.admin-new-ui .admin-workspace-panel .tag-settings-actions > #btnCancelTagSettings {display:none;}
  body.admin-new-ui .admin-workspace-panel .tag-settings-actions #btnSaveTagSettings {margin:0!important;}
+/* Admin-only form and board controls (v4.40.50).
+   The public view retains its existing common styles. */
+body.admin-new-ui #mypageModal .mypage-name-row {
+  display:flex; align-items:stretch; gap:8px; min-width:0;
+}
+body.admin-new-ui #mypageModal .mypage-name-row > input {
+  flex:1 1 auto; min-width:0; height:44px!important; min-height:44px!important;
+  box-sizing:border-box!important; padding:0 12px!important;
+}
+body.admin-new-ui #mypageModal .mypage-name-row > .btn-name-change {
+  flex:0 0 auto; height:44px!important; min-height:44px!important;
+  box-sizing:border-box!important; padding:0 14px!important;
+  border-radius:8px!important;
+}
+/* New thread editor: compact right-aligned buttons with consistent heights. */
+body.admin-new-ui #adminBoardEditorMask .admin-board-editor-actions {
+  display:flex!important; align-items:center!important; justify-content:flex-end!important;
+  gap:8px!important; margin-top:12px!important; grid-template-columns:none!important;
+}
+body.admin-new-ui #adminBoardEditorMask .admin-board-editor-actions > button {
+  flex:0 0 auto!important; width:auto!important; min-width:96px!important;
+  height:40px!important; min-height:40px!important; box-sizing:border-box!important;
+  margin:0!important; padding:0 16px!important; border-radius:8px!important;
+  font-size:12px!important; line-height:1!important; font-weight:900!important;
+}
+body.admin-new-ui #adminBoardEditorMask #btnAdminBoardEditorCancel {
+  background:#334155!important; color:#fff!important; -webkit-text-fill-color:#fff!important;
+  border:1px solid #52627a!important;
+}
+body.admin-new-ui #adminBoardEditorMask #btnAdminBoardSave {
+  background:#246b82!important; color:#fff!important; -webkit-text-fill-color:#fff!important;
+  border:1px solid #246b82!important;
+}
+body.admin-new-ui.light-mode #adminBoardEditorMask #btnAdminBoardEditorCancel {
+  background:#e2e8f0!important; color:#1e293b!important; -webkit-text-fill-color:#1e293b!important;
+  border-color:#94a3b8!important;
+}
+body.admin-new-ui.light-mode #adminBoardEditorMask #btnAdminBoardSave {
+  background:#236d83!important; border-color:#236d83!important;
+}
+@media(max-width:380px) {
+  body.admin-new-ui #adminBoardEditorMask .admin-board-editor-actions > button {
+    min-width:78px!important; padding:0 12px!important;
+  }
+}
+
  /* My Page: exactly one compact action row on admin desktop and modal.
     Order and semantics come from the existing HTML: delete / logout / switch. */
  body.admin-new-ui #mypageModal .mypage-account-actions {
@@ -1209,3 +1255,4 @@ body.admin-new-ui.light-mode #rateCompareMask .rate-compare-edit-button:not(.hid
 body.admin-new-ui.light-mode #rateCompareMask .rate-compare-edit-area:not(.hidden) {
   border-top-color:#cbd5e1;
 }
+
