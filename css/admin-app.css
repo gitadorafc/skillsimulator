@@ -338,8 +338,13 @@ body.admin-new-ui #userListHeaderSlot #userListSortControls select {
 body.admin-new-ui #userListHeaderSlot #userListSortControls .user-list-sort-field>span {
   color:#cce4f5;font-size:12px;font-weight:800;
 }
+/* Light filters share the workspace surface; no grey fill behind the two fields. */
 body.admin-new-ui.light-mode #userListHeaderSlot #userListSortControls {
-  background:#edf2f7!important;border-color:#a6bad0!important;
+  background:#f8fafc!important;background-image:none!important;
+  border-color:#a6bad0!important;
+}
+body.admin-new-ui.light-mode #userListHeaderSlot #userListSortControls .user-list-sort-field {
+  background:transparent!important;background-image:none!important;
 }
 body.admin-new-ui.light-mode #userListHeaderSlot #userListSortControls .user-list-sort-field>span {
   color:#344c67!important;-webkit-text-fill-color:#344c67!important;
@@ -995,6 +1000,19 @@ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetail
    background:rgba(100,116,139,.045);border-color:#cbd5e1;
  }
  body.admin-new-ui.light-mode #skillHistoryUnifiedControls .skill-history-control-label {color:#475569;}
+ /* Muted, readable light-theme actions; retain the three distinct meanings. */
+ body.admin-new-ui.light-mode #skillHistoryUnifiedControls .skill-history-unified-actions > :nth-child(1) {
+   background:#e4def7!important;border-color:#a99ad8!important;
+   color:#4c357b!important;-webkit-text-fill-color:#4c357b!important;
+ }
+ body.admin-new-ui.light-mode #skillHistoryUnifiedControls .skill-history-unified-actions > :nth-child(2) {
+   background:#f3e3d1!important;border-color:#d8ac78!important;
+   color:#794717!important;-webkit-text-fill-color:#794717!important;
+ }
+ body.admin-new-ui.light-mode #skillHistoryUnifiedControls .skill-history-unified-actions > :nth-child(3) {
+   background:#d7ede5!important;border-color:#91bda9!important;
+   color:#155a46!important;-webkit-text-fill-color:#155a46!important;
+ }
  @media (max-width:470px) {
    body.admin-new-ui #skillHistoryUnifiedControls .skill-history-control-row {
      grid-template-columns:minmax(0,1fr);gap:8px;
@@ -1058,7 +1076,8 @@ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetail
    grid-column:2;grid-row:4;align-self:center;margin:0!important;
    background:#283b50!important;border:1px dashed #7892ac!important;
    color:#dce9f6!important;-webkit-text-fill-color:#dce9f6!important;
-   min-height:40px;padding:9px 16px!important;
+   height:36px!important;min-height:36px!important;max-height:36px!important;
+   padding:0 16px!important;line-height:1!important;box-sizing:border-box!important;
  }
  body.admin-new-ui.light-mode .admin-workspace-panel #btnAddTagSetting {
    background:#e7eef6!important;border-color:#8ca4b9!important;
@@ -1069,7 +1088,12 @@ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetail
    justify-content:flex-end;gap:10px;margin:0;
  }
  body.admin-new-ui .admin-workspace-panel .tag-settings-actions > #btnCancelTagSettings {display:none;}
- body.admin-new-ui .admin-workspace-panel .tag-settings-actions #btnSaveTagSettings {margin:0!important;}
+ body.admin-new-ui .admin-workspace-panel .tag-settings-actions #btnSaveTagSettings {
+   margin:0!important;height:36px!important;min-height:36px!important;
+   max-height:36px!important;box-sizing:border-box!important;
+   display:inline-flex!important;align-items:center;justify-content:center;
+   padding:0 14px!important;line-height:1!important;
+ }
 /* In-place completion feedback for administrator menu screens.
    The content screen remains mounted after a successful save. */
 body.admin-new-ui :is(#featureSettingsStatus,#tagSettingsStatus,#mypageSaveStatus)[data-state="success"] {
@@ -1239,6 +1263,11 @@ body.admin-new-ui.light-mode #adminBoardEditorMask #btnAdminBoardSave {
  body.admin-new-ui.light-mode #mypageModal #btnMypageUserSwitch {
    background:#0e7490!important;border-color:#155e75!important;
    color:#fff!important;-webkit-text-fill-color:#fff!important;
+ }
+ body.admin-new-ui.light-mode #mypageModal #btnLogout {
+   background:#e2e8f0!important;
+   border:1px solid #94a3b8!important;
+   color:#334155!important;-webkit-text-fill-color:#334155!important;
  }
  body.admin-new-ui.light-mode #mypageModal .mypage-account-actions {border-top-color:#cbd5e1!important;}
  @media (max-width:600px) {
@@ -1662,6 +1691,17 @@ body.admin-new-ui #skillRankingMask .skill-ranking-metric em {font-size:10px;lin
 body.admin-new-ui #skillRankingMask .skill-ranking-metric strong {font-size:13px;line-height:1.2;}
 body.admin-new-ui #skillRankingMask .skill-ranking-metric {padding-left:5px;padding-right:5px;}
 body.admin-new-ui #skillRankingMask .skill-ranking-row .p-badge {font-size:10px;}
+/* Light-mode ranking secondary metadata was too pale on white cards. */
+body.admin-new-ui.light-mode #skillRankingMask :is(
+  .skill-ranking-context,.skill-ranking-status,.skill-ranking-sort-wrap,
+  .skill-ranking-position,.skill-ranking-level
+) {color:#475569!important;-webkit-text-fill-color:#475569!important;}
+body.admin-new-ui.light-mode #skillRankingMask .skill-ranking-metric :is(small,em) {
+  color:#475569!important;-webkit-text-fill-color:#475569!important;
+}
+body.admin-new-ui.light-mode #skillRankingMask .skill-ranking-row .skill-ranking-position {
+  color:#325c94!important;-webkit-text-fill-color:#325c94!important;
+}
 /* Catalog part names: DM / GF Guitar / GF Bass share inherited font and weight. */
 body.admin-new-ui #songCatalogMask .song-catalog-detail-table tbody th {
   font-family:inherit;font-size:11px;font-weight:800;line-height:1.25;
