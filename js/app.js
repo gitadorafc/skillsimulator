@@ -2169,7 +2169,7 @@ async function addAdminSwitchAccount() {
 function openMenu() {
   // On desktop admin, the permanent sidebar is the menu. Never reopen the legacy menu modal
   // when a child dialog's Back button requests return-to-menu. Preserve its expanded group.
-  if (document.body.classList.contains('admin-new-ui') && window.matchMedia('(min-width:1100px)').matches) return;
+  if ((document.body.classList.contains('admin-new-ui') || document.body.classList.contains('public-card-ui')) && window.matchMedia('(min-width:1100px)').matches) return;
   $('menuOfuseSupport')?.classList.remove('hidden');
   $('menuMask').style.display = 'flex';
   loadSongFavorites().catch(error => console.warn('お気に入り名を取得できませんでした:', error));
@@ -5276,7 +5276,7 @@ function updateAdminUiVersion(enabled) {
   const label = document.querySelector('.app-code-version');
   if (!label) return;
   const adminVersion = document.querySelector('meta[name="admin-ui-version"]')?.content || '4.38.42';
-  label.textContent = `APP VERSION ${enabled ? adminVersion : '4.37.3'}`;
+  label.textContent = `APP VERSION ${enabled ? adminVersion : '4.37.6'}`;
   const desktopLabel = $('adminDesktopAppVersion');
   if (desktopLabel) desktopLabel.textContent = label.textContent;
 }
@@ -5375,7 +5375,7 @@ async function checkAdminAccess() {
   $('officialRankingAdminControls')?.classList.toggle('hidden', !adminEnabled);
   // Build the PC menu only after all source entries have their final visibility.
   // Otherwise the initially-hidden official ranking entry is omitted from the cloned tree.
-  if (adminNewUi) requestAnimationFrame(ensureDesktopMenuTree);
+  if (adminNewUi || document.body.classList.contains('public-card-ui')) requestAnimationFrame(ensureDesktopMenuTree);
 
   try {
     await loadTagData();
@@ -8089,7 +8089,7 @@ const ADMIN_DESKTOP_WORKSPACE_CLOSE = {
   skillHistoryMask: () => closeSkillHistory(false)
 };
 function closeAdminDesktopWorkspace() {
-  if (!document.body.classList.contains('admin-new-ui') ||
+  if (!(document.body.classList.contains('admin-new-ui') || document.body.classList.contains('public-card-ui')) ||
       !window.matchMedia('(min-width:1100px)').matches) return true;
   // Do not replace a running synchronization view with another menu view.
   if (($('skillSyncMask')?.style.display !== 'none' && skillSyncInProgress) ||
@@ -8222,19 +8222,21 @@ function toggleAdminDesktopMenu() {
   desktopMenuTree.appendChild(versionArea);
   syncAdminDesktopVersion();
   desktopMenuTree.hidden = false;
+  desktopMenuTree.setAttribute('aria-label', 'サイドメニュー');
   document.body.classList.add('admin-desktop-menu-open');
   desktopMenuTrigger.setAttribute('aria-expanded','true');
 }
 // On PC the sidebar is navigation, not an additional modal layer.
 function ensureDesktopMenuTree() {
-  if (!desktopMenuTree || !document.body.classList.contains('admin-new-ui') || !window.matchMedia('(min-width:1100px)').matches) return;
+  if (!desktopMenuTree || !(document.body.classList.contains('admin-new-ui') || document.body.classList.contains('public-card-ui')) || !window.matchMedia('(min-width:1100px)').matches) return;
   if (!desktopMenuTree.querySelector(".admin-menu-group") || (!desktopMenuTree.querySelector(".admin-menu-tree-item") && $("menuMask")?.querySelector(".app-menu-item"))) toggleAdminDesktopMenu();
   desktopMenuTree.hidden = false;
+  desktopMenuTree.setAttribute('aria-label', 'サイドメニュー');
   document.body.classList.add('admin-desktop-menu-open');
   desktopMenuTrigger.setAttribute('aria-expanded', 'true');
 }
 desktopMenuTrigger.addEventListener('click', () => {
-  if (document.body.classList.contains('admin-new-ui') && window.matchMedia('(min-width:1100px)').matches) {
+  if ((document.body.classList.contains('admin-new-ui') || document.body.classList.contains('public-card-ui')) && window.matchMedia('(min-width:1100px)').matches) {
     ensureDesktopMenuTree();
   } else openMenu();
 });

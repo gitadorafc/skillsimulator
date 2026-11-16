@@ -1,0 +1,202 @@
+/* Public desktop menu migration v4.37.6. Layout only; menu entries inherit existing user permissions. */
+@media (min-width:1100px) {
+ body.public-card-ui {--admin-side-width:290px;--admin-top-height:50px;}
+ body.public-card-ui #appRoot {display:block;width:100%;max-width:none;min-width:0;box-sizing:border-box;}
+ body.public-card-ui #appScreen:not(.hidden) {
+   display:grid;grid-template-columns:minmax(0,1fr);
+   grid-template-rows:max-content minmax(0,1fr);
+   width:100%;max-width:none;min-width:0;box-sizing:border-box;
+ }
+ body.public-card-ui #appScreen:not(.hidden)>.p-header,
+ body.public-card-ui #appScreen:not(.hidden)>.p-container {grid-column:1;min-width:0;width:100%;max-width:none;}
+ body.public-card-ui #appScreen:not(.hidden)>.p-header {grid-row:1;}
+ body.public-card-ui #appScreen:not(.hidden)>.p-container {grid-row:2;}
+
+ /* Header positioning and stacking are defined by the shared admin rule. */
+ body.public-card-ui #appScreen>.p-header {
+   width:100%;max-width:none;
+   min-width:0;margin:0;box-sizing:border-box;background:#101827;
+ }
+ body.public-card-ui #appScreen>.p-header::before {display:none;content:none;}
+ body.public-card-ui #appScreen>.p-header>.user-header-row {
+   position:relative;top:auto;left:auto;right:auto;display:flex;
+   width:100%;height:var(--admin-top-height);min-height:var(--admin-top-height);
+   padding:4px 9px;box-sizing:border-box;align-items:center;justify-content:space-between;
+   flex-direction:row;border-bottom:1px solid #30425a;background:#101827;
+ }
+ body.public-card-ui #appScreen>.p-header>.user-header-row>.header-mode-controls,
+ body.public-card-ui #appScreen>.p-header>.user-header-row>.header-account-controls {
+   position:static;display:flex;width:auto;height:auto;align-items:center;
+   flex-direction:row;flex-wrap:nowrap;gap:7px;
+ }
+ body.public-card-ui #appScreen>.p-header .header-active-version {
+   width:auto;max-width:260px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+ }
+ body.public-card-ui #appScreen>.p-header #btnMenu {display:none;}
+ body.public-card-ui #appScreen>.p-header>.admin-desktop-menu-tree {
+   position:fixed;top:var(--admin-top-height);bottom:0;left:0;
+   display:block;width:var(--admin-side-width);height:auto;box-sizing:border-box;
+   overflow-y:auto;padding:8px 9px 16px;background:#101b2d;
+   border-right:1px solid #30425a;z-index:90;
+ }
+ body.public-card-ui .admin-desktop-menu-caption {font-size:14px;font-weight:750;color:#dce8f7;padding:5px 2px 9px;}
+ body.public-card-ui .admin-menu-group {margin:3px 0 6px;border:1px solid #405772;border-radius:5px;background:#1c2d42;overflow:hidden;}
+ body.public-card-ui .admin-menu-group>summary {display:list-item;min-height:34px;box-sizing:border-box;padding:8px 7px;color:#e1ecfc;cursor:pointer;font-size:12px;font-weight:800;}
+ body.public-card-ui .admin-menu-group[open]>summary {background:#263e59;border-bottom:1px solid #405772;}
+ body.public-card-ui .admin-menu-tree-item {display:block;width:100%;height:44px;min-height:44px;box-sizing:border-box;padding:0 10px;border:0;border-top:1px solid #30445c;background:transparent;color:#e2eaf5;text-align:left;cursor:pointer;font-size:12px;line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+ body.public-card-ui .admin-menu-tree-item:hover {background:#284a75;}
+ body.public-card-ui .admin-menu-tree-item.is-selected,
+ body.public-card-ui .admin-menu-tree-item.is-selected:hover {
+   background:#284a75;color:#fff;font-weight:800;
+ }
+ /* Desktop light theme: the admin sidebar should follow the page theme.
+    These are the light counterparts of the sidebar's dark-only rules above. */
+ body.public-card-ui.light-mode #appScreen>.p-header>.admin-desktop-menu-tree {
+   background:#e5e7eb;border-right-color:#94a3b8;
+ }
+ body.public-card-ui.light-mode .admin-desktop-menu-caption {
+   color:#17243a;
+ }
+ body.public-card-ui.light-mode .admin-menu-group {
+   background:#f8fafc;border-color:#94a3b8;
+ }
+ body.public-card-ui.light-mode .admin-menu-group>summary {
+   color:#1e293b;
+ }
+ body.public-card-ui.light-mode .admin-menu-group[open]>summary {
+   background:#dbe4ef;border-bottom-color:#94a3b8;
+ }
+ body.public-card-ui.light-mode .admin-menu-tree-item {
+   background:transparent;color:#1e293b;border-top-color:#cbd5e1;
+ }
+ body.public-card-ui.light-mode .admin-menu-tree-item:hover {
+   background:#dbeafe;
+ }
+ body.public-card-ui.light-mode .admin-menu-tree-item.is-selected,
+ body.public-card-ui.light-mode .admin-menu-tree-item.is-selected:hover {
+   background:#bfdbfe;color:#17243a;font-weight:800;
+ }
+ body.public-card-ui.light-mode .admin-desktop-version-area {
+   border-top-color:#94a3b8;
+ }
+ body.public-card-ui.light-mode .admin-desktop-version-area>label,
+ body.public-card-ui.light-mode .admin-desktop-app-version {
+   color:#334155;
+ }
+ body.public-card-ui.light-mode .admin-desktop-version-select {
+   background:#fff;color:#17243a;border-color:#94a3b8;
+ }
+
+ body.public-card-ui .admin-desktop-version-area {
+   display:flex;flex-direction:column;gap:8px;margin-top:16px;padding:12px 5px 10px;
+   border-top:1px solid #30445c;min-width:0;
+ }
+ /* Version metadata shares one dark-mode color and weight; individual size/flow stays distinct. */
+ body.public-card-ui .admin-desktop-version-area>label,
+ body.public-card-ui .admin-desktop-app-version {
+   color:#a8c4dc;font-weight:750;font-size:11px;
+ }
+ body.public-card-ui .admin-desktop-version-select {
+   display:block;width:100%;min-width:0;box-sizing:border-box;
+   background:#0f1d30;color:#e1ecfc;border:1px solid #405772;
+   border-radius:5px;padding:9px 6px;font:inherit;font-size:12px;
+ }
+ body.public-card-ui .admin-desktop-app-version {
+   font-family:inherit;line-height:1.4;letter-spacing:normal;overflow-wrap:anywhere;
+ }
+ body.public-card-ui #appScreen>.p-header>.score-row,
+ body.public-card-ui #appScreen>.p-header>.p-tabs,
+ body.public-card-ui #appScreen>.p-header>#searchArea,
+ body.public-card-ui #appScreen>.p-header>#boardMainFixed,
+ body.public-card-ui #appScreen>.p-header>#userListHeaderSlot {
+   position:relative;top:auto;left:auto;right:auto;
+   margin-left:var(--admin-side-width);
+   width:calc(100% - var(--admin-side-width));box-sizing:border-box;
+ }
+ body.public-card-ui #appScreen>.p-header>#boardMainFixed {max-width:none;overflow-wrap:anywhere;}
+ body.public-card-ui #appScreen>.p-header>#boardMainFixed .board-main-rule-note {max-width:100%;}
+ body.public-card-ui #appScreen>.p-header>.score-row {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));min-height:63px;}
+ body.public-card-ui #appScreen>.p-header>.score-row>.score-cell {width:auto;min-width:0;}
+ body.public-card-ui #appScreen>.p-header>.p-tabs {display:flex;gap:6px;padding:6px 8px;height:auto;}
+ body.public-card-ui #appScreen>.p-header>.p-tabs .p-tab-btn:not(.hidden) {display:flex;flex:1 1 0;width:auto;min-width:0;min-height:40px;align-items:center;justify-content:center;}
+ body.public-card-ui #appScreen>.p-header>#searchArea {max-height:none;overflow:visible;}
+ body.public-card-ui #appScreen>.p-header>#searchArea.admin-filters-expanded .record-filter-row {
+   position:absolute;right:8px;left:auto;top:100%;width:min(590px,calc(100vw - var(--admin-side-width) - 24px));
+   display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;padding:16px;
+   border:1px solid #3d678a;background:#16263c;box-shadow:0 12px 30px #000b;
+ }
+ body.public-card-ui #appScreen>.p-container {
+   display:block;margin-left:0;padding-left:calc(var(--admin-side-width) + 6px);width:100%;
+   min-width:0;max-width:none;box-sizing:border-box;
+ }
+ body.public-card-ui :is(
+   #mypageModal,#featureSettingsMask,#tagSettingsMask,#skillSyncMask,
+   #allScoreSyncMask,#skillShareMask,#skillHistoryMask,
+   #skillRankingMask,#officialSkillRankingMask,#rivalManageMask,
+   #songCatalogMask,#howToMask,#feedbackMask,#supportMask,
+   #accountSwitchMask,#userDetailPage.user-detail-page
+ ) {
+   position:fixed!important;
+   inset:var(--admin-top-height) 0 0 var(--admin-side-width)!important;
+   width:auto!important;height:auto!important;max-width:none!important;
+   box-sizing:border-box!important;
+ }
+ /* Desktop menu destinations are work-area pages, not viewport-wide modal sheets. */
+ body.public-card-ui :is(
+   #mypageModal,#featureSettingsMask,#tagSettingsMask,#skillSyncMask,
+   #allScoreSyncMask,#skillShareMask,#skillHistoryMask,
+   #skillRankingMask,#officialSkillRankingMask,#rivalManageMask,
+   #songCatalogMask,#howToMask,#feedbackMask,#supportMask,
+   #accountSwitchMask
+ ) {
+   padding:12px!important;margin:0!important;
+   align-items:flex-start!important;justify-content:flex-start!important;
+   overflow-y:auto!important;overflow-x:hidden!important;
+   background:var(--admin-work-surface,#0c1728)!important;
+   backdrop-filter:none!important;box-shadow:none!important;
+ }
+ body.public-card-ui :is(
+   #mypageModal,#featureSettingsMask,#tagSettingsMask,#skillSyncMask,
+   #allScoreSyncMask,#skillShareMask,#skillHistoryMask,
+   #skillRankingMask,#officialSkillRankingMask,#rivalManageMask,
+   #songCatalogMask,#howToMask,#feedbackMask,#supportMask,
+   #accountSwitchMask
+ ) > :first-child {
+   position:relative!important;
+   flex:0 0 100%!important;width:100%!important;max-width:none!important;
+   height:auto!important;min-height:0!important;max-height:none!important;
+   margin:0!important;padding:16px!important;
+   border-radius:8px!important;box-shadow:none!important;
+   overflow:visible!important;box-sizing:border-box!important;
+ }
+
+ /* In the desktop workspace, the mask is the sole vertical scroller.
+    Compact modal nested scrollers must not swallow wheel gestures over
+    help, catalog, ranking, or the skill-history image preview. Mobile retains
+    the original independently scrolling modal body. */
+ body.public-card-ui :is(#howToMask .howto-body,#songCatalogMask .song-catalog-body,#officialSkillRankingMask .official-ranking-body,#skillHistoryMask .skill-history-body) {
+   flex:0 0 auto;
+   overflow:visible;
+   overscroll-behavior:auto;
+   scrollbar-gutter:auto;
+ }
+
+ body.public-card-ui.light-mode :is(
+   #mypageModal,#featureSettingsMask,#tagSettingsMask,#skillSyncMask,
+   #allScoreSyncMask,#skillShareMask,#skillHistoryMask,
+   #skillRankingMask,#officialSkillRankingMask,#rivalManageMask,
+   #songCatalogMask,#howToMask,#feedbackMask,#supportMask,
+   #accountSwitchMask
+ ) > :first-child {
+   background:#f8fafc!important;color:#17243a!important;
+   border-color:#cbd5e1!important;
+ }
+ body.public-card-ui #userDetailPage.user-detail-page {
+   position:fixed!important;inset:var(--admin-top-height) 0 0 var(--admin-side-width)!important;
+   width:auto!important;height:auto!important;max-width:none!important;min-height:0!important;
+   box-sizing:border-box!important;overflow:hidden!important;
+ }
+}
+@media (max-width:1099.98px) {
+ body.public-card-ui #adminDesktopMenuTree {display:none!important;}
+}
