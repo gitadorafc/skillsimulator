@@ -653,6 +653,7 @@ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetail
    font-size:10px;
  }
  body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetailSkill,#userDetailRecords) .ar-option {
+   position:relative;left:1px;
    grid-column:2;grid-row:1;
    width:32px;max-width:32px;overflow:hidden;
  }
