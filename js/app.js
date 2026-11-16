@@ -5265,7 +5265,7 @@ function updateAdminUiVersion(enabled) {
   const label = document.querySelector('.app-code-version');
   if (!label) return;
   const adminVersion = document.querySelector('meta[name="admin-ui-version"]')?.content || '4.38.42';
-  const publicVersion = document.querySelector('meta[name="app-version"]')?.content || '4.37.10';
+  const publicVersion = document.querySelector('meta[name="app-version"]')?.content || '4.37.11';
   label.textContent = `APP VERSION ${enabled ? adminVersion : publicVersion}`;
   const desktopLabel = $('adminDesktopAppVersion');
   if (desktopLabel) desktopLabel.textContent = label.textContent;

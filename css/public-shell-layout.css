@@ -57,29 +57,32 @@ body.public-card-ui #appScreen>.p-header>.p-tabs .p-tab-btn.active {
   background:var(--public-shell-accent);border-color:var(--public-shell-accent);
   color:white;-webkit-text-fill-color:white;
 }
-/* One search-row geometry for Records, Users and Board, without changing
-   existing event handlers, search states or filter-panel behaviour. */
+/* Canonical public toolbars and filter popovers. The legacy full-width
+   filter row is replaced, not duplicated with a second always-visible row. */
 body.public-card-ui #appScreen>.p-header :is(#searchArea,#userListHeaderSlot,#boardMainFixed) {
-  min-width:0;width:100%;box-sizing:border-box;
+  position:relative;z-index:15;min-width:0;width:100%;box-sizing:border-box;
+  padding:6px 8px 8px;overflow:visible;background:var(--admin-work-surface,#081327);
+}
+body.public-card-ui #appScreen>.p-header :is(#searchArea,#userListHeaderSlot,#boardMainFixed).hidden{display:none!important;}
+body.public-card-ui #userListHeaderSlot .user-list-sticky{
+  position:relative;top:auto;overflow:visible;padding:0;margin:0;background:transparent;
 }
 body.public-card-ui #searchArea .record-search-row,
 body.public-card-ui #userListHeaderSlot .users-toolbar,
 body.public-card-ui #boardMainFixed .board-main-toolbar {
-  display:grid;align-items:stretch;gap:7px;
-  width:100%;max-width:100%;min-width:0;margin:0;
-  box-sizing:border-box;
+  display:grid;align-items:stretch;gap:7px;width:100%;max-width:100%;min-width:0;
+  margin:0;padding:0;box-sizing:border-box;background:transparent;border:0;box-shadow:none;
 }
-body.public-card-ui #searchArea .record-search-row {grid-template-columns:minmax(0,1fr) 42px 42px;}
+body.public-card-ui #searchArea .record-search-row{grid-template-columns:minmax(0,1fr) 42px 42px;}
 body.public-card-ui #userListHeaderSlot .users-toolbar,
-body.public-card-ui #boardMainFixed .board-main-toolbar {grid-template-columns:minmax(0,1fr) 42px;}
+body.public-card-ui #boardMainFixed .board-main-toolbar{grid-template-columns:minmax(0,1fr) 42px;}
 body.public-card-ui #searchArea #domSearch,
 body.public-card-ui #userListHeaderSlot #userSearch,
 body.public-card-ui #boardMainFixed #boardThreadSearch {
   display:block;appearance:none;-webkit-appearance:none;
   width:100%;max-width:100%;min-width:0;height:42px;min-height:42px;max-height:42px;
-  box-sizing:border-box;padding:0 12px;margin:0;
-  border:1px solid var(--public-shell-border);border-radius:6px;
-  background:var(--public-shell-input);color:var(--public-shell-foreground);
+  box-sizing:border-box;padding:0 12px;margin:0;border:1px solid var(--public-shell-border);
+  border-radius:6px;background:var(--public-shell-input);color:var(--public-shell-foreground);
   -webkit-text-fill-color:var(--public-shell-foreground);
   font-family:inherit;font-size:14px;font-weight:400;line-height:normal;letter-spacing:normal;box-shadow:none;
 }
@@ -87,14 +90,57 @@ body.public-card-ui #searchArea #btnHeaderAdd,
 body.public-card-ui #searchArea #btnAdminRecordFilters,
 body.public-card-ui #userListHeaderSlot #btnAdminUserFilters,
 body.public-card-ui #boardMainFixed #btnBoardNewThread {
-  display:inline-flex;align-items:center;justify-content:center;
-  width:42px;min-width:42px;max-width:42px;
-  height:42px;min-height:42px;max-height:42px;
-  box-sizing:border-box;margin:0;padding:0;border-radius:6px;
+  display:inline-flex;align-items:center;justify-content:center;grid-column:auto;
+  width:42px;min-width:42px;max-width:42px;height:42px;min-height:42px;max-height:42px;
+  box-sizing:border-box;margin:0;padding:0;border:1px solid var(--public-shell-border);
+  border-radius:6px;font:inherit;font-size:21px;line-height:1;cursor:pointer;
 }
 body.public-card-ui #searchArea #btnHeaderAdd,
-body.public-card-ui #boardMainFixed #btnBoardNewThread {
-  background:var(--public-shell-accent);border-color:var(--public-shell-accent);color:#fff;
+body.public-card-ui #boardMainFixed #btnBoardNewThread{
+  background:var(--public-shell-accent);border-color:var(--public-shell-accent);color:#fff;-webkit-text-fill-color:#fff;
+}
+body.public-card-ui #searchArea #btnAdminRecordFilters,
+body.public-card-ui #userListHeaderSlot #btnAdminUserFilters{
+  background:#23344a;color:#eaf3ff;-webkit-text-fill-color:#eaf3ff;
+}
+body.public-card-ui :is(#btnAdminRecordFilters,#btnAdminUserFilters) svg{display:block;width:21px;height:21px;}
+body.public-card-ui #searchArea .record-filter-row,
+body.public-card-ui #userListHeaderSlot #userListSortControls {display:none!important;}
+body.public-card-ui #searchArea.admin-filters-expanded .record-filter-row,
+body.public-card-ui #userListHeaderSlot.admin-user-filters-expanded #userListSortControls {
+  position:absolute;z-index:55;top:100%;right:8px;left:auto;display:grid!important;
+  box-sizing:border-box;margin:2px 0 0;padding:12px;gap:8px;
+  border:1px solid #3c6385;border-radius:8px;background:#152438;
+  box-shadow:0 8px 25px #0009;
+}
+body.public-card-ui #searchArea.admin-filters-expanded .record-filter-row {
+  width:min(590px,calc(100% - 16px));grid-template-columns:repeat(4,minmax(0,1fr))!important;
+  align-items:end;
+}
+body.public-card-ui #userListHeaderSlot.admin-user-filters-expanded #userListSortControls{
+  width:min(410px,calc(100% - 16px));grid-template-columns:repeat(2,minmax(0,1fr))!important;
+}
+body.public-card-ui #searchArea .record-filter-row :is(label,.record-rank-filter-field),
+body.public-card-ui #userListSortControls .user-list-sort-field{
+  min-width:0;width:100%;display:flex;flex-direction:column;align-items:stretch;gap:5px;
+  color:#cce4f5;font-size:12px;font-weight:800;
+}
+body.public-card-ui #searchArea .record-filter-row .record-rank-filter-group{display:contents;}
+body.public-card-ui #searchArea .record-filter-row :is(#recordTypeFilterField,#recordTagFilterField).hidden{display:none!important;}
+body.public-card-ui #searchArea .record-filter-row select,
+body.public-card-ui #userListSortControls select{
+  display:block;width:100%;max-width:100%;min-width:0;height:39px;min-height:39px;
+  box-sizing:border-box;padding:0 25px 0 8px;border:1px solid #415671;border-radius:6px;
+  background-color:#111827;color:#eaf3ff;-webkit-text-fill-color:#eaf3ff;
+  font:inherit;font-size:12px;font-weight:800;
+}
+body.public-card-ui :is(#searchArea.admin-filters-expanded #btnAdminRecordFilters,#userListHeaderSlot.admin-user-filters-expanded #btnAdminUserFilters) {
+  background:#254d86;border-color:var(--public-shell-accent);
+}
+@media(max-width:650px){
+  body.public-card-ui #searchArea.admin-filters-expanded .record-filter-row{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  }
 }
 body.public-card-ui.light-mode {
   --public-shell-accent:#236d83;
@@ -110,4 +156,24 @@ body.public-card-ui.light-mode #appScreen>.p-header>.p-tabs .p-tab-btn.active {
   background:var(--public-shell-accent);border-color:var(--public-shell-accent);
   color:#fff;-webkit-text-fill-color:#fff;
 }
-/* Desktop menu is intentionally not migrated in this release. */
+body.public-card-ui.light-mode #appScreen>.p-header :is(#searchArea,#userListHeaderSlot,#boardMainFixed){background:transparent;}
+body.public-card-ui.light-mode #searchArea #btnAdminRecordFilters,
+body.public-card-ui.light-mode #userListHeaderSlot #btnAdminUserFilters{
+  background:#f8fafc;color:#1e293b;-webkit-text-fill-color:#1e293b;border-color:#94a3b8;
+}
+body.public-card-ui.light-mode #searchArea.admin-filters-expanded .record-filter-row,
+body.public-card-ui.light-mode #userListHeaderSlot.admin-user-filters-expanded #userListSortControls{
+  background:#f8fafc;border-color:#a6bad0;box-shadow:0 8px 25px #0003;
+}
+body.public-card-ui.light-mode #searchArea .record-filter-row :is(label,.record-rank-filter-field),
+body.public-card-ui.light-mode #userListSortControls .user-list-sort-field{
+  color:#344c67;-webkit-text-fill-color:#344c67;
+}
+body.public-card-ui.light-mode #searchArea .record-filter-row select,
+body.public-card-ui.light-mode #userListSortControls select{
+  background-color:#fff;color:#17243a;-webkit-text-fill-color:#17243a;border-color:#9db0c5;
+}
+body.public-card-ui.light-mode :is(#searchArea.admin-filters-expanded #btnAdminRecordFilters,#userListHeaderSlot.admin-user-filters-expanded #btnAdminUserFilters){
+  background:#dbeafe;border-color:#2563eb;color:#17243a;-webkit-text-fill-color:#17243a;
+}
+

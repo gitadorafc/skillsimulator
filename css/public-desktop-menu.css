@@ -120,11 +120,6 @@
  body.public-card-ui #appScreen>.p-header>.p-tabs {display:flex;gap:6px;padding:6px 8px;height:auto;}
  body.public-card-ui #appScreen>.p-header>.p-tabs .p-tab-btn:not(.hidden) {display:flex;flex:1 1 0;width:auto;min-width:0;min-height:40px;align-items:center;justify-content:center;}
  body.public-card-ui #appScreen>.p-header>#searchArea {max-height:none;overflow:visible;}
- body.public-card-ui #appScreen>.p-header>#searchArea.admin-filters-expanded .record-filter-row {
-   position:absolute;right:8px;left:auto;top:100%;width:min(590px,calc(100vw - var(--admin-side-width) - 24px));
-   display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;padding:16px;
-   border:1px solid #3d678a;background:#16263c;box-shadow:0 12px 30px #000b;
- }
  body.public-card-ui #appScreen>.p-container {
    display:block;margin-left:0;padding-left:calc(var(--admin-side-width) + 6px);width:100%;
    min-width:0;max-width:none;box-sizing:border-box;
