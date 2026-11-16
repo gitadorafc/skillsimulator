@@ -52,9 +52,17 @@ export async function renderAdminJacketSkillShareFile({
     }) : [];
   const hotRows = (target.hotRows || []).slice(0, 25);
   const otherRows = (target.otherRows || []).slice(0, 25);
+  const comparisonHotRows = comparisonRows.filter(entry => entry.section === 'HOT');
+  const comparisonOtherRows = comparisonRows.filter(entry => entry.section === 'OTHER');
   const tableTop = isComparison ? 350 : 256;
-  const H = isComparison ? Math.max(580, tableTop + 52 + Math.max(comparisonRows.length, 1) * 154 + 96) : 2180;
-  const W = isComparison ? 900 : 1400;
+  const comparisonCardH = 118;
+  const comparisonCardGap = 10;
+  const comparisonSectionTop = tableTop + 52;
+  const comparisonCardsTop = comparisonSectionTop + 44;
+  const comparisonVisibleRows = Math.max(comparisonHotRows.length, comparisonOtherRows.length, 1);
+  const comparisonCardsBottom = comparisonCardsTop + comparisonVisibleRows * comparisonCardH + Math.max(0, comparisonVisibleRows - 1) * comparisonCardGap;
+  const H = isComparison ? Math.max(580, comparisonCardsBottom + 96) : 2180;
+  const W = isComparison ? 1160 : 1400;
   const rowH = 70;
   // Export at higher pixel density so small jackets, labels and medal artwork
   // remain sharp when viewing the full saved PNG. Logical layout is unchanged.
@@ -333,10 +341,19 @@ export async function renderAdminJacketSkillShareFile({
     c.textBaseline = 'middle';
     c.fillText(`スキル更新曲  ${comparisonRows.length}曲`, 70, tableTop + 22);
 
-    const left = 54, width = W - 108;
-    const sectionPalette = {
-      HOT: { bg: '#6a0d10', fg: '#ffffff', border: '#ef4444' },
-      OTHER: { bg: '#173c50', fg: '#ffffff', border: '#38bdf8' }
+    const outerLeft = 54;
+    const fullWidth = W - 108;
+    const columnGap = 18;
+    const columnWidth = (fullWidth - columnGap) / 2;
+    const headerTop = tableTop + 52;
+    const headerH = 34;
+    const cardsTop = headerTop + headerH + 10;
+    const cardH = comparisonCardH;
+    const cardGap = comparisonCardGap;
+
+    const sectionStyles = {
+      HOT: { headerBg: '#450a0a', headerFg: '#fecaca', headerBorder: '#991b1b' },
+      OTHER: { headerBg: '#173447', headerFg: '#b6ebf5', headerBorder: '#367e9d' }
     };
     const partPalette = part => {
       const value = String(part || '').toUpperCase();
@@ -353,125 +370,132 @@ export async function renderAdminJacketSkillShareFile({
       'BASS_MIRROR':['#302044','#c4b5fd','#7c3aed']
     };
 
-    const jacketX = left + 13;
-    const jacketYInset = 34;
-    const jacketSize = 94;
-    const titleX = left + 118;
-    const labelW = 50;
-    const detailGap = 16;
-    const partW = 78;
-    const medalW = 26;
-    const optionW = 63;
-    const skillNumberSample = '999.99';
-    const valueFont = '800 19px sans-serif';
-    const levelSample = '9.95';
-    const rateSample = '100.00%';
-    const formatPart = part => String(part || '—').toUpperCase();
-
-    const detailBaseX = titleX;
-    const partX = detailBaseX + labelW + detailGap;
-    c.font = valueFont;
-    const levelW = Math.ceil(c.measureText(levelSample).width);
-    const rateW = Math.ceil(c.measureText(rateSample).width);
-    const levelX = partX + partW + detailGap;
-    const rateX = levelX + levelW + detailGap;
-    const medalX = rateX + rateW + detailGap + medalW / 2;
-    const optionX = medalX + medalW / 2 + detailGap;
-    // The skill value starts exactly one normal gap after the option badge.
-    // Right alignment still keeps current and previous scores aligned.
-    c.font = '900 23px sans-serif';
-    const skillNumberWidth = Math.ceil(c.measureText(skillNumberSample).width);
-    const skillBlockLeft = optionX + optionW + detailGap;
-    const skillValueRight = skillBlockLeft + skillNumberWidth;
-    const diffX = skillValueRight + detailGap;
-
-    const drawDetailLine = (row, label, baselineY, isPrevious, previousRow) => {
+    const drawAlignedDecimal = (value, decimalX, baselineY, font, color) => {
+      const text = Number(value || 0).toFixed(2);
+      const [intPart, fracPart] = text.split('.');
+      c.font = font;
       c.textBaseline = 'middle';
-      c.textAlign = 'left';
-      c.fillStyle = isPrevious ? '#94a3b8' : '#f8fafc';
-      c.font = '800 19px sans-serif';
-      c.fillText(label, detailBaseX, baselineY);
-      if (!row) {
-        c.fillText('—', partX, baselineY);
-        return;
-      }
-      const part = formatPart(row.part);
-      drawPill(part, partX, baselineY - 13, partW, 26, ...partPalette(part), null, 14);
-      c.font = valueFont;
-      c.fillStyle = isPrevious ? '#cbd5e1' : '#f8fafc';
-      c.textAlign = 'left';
-      c.fillText(Number(row.level || 0).toFixed(2), levelX, baselineY);
-      c.fillText(`${Number(row.achievement_rate || 0).toFixed(2)}%`, rateX, baselineY);
-      const fc = Number(row.achievement_rate || 0) >= 99.999 ? 'EXC'
-        : String(row.fc || '').toUpperCase() === 'FC' ? 'FC' : '';
-      drawMedal(fc, medalX, baselineY);
-      const opt = String(row.play_option || 'NORMAL').toUpperCase();
-      if (opt !== 'NORMAL') {
-        const optionLabel = opt === 'BASS_MIRROR' ? 'B-MIR' : opt;
-        drawPill(optionLabel, optionX, baselineY - 13, optionW, 26,
-          ...(optionPalette[opt] || ['#1e293b','#cbd5e1','#475569']), 13);
-      }
-      c.fillStyle = isPrevious ? '#cbd5e1' : '#ffffff';
-      c.font = '900 23px sans-serif';
+      c.fillStyle = color;
       c.textAlign = 'right';
-      c.fillText(Number(row.skill || 0).toFixed(2), skillValueRight, baselineY);
+      c.fillText(intPart, decimalX - 4, baselineY);
       c.textAlign = 'left';
-      if (!isPrevious) {
-        const delta = previousRow ? Number(row.skill || 0) - Number(previousRow.skill || 0) : null;
-        c.font = '900 20px sans-serif';
-        c.fillStyle = delta === null ? '#fdba74' : delta >= 0 ? '#60a5fa' : '#fca5a5';
-        c.fillText(delta === null ? 'NEW' : `${delta > 0 ? '+' : ''}${delta.toFixed(2)}`, diffX, baselineY);
-      }
+      c.fillText(`.${fracPart}`, decimalX, baselineY);
+    };
+    const drawAlignedRate = (value, percentX, baselineY, font, color) => {
+      const text = Number(value || 0).toFixed(2);
+      c.font = font;
+      c.textBaseline = 'middle';
+      c.fillStyle = color;
+      c.textAlign = 'right';
+      c.fillText(text, percentX - 12, baselineY);
+      c.textAlign = 'left';
+      c.fillText('%', percentX, baselineY);
     };
 
-    comparisonRows.forEach(({row, section}, i) => {
-      const previous = matches.get(row) || null;
-      const y = tableTop + 52 + i * 154;
-      const cardHeight = 146;
-      c.fillStyle = i % 2 ? '#0d1729' : '#111e31';
-      c.fillRect(left, y, width, cardHeight);
-      c.strokeStyle = '#667a92';
-      c.lineWidth = 2;
-      c.strokeRect(left + 1, y + 1, width - 2, cardHeight - 2);
-
-      const jacketY = y + jacketYInset;
-      c.fillStyle = '#23354d';
-      c.fillRect(jacketX, jacketY, jacketSize, jacketSize);
-      const img = jacketMap.get(String(row.title || ''));
-      if (img) {
-        const iw = img.naturalWidth || img.width;
-        const ih = img.naturalHeight || img.height;
-        const size = Math.min(iw, ih);
-        c.save();
-        c.beginPath();
-        c.roundRect(jacketX, jacketY, jacketSize, jacketSize, 4);
-        c.clip();
-        c.drawImage(img, (iw - size) / 2, (ih - size) / 2, size, size, jacketX, jacketY, jacketSize, jacketSize);
-        c.restore();
-      }
-
-      // Dedicated category strip: full jacket width, above the jacket,
-      // with no overlap between the badge and artwork.
-      const marker = sectionPalette[section] || sectionPalette.HOT;
-      drawPill(section, jacketX, y + 7, jacketSize, 22, marker.bg, marker.fg, marker.border, 12);
-
-      c.fillStyle = '#f8fafc';
+    const drawComparisonColumn = (section, rows, left) => {
+      const style = sectionStyles[section];
+      c.fillStyle = style.headerBg;
+      c.fillRect(left, headerTop, columnWidth, headerH);
+      c.strokeStyle = style.headerBorder;
+      c.lineWidth = 1;
+      c.strokeRect(left + 0.5, headerTop + 0.5, columnWidth - 1, headerH - 1);
+      c.fillStyle = style.headerFg;
+      c.font = '900 20px sans-serif';
       c.textAlign = 'left';
       c.textBaseline = 'middle';
-      c.font = '900 26px sans-serif';
-      const titleText = fitText(row.title, Math.max(160, width - (titleX - left) - 20), '900 26px sans-serif');
-      c.fillText(titleText, titleX, y + 27);
+      c.fillText(section, left + 12, headerTop + headerH / 2 + 1);
 
-      drawDetailLine(row, '現在', y + 73, false, previous);
-      drawDetailLine(previous, '前回', y + 111, true, previous);
-    });
+      const jacketSize = 68;
+      const titleX = left + 14 + jacketSize + 12;
+      const detailLabelX = titleX;
+      const currentLineY = 68;
+      const previousLineY = 94;
+      const skillRight = left + columnWidth - 48;
+      const deltaX = skillRight + 16;
+      const decimalX = skillRight - 26;
+      const percentX = titleX + 248;
+      const partX = titleX + 64;
+      const levelDecimalX = titleX + 188;
+      const medalX = titleX + 304;
+      const optionX = titleX + 332;
+      const titleMax = optionX - titleX - 16;
+
+      const drawLine = (row, label, y, previousRow, isPrevious) => {
+        c.textBaseline = 'middle';
+        c.textAlign = 'left';
+        c.fillStyle = isPrevious ? '#94a3b8' : '#f8fafc';
+        c.font = '800 19px sans-serif';
+        c.fillText(label, detailLabelX, y);
+        if (!row) {
+          c.fillText('—', partX, y);
+          return;
+        }
+        const part = String(row.part || '—').toUpperCase();
+        drawPill(part, partX, y - 13, 78, 26, ...partPalette(part), null, 14);
+        drawAlignedDecimal(Number(row.level || 0), levelDecimalX, y, '800 19px sans-serif', isPrevious ? '#cbd5e1' : '#f8fafc');
+        drawAlignedRate(Number(row.achievement_rate || 0), percentX, y, '800 19px sans-serif', isPrevious ? '#cbd5e1' : '#f8fafc');
+        const fc = Number(row.achievement_rate || 0) >= 99.999 ? 'EXC'
+          : String(row.fc || '').toUpperCase() === 'FC' ? 'FC' : '';
+        drawMedal(fc, medalX, y);
+        const opt = String(row.play_option || 'NORMAL').toUpperCase();
+        if (opt !== 'NORMAL') {
+          const optionLabel = opt === 'BASS_MIRROR' ? 'B-MIR' : opt;
+          drawPill(optionLabel, optionX, y - 13, 60, 26, ...(optionPalette[opt] || ['#1e293b','#cbd5e1','#475569']), 13);
+        }
+        drawAlignedDecimal(Number(row.skill || 0), decimalX, y, '900 22px sans-serif', isPrevious ? '#cbd5e1' : '#ffffff');
+        if (!isPrevious) {
+          const delta = previousRow ? Number(row.skill || 0) - Number(previousRow.skill || 0) : null;
+          c.font = '900 20px sans-serif';
+          c.fillStyle = delta === null ? '#fdba74' : delta >= 0 ? '#60a5fa' : '#fca5a5';
+          c.textAlign = 'left';
+          c.fillText(delta === null ? 'NEW' : `${delta > 0 ? '+' : ''}${delta.toFixed(2)}`, deltaX, y);
+        }
+      };
+
+      rows.forEach(({row}, i) => {
+        const previous = matches.get(row) || null;
+        const y = cardsTop + i * (cardH + cardGap);
+        c.fillStyle = i % 2 ? '#0d1729' : '#111e31';
+        c.fillRect(left, y, columnWidth, cardH);
+        c.strokeStyle = '#667a92';
+        c.lineWidth = 2;
+        c.strokeRect(left + 1, y + 1, columnWidth - 2, cardH - 2);
+
+        const jacketX = left + 14, jacketY = y + 14;
+        c.fillStyle = '#23354d';
+        c.fillRect(jacketX, jacketY, jacketSize, jacketSize);
+        const img = jacketMap.get(String(row.title || ''));
+        if (img) {
+          const iw = img.naturalWidth || img.width;
+          const ih = img.naturalHeight || img.height;
+          const size = Math.min(iw, ih);
+          c.save();
+          c.beginPath();
+          c.roundRect(jacketX, jacketY, jacketSize, jacketSize, 4);
+          c.clip();
+          c.drawImage(img, (iw - size) / 2, (ih - size) / 2, size, size, jacketX, jacketY, jacketSize, jacketSize);
+          c.restore();
+        }
+
+        c.fillStyle = '#f8fafc';
+        c.textAlign = 'left';
+        c.textBaseline = 'middle';
+        c.font = '900 25px sans-serif';
+        c.fillText(fitText(row.title, titleMax, '900 25px sans-serif'), titleX, y + 28);
+        drawLine(row, '現在', y + currentLineY, previous, false);
+        drawLine(previous, '前回', y + previousLineY, previous, true);
+      });
+    };
+
+    drawComparisonColumn('HOT', comparisonHotRows, outerLeft);
+    drawComparisonColumn('OTHER', comparisonOtherRows, outerLeft + columnWidth + columnGap);
 
     if (!comparisonRows.length) {
       c.fillStyle = '#cbd5e1';
       c.font = '700 23px sans-serif';
       c.textAlign = 'center';
       c.textBaseline = 'middle';
-      c.fillText('スキル値が上昇した曲・新規対象入りした曲はありません', W / 2, tableTop + 103);
+      c.fillText('スキル値が上昇した曲・新規対象入りした曲はありません', W / 2, cardsTop + 50);
     }
   } else {
     drawTable('HOT TOP 25', hotRows, 54, '#450a0a');
