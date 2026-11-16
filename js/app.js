@@ -36,12 +36,11 @@ import {
   sortSkillRankingRows
 } from './ranking-renderer.js?v=4_14_43';
 import { shareGeneratedSkillFiles } from './skill-share.js?v=4_14_44';
-import { renderSkillShareFile } from './skill-share-renderer.js?v=4_40_93';
 import {
   formatSkillHistoryDate,
   renderSkillHistoryRows,
   serializeSkillHistoryRow
-} from './skill-history.js?v=4_40_93';
+} from './skill-history.js?v=4_37_8';
 import {
   detectSkillSyncGuideBrowser,
   getSkillSyncVisualGuideMarkup
@@ -74,7 +73,6 @@ import {
 } from './official-skill-ranking.js?v=4_27_10';
 
 let adminEnabled = false;
-let renderAdminSkillHistoryRows = null;
 import { supabase } from './supabase.js?v=21_57';
 import { register, login, loginForAccountSwitch, logout, changePassword, getSession, validateUsername, isEmailLikeUsername } from './auth.js?v=4_36_9';
 import { initAuthCaptcha, prepareAuthCaptcha, getAuthCaptchaToken, resetAuthCaptcha } from './captcha.js?v=4_40_119';
@@ -2230,16 +2228,9 @@ function showSkillHistoryListView() {
   $('btnCloseSkillHistory').textContent = '戻る';
 }
 
-function canUseAdminSkillComparison() {
-  return adminEnabled && document.body.classList.contains('admin-new-ui') &&
-    $('headerUsername')?.textContent?.trim() === 'admin';
-}
-
 function renderSkillHistoryList() {
   const list = $('skillHistoryList');
-  list.innerHTML = canUseAdminSkillComparison() && renderAdminSkillHistoryRows
-    ? renderAdminSkillHistoryRows(skillHistoryRows, getTotalSkillRank)
-    : renderSkillHistoryRows(skillHistoryRows, getTotalSkillRank);
+  list.innerHTML = renderSkillHistoryRows(skillHistoryRows, getTotalSkillRank);
 }
 
 async function loadSkillHistory(reset = false) {
@@ -2461,7 +2452,6 @@ async function openSkillHistoryPreview(snapshotId) {
 }
 
 async function openSkillHistoryComparison(snapshotId) {
-  if (!canUseAdminSkillComparison()) return;
   const status = $('skillHistoryStatus');
   status.textContent = '現在のスキル対象と比較しています...';
   try {
@@ -3528,17 +3518,14 @@ async function createSkillShareFile(instrument, snapshot = null, comparisonBasel
     currentVersionName: activeVersion?.name || '',
     username: $('headerUsername')?.textContent || ''
   };
-  // 比較画像は管理者専用。一般ユーザー側には生成処理を渡さない。
-  if (comparisonBaseline && !canUseAdminSkillComparison()) {
-    throw new Error('比較画像は管理者専用機能です。');
-  }
-  if (canUseAdminSkillComparison()) {
-    const { renderAdminJacketSkillShareFile } = await import('./admin-skill-share-renderer.js?v=4_40_107');
-    await loadAdminRegisteredJackets(supabase);
-    return renderAdminJacketSkillShareFile({...data, getJacketUrls:getAdminJacketUrls, getMedalSvg:bearMedal});
-  }
-  return renderSkillShareFile({ instrument, snapshot, currentTotals: data.currentTotals,
-    currentVersionName: data.currentVersionName, username: data.username });
+  // 管理者・一般ユーザー共通の画像エンジン。比較元は本人の保存履歴RPCから取得する。
+  const { renderAdminJacketSkillShareFile } = await import('./admin-skill-share-renderer.js?v=4_40_107');
+  await loadAdminRegisteredJackets(supabase);
+  return renderAdminJacketSkillShareFile({
+    ...data,
+    getJacketUrls: getAdminJacketUrls,
+    getMedalSvg: bearMedal
+  });
 }
 async function shareSkillImage(selection = activeInstrument) {
   const instruments = selection === 'BOTH' ? ['GF', 'DM'] : [selection];
@@ -5278,7 +5265,7 @@ function updateAdminUiVersion(enabled) {
   const label = document.querySelector('.app-code-version');
   if (!label) return;
   const adminVersion = document.querySelector('meta[name="admin-ui-version"]')?.content || '4.38.42';
-  label.textContent = `APP VERSION ${enabled ? adminVersion : '4.37.6'}`;
+  label.textContent = `APP VERSION ${enabled ? adminVersion : '4.37.8'}`;
   const desktopLabel = $('adminDesktopAppVersion');
   if (desktopLabel) desktopLabel.textContent = label.textContent;
 }
@@ -5305,11 +5292,8 @@ async function checkAdminAccess() {
     const { installPublicColorTheme } = await import('./public-color-theme.js?v=4_37_2');
     installPublicColorTheme();
   }
-  // 管理者専用履歴UIは管理者認証後のみ遅延読込。一般ユーザーにはロードしない。
-  renderAdminSkillHistoryRows = null;
+  // 履歴の比較・共有は一般ユーザーにも開放。管理者の色テーマのみ権限別に適用。
   if (adminNewUi) {
-    const adminHistory = await import('./admin-skill-history.js?v=4_40_93');
-    renderAdminSkillHistoryRows = adminHistory.renderAdminSkillHistoryRows;
     const { installAdminColorTheme } = await import('./admin-color-theme.js?v=4_40_110');
     installAdminColorTheme();
   }
@@ -8394,7 +8378,7 @@ $('skillHistoryList').addEventListener('click', event => {
     deleteSkillHistory(deleteButton.dataset.deleteSkillHistory).catch(console.error);
     return;
   }
-  if (compareButton && canUseAdminSkillComparison()) {
+  if (compareButton) {
     openSkillHistoryComparison(compareButton.dataset.compareSkillHistory).catch(console.error);
     return;
   }

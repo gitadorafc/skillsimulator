@@ -1,0 +1,42 @@
+/* v4.37.8: 一般ユーザーの保存履歴を共通4列表示へ統一。
+   管理者専用CSSとは分離し、比較ボタンを加えたときも折り返さない。 */
+body:not(.admin-new-ui) #skillHistoryList {
+  min-width:0;
+  container-type:inline-size;
+}
+body:not(.admin-new-ui) #skillHistoryList .skill-history-row.has-compare {
+  min-width:0;
+  grid-template-columns:minmax(0,1fr) repeat(3, auto);
+}
+body:not(.admin-new-ui) #skillHistoryList .skill-history-summary {
+  min-width:0;
+  overflow:hidden;
+}
+body:not(.admin-new-ui) #skillHistoryList .skill-history-date {
+  min-width:0;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+@container (max-width:370px) {
+  body:not(.admin-new-ui) #skillHistoryList .skill-history-row.has-compare {
+    grid-template-columns:minmax(0,1fr) repeat(3,minmax(0,39px));
+    gap:4px;
+  }
+  body:not(.admin-new-ui) #skillHistoryList .skill-history-summary {
+    min-width:0;
+    padding-inline:5px;
+    gap:3px;
+    white-space:nowrap;
+    font-size:10px;
+  }
+  body:not(.admin-new-ui) #skillHistoryList .skill-history-row :is(
+    .skill-history-display,.skill-history-compare,.skill-history-delete
+  ) {
+    box-sizing:border-box;
+    min-width:0;
+    width:100%;
+    padding-inline:1px;
+    font-size:10px;
+    white-space:nowrap;
+  }
+}
