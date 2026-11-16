@@ -54,7 +54,7 @@ export async function renderAdminJacketSkillShareFile({
   const otherRows = (target.otherRows || []).slice(0, 25);
   const comparisonHotRows = comparisonRows.filter(entry => entry.section === 'HOT');
   const comparisonOtherRows = comparisonRows.filter(entry => entry.section === 'OTHER');
-  const tableTop = isComparison ? 350 : 256;
+  const tableTop = 256; // The comparison summary now lives in the upper-right header.
   const comparisonCardH = 118;
   const comparisonCardGap = 10;
   const comparisonSectionTop = tableTop + 52;
@@ -147,8 +147,7 @@ export async function renderAdminJacketSkillShareFile({
     const fmt = value => formatSkillHistoryDate(value || new Date().toISOString());
     const base = Number(comparisonBaseline.total || 0);
     const change = total - base;
-    const infoX = 54;
-    const infoY = 239;
+    const infoY = 111;
 
     const infoGap = 22;
     const infoCols = [
@@ -157,17 +156,23 @@ export async function renderAdminJacketSkillShareFile({
       { key: 'skill', label: 'スキル値', values: [total.toFixed(2), base.toFixed(2)] },
       { key: 'delta', label: '上昇値', values: [`${change > 0 ? '+' : ''}${change.toFixed(2)}`] }
     ];
+    // Measure the visible columns first, then right-align the whole panel
+    // within the header. This avoids reserving a full-width strip.
+    const infoWidths = infoCols.map(col => {
+      c.font = '800 21px sans-serif';
+      const valueWidth = Math.max(...col.values.map(value => c.measureText(value).width));
+      c.font = '800 19px sans-serif';
+      return Math.ceil(Math.max(valueWidth, c.measureText(col.label).width));
+    });
+    const infoW = 32 + infoWidths.reduce((sum, width) => sum + width, 0)
+      + infoGap * (infoCols.length - 1);
+    const infoX = W - 54 - infoW;
     let cursor = infoX + 16;
     const colX = {};
     infoCols.forEach((col, index) => {
       colX[col.key] = cursor;
-      c.font = '800 21px sans-serif';
-      const valueWidth = Math.max(...col.values.map(value => c.measureText(value).width));
-      c.font = '800 19px sans-serif';
-      const columnWidth = Math.max(valueWidth, c.measureText(col.label).width);
-      cursor += Math.ceil(columnWidth) + (index < infoCols.length - 1 ? infoGap : 0);
+      cursor += infoWidths[index] + (index < infoCols.length - 1 ? infoGap : 0);
     });
-    const infoW = (cursor - infoX) + 16;
     c.fillStyle = '#15253a';
     c.fillRect(infoX, infoY, infoW, 94);
 
