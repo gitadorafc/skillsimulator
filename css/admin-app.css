@@ -457,9 +457,9 @@ body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill,#user
  }
 
 }
-/* Only the overall header/navigation structure changes at 768px;
-   OFF-mode registered cards do NOT switch layout here. */
-@media (768px <= width < 1100px) {
+/* Compact (non-desktop) header uses one shared rule below 1100px.
+   The ON/OFF card layouts are still controlled solely by 700px and 1100px. */
+@media (width < 1100px) {
  body.admin-new-ui #appScreen:not(.hidden){grid-template-columns:minmax(0,1fr);}
  body.admin-new-ui #appScreen>.p-header>.user-header-row{position:relative;width:100%;left:auto;top:auto;}
  body.admin-new-ui #appScreen>.p-header>.score-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));}
@@ -755,7 +755,7 @@ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetail
  }
  /* All administrator MENU destinations follow the same compact geometry as
     the MENU list itself. Keep desktop work-area pages and unrelated dialogs untouched. */
-  @media (max-width:1099px) {
+  @media (width < 1100px) {
     body.admin-new-ui :is(
       #menuMask,#mypageModal,#featureSettingsMask,#tagSettingsMask,
       #skillSyncMask,#allScoreSyncMask,#skillShareMask,#skillHistoryMask,
@@ -839,7 +839,7 @@ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetail
   }
  /* Full content dialogs use the same MENU mask paint above; only the sheet
     geometry remains separate. Alert and delete-confirmation masks are unchanged. */
- @media (max-width:1099px) {
+ @media (width < 1100px) {
    body.admin-new-ui #rateCompareMask > .rate-compare-dialog,
    body.admin-new-ui #domModal > .mdl-sheet {
      width:100%!important;max-width:520px!important;
@@ -1470,18 +1470,13 @@ body.admin-new-ui #userDetailSkill .sk-section > h2 {
   overflow:visible;
 }
 
-/* Use the same first-row height as the administrator's own header.
-   Compact (<768px): 48px; tablet/desktop (>=768px): 50px.
-   Do not change the read-only card renderer or public profile UI. */
+/* Use the same first-row height as the administrator's own header at
+   every logical width; below 400px JS scales the 400px-wide layout.
+   Viewed profiles remain read-only; public profile CSS is not affected. */
 body.admin-new-ui #userDetailPage .user-detail-header {
-  height:48px;min-height:48px;max-height:48px;
+  height:50px;min-height:50px;max-height:50px;
   box-sizing:border-box;padding:4px 9px;gap:8px;
   align-items:center;
-}
-@media (min-width:768px) {
-  body.admin-new-ui #userDetailPage .user-detail-header {
-    height:50px;min-height:50px;max-height:50px;
-  }
 }
 body.admin-new-ui #userDetailPage .user-detail-summary {
   min-height:54px;box-sizing:border-box;align-items:stretch;
@@ -1497,9 +1492,9 @@ body.admin-new-ui #userDetailPage .user-detail-summary .score-val {
 @media (min-width:1100px) {
   body.admin-new-ui #userDetailPage .user-detail-summary {min-height:63px;}
 }
-/* Only the compact header adapts in the 768-1099 gap before the desktop
-   sidebar becomes active. Keep controls on a single row and cap their size. */
-@media (768px <= width < 1100px) {
+/* One compact header through 1099.999px, including fractional viewport
+   widths. The PC sidebar owns the layout from 1100px onwards. */
+@media (width < 1100px) {
   body.admin-new-ui #appScreen>.p-header>.user-header-row {
     display:flex;flex-wrap:nowrap;align-items:center;gap:8px;
     min-width:0;height:50px;min-height:50px;box-sizing:border-box;
