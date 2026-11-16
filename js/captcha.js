@@ -73,7 +73,10 @@ export async function initAuthCaptcha() {
     widgetId = window.turnstile.render(container, {
       sitekey: TURNSTILE_SITE_KEY,
       theme: 'dark',
-      size: window.innerWidth < 360 ? 'compact' : 'flexible',
+      // Use Cloudflare's fixed 300px widget on standard widths.
+      // This isolates warnings emitted by the flexible widget variant;
+      // keep compact only when the viewport cannot safely fit 300px.
+      size: window.innerWidth < 360 ? 'compact' : 'normal',
       appearance: 'always',
       retry: 'auto',
       callback(token) {
