@@ -3122,7 +3122,6 @@ function closeOfficialSkillRanking(returnToMenu = false) {
 const SONG_CATALOG_PAGE_SIZE = 100;
 const adminCatalogRequests = new Map();
 function getAdminSongCatalogCached(versionId) {
-  if (!document.body.classList.contains('admin-new-ui')) return getPublicSongCatalog(versionId);
   if (adminCatalogRequests.has(versionId)) return adminCatalogRequests.get(versionId);
   const request = getPublicSongCatalog(versionId).catch(error => {
     if (adminCatalogRequests.get(versionId) === request) adminCatalogRequests.delete(versionId);
@@ -3235,19 +3234,17 @@ function renderSongCatalog() {
     const title = document.createElement('span');
     title.className = 'song-catalog-title';
     title.textContent = entry.title;
-    if (document.body.classList.contains('admin-new-ui')) {
-      const urls = getAdminJacketUrls(entry.title);
-      const jacket = document.createElement('span');
-      jacket.className = 'admin-catalog-jacket';
-      if (urls.length) {
-        const img = document.createElement('img');
-        img.loading = 'lazy'; img.decoding = 'async'; img.alt = '';
-        img.src = urls[0];
-        if (urls[1]) img.dataset.fallback = urls[1];
-        jacket.append(img);
-      } else jacket.textContent = '♫';
-      summary.append(jacket);
-    }
+    const urls = getAdminJacketUrls(entry.title);
+    const jacket = document.createElement('span');
+    jacket.className = 'admin-catalog-jacket';
+    if (urls.length) {
+      const img = document.createElement('img');
+      img.loading = 'lazy'; img.decoding = 'async'; img.alt = '';
+      img.src = urls[0];
+      if (urls[1]) img.dataset.fallback = urls[1];
+      jacket.append(img);
+    } else jacket.textContent = '♫';
+    summary.append(jacket);
     summary.append(title);
     if (entry.part) {
       const part = document.createElement('span');
@@ -3260,7 +3257,6 @@ function renderSongCatalog() {
     }
     const detail = document.createElement('div');
     detail.className = 'song-catalog-detail';
-    if (!document.body.classList.contains('admin-new-ui')) detail.innerHTML = renderSongCatalogDetails(entry.song);
     row.append(summary, detail);
     refreshFavoriteButtons(row);
     fragment.append(row);
@@ -4340,11 +4336,8 @@ function scheduleSongSuggestions() {
 
 async function selectSongTitle(title) {
   // A committed title supersedes any pending suggestion request.
-  // Keep the existing public selection behavior unchanged.
-  if (document.body.classList.contains('admin-new-ui')) {
-    ++songSuggestRequestSeq;
-    clearTimeout(songSuggestTimer);
-  }
+  ++songSuggestRequestSeq;
+  clearTimeout(songSuggestTimer);
   $('formTitle').value = title;
   $('songSuggestions').innerHTML = '';
   await refreshSelectedPart();
@@ -4556,9 +4549,6 @@ function clearAdminUserListCache() {
 let adminUserListCacheGeneration = 0;
 
 async function fetchAdminUserListCached(keyword, instrument, versionId, forceRefresh = false) {
-  if (!document.body.classList.contains('admin-new-ui')) {
-    return listUserSummaries(keyword, instrument, versionId);
-  }
   const key = JSON.stringify([currentUserId, keyword.trim(), instrument, versionId]);
   const now = Date.now();
   if (!forceRefresh) {
@@ -5200,7 +5190,7 @@ async function deleteOwnAccount() {
 
 /* All accounts now use one visual UI version. Authorization remains separate. */
 function updateAdminUiVersion() {
-  const version = document.querySelector('meta[name="app-version"]')?.content || '4.37.13';
+  const version = document.querySelector('meta[name="app-version"]')?.content || '4.37.14';
   const value = `APP VERSION ${version}`;
   const label = document.querySelector('.app-code-version');
   if (label) label.textContent = value;
@@ -7020,11 +7010,7 @@ $('btnChangePassword').addEventListener('click', async () => {
     await changePassword(password);
     $('newPassword').value = '';
 
-    if (document.body.classList.contains('admin-new-ui')) {
-      showAdminMenuSaveStatus('mypageSaveStatus', 'パスワードを変更しました。');
-    } else {
-      await showSiteDialog('パスワードを変更しました。', '変更完了');
-    }
+    showAdminMenuSaveStatus('mypageSaveStatus', 'パスワードを変更しました。');
   } catch (e) {
     await showSiteDialog(e.message || 'パスワード変更に失敗しました。', 'エラー');
   } finally {
