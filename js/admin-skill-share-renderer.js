@@ -62,7 +62,7 @@ export async function renderAdminJacketSkillShareFile({
   const comparisonVisibleRows = Math.max(comparisonHotRows.length, comparisonOtherRows.length, 1);
   const comparisonCardsBottom = comparisonCardsTop + comparisonVisibleRows * comparisonCardH + Math.max(0, comparisonVisibleRows - 1) * comparisonCardGap;
   const H = isComparison ? Math.max(580, comparisonCardsBottom + 96) : 2180;
-  const W = isComparison ? 1400 : 1400;
+  const W = isComparison ? 1660 : 1400;
   const rowH = 70;
   // Export at higher pixel density so small jackets, labels and medal artwork
   // remain sharp when viewing the full saved PNG. Logical layout is unchanged.
@@ -368,85 +368,92 @@ export async function renderAdminJacketSkillShareFile({
       'BASS_MIRROR':['#302044','#c4b5fd','#7c3aed']
     };
 
-    const drawAlignedDecimal = (value, decimalX, baselineY, font, color) => {
-      const text = Number(value || 0).toFixed(2);
-      const [intPart, fracPart] = text.split('.');
-      c.font = font;
-      c.textBaseline = 'middle';
-      c.fillStyle = color;
-      c.textAlign = 'right';
-      c.fillText(intPart, decimalX - 4, baselineY);
-      c.textAlign = 'left';
-      c.fillText(`.${fracPart}`, decimalX, baselineY);
-    };
-    const drawAlignedRate = (value, percentX, baselineY, font, color) => {
-      const text = Number(value || 0).toFixed(2);
-      c.font = font;
-      c.textBaseline = 'middle';
-      c.fillStyle = color;
-      c.textAlign = 'right';
-      c.fillText(text, percentX - 12, baselineY);
-      c.textAlign = 'left';
-      c.fillText('%', percentX, baselineY);
-    };
-
+    // Every comparison field occupies its own non-overlapping column. These
+    // columns are exclusive to admin comparison PNGs, not public sharing.
     const drawComparisonColumn = (section, rows, left) => {
       const style = sectionStyles[section];
       c.fillStyle = style.headerBg;
       c.fillRect(left, headerTop, columnWidth, headerH);
       c.strokeStyle = style.headerBorder;
       c.lineWidth = 1;
-      c.strokeRect(left + 0.5, headerTop + 0.5, columnWidth - 1, headerH - 1);
+      c.strokeRect(left + .5, headerTop + .5, columnWidth - 1, headerH - 1);
       c.fillStyle = style.headerFg;
       c.font = '900 20px sans-serif';
       c.textAlign = 'left';
       c.textBaseline = 'middle';
       c.fillText(section, left + 12, headerTop + headerH / 2 + 1);
 
-      const jacketSize = 68;
+      const jacketSize = 72;
       const titleX = left + 14 + jacketSize + 12;
-      const detailLabelX = titleX;
       const currentLineY = 72;
-      const previousLineY = 100;
-      const skillRight = left + columnWidth - 88;
-      const deltaX = skillRight + 22;
-      const decimalX = skillRight - 24;
-      const percentX = titleX + 256;
-      const partX = titleX + 64;
-      const levelDecimalX = titleX + 188;
-      const medalX = titleX + 320;
-      const optionX = titleX + 350;
-      const titleMax = columnWidth - (titleX - left) - 20;
-
+      const previousLineY = 102;
+      const fieldGap = 12;
+      const labelW = 44;
+      const partW = 74;
+      const levelW = 54;
+      const rateW = 92;
+      const medalW = 26;
+      const optionW = 61;
+      const skillW = 89;
+      const deltaW = 73;
+      const fields = {};
+      let cursor = titleX;
+      for (const [name, width] of [
+        ['label', labelW], ['part', partW], ['level', levelW],
+        ['rate', rateW], ['medal', medalW], ['option', optionW],
+        ['skill', skillW], ['delta', deltaW]
+      ]) {
+        fields[name] = {x:cursor, width};
+        cursor += width + fieldGap;
+      }
+      // Keep every rendered field inside its column, including NEW and +99.99.
+      const fieldEnd = fields.delta.x + fields.delta.width;
+      if (fieldEnd > left + columnWidth - 8) {
+        throw new Error('比較画像の列幅が不足しています。');
+      }
+      const textFont = '800 18px ui-monospace, monospace';
+      const skillFont = '900 21px ui-monospace, monospace';
+      const drawAlignedValue = (formatted, field, y, font, color) => {
+        c.fillStyle = color;
+        c.font = font;
+        c.textAlign = 'right';
+        c.textBaseline = 'middle';
+        c.fillText(formatted, field.x + field.width, y);
+      };
       const drawLine = (row, label, y, previousRow, isPrevious) => {
         c.textBaseline = 'middle';
         c.textAlign = 'left';
         c.fillStyle = isPrevious ? '#94a3b8' : '#f8fafc';
-        c.font = '800 19px sans-serif';
-        c.fillText(label, detailLabelX, y);
+        c.font = '800 18px sans-serif';
+        c.fillText(label, fields.label.x, y);
         if (!row) {
-          c.fillText('—', partX, y);
+          c.fillText('—', fields.part.x, y);
           return;
         }
         const part = String(row.part || '—').toUpperCase();
-        drawPill(part, partX, y - 13, 78, 26, ...partPalette(part), null, 14);
-        drawAlignedDecimal(Number(row.level || 0), levelDecimalX, y, '800 19px sans-serif', isPrevious ? '#cbd5e1' : '#f8fafc');
-        drawAlignedRate(Number(row.achievement_rate || 0), percentX, y, '800 19px sans-serif', isPrevious ? '#cbd5e1' : '#f8fafc');
-        const fc = Number(row.achievement_rate || 0) >= 99.999 ? 'EXC'
+        drawPill(part, fields.part.x, y - 12, partW, 24, ...partPalette(part), null, 13);
+        const color = isPrevious ? '#cbd5e1' : '#f8fafc';
+        drawAlignedValue(Number(row.level || 0).toFixed(2), fields.level, y, textFont, color);
+        drawAlignedValue(`${Number(row.achievement_rate || 0).toFixed(2)}%`, fields.rate, y, textFont, color);
+        const medal = Number(row.achievement_rate || 0) >= 99.999 ? 'EXC'
           : String(row.fc || '').toUpperCase() === 'FC' ? 'FC' : '';
-        drawMedal(fc, medalX, y);
+        drawMedal(medal, fields.medal.x + medalW / 2, y);
         const opt = String(row.play_option || 'NORMAL').toUpperCase();
-        if (opt !== 'NORMAL') {
-          const optionLabel = opt === 'BASS_MIRROR' ? 'B-MIR' : opt;
-          drawPill(optionLabel, optionX, y - 13, 60, 26, ...(optionPalette[opt] || ['#1e293b','#cbd5e1','#475569']), 13);
+        const partIsDrum = part.endsWith('-D');
+        if (opt !== 'NORMAL' && (!partIsDrum || opt === 'BASS_MIRROR')) {
+          drawPill(opt === 'BASS_MIRROR' ? 'B-MIR' : opt,
+            fields.option.x, y - 12, optionW, 24,
+            ...(optionPalette[opt] || ['#1e293b','#cbd5e1','#475569']), 12);
         }
-        drawAlignedDecimal(Number(row.skill || 0), decimalX, y, '900 22px sans-serif', isPrevious ? '#cbd5e1' : '#ffffff');
+        drawAlignedValue(Number(row.skill || 0).toFixed(2), fields.skill, y, skillFont,
+          isPrevious ? '#cbd5e1' : '#ffffff');
         if (!isPrevious) {
           const delta = previousRow ? Number(row.skill || 0) - Number(previousRow.skill || 0) : null;
-          c.font = '900 20px sans-serif';
+          const deltaText = delta === null ? 'NEW' : `${delta > 0 ? '+' : ''}${delta.toFixed(2)}`;
+          c.font = '900 18px sans-serif';
           c.fillStyle = delta === null ? '#fdba74' : delta >= 0 ? '#60a5fa' : '#fca5a5';
           c.textAlign = 'left';
-          c.fillText(delta === null ? 'NEW' : `${delta > 0 ? '+' : ''}${delta.toFixed(2)}`, deltaX, y);
+          c.fillText(deltaText, fields.delta.x, y, fields.delta.width);
         }
       };
 
@@ -459,7 +466,8 @@ export async function renderAdminJacketSkillShareFile({
         c.lineWidth = 2;
         c.strokeRect(left + 1, y + 1, columnWidth - 2, cardH - 2);
 
-        const jacketX = left + 14, jacketY = y + (cardH - jacketSize) / 2;
+        const jacketX = left + 14;
+        const jacketY = y + (cardH - jacketSize) / 2;
         c.fillStyle = '#23354d';
         c.fillRect(jacketX, jacketY, jacketSize, jacketSize);
         const img = jacketMap.get(String(row.title || ''));
@@ -471,15 +479,16 @@ export async function renderAdminJacketSkillShareFile({
           c.beginPath();
           c.roundRect(jacketX, jacketY, jacketSize, jacketSize, 4);
           c.clip();
-          c.drawImage(img, (iw - size) / 2, (ih - size) / 2, size, size, jacketX, jacketY, jacketSize, jacketSize);
+          c.drawImage(img, (iw - size) / 2, (ih - size) / 2, size, size,
+            jacketX, jacketY, jacketSize, jacketSize);
           c.restore();
         }
-
         c.fillStyle = '#f8fafc';
         c.textAlign = 'left';
         c.textBaseline = 'middle';
-        c.font = '900 25px sans-serif';
-        c.fillText(fitText(row.title, titleMax, '900 25px sans-serif'), titleX, y + 28);
+        c.font = '900 24px sans-serif';
+        c.fillText(fitText(row.title, columnWidth - (titleX - left) - 16,
+          '900 24px sans-serif'), titleX, y + 28);
         drawLine(row, '現在', y + currentLineY, previous, false);
         drawLine(previous, '前回', y + previousLineY, previous, true);
       });
