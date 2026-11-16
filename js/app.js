@@ -1603,7 +1603,7 @@ let adminFeatureSettingsRequest = 0;
 async function openFeatureSettings() {
   const request = ++adminFeatureSettingsRequest;
   closeMenu();
-  if (document.body.classList.contains('admin-new-ui') || document.body.classList.contains('public-card-ui')) $('featureSettingsMask').style.display = 'flex';
+  if (document.body.classList.contains('admin-new-ui')) $('featureSettingsMask').style.display = 'flex';
   $('featureSettingsStatus').textContent = '';
   delete $('featureSettingsStatus').dataset.state;
 
@@ -1675,7 +1675,7 @@ async function saveFeatureSettings() {
     delete $('featureSettingsStatus').dataset.state;
 
     // Capture the UI variant before render(), which can re-evaluate display state.
-    const keepUnifiedMenuOpen = document.body.classList.contains('admin-new-ui') || document.body.classList.contains('public-card-ui');
+    const keepUnifiedMenuOpen = document.body.classList.contains('admin-new-ui');
     const light = $('settingLightMode').checked;
     const skillTargetColumns = Boolean($('settingSkillTargetColumns')?.checked);
     const textSizeUp = !document.body.classList.contains('admin-new-ui') && Boolean($('settingTextSizeUp')?.checked);
@@ -1728,7 +1728,7 @@ async function saveMyXId() {
     if (error) throw error;
 
     $('mypageXIdInput').value = xId;
-    if (document.body.classList.contains('admin-new-ui') || document.body.classList.contains('public-card-ui')) {
+    if (document.body.classList.contains('admin-new-ui')) {
       showAdminMenuSaveStatus('mypageSaveStatus', xId ? 'X IDを保存しました。' : 'X IDを削除しました。');
     } else {
       await showSiteDialog(xId ? 'X IDを保存しました。' : 'X IDを削除しました。', '保存完了');
@@ -1803,8 +1803,8 @@ async function showApp(session) {
   }
 
   $('headerUsername').textContent = username;
-  document.body.classList.remove('admin-responsive-preview', 'admin-new-ui');
-      updateAdminUiVersion(false);
+  document.body.classList.remove('admin-responsive-preview', 'admin-new-ui', 'public-card-ui', 'public-palette-ui');
+      updateAdminUiVersion();
   setAppLoading('表示設定を読み込み中...');
   await syncMyDisplaySettings();
   setAppLoading('バージョン情報を取得中...');
@@ -1986,8 +1986,8 @@ async function init() {
       adminEnabled = false;
       adminAccessChecked = false;
       restoreAdminUnifiedMenuScreens();
-      document.body.classList.remove('admin-responsive-preview', 'admin-new-ui');
-      updateAdminUiVersion(false);
+      document.body.classList.remove('admin-responsive-preview', 'admin-new-ui', 'public-card-ui', 'public-palette-ui');
+      updateAdminUiVersion();
       applyAppScrollLayout(false);
       updateDmBassMirrorFieldVisibility();
       applyDisplayCustomization(false, false);
@@ -2167,7 +2167,7 @@ async function addAdminSwitchAccount() {
 function openMenu() {
   // On desktop admin, the permanent sidebar is the menu. Never reopen the legacy menu modal
   // when a child dialog's Back button requests return-to-menu. Preserve its expanded group.
-  if ((document.body.classList.contains('admin-new-ui') || document.body.classList.contains('public-card-ui')) && window.matchMedia('(min-width:1100px)').matches) return;
+  if ((document.body.classList.contains('admin-new-ui')) && window.matchMedia('(min-width:1100px)').matches) return;
   $('menuOfuseSupport')?.classList.remove('hidden');
   $('menuMask').style.display = 'flex';
   loadSongFavorites().catch(error => console.warn('お気に入り名を取得できませんでした:', error));
@@ -2709,8 +2709,7 @@ const ADMIN_UNIFIED_MENU_SCREENS = [
 const adminUnifiedMenuMounts = [];
 function initAdminUnifiedMenuScreens() {
   // Both UIs use one presentation header; permission checks remain in menu actions.
-  if (!document.body.classList.contains('admin-new-ui') &&
-      !document.body.classList.contains('public-card-ui')) return;
+  if (!document.body.classList.contains('admin-new-ui')) return;
   for (const [maskId, oldHeaderClass, backId] of ADMIN_UNIFIED_MENU_SCREENS) {
     const mask = $(maskId);
     const oldHeader = mask?.querySelector(`.${oldHeaderClass}`);
@@ -2798,7 +2797,7 @@ $('howToMask').querySelector('.howto-index').addEventListener('click', event => 
   if (!section) return;
   const mask = $('howToMask');
   const body = mask.querySelector('.howto-body');
-  const scroller = (document.body.classList.contains('admin-new-ui') || document.body.classList.contains('public-card-ui'))
+  const scroller = (document.body.classList.contains('admin-new-ui'))
     && window.matchMedia('(min-width: 1100px)').matches ? mask : body;
   scroller.scrollTo({
     top: scroller.scrollTop + section.getBoundingClientRect().top - scroller.getBoundingClientRect().top - 8,
@@ -3846,8 +3845,7 @@ function syncAdminTwoColumnViewport() {
 // CSS line-clamp combined with an inline HOT badge stretches the badge in
 // iOS WebKit. Keep normal inline flow and truncate measured text to two lines.
 function clampAdminTwoColumnTitles() {
-  if (!(document.body.classList.contains('admin-new-ui') ||
-        document.body.classList.contains('public-card-ui')) ||
+  if (!(document.body.classList.contains('admin-new-ui')) ||
       !document.body.classList.contains('skill-target-columns')) return;
   for (const title of document.querySelectorAll(
       '#viewSkill .ar-title, #viewAllManage .ar-title')) {
@@ -3876,10 +3874,10 @@ function renderSkill() {
 
   $('viewSkill').innerHTML = `
     <div class="sk-section skill-hot-section"><h2>HOT Top25</h2><div class="list-container">
-      ${((document.body.classList.contains('admin-new-ui') || document.body.classList.contains('public-card-ui')) ? renderAdminRegisteredRecords(target.hotRows, 'SKILL') : target.hotRows.map((r,i) => createCard(r,i+1,'SKILL')).join('')) || '<div class="empty-state">まだ登録がありません</div>'}
+      ${((document.body.classList.contains('admin-new-ui')) ? renderAdminRegisteredRecords(target.hotRows, 'SKILL') : target.hotRows.map((r,i) => createCard(r,i+1,'SKILL')).join('')) || '<div class="empty-state">まだ登録がありません</div>'}
     </div></div>
     <div class="sk-section skill-other-section"><h2>OTHER Top25</h2><div class="list-container">
-      ${((document.body.classList.contains('admin-new-ui') || document.body.classList.contains('public-card-ui')) ? renderAdminRegisteredRecords(target.otherRows, 'SKILL') : target.otherRows.map((r,i) => createCard(r,i+1,'SKILL')).join('')) || '<div class="empty-state">まだ登録がありません</div>'}
+      ${((document.body.classList.contains('admin-new-ui')) ? renderAdminRegisteredRecords(target.otherRows, 'SKILL') : target.otherRows.map((r,i) => createCard(r,i+1,'SKILL')).join('')) || '<div class="empty-state">まだ登録がありません</div>'}
     </div></div>`;
 }
 
@@ -3979,10 +3977,8 @@ function renderManage() {
   const visibleRows = getVisibleRegisteredRows(data, ownRegisteredBatch);
   const hasMore = visibleRows.length < data.length;
 
-  // Public migration v4.37.4: registered scores use the same card markup as
-  // skill targets. Only the owner receives edit controls (readOnly=false).
-  const useUnifiedRegisteredCards = document.body.classList.contains('admin-new-ui') ||
-    document.body.classList.contains('public-card-ui');
+  // Canonical registered cards for all accounts; edit rights remain owner-only.
+  const useUnifiedRegisteredCards = document.body.classList.contains('admin-new-ui');
   $('viewAllManage').innerHTML =
     ((useUnifiedRegisteredCards
       ? (document.body.classList.contains('skill-target-columns')
@@ -4774,10 +4770,10 @@ function renderViewedUserSkill() {
 
 
   $('userDetailSkill').innerHTML = renderUserDetailSkillSections({
-    hotCards: (document.body.classList.contains('admin-new-ui') || document.body.classList.contains('public-card-ui'))
+    hotCards: (document.body.classList.contains('admin-new-ui'))
       ? renderAdminRegisteredRecords(target.hotRows, 'SKILL', true)
       : target.hotRows.map((r,i) => createCard(r,i+1,'SKILL')).join(''),
-    otherCards: (document.body.classList.contains('admin-new-ui') || document.body.classList.contains('public-card-ui'))
+    otherCards: (document.body.classList.contains('admin-new-ui'))
       ? renderAdminRegisteredRecords(target.otherRows, 'SKILL', true)
       : target.otherRows.map((r,i) => createCard(r,i+1,'SKILL')).join('')
   });
@@ -4802,7 +4798,7 @@ function renderViewedUserRegisteredScores() {
   $('userDetailRecords').innerHTML = renderUserDetailRegisteredSection({
     totalCount: data.length,
     visibleCount: visibleRows.length,
-    cards: (document.body.classList.contains('admin-new-ui') || document.body.classList.contains('public-card-ui'))
+    cards: (document.body.classList.contains('admin-new-ui'))
       ? (document.body.classList.contains('skill-target-columns')
         ? `<div class="admin-records-two-column">`
           + `<section class="admin-records-pane hot"><h2>HOT</h2>${renderAdminRegisteredRecords(visibleRows.filter(row => Boolean(row.is_hot)), 'PUBLIC', true) || '<div class="empty-state">登録曲なし</div>'}</section>`
@@ -5183,7 +5179,7 @@ let adminMyPageRequest = 0;
 async function openMyPage(fromMenu = false) {
   const request = ++adminMyPageRequest;
   myPageOpenedFromMenu = Boolean(fromMenu);
-  if (document.body.classList.contains('admin-new-ui') || document.body.classList.contains('public-card-ui')) $('mypageModal').style.display = 'flex';
+  if (document.body.classList.contains('admin-new-ui')) $('mypageModal').style.display = 'flex';
   const { data } = await supabase.auth.getUser();
   if (request !== adminMyPageRequest) return;
   $('mypageUsernameInput').value = data.user?.user_metadata?.username || $('headerUsername').textContent || '';
@@ -5212,7 +5208,7 @@ async function changeOwnUsername() {
   $('mypageUsernameInput').value = data.username;
   $('headerUsername').textContent = data.username;
   $('authUsername').value = data.username;
-  if (document.body.classList.contains('admin-new-ui') || document.body.classList.contains('public-card-ui')) {
+  if (document.body.classList.contains('admin-new-ui')) {
     showAdminMenuSaveStatus('mypageSaveStatus', 'ユーザー名を変更しました。次回から新しいユーザー名でログインしてください。');
   } else {
     await showSiteDialog('ユーザー名を変更しました。\n次回から新しいユーザー名でログインしてください。', '変更完了');
@@ -5260,15 +5256,14 @@ async function deleteOwnAccount() {
   }
 }
 
-/* UI移行中は公開版と管理者版を独立表示し、公開版はHTMLメタから取得する。 */
-function updateAdminUiVersion(enabled) {
+/* All accounts now use one visual UI version. Authorization remains separate. */
+function updateAdminUiVersion() {
+  const version = document.querySelector('meta[name="app-version"]')?.content || '4.37.12';
+  const value = `APP VERSION ${version}`;
   const label = document.querySelector('.app-code-version');
-  if (!label) return;
-  const adminVersion = document.querySelector('meta[name="admin-ui-version"]')?.content || '4.38.42';
-  const publicVersion = document.querySelector('meta[name="app-version"]')?.content || '4.37.11';
-  label.textContent = `APP VERSION ${enabled ? adminVersion : publicVersion}`;
+  if (label) label.textContent = value;
   const desktopLabel = $('adminDesktopAppVersion');
-  if (desktopLabel) desktopLabel.textContent = label.textContent;
+  if (desktopLabel) desktopLabel.textContent = value;
 }
 
 /* ---------- 管理者 ---------- */
@@ -5281,41 +5276,23 @@ async function checkAdminAccess() {
   }
 
   adminAccessChecked = true;
-  // 管理者専用レスポンシブプレビュー。一般ユーザーには適用しない。
-  const adminNewUi = adminEnabled && $('headerUsername')?.textContent?.trim() === 'admin';
-  document.body.classList.remove('admin-responsive-preview');
-  document.body.classList.toggle('admin-new-ui', adminNewUi);
-  // Migration step 1: public theme only. Do not activate administrator layout or permissions.
-  document.body.classList.toggle('public-palette-ui', !adminNewUi);
-  // Stage 2: public card-only presentation, with no administrator permissions.
-  document.body.classList.toggle('public-card-ui', !adminNewUi);
-  if (!adminNewUi) {
-    const { installPublicColorTheme } = await import('./public-color-theme.js?v=4_37_2');
-    installPublicColorTheme();
-  }
-  // 履歴の比較・共有は一般ユーザーにも開放。管理者の色テーマのみ権限別に適用。
-  if (adminNewUi) {
-    const { installAdminColorTheme } = await import('./admin-color-theme.js?v=4_40_110');
-    installAdminColorTheme();
-  }
-  if (!adminNewUi) restorePublicScoreEditor();
-  updateAdminUiVersion(adminNewUi);
-  // Re-mount the shared menu headers for both users; preserve existing listeners.
+  // Display is shared for every authenticated user. Permission is adminEnabled,
+  // which controls admin tools independently from the visual class.
+  document.body.classList.remove('admin-responsive-preview', 'public-card-ui', 'public-palette-ui');
+  document.body.classList.add('admin-new-ui');
+  const { installAdminColorTheme } = await import('./admin-color-theme.js?v=4_40_110');
+  installAdminColorTheme();
+  updateAdminUiVersion();
   restoreAdminUnifiedMenuScreens();
   initAdminUnifiedMenuScreens();
-  if (adminNewUi) {
-    // Start the same users RPC while the first tab is being prepared, so
-    // the first user-list visit can reuse its result or its in-flight promise.
-    void fetchAdminUserListCached('', activeInstrument, activeVersionId)
-      .catch(error => console.warn('[admin users] prefetch:', error));
-  }
-  if (adminNewUi) void loadAdminRegisteredJackets(supabase).then(() => { if (activeTabName === 'RECORDS') renderManage(); else if (activeTabName === 'SKILL') renderSkill(); });
-  // Public skill/profile cards reuse the same jacket manifest; no admin access is required.
-  if (!adminNewUi) void loadAdminRegisteredJackets(supabase).then(() => {
-    if (!document.body.classList.contains('public-card-ui')) return;
-    if (activeTabName === 'SKILL') renderSkill();
+  // The caching and jacket catalog use public read APIs, not administrator rights.
+  void fetchAdminUserListCached('', activeInstrument, activeVersionId)
+    .catch(error => console.warn('[users] prefetch:', error));
+  void loadAdminRegisteredJackets(supabase).then(() => {
+    if (activeTabName === 'RECORDS') renderManage();
+    else if (activeTabName === 'SKILL') renderSkill();
     if (viewedUserId && !$('userDetailSkill')?.classList.contains('hidden')) renderViewedUserSkill();
-  }).catch(error => console.warn('[public card] jacket loading failed:', error));
+  }).catch(error => console.warn('[cards] jacket loading failed:', error));
   $('btnAdmin').classList.toggle('hidden', !adminEnabled);
   const skillSyncButton = $('btnMenuSkillSync');
   if (skillSyncButton) {
@@ -5363,7 +5340,7 @@ async function checkAdminAccess() {
   $('officialRankingAdminControls')?.classList.toggle('hidden', !adminEnabled);
   // Build the PC menu only after all source entries have their final visibility.
   // Otherwise the initially-hidden official ranking entry is omitted from the cloned tree.
-  if (adminNewUi || document.body.classList.contains('public-card-ui')) requestAnimationFrame(ensureDesktopMenuTree);
+  requestAnimationFrame(ensureDesktopMenuTree);
 
   try {
     await loadTagData();
@@ -8077,7 +8054,7 @@ const ADMIN_DESKTOP_WORKSPACE_CLOSE = {
   skillHistoryMask: () => closeSkillHistory(false)
 };
 function closeAdminDesktopWorkspace() {
-  if (!(document.body.classList.contains('admin-new-ui') || document.body.classList.contains('public-card-ui')) ||
+  if (!(document.body.classList.contains('admin-new-ui')) ||
       !window.matchMedia('(min-width:1100px)').matches) return true;
   // Do not replace a running synchronization view with another menu view.
   if (($('skillSyncMask')?.style.display !== 'none' && skillSyncInProgress) ||
@@ -8216,7 +8193,7 @@ function toggleAdminDesktopMenu() {
 }
 // On PC the sidebar is navigation, not an additional modal layer.
 function ensureDesktopMenuTree() {
-  if (!desktopMenuTree || !(document.body.classList.contains('admin-new-ui') || document.body.classList.contains('public-card-ui')) || !window.matchMedia('(min-width:1100px)').matches) return;
+  if (!desktopMenuTree || !(document.body.classList.contains('admin-new-ui')) || !window.matchMedia('(min-width:1100px)').matches) return;
   if (!desktopMenuTree.querySelector(".admin-menu-group") || (!desktopMenuTree.querySelector(".admin-menu-tree-item") && $("menuMask")?.querySelector(".app-menu-item"))) toggleAdminDesktopMenu();
   desktopMenuTree.hidden = false;
   desktopMenuTree.setAttribute('aria-label', 'サイドメニュー');
@@ -8224,7 +8201,7 @@ function ensureDesktopMenuTree() {
   desktopMenuTrigger.setAttribute('aria-expanded', 'true');
 }
 desktopMenuTrigger.addEventListener('click', () => {
-  if ((document.body.classList.contains('admin-new-ui') || document.body.classList.contains('public-card-ui')) && window.matchMedia('(min-width:1100px)').matches) {
+  if ((document.body.classList.contains('admin-new-ui')) && window.matchMedia('(min-width:1100px)').matches) {
     ensureDesktopMenuTree();
   } else openMenu();
 });
