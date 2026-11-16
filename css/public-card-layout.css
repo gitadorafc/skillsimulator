@@ -101,6 +101,13 @@ body.public-card-ui :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRe
  animation:skill-sparkle-band-pulse var(--skill-sparkle-cycle,1.6s) ease-in-out infinite;
  animation-play-state:running!important;
 }
+/* Public registration grid uses the same HOT/OTHER geometry as skill targets. */
+body.public-card-ui.skill-target-columns :is(#viewAllManage,#userDetailRecords) .admin-records-two-column {
+  display:grid!important;
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  gap:8px!important;
+  width:100%;max-width:none;min-width:0;align-items:start;box-sizing:border-box;
+}
 body.public-card-ui.skill-target-columns #userDetailRecords .list-container{
   display:block!important;grid-template-columns:none!important;
 }

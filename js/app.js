@@ -3857,7 +3857,8 @@ function syncAdminTwoColumnViewport() {
 // CSS line-clamp combined with an inline HOT badge stretches the badge in
 // iOS WebKit. Keep normal inline flow and truncate measured text to two lines.
 function clampAdminTwoColumnTitles() {
-  if (!document.body.classList.contains('admin-new-ui') ||
+  if (!(document.body.classList.contains('admin-new-ui') ||
+        document.body.classList.contains('public-card-ui')) ||
       !document.body.classList.contains('skill-target-columns')) return;
   for (const title of document.querySelectorAll(
       '#viewSkill .ar-title, #viewAllManage .ar-title')) {
@@ -3989,8 +3990,12 @@ function renderManage() {
   const visibleRows = getVisibleRegisteredRows(data, ownRegisteredBatch);
   const hasMore = visibleRows.length < data.length;
 
+  // Public migration v4.37.4: registered scores use the same card markup as
+  // skill targets. Only the owner receives edit controls (readOnly=false).
+  const useUnifiedRegisteredCards = document.body.classList.contains('admin-new-ui') ||
+    document.body.classList.contains('public-card-ui');
   $('viewAllManage').innerHTML =
-    ((document.body.classList.contains('admin-new-ui')
+    ((useUnifiedRegisteredCards
       ? (document.body.classList.contains('skill-target-columns')
         ? `<div class="admin-records-two-column">`
             + `<section class="admin-records-pane hot"><h2>HOT</h2>${renderAdminRegisteredRecords(visibleRows.filter(row => Boolean(row.is_hot))) || '<div class="empty-state">登録曲なし</div>'}</section>`
@@ -4005,8 +4010,8 @@ function renderManage() {
         <button type="button" data-own-records-more>もっと見る</button>
       </div>` : '');
 
-  if (document.body.classList.contains('admin-new-ui')) requestAnimationFrame(() => {
-    syncAdminTwoColumnViewport();
+  if (useUnifiedRegisteredCards) requestAnimationFrame(() => {
+    if (document.body.classList.contains('admin-new-ui')) syncAdminTwoColumnViewport();
     clampAdminTwoColumnTitles();
     scheduleAdminPublicPulsePhase();
   });
@@ -4808,7 +4813,7 @@ function renderViewedUserRegisteredScores() {
   $('userDetailRecords').innerHTML = renderUserDetailRegisteredSection({
     totalCount: data.length,
     visibleCount: visibleRows.length,
-    cards: document.body.classList.contains('admin-new-ui')
+    cards: (document.body.classList.contains('admin-new-ui') || document.body.classList.contains('public-card-ui'))
       ? (document.body.classList.contains('skill-target-columns')
         ? `<div class="admin-records-two-column">`
           + `<section class="admin-records-pane hot"><h2>HOT</h2>${renderAdminRegisteredRecords(visibleRows.filter(row => Boolean(row.is_hot)), 'PUBLIC', true) || '<div class="empty-state">登録曲なし</div>'}</section>`
