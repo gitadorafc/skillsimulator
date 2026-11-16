@@ -2,7 +2,11 @@
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 import { SUPABASE_URL, SUPABASE_ANON_KEY } from './config.js?v=17_0';
 
-export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+// Imported by multiple legacy URL versions. Retain exactly one auth client
+// per page even when a future module inadvertently imports a different URL.
+const clientKey = Symbol.for('gitadora.skill-simulator.supabase-client');
+export const supabase = globalThis[clientKey] ||
+  (globalThis[clientKey] = createClient(SUPABASE_URL, SUPABASE_ANON_KEY));
 
 const wait = milliseconds => new Promise(resolve => setTimeout(resolve, milliseconds));
 
