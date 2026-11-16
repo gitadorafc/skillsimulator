@@ -117,8 +117,8 @@ export async function renderAdminJacketSkillShareFile({
     finally { URL.revokeObjectURL(url); }
   }));
 
-  c.fillStyle = '#07101d'; c.fillRect(0, 0, W, H);
-  c.fillStyle = '#0f1a2d'; c.fillRect(28, 28, W - 56, H - 56);
+  // 背景は全体に1色だけ描画し、外周に二重の帯を作らない。
+  c.fillStyle = '#0f1a2d'; c.fillRect(0, 0, W, H);
   c.fillStyle = '#f8fafc'; c.textAlign = 'left'; c.textBaseline = 'alphabetic';
   c.font = '900 42px sans-serif';
   c.fillText(instrument === 'GF' ? 'GITADORA GuitarFreaks Skill' : 'GITADORA DrumMania Skill', 54, 82);
@@ -545,7 +545,6 @@ export async function renderAdminJacketSkillShareFile({
     drawTable('HOT TOP 25', hotRows, 54, '#450a0a');
     drawTable('OTHER TOP 25', otherRows, 54 + colW + gap, '#173447');
   }
-  c.fillStyle = '#0b1424'; c.fillRect(54, H - 62, W - 108, 30);
   c.fillStyle = '#94a3b8'; c.font = '700 24px sans-serif'; c.textAlign = 'left'; c.textBaseline = 'alphabetic';
   c.fillText('GITADORA Skill Simulator', 64, H - 41);
   c.textAlign = 'right';
