@@ -515,9 +515,9 @@ body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill,#user
 body.admin-new-ui.skill-target-columns #viewSkill:not(.hidden),
 body.admin-new-ui.skill-target-columns #userDetailSkill:not(.hidden),
 body.admin-new-ui.skill-target-columns :is(#viewAllManage,#userDetailRecords) .admin-records-two-column {
- display:grid;
- grid-template-columns:repeat(2,minmax(0,1fr));
- gap:8px;
+ display:grid!important;
+ grid-template-columns:repeat(2,minmax(0,1fr))!important;
+ gap:8px!important;
  width:100%;max-width:none;min-width:0;align-items:start;box-sizing:border-box;
 }
 body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetailSkill,#userDetailRecords) :is(
@@ -739,18 +739,12 @@ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetail
  body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-record:not(.ar-readonly) .ar-skill {
    justify-self:end;
  }
- body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-record:not(.ar-readonly) .ar-title {
+ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetailSkill,#userDetailRecords) .ar-record .ar-title {
    padding-right:116px;
  }
 
- /* Read-only cards use the exact same column geometry as editable cards.
-    The last track is left empty instead of introducing a different grid. */
- body.admin-new-ui.skill-target-columns :is(#userDetailSkill,#userDetailRecords) .ar-record.ar-readonly {
-   grid-template-columns:48px minmax(0,1fr) 28px;
- }
- body.admin-new-ui.skill-target-columns :is(#userDetailSkill,#userDetailRecords) .ar-record.ar-readonly .ar-title {
-   grid-column:2/4;padding-right:116px;
- }
+ /* Read-only cards inherit the common columns and title placement above.
+    Only the edit action itself is absent from their markup. */
 }
  /* Shared workspace header is generated once for every admin menu.
     No per-screen header geometry, title font or back-button rules. */
