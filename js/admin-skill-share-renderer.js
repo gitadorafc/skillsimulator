@@ -147,13 +147,14 @@ export async function renderAdminJacketSkillShareFile({
     const fmt = value => formatSkillHistoryDate(value || new Date().toISOString());
     const base = Number(comparisonBaseline.total || 0);
     const change = total - base;
-    const infoY = 111;
+    // HOT / OTHER合計行の文字下端（y=220）に比較情報枠の下端を揃える。
+    const infoY = 126;
 
     const infoGap = 22;
     const infoCols = [
-      { key: 'type', label: '区分', values: ['現在', '前回'] },
+      { key: 'type', label: '', values: ['現在', '前回'] },
       { key: 'date', label: '日時', values: [fmt(validSnapshot?.savedAt || new Date()), fmt(comparisonBaseline.savedAt)] },
-      { key: 'skill', label: 'スキル値', values: [total.toFixed(2), base.toFixed(2)] },
+      { key: 'skill', label: 'スキル', values: [total.toFixed(2), base.toFixed(2)] },
       { key: 'delta', label: '上昇値', values: [`${change > 0 ? '+' : ''}${change.toFixed(2)}`] }
     ];
     // Measure the visible columns first, then right-align the whole panel
@@ -180,7 +181,7 @@ export async function renderAdminJacketSkillShareFile({
     c.textAlign = 'left';
     c.fillStyle = '#94a3b8';
     c.font = '800 19px sans-serif';
-    infoCols.forEach(col => c.fillText(col.label, colX[col.key], infoY + 18));
+    infoCols.forEach(col => { if (col.label) c.fillText(col.label, colX[col.key], infoY + 18); });
 
     // A common right edge gives the current and previous TOTAL values the
     // same decimal-point position, even when their integer digits differ.
@@ -188,7 +189,7 @@ export async function renderAdminJacketSkillShareFile({
     const totalSkillRight = colX.skill + Math.ceil(Math.max(
       c.measureText(total.toFixed(2)).width,
       c.measureText(base.toFixed(2)).width,
-      c.measureText('スキル値').width
+      c.measureText('スキル').width
     ));
     const paintTotalSkill = (value, y) => {
       const formatted = value.toFixed(2);
