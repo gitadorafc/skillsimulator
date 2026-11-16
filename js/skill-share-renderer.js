@@ -417,23 +417,37 @@ export async function renderAdminJacketSkillShareFile({
   const isComparison = Boolean(comparisonBaseline);
   const rowH = isComparison ? 90 : 70;
   const W = 1400;
-  // Compare across both categories so a HOT/OTHER reclassification is not
-  // mistakenly treated as a new entry. Only new entries and skill increases
-  // are meaningful in the compact comparison image.
-  const compareKey = row => `${normalizeSongTitleForMatch(String(row?.title || ''))}\u0000${String(row?.part || '').toUpperCase()}`;
-  const previousRows = [...(comparisonBaseline?.hotRows || []), ...(comparisonBaseline?.otherRows || [])];
-  const previousByKey = new Map(previousRows.map(row => [compareKey(row), row]));
-  const selectImproved = rows => (rows || []).slice(0, 25).filter(row => {
-    const prior = previousByKey.get(compareKey(row));
-    return !prior || Number(row.skill || 0) - Number(prior.skill || 0) >= 0.005;
+  // Match exact charts first, then match a replaced part within the same
+  // song. Consume baseline rows at most once; HOT/OTHER moves are not NEW.
+  const songKey = row => normalizeSongTitleForMatch(String(row?.title || ''));
+  const chartKey = row => `${songKey(row)}\u0000${String(row?.part || '').toUpperCase()}`;
+  const oldRows = [...(comparisonBaseline?.hotRows || []), ...(comparisonBaseline?.otherRows || [])];
+  const currentRows = [
+    ...(target.hotRows || []).slice(0, 25).map(row => ({row, section:'HOT'})),
+    ...(target.otherRows || []).slice(0, 25).map(row => ({row, section:'OTHER'}))
+  ];
+  const consumed = new Set();
+  const matches = new Map();
+  // Exact matches have priority over cross-part matches, regardless of order.
+  currentRows.forEach(({row}) => {
+    const oldIndex = oldRows.findIndex((old, i) => !consumed.has(i) && chartKey(old) === chartKey(row));
+    if (oldIndex >= 0) { consumed.add(oldIndex); matches.set(row, oldRows[oldIndex]); }
   });
-  const hotRows = isComparison ? selectImproved(target.hotRows) : (target.hotRows || []).slice(0, 25);
-  const otherRows = isComparison ? selectImproved(target.otherRows) : (target.otherRows || []).slice(0, 25);
-  const comparisonRows = isComparison ? [
-    ...hotRows.map(row => ({row, section:'HOT'})),
-    ...otherRows.map(row => ({row, section:'OTHER'}))
-  ] : [];
-  const H = isComparison ? 256 + 52 + Math.max(comparisonRows.length, 1) * 100 + 100 : 2180;
+  currentRows.forEach(({row}) => {
+    if (matches.has(row)) return;
+    const oldIndex = oldRows.findIndex((old, i) => !consumed.has(i) && songKey(old) === songKey(row));
+    if (oldIndex >= 0) { consumed.add(oldIndex); matches.set(row, oldRows[oldIndex]); }
+  });
+  const comparisonRows = isComparison ? currentRows.filter(({row}) => {
+    const old = matches.get(row);
+    return !old || Number(row.skill || 0) - Number(old.skill || 0) >= .005;
+  }) : [];
+  const hotRows = (target.hotRows || []).slice(0, 25);
+  const otherRows = (target.otherRows || []).slice(0, 25);
+  const tableTop = isComparison ? 350 : 256;
+  const H = isComparison ? Math.max(580, tableTop + 52 + Math.max(comparisonRows.length, 1) * 112 + 106) : 2180;
+  const W = 1400;
+  const rowH = isComparison ? 90 : 70;
   // Export at higher pixel density so small jackets, labels and medal artwork
   // remain sharp when viewing the full saved PNG. Logical layout is unchanged.
   const exportScale = 1.5;
@@ -514,9 +528,21 @@ export async function renderAdminJacketSkillShareFile({
   c.fillStyle = '#94a3b8'; c.font = '800 26px sans-serif';
   c.fillText(`HOT ${Number(target.hot || 0).toFixed(2)}   OTHER ${Number(target.other || 0).toFixed(2)}`, 54, 220);
   if (isComparison) {
-    c.textAlign = 'right'; c.font = '800 18px sans-serif';
-    c.fillText(`比較: ${formatSkillHistoryDate(comparisonBaseline.savedAt)}`, W - 54, 220);
-    c.textAlign = 'left';
+    const fmt = value => formatSkillHistoryDate(value || new Date().toISOString());
+    const base = Number(comparisonBaseline.total || 0);
+    const change = total - base;
+    c.fillStyle = '#15253a'; c.fillRect(54, 239, W - 108, 94);
+    c.fillStyle = '#94a3b8'; c.font = '800 19px sans-serif';
+    c.textBaseline = 'middle'; c.textAlign = 'left';
+    c.fillText('区分', 70, 255); c.fillText('日時', 242, 255);
+    c.fillText('スキル値', 820, 255); c.fillText('上昇値', 1130, 255);
+    c.fillStyle = '#f8fafc'; c.font = '800 21px sans-serif';
+    c.fillText('比較対象', 70, 281); c.fillText(fmt(comparisonBaseline.savedAt), 242, 281);
+    c.fillText(base.toFixed(2), 820, 281);
+    c.fillText('現在', 70, 313); c.fillText(fmt(validSnapshot?.savedAt || new Date()), 242, 313);
+    c.fillText(total.toFixed(2), 820, 313);
+    c.fillStyle = change >= 0 ? '#60a5fa' : '#fca5a5';
+    c.fillText(`${change > 0 ? '+' : ''}${change.toFixed(2)}`, 1130, 313);
   }
 
   const drawPill = (label, left, top, width, height, bg, fg, border = null, font = 15) => {
@@ -550,7 +576,7 @@ export async function renderAdminJacketSkillShareFile({
     const diff = Number(current || 0) - Number(prior || 0);
     return diff > .0001 ? '#86efac' : diff < -.0001 ? '#93c5fd' : '#94a3b8';
   };
-  const gap = 24, colW = (W - 108 - gap) / 2, tableTop = 256;
+  const gap = 24, colW = (W - 108 - gap) / 2;
   const drawTable = (caption, rows, left, accent) => {
     c.fillStyle = accent; c.fillRect(left, tableTop, colW, 40);
     c.fillStyle = '#0b1020'; c.font = '900 21px sans-serif';
@@ -653,68 +679,75 @@ export async function renderAdminJacketSkillShareFile({
     });
   };
   if (isComparison) {
-    // A change log, not a mostly empty HOT/OTHER table. Only improved/new
-    // songs appear, with their previous and current skill side by side.
+    // Unified update log with a neutral border. HOT/OTHER is a compact badge.
     c.fillStyle = '#243248'; c.fillRect(54, tableTop, W - 108, 44);
     c.fillStyle = '#f8fafc'; c.font = '900 23px sans-serif';
     c.textAlign = 'left'; c.textBaseline = 'middle';
     c.fillText(`スキル更新曲  ${comparisonRows.length}曲`, 70, tableTop + 22);
-    const listLeft = 54, listWidth = W - 108, rightX = listLeft + listWidth - 300;
+    const left = 54, width = W - 108;
+    const skillX = left + width - 170, skillW = 148;
     comparisonRows.forEach(({row:r, section}, i) => {
-      const y = tableTop + 52 + i * 100;
-      const old = previousByKey.get(compareKey(r));
+      const y = tableTop + 52 + i * 112;
+      const old = matches.get(r);
       const skill = Number(r.skill || 0);
-      const isNew = !old;
-      c.fillStyle = i % 2 ? '#0c1628' : '#111e31';
-      c.fillRect(listLeft, y, listWidth, 94);
-      c.strokeStyle = section === 'HOT' ? '#e94b88' : '#83c63d';
-      c.lineWidth = 2; c.strokeRect(listLeft + 1, y + 1, listWidth - 2, 92);
-      const jacketSize = 76, jacketX = listLeft + 12, jacketY = y + 9;
+      c.fillStyle = i % 2 ? '#0d1729' : '#111e31';
+      c.fillRect(left, y, width, 104);
+      c.strokeStyle = '#667a92'; c.lineWidth = 2;
+      c.strokeRect(left + 1, y + 1, width - 2, 102);
+      const artX = left + 12, artY = y + 12, artSize = 80;
+      c.fillStyle = '#23354d'; c.fillRect(artX, artY, artSize, artSize);
       const img = jacketMap.get(String(r.title || ''));
-      c.fillStyle = '#22354c'; c.fillRect(jacketX, jacketY, jacketSize, jacketSize);
       if (img) {
-        const sw = img.naturalWidth || img.width, sh = img.naturalHeight || img.height;
-        const size = Math.min(sw, sh);
-        c.save(); c.beginPath(); c.roundRect(jacketX, jacketY, jacketSize, jacketSize, 4); c.clip();
-        c.drawImage(img, (sw - size) / 2, (sh - size) / 2, size, size, jacketX, jacketY, jacketSize, jacketSize);
+        const iw = img.naturalWidth || img.width, ih = img.naturalHeight || img.height;
+        const size = Math.min(iw, ih);
+        c.save(); c.beginPath(); c.roundRect(artX, artY, artSize, artSize, 4); c.clip();
+        c.drawImage(img, (iw-size)/2, (ih-size)/2, size, size, artX, artY, artSize, artSize);
         c.restore();
       }
-      const textX = jacketX + jacketSize + 16;
-      c.fillStyle = '#f8fafc'; c.font = '900 23px sans-serif';
+      const textX = artX + artSize + 17;
+      c.fillStyle = '#f8fafc'; c.font = '900 24px sans-serif';
       c.textAlign = 'left'; c.textBaseline = 'middle';
-      c.fillText(fitText(r.title, rightX - textX - 28, '900 23px sans-serif'), textX, y + 26);
-      drawPill(section, textX, y + 53, 62, 24, section === 'HOT' ? '#67142e' : '#294a1b', '#fff', null, 14);
-      const part = String(r.part || '');
-      drawPill(part, textX + 72, y + 53, 76, 24, '#c52add', '#fff', null, 15);
+      c.fillText(fitText(r.title, skillX - textX - 26, '900 24px sans-serif'), textX, y + 26);
+      drawPill(section, textX, y + 51, 67, 24, section === 'HOT' ? '#72243d' : '#345524', '#fff', null, 14);
+      const oldPart = String(old?.part || '').toUpperCase();
+      const newPart = String(r.part || '').toUpperCase();
+      const partLabel = old && oldPart !== newPart ? `${oldPart} → ${newPart}` : newPart;
+      const partW = old && oldPart !== newPart ? 200 : 78;
+      drawPill(partLabel, textX + 78, y + 51, partW, 24, '#9f25bd', '#fff', null, 15);
+      const detailX = textX + 88 + partW;
       c.fillStyle = '#cbd5e1'; c.font = '700 18px sans-serif';
-      c.textAlign = 'left'; c.fillText(`Lv ${Number(r.level || 0).toFixed(2)}    ${Number(r.achievement_rate || 0).toFixed(2)}%`, textX + 162, y + 66);
-      if (!isNew) {
+      c.textAlign = 'left'; c.fillText(`Lv ${Number(r.level || 0).toFixed(2)}  ${Number(r.achievement_rate || 0).toFixed(2)}%`, detailX, y + 63);
+      if (old) {
         const rateChange = Number(r.achievement_rate || 0) - Number(old.achievement_rate || 0);
         if (Math.abs(rateChange) >= .005) {
-          c.fillStyle = rateChange > 0 ? '#86efac' : '#93c5fd';
-          c.font = '800 16px sans-serif';
-          c.fillText(`(${rateChange > 0 ? '+' : ''}${rateChange.toFixed(2)}%)`, textX + 345, y + 66);
+          c.fillStyle = rateChange > 0 ? '#86efac' : '#fca5a5';
+          c.font = '800 17px sans-serif';
+          c.fillText(`${rateChange > 0 ? '+' : ''}${rateChange.toFixed(2)}%`, detailX, y + 88);
         }
       }
-      if (isNew) {
-        c.fillStyle = '#fdba74'; c.font = '900 19px sans-serif';
-        c.textAlign = 'right'; c.fillText('NEW', listLeft + listWidth - 18, y + 26);
-        c.fillStyle = '#f8fafc'; c.font = '900 28px sans-serif';
-        c.fillText(skill.toFixed(2), listLeft + listWidth - 18, y + 65);
-      } else {
+      // Fixed two-line right cell: current skill is always on the upper line;
+      // the delta or NEW marker always occupies the lower line.
+      c.fillStyle = '#0b1424'; c.fillRect(skillX, y + 8, skillW, 88);
+      const paint = getSkillColorRowByTotalValue(skill * 50);
+      for (const bx of [skillX, skillX + skillW - 5]) {
+        c.fillStyle = skillColorCanvasVerticalPaint(c, paint, bx, y + 8, 5, 88);
+        c.fillRect(bx, y + 8, 5, 88);
+      }
+      c.textAlign = 'center'; c.textBaseline = 'middle';
+      c.fillStyle = '#f8fafc'; c.font = '900 29px sans-serif';
+      c.fillText(skill.toFixed(2), skillX + skillW/2, y + 38);
+      c.font = '900 19px sans-serif';
+      if (!old) { c.fillStyle = '#fdba74'; c.fillText('NEW', skillX + skillW/2, y + 72); }
+      else {
         const diff = skill - Number(old.skill || 0);
-        c.fillStyle = '#94a3b8'; c.font = '700 21px sans-serif'; c.textAlign = 'right';
-        c.fillText(`${Number(old.skill || 0).toFixed(2)} →`, rightX + 94, y + 33);
-        c.fillStyle = '#f8fafc'; c.font = '900 28px sans-serif';
-        c.fillText(skill.toFixed(2), listLeft + listWidth - 18, y + 33);
-        c.fillStyle = '#86efac'; c.font = '900 20px sans-serif';
-        c.fillText(`+${diff.toFixed(2)}`, listLeft + listWidth - 18, y + 66);
+        c.fillStyle = '#86efac';
+        c.fillText(`+${diff.toFixed(2)}`, skillX + skillW/2, y + 72);
       }
     });
     if (!comparisonRows.length) {
       c.fillStyle = '#cbd5e1'; c.font = '700 23px sans-serif';
       c.textAlign = 'center'; c.textBaseline = 'middle';
-      c.fillText('スキル値が上昇した曲・新規対象入りした曲はありません', W / 2, tableTop + 105);
+      c.fillText('スキル値が上昇した曲・新規対象入りした曲はありません', W / 2, tableTop + 103);
     }
   } else {
     drawTable('HOT TOP 25', hotRows, 54, '#e94b88');

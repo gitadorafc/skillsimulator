@@ -592,7 +592,7 @@ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetail
  body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetailSkill,#userDetailRecords) .ar-bear-medal {width:16px;height:16px;}
  body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetailSkill,#userDetailRecords) .ar-skill {
    /* Restore the pre-4.40.79 vertical position on narrow ON cards. */
-   top:5px;right:5px;
+   top:5px;right:4px;
    width:51px!important;max-width:51px!important;
    border-radius:3px;font-size:10px;
  }
@@ -626,7 +626,7 @@ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetail
  }
  body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetailSkill,#userDetailRecords) .ar-song-name {font-size:11px;line-height:19px;}
  body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-record:not(.ar-readonly) .ar-edit {
-   position:absolute;bottom:2px;right:4px;width:28px;height:25px;
+   position:absolute;bottom:2px;right:4px;width:25px;height:25px;
    display:flex;align-items:center;justify-content:center;
  }
  body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage) .ar-record:not(.ar-readonly) .ar-edit button {
