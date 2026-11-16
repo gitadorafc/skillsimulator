@@ -139,18 +139,20 @@ body.admin-new-ui.light-mode :is(#viewAllManage,#viewSkill,#userDetailSkill,#use
   -webkit-text-stroke:0 !important;
   text-shadow:none !important;
 }
-/* Light history rows use exactly the same panel tokens and rank-text
-   treatment as the user list. The shared skill color table owns ALL ranks,
-   including WHITE (#fff for 0–999.99); never override rank text colors here. */
+/* Skill history uses the same light row background and border as #viewUsers.
+   Rank colors are owned by score-rank-*; preserve white and rainbow ranks. */
 body.admin-new-ui.light-mode #skillHistoryList .skill-history-summary {
-  background:#d8dde5!important;
+  background:var(--app-light-page-bg,#e5e7eb)!important;
+  background-image:none!important;
   border-color:#8b98aa!important;
   color:#111827!important;
-  box-shadow:0 1px 1px rgba(15,23,42,.05)!important;
+  box-shadow:none!important;
 }
-/* Match body.light-mode .user-list-skill-value's small common outline.
-   Do not override gradient, color, text-fill, filter or rank animation. */
+/* Match the user list's numeric typography and its subtle common stroke. */
 body.admin-new-ui.light-mode #skillHistoryList .skill-history-value[class*="score-rank-"] {
+  font-family:inherit;
+  font-size:12px;
+  font-weight:900;
   -webkit-text-stroke:.2px rgba(15,23,42,.75)!important;
 }
 body.admin-new-ui.light-mode .favorite-toggle {
