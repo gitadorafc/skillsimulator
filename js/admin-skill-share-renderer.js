@@ -55,14 +55,14 @@ export async function renderAdminJacketSkillShareFile({
   const comparisonHotRows = comparisonRows.filter(entry => entry.section === 'HOT');
   const comparisonOtherRows = comparisonRows.filter(entry => entry.section === 'OTHER');
   const tableTop = isComparison ? 350 : 256;
-  const comparisonCardH = 126;
-  const comparisonCardGap = 12;
+  const comparisonCardH = 118;
+  const comparisonCardGap = 10;
   const comparisonSectionTop = tableTop + 52;
   const comparisonCardsTop = comparisonSectionTop + 44;
   const comparisonVisibleRows = Math.max(comparisonHotRows.length, comparisonOtherRows.length, 1);
   const comparisonCardsBottom = comparisonCardsTop + comparisonVisibleRows * comparisonCardH + Math.max(0, comparisonVisibleRows - 1) * comparisonCardGap;
   const H = isComparison ? Math.max(580, comparisonCardsBottom + 96) : 2180;
-  const W = isComparison ? 1660 : 1400;
+  const W = isComparison ? 1540 : 1400;
   const rowH = 70;
   // Export at higher pixel density so small jackets, labels and medal artwork
   // remain sharp when viewing the full saved PNG. Logical layout is unchanged.
@@ -406,8 +406,8 @@ export async function renderAdminJacketSkillShareFile({
 
       const jacketSize = 72;
       const titleX = left + 14 + jacketSize + 12;
-      const currentLineY = 72;
-      const previousLineY = 102;
+      const currentLineY = 66;
+      const previousLineY = 92;
       // Derive numeric column widths from the actual Canvas font rather than
       // reserving generous fixed slots that create uneven visible gaps.
       // Keep one stable column position across current/previous rows.
@@ -516,9 +516,9 @@ export async function renderAdminJacketSkillShareFile({
         c.fillStyle = '#f8fafc';
         c.textAlign = 'left';
         c.textBaseline = 'middle';
-        c.font = '900 24px sans-serif';
+        c.font = '900 23px sans-serif';
         c.fillText(fitText(row.title, columnWidth - (titleX - left) - 16,
-          '900 24px sans-serif'), titleX, y + 28);
+          '900 23px sans-serif'), titleX, y + 22);
         drawLine(row, '現在', y + currentLineY, previous, false);
         drawLine(previous, '前回', y + previousLineY, previous, true);
       });
