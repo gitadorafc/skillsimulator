@@ -623,7 +623,8 @@ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetail
    justify-self:stretch;margin:0;
  }
  body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetailSkill,#userDetailRecords) .ar-record .ar-fc-cell {
-   position:absolute;top:26px;right:4px;width:28px;height:16px;
+   /* Match the edit button's right edge and 25px alignment box. */
+   position:absolute;top:26px;right:4px;width:25px;height:16px;
    display:flex;align-items:center;justify-content:center;
    padding:0;margin:0;
  }
@@ -1712,8 +1713,22 @@ body.admin-new-ui.light-mode #skillRankingMask :is(
   .skill-ranking-context,.skill-ranking-status,.skill-ranking-sort-wrap,
   .skill-ranking-position,.skill-ranking-level
 ) {color:#475569!important;-webkit-text-fill-color:#475569!important;}
-body.admin-new-ui.light-mode #skillRankingMask .skill-ranking-metric :is(small,em) {
+body.admin-new-ui.light-mode #skillRankingMask .skill-ranking-metric :is(small,em:not(.skill-ranking-comparison)) {
   color:#475569!important;-webkit-text-fill-color:#475569!important;
+}
+/* Comparison delta: consistent blue for gains and red for losses in both themes.
+   Keep the other ranking metadata neutral. */
+body.admin-new-ui #skillRankingMask .skill-ranking-comparison.positive {
+  color:#60a5fa!important;-webkit-text-fill-color:#60a5fa!important;
+}
+body.admin-new-ui #skillRankingMask .skill-ranking-comparison.negative {
+  color:#f87171!important;-webkit-text-fill-color:#f87171!important;
+}
+body.admin-new-ui.light-mode #skillRankingMask .skill-ranking-comparison.positive {
+  color:#1d4ed8!important;-webkit-text-fill-color:#1d4ed8!important;
+}
+body.admin-new-ui.light-mode #skillRankingMask .skill-ranking-comparison.negative {
+  color:#b91c1c!important;-webkit-text-fill-color:#b91c1c!important;
 }
 body.admin-new-ui.light-mode #skillRankingMask .skill-ranking-row .skill-ranking-position {
   color:#325c94!important;-webkit-text-fill-color:#325c94!important;
