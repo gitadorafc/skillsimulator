@@ -4033,21 +4033,15 @@ function getAdminPulseRoots() {
   const ids = ['viewSkill', 'viewAllManage', 'userDetailSkill', 'userDetailRecords'];
   // CSS display:none suppresses animations for inactive screens.
   const viewedHeader = document.querySelector('#userDetailPage .user-detail-summary');
-  // Hidden profile/list roots may retain animations in the DOM. Do not
-  // repeatedly seek their timelines during unrelated renders or fast scrolls.
+  // Own-page and viewed-user lists use one animation clock. Never exclude
+  // viewed-user cards based on which independent scrollpane is active.
   const visible = node => node && node.getClientRects().length &&
     getComputedStyle(node).display !== 'none';
-  // While scrolling the viewed profile, do not repeatedly seek the card
-  // animations against the main header. Resume normal sync after scrolling.
-  const profileScrolling = document.body.classList.contains('app-scrolling') &&
-    document.getElementById('userDetailPage')?.classList.contains('user-detail-open');
-  const roots = profileScrolling
-    ? [ownHeader, ...['viewSkill', 'viewAllManage'].map(id => $(id))]
-    : [ownHeader, viewedHeader, ...ids.map(id => $(id))];
-  return roots.filter(visible);
+  return [ownHeader, viewedHeader, ...ids.map(id => $(id))].filter(visible);
 }
 function syncAdminPublicPulsePhase() {
-  if (!document.body.classList.contains('admin-new-ui')) return;
+  if (!document.body.classList.contains('admin-new-ui') ||
+      document.body.classList.contains('app-scrolling')) return;
   const ownHeader = document.querySelector('#appScreen > .p-header');
   const master = [...(ownHeader?.querySelectorAll('.score-val.score-rank-sparkle-rainbow') || [])]
     .flatMap(element => element.getAnimations({subtree:false}))
@@ -5286,7 +5280,7 @@ async function checkAdminAccess() {
   if (adminNewUi) {
     const adminHistory = await import('./admin-skill-history.js?v=4_40_93');
     renderAdminSkillHistoryRows = adminHistory.renderAdminSkillHistoryRows;
-    const { installAdminColorTheme } = await import('./admin-color-theme.js?v=4_40_109');
+    const { installAdminColorTheme } = await import('./admin-color-theme.js?v=4_40_110');
     installAdminColorTheme();
   }
   if (!adminNewUi) restorePublicScoreEditor();

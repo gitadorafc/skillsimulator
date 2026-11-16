@@ -64,18 +64,19 @@ body.admin-new-ui :is(
   filter:brightness(1.08);
 }
 
-/* All admin skill-card lists follow the same running animation clock while
-   scrolling. The shared public scroll optimization stays unchanged.
-   No viewed-profile-specific animation keyframes or Safari overrides. */
-body.admin-new-ui.app-scroll-layout.app-scrolling :is(#viewSkill,#viewAllManage) :is(
+/* Admin-only unified animation behavior for own and viewed-user cards.
+   The generic scroll optimization pauses public animations; admin cards use
+   a single running timeline in both screens instead of pausing/restarting
+   only when a viewed profile is scrolled. */
+body.admin-new-ui.app-scroll-layout.app-scrolling :is(#viewSkill,#viewAllManage,#userDetailSkill,#userDetailRecords) :is(
   .score-rank-sparkle-rainbow,.user-list-row-sparkle-rainbow,
   .skill-box-sparkle-rainbow,.ar-record.skill-row-sparkle-rainbow
 ){animation-play-state:running!important;}
-body.admin-new-ui.app-scroll-layout.app-scrolling :is(#viewSkill,#viewAllManage) .skill-box-sparkle-rainbow::before,
-body.admin-new-ui.app-scroll-layout.app-scrolling :is(#viewSkill,#viewAllManage) .skill-box-sparkle-rainbow::after,
-body.admin-new-ui.app-scroll-layout.app-scrolling :is(#viewSkill,#viewAllManage) .dc-card:has(.skill-box-sparkle-rainbow)::before,
-body.admin-new-ui.app-scroll-layout.app-scrolling :is(#viewSkill,#viewAllManage) .ar-record.skill-row-sparkle-rainbow::before,
-body.admin-new-ui.app-scroll-layout.app-scrolling :is(#viewSkill,#viewAllManage) .ar-record.skill-row-sparkle-rainbow::after
+body.admin-new-ui.app-scroll-layout.app-scrolling :is(#viewSkill,#viewAllManage,#userDetailSkill,#userDetailRecords) .skill-box-sparkle-rainbow::before,
+body.admin-new-ui.app-scroll-layout.app-scrolling :is(#viewSkill,#viewAllManage,#userDetailSkill,#userDetailRecords) .skill-box-sparkle-rainbow::after,
+body.admin-new-ui.app-scroll-layout.app-scrolling :is(#viewSkill,#viewAllManage,#userDetailSkill,#userDetailRecords) .dc-card:has(.skill-box-sparkle-rainbow)::before,
+body.admin-new-ui.app-scroll-layout.app-scrolling :is(#viewSkill,#viewAllManage,#userDetailSkill,#userDetailRecords) .ar-record.skill-row-sparkle-rainbow::before,
+body.admin-new-ui.app-scroll-layout.app-scrolling :is(#viewSkill,#viewAllManage,#userDetailSkill,#userDetailRecords) .ar-record.skill-row-sparkle-rainbow::after
 {animation-play-state:running!important;}
 /* Admin registered rows: layout only; reuse public UI color, badge, and skill tokens. */
 body.admin-new-ui :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords){width:100%;max-width:none;display:block;--ar-cols:40px 70px minmax(160px,1fr) 82px 55px 87px 74px 62px 76px 48px}
@@ -455,13 +456,6 @@ body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill,#user
    padding:0 3px!important;
  }
 
- /* Read-only user detail: same breakpoint as editable cards. */
- body.admin-new-ui:not(.skill-target-columns) :is(#userDetailSkill,#userDetailRecords) .ar-record.ar-readonly {
-    grid-template-columns:40px minmax(0,1fr) 67px;
-  }
-  body.admin-new-ui:not(.skill-target-columns) :is(#userDetailSkill,#userDetailRecords) .ar-record.ar-readonly .ar-skill {
-    grid-column:3;justify-self:end;
-  }
 }
 /* Only the overall header/navigation structure changes at 768px;
    OFF-mode registered cards do NOT switch layout here. */
@@ -633,8 +627,6 @@ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetail
    width:25px;height:25px;font-size:16px;border-radius:5px;
  }
 
- /* Read-only user detail: same breakpoint as editable cards. */
- body.admin-new-ui.skill-target-columns :is(#userDetailSkill,#userDetailRecords) .ar-record.ar-readonly .ar-title {grid-column:1/4;}
 }
 
 /* From 700 CSS px: same two-line desktop/tablet card with a stable
@@ -705,13 +697,14 @@ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetail
    padding-right:116px;
  }
 
- /* Read-only user detail: same breakpoint as editable cards. */
+ /* Read-only cards use the exact same column geometry as editable cards.
+    The last track is left empty instead of introducing a different grid. */
  body.admin-new-ui.skill-target-columns :is(#userDetailSkill,#userDetailRecords) .ar-record.ar-readonly {
-    grid-template-columns:48px minmax(0,1fr);
-  }
-  body.admin-new-ui.skill-target-columns :is(#userDetailSkill,#userDetailRecords) .ar-record.ar-readonly .ar-title {
-    grid-column:2;padding-right:83px;
-  }
+   grid-template-columns:48px minmax(0,1fr) 28px;
+ }
+ body.admin-new-ui.skill-target-columns :is(#userDetailSkill,#userDetailRecords) .ar-record.ar-readonly .ar-title {
+   grid-column:2/4;padding-right:116px;
+ }
 }
  /* Shared workspace header is generated once for every admin menu.
     No per-screen header geometry, title font or back-button rules. */
@@ -1450,35 +1443,17 @@ body.admin-new-ui.light-mode #adminBoardEditorMask #btnAdminBoardSave {
  body.admin-new-ui #userDetailPage.user-detail-page {
    min-height:0!important;overflow:hidden!important;z-index:1100;
  }
- /* Keep viewed profile cards and gradient borders in one scrolling paint flow.
-    Do not impose a second isolated paint layer on the scroll container. */
+ /* Use the same scroller paint containment as #appScreen > .p-container.
+    Card, border and content stay in one scrolled raster surface. */
  body.admin-new-ui.app-scroll-layout #userDetailPage.user-detail-open > .user-detail-body:not(.hidden) {
-   contain:none;
-   isolation:auto;
+   contain:paint;
+   isolation:isolate;
    padding:8px 8px 28px;
    box-sizing:border-box;
  }
- body.admin-new-ui.app-scroll-layout.app-scrolling #userDetailPage :is(
-   .ar-record.skill-row-sparkle-rainbow,.ar-skill.skill-box-sparkle-rainbow,
-   .dc-card:has(.skill-box-sparkle-rainbow),.score-rank-sparkle-rainbow
- ) { animation-play-state:paused!important; }
- body.admin-new-ui.app-scroll-layout.app-scrolling #userDetailPage :is(
-   .ar-record.skill-row-sparkle-rainbow,.ar-skill.skill-box-sparkle-rainbow,
-   .dc-card:has(.skill-box-sparkle-rainbow)
- )::before,
- body.admin-new-ui.app-scroll-layout.app-scrolling #userDetailPage :is(
-   .ar-record.skill-row-sparkle-rainbow,.ar-skill.skill-box-sparkle-rainbow
- )::after { animation-play-state:paused!important; }
-
-
- /* Read-only user detail: same breakpoint as editable cards. */
- body.admin-new-ui:not(.skill-target-columns) :is(#userDetailSkill,#userDetailRecords).ar-readonly,
-  body.admin-new-ui:not(.skill-target-columns) :is(#userDetailSkill,#userDetailRecords) .ar-register-view.ar-readonly {
-    --ar-cols:30px 64px minmax(125px,1fr) 80px 54px 92px 52px 78px 82px;
-  }
-  body.admin-new-ui:not(.skill-target-columns) :is(#userDetailSkill,#userDetailRecords) .ar-record.ar-readonly .ar-skill {
-    grid-column:9;justify-self:end;
-  }
+ /* Read-only records inherit the same columns as the editable renderer.
+    The unused last column is reserved for the (absent) edit control; no
+    edit button is created for other users. */
 }
 
 /* Viewed-profile header follows the same height / score-row geometry as
