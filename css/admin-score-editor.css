@@ -58,10 +58,12 @@ body.admin-new-ui #domModal .admin-score-song-fields > [data-admin-score-slot="t
   border-bottom:0!important;
 }
 body.admin-new-ui #domModal .admin-score-song-fields > [data-admin-score-slot="part"] {
-  border-top:1px solid var(--ase-rule);
+  /* The title input already has a bottom edge close to this row.
+     Do not draw another divider immediately underneath it. */
+  border-top:0;
   border-bottom:0;
   margin-top:5px;
-  padding-top:6px;
+  padding-top:3px;
 }
 body.admin-new-ui #domModal .admin-score-result-fields {padding-top:4px;}
 body.admin-new-ui #domModal .admin-score-fields [data-admin-score-slot] {min-width:0;}

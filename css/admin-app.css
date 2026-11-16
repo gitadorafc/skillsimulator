@@ -139,6 +139,22 @@ body.admin-new-ui.light-mode :is(#viewAllManage,#viewSkill,#userDetailSkill,#use
   -webkit-text-stroke:0 !important;
   text-shadow:none !important;
 }
+/* Light history skill values use the same rank palette as the user list.
+   The score-rank-white tier is white on dark backgrounds; on a light panel,
+   render it in the same readable neutral used for uncolored list scores.
+   Other rank classes retain their shared skill-color gradients. */
+body.admin-new-ui.light-mode #skillHistoryList .skill-history-value[class*="score-rank-"] {
+  -webkit-text-stroke:.2px rgba(15,23,42,.75)!important;
+}
+body.admin-new-ui.light-mode #skillHistoryList .skill-history-value.score-rank-white {
+  background:none!important;
+  -webkit-background-clip:border-box!important;
+  background-clip:border-box!important;
+  color:#334155!important;
+  -webkit-text-fill-color:#334155!important;
+  -webkit-text-stroke:0!important;
+  text-shadow:none!important;
+}
 body.admin-new-ui.light-mode .favorite-toggle {
   background:#f8fafc !important;
   color:#334155 !important;
