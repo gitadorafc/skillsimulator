@@ -312,9 +312,11 @@ export async function renderAdminJacketSkillShareFile({
       const optionX = medalX + medalW + detailGap;
       drawPill(part, contentX, pillTop, partW, 19, ...partStyle, null, 13);
       c.font = '800 16px sans-serif'; c.fillStyle = '#e2e8f0';
-      c.textAlign = 'left'; c.textBaseline = 'middle';
+      c.textBaseline = 'middle';
+      c.textAlign = 'left';
       c.fillText(levelText, levelX, pillTop + 10);
-      c.fillText(rateText, rateX, pillTop + 10);
+      c.textAlign = 'right';
+      c.fillText(rateText, rateX + rateW, pillTop + 10);
       const type = Number(r.achievement_rate) === 100 ? 'EXC' : String(r.fc || '').toUpperCase() === 'FC' ? 'FC' : '';
       drawMedal(type, medalX + medalW / 2, pillTop + 9);
       const option = String(r.play_option || 'NORMAL').toUpperCase();
