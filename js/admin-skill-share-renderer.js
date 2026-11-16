@@ -408,15 +408,25 @@ export async function renderAdminJacketSkillShareFile({
       const titleX = left + 14 + jacketSize + 12;
       const currentLineY = 72;
       const previousLineY = 102;
+      // Derive numeric column widths from the actual Canvas font rather than
+      // reserving generous fixed slots that create uneven visible gaps.
+      // Keep one stable column position across current/previous rows.
       const fieldGap = 18;
       const labelW = 44;
       const partW = 74;
-      const levelW = 54;
-      const rateW = 92;
       const medalW = 26;
       const optionW = 61;
-      const skillW = 89;
-      const deltaW = 73;
+      const textFont = '800 18px ui-monospace, monospace';
+      const skillFont = '900 21px ui-monospace, monospace';
+      c.font = textFont;
+      const levelW = Math.ceil(c.measureText('9.99').width);
+      const rateW = Math.ceil(c.measureText('100.00%').width);
+      c.font = skillFont;
+      const skillW = Math.ceil(c.measureText('999.99').width);
+      c.font = '900 18px sans-serif';
+      const deltaW = Math.ceil(Math.max(
+        c.measureText('+999.99').width, c.measureText('NEW').width
+      ));
       const fields = {};
       let cursor = titleX;
       for (const [name, width] of [
@@ -430,11 +440,9 @@ export async function renderAdminJacketSkillShareFile({
       // Keep every rendered field inside its column, including NEW and +99.99.
       const fieldEnd = fields.delta.x + fields.delta.width;
       if (fieldEnd > left + columnWidth - 8) {
-        throw new Error('比較画像の列幅が不足しています。');
+        throw new Error(`比較画像の列幅が不足しています (${Math.ceil(fieldEnd - left)} > ${Math.floor(columnWidth - 8)})。`);
       }
-      const textFont = '800 18px ui-monospace, monospace';
       // Fixed-width digits and right alignment keep the decimal points aligned.
-      const skillFont = '900 21px ui-monospace, monospace';
       const drawAlignedValue = (formatted, field, y, font, color) => {
         c.fillStyle = color;
         c.font = font;
