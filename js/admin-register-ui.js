@@ -43,7 +43,6 @@ export async function loadAdminRegisteredJackets(supabase) {
               jacketByTitle.set(key, [new URL(`./assets/jackets/${file}`, document.baseURI).href]);
               staticJacketTitles.add(key);
             }
-            console.info(`[admin jackets] ${staticJacketTitles.size} Pages images mapped`);
           }
         }
       } catch (error) { console.warn('[admin jackets] Pages manifest unavailable:', error); }
@@ -69,7 +68,6 @@ export async function loadAdminRegisteredJackets(supabase) {
         if (!staticJacketTitles.has(key)) jacketByTitle.set(key, urls);
       }
       jacketsLoaded = true;
-      console.info(`[admin jackets] ${jacketByTitle.size} jacket titles loaded`);
     } catch (error) {
       console.warn('[admin jackets] reading song_jackets failed', error);
       // Do not mark as loaded: retry after a transient network failure.
