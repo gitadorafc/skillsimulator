@@ -436,10 +436,18 @@ export async function renderAdminJacketSkillShareFile({
     const oldIndex = oldRows.findIndex((old, i) => !consumed.has(i) && songKey(old) === songKey(row));
     if (oldIndex >= 0) { consumed.add(oldIndex); matches.set(row, oldRows[oldIndex]); }
   });
-  const comparisonRows = isComparison ? currentRows.filter(({row}) => {
-    const old = matches.get(row);
-    return !old || Number(row.skill || 0) - Number(old.skill || 0) >= .005;
-  }) : [];
+  const comparisonRows = isComparison ? currentRows
+    .filter(({row}) => {
+      const old = matches.get(row);
+      return !old || Number(row.skill || 0) - Number(old.skill || 0) >= .005;
+    })
+    .sort((a, b) => {
+      const skillDiff = Number(b.row?.skill || 0) - Number(a.row?.skill || 0);
+      if (Math.abs(skillDiff) > .0001) return skillDiff;
+      const rateDiff = Number(b.row?.achievement_rate || 0) - Number(a.row?.achievement_rate || 0);
+      if (Math.abs(rateDiff) > .0001) return rateDiff;
+      return Number(b.row?.level || 0) - Number(a.row?.level || 0);
+    }) : [];
   const hotRows = (target.hotRows || []).slice(0, 25);
   const otherRows = (target.otherRows || []).slice(0, 25);
   const tableTop = isComparison ? 350 : 256;
@@ -529,18 +537,39 @@ export async function renderAdminJacketSkillShareFile({
     const fmt = value => formatSkillHistoryDate(value || new Date().toISOString());
     const base = Number(comparisonBaseline.total || 0);
     const change = total - base;
-    c.fillStyle = '#15253a'; c.fillRect(54, 239, W - 108, 94);
-    c.fillStyle = '#94a3b8'; c.font = '800 19px sans-serif';
-    c.textBaseline = 'middle'; c.textAlign = 'left';
-    c.fillText('区分', 70, 255); c.fillText('日時', 242, 255);
-    c.fillText('スキル値', 820, 255); c.fillText('上昇値', 1130, 255);
-    c.fillStyle = '#f8fafc'; c.font = '800 21px sans-serif';
-    c.fillText('比較対象', 70, 281); c.fillText(fmt(comparisonBaseline.savedAt), 242, 281);
-    c.fillText(base.toFixed(2), 820, 281);
-    c.fillText('現在', 70, 313); c.fillText(fmt(validSnapshot?.savedAt || new Date()), 242, 313);
-    c.fillText(total.toFixed(2), 820, 313);
+    const infoX = 54;
+    const infoY = 239;
+    const infoW = W - 108;
+    c.fillStyle = '#15253a';
+    c.fillRect(infoX, infoY, infoW, 94);
+
+    const colX = {
+      type: infoX + 20,
+      date: infoX + 200,
+      skill: infoX + 760,
+      delta: infoX + 1050
+    };
+    c.textBaseline = 'middle';
+    c.textAlign = 'left';
+    c.fillStyle = '#94a3b8';
+    c.font = '800 19px sans-serif';
+    c.fillText('区分', colX.type, infoY + 18);
+    c.fillText('日時', colX.date, infoY + 18);
+    c.fillText('スキル値', colX.skill, infoY + 18);
+    c.fillText('上昇値', colX.delta, infoY + 18);
+
+    c.fillStyle = '#f8fafc';
+    c.font = '800 21px sans-serif';
+    c.fillText('現在', colX.type, infoY + 46);
+    c.fillText(fmt(validSnapshot?.savedAt || new Date()), colX.date, infoY + 46);
+    c.fillText(total.toFixed(2), colX.skill, infoY + 46);
     c.fillStyle = change >= 0 ? '#60a5fa' : '#fca5a5';
-    c.fillText(`${change > 0 ? '+' : ''}${change.toFixed(2)}`, 1130, 313);
+    c.fillText(`${change > 0 ? '+' : ''}${change.toFixed(2)}`, colX.delta, infoY + 46);
+
+    c.fillStyle = '#f8fafc';
+    c.fillText('比較対象', colX.type, infoY + 76);
+    c.fillText(fmt(comparisonBaseline.savedAt), colX.date, infoY + 76);
+    c.fillText(base.toFixed(2), colX.skill, infoY + 76);
   }
 
   const drawPill = (label, left, top, width, height, bg, fg, border = null, font = 15) => {
@@ -628,7 +657,7 @@ export async function renderAdminJacketSkillShareFile({
       c.font = '800 16px sans-serif';
       const levelText = Number(r.level || 0).toFixed(2);
       const rateText = `${Number(r.achievement_rate || 0).toFixed(2)}%`;
-      const levelW = Math.ceil(c.measureText(levelText).width);
+      const levelW = Math.ceil(c.measureText('9.95').width);
       const rateW = Math.ceil(c.measureText('100.00%').width);
       const levelX = contentX + partW + detailGap;
       const rateX = levelX + levelW + detailGap;
@@ -660,7 +689,7 @@ export async function renderAdminJacketSkillShareFile({
       c.fillStyle = '#101827'; c.fillRect(skillX, skillCellTop, skillW, skillCellH);
       const paintRow = getSkillColorRowByTotalValue(skill * 50);
       for (const barX of [skillX, skillX + skillW - 5]) {
-        c.fillStyle = skillColorCanvasVerticalPaint(c, paintRow, barX, skillCellTop, 5, skillCellH);
+        c.fillStyle = skillColorCanvasShareTextPaint(c, paintRow, barX, skillCellTop, 5, skillCellH);
         c.fillRect(barX, skillCellTop, 5, skillCellH);
       }
       c.textAlign = 'center'; c.textBaseline = 'middle';
@@ -677,74 +706,148 @@ export async function renderAdminJacketSkillShareFile({
     });
   };
   if (isComparison) {
-    // Unified update log with a neutral border. HOT/OTHER is a compact badge.
-    c.fillStyle = '#243248'; c.fillRect(54, tableTop, W - 108, 44);
-    c.fillStyle = '#f8fafc'; c.font = '900 23px sans-serif';
-    c.textAlign = 'left'; c.textBaseline = 'middle';
+    c.fillStyle = '#243248';
+    c.fillRect(54, tableTop, W - 108, 44);
+    c.fillStyle = '#f8fafc';
+    c.font = '900 23px sans-serif';
+    c.textAlign = 'left';
+    c.textBaseline = 'middle';
     c.fillText(`スキル更新曲  ${comparisonRows.length}曲`, 70, tableTop + 22);
-    const left = 54, width = W - 108;
-    const skillX = left + width - 170, skillW = 148;
+
+    const left = 54;
+    const width = W - 108;
+    const cardGap = 10;
+    const skillX = left + width - 162;
+    const skillW = 140;
+    const titleColor = '#f8fafc';
+    const labelColor = '#cbd5e1';
+    const valueColor = '#e2e8f0';
+    const sectionPalette = {
+      HOT: { bg: '#66121f', fg: '#ffffff', border: '#ef4444' },
+      OTHER: { bg: '#12364f', fg: '#ffffff', border: '#38bdf8' }
+    };
+    const currentPartPalette = ['#9f25bd', '#fff', null];
+    const previousPartPalette = ['#4c1d95', '#ddd6fe', '#8b5cf6'];
+
     comparisonRows.forEach(({row:r, section}, i) => {
-      const y = tableTop + 52 + i * 112;
       const old = matches.get(r);
       const skill = Number(r.skill || 0);
+      const y = tableTop + 52 + i * 112;
       c.fillStyle = i % 2 ? '#0d1729' : '#111e31';
       c.fillRect(left, y, width, 104);
-      c.strokeStyle = '#667a92'; c.lineWidth = 2;
+      c.strokeStyle = '#667a92';
+      c.lineWidth = 2;
       c.strokeRect(left + 1, y + 1, width - 2, 102);
-      const artX = left + 12, artY = y + 12, artSize = 80;
-      c.fillStyle = '#23354d'; c.fillRect(artX, artY, artSize, artSize);
+
+      const artX = left + 12;
+      const artY = y + 12;
+      const artSize = 80;
+      c.fillStyle = '#23354d';
+      c.fillRect(artX, artY, artSize, artSize);
       const img = jacketMap.get(String(r.title || ''));
       if (img) {
-        const iw = img.naturalWidth || img.width, ih = img.naturalHeight || img.height;
+        const iw = img.naturalWidth || img.width;
+        const ih = img.naturalHeight || img.height;
         const size = Math.min(iw, ih);
-        c.save(); c.beginPath(); c.roundRect(artX, artY, artSize, artSize, 4); c.clip();
-        c.drawImage(img, (iw-size)/2, (ih-size)/2, size, size, artX, artY, artSize, artSize);
+        c.save();
+        c.beginPath();
+        c.roundRect(artX, artY, artSize, artSize, 4);
+        c.clip();
+        c.drawImage(img, (iw - size) / 2, (ih - size) / 2, size, size, artX, artY, artSize, artSize);
         c.restore();
       }
+
       const textX = artX + artSize + 17;
-      c.fillStyle = '#f8fafc'; c.font = '900 24px sans-serif';
-      c.textAlign = 'left'; c.textBaseline = 'middle';
-      c.fillText(fitText(r.title, skillX - textX - 26, '900 24px sans-serif'), textX, y + 26);
-      drawPill(section, textX, y + 51, 67, 24, section === 'HOT' ? '#72243d' : '#345524', '#fff', null, 14);
+      c.fillStyle = titleColor;
+      c.font = '900 24px sans-serif';
+      c.textAlign = 'left';
+      c.textBaseline = 'middle';
+      c.fillText(fitText(r.title, skillX - textX - 28, '900 24px sans-serif'), textX, y + 26);
+
+      const sectionStyle = sectionPalette[section] || sectionPalette.HOT;
+      drawPill(section, textX, y + 49, section === 'HOT' ? 67 : 86, 24, sectionStyle.bg, sectionStyle.fg, sectionStyle.border, 14);
+
       const oldPart = String(old?.part || '').toUpperCase();
       const newPart = String(r.part || '').toUpperCase();
-      const partLabel = old && oldPart !== newPart ? `${oldPart} → ${newPart}` : newPart;
-      const partW = old && oldPart !== newPart ? 200 : 78;
-      drawPill(partLabel, textX + 78, y + 51, partW, 24, '#9f25bd', '#fff', null, 15);
-      const detailX = textX + 88 + partW;
-      c.fillStyle = '#cbd5e1'; c.font = '700 18px sans-serif';
-      c.textAlign = 'left'; c.fillText(`Lv ${Number(r.level || 0).toFixed(2)}  ${Number(r.achievement_rate || 0).toFixed(2)}%`, detailX, y + 63);
+      const partChanged = Boolean(old && oldPart && oldPart !== newPart);
+      let cursorX = textX + (section === 'HOT' ? 77 : 96);
+      if (partChanged) {
+        drawPill(oldPart, cursorX, y + 49, 78, 24, previousPartPalette[0], previousPartPalette[1], previousPartPalette[2], 14);
+        cursorX += 88;
+        c.fillStyle = '#94a3b8';
+        c.font = '900 18px sans-serif';
+        c.textAlign = 'center';
+        c.fillText('→', cursorX + 10, y + 61);
+        cursorX += 22;
+        drawPill(newPart, cursorX, y + 49, 78, 24, currentPartPalette[0], currentPartPalette[1], currentPartPalette[2], 14);
+        cursorX += 88;
+      } else {
+        drawPill(newPart, cursorX, y + 49, 78, 24, currentPartPalette[0], currentPartPalette[1], currentPartPalette[2], 14);
+        cursorX += 88;
+      }
+
+      c.fillStyle = valueColor;
+      c.font = '700 18px sans-serif';
+      c.textAlign = 'left';
+      const metaY = y + 61;
+      c.fillText(`Lv ${Number(r.level || 0).toFixed(2)}`, cursorX, metaY);
+      const levelBlockW = Math.ceil(c.measureText('Lv 9.99').width) + 22;
+      c.fillText(`${Number(r.achievement_rate || 0).toFixed(2)}%`, cursorX + levelBlockW, metaY);
+
+      const type = Number(r.achievement_rate) === 100 ? 'EXC' : String(r.fc || '').toUpperCase() === 'FC' ? 'FC' : '';
+      const rateBlockW = Math.ceil(c.measureText('100.00%').width) + 24;
+      drawMedal(type, cursorX + levelBlockW + rateBlockW + 14, metaY);
+      const option = String(r.play_option || 'NORMAL').toUpperCase();
+      const optLabel = option === 'BASS_MIRROR' ? 'B-MIR' : option;
+      const visibleOption = newPart.endsWith('-D') ? option === 'BASS_MIRROR' : option !== 'NORMAL';
+      const optPalette = {
+        'RAN':['#153326','#86efac','#15803d'], 'RAN+':['#123340','#67e8f9','#0369a1'],
+        'SRA':['#302017','#fdba74','#c2410c'], 'SRA+':['#361b29','#fecdd3','#be123c'],
+        'BASS_MIRROR':['#302044','#c4b5fd','#7c3aed']
+      };
+      if (visibleOption) {
+        const palette = optPalette[option] || ['#1e293b','#cbd5e1','#475569'];
+        drawPill(optLabel, cursorX + levelBlockW + rateBlockW + 34, y + 49, 58, 24, ...palette, 13);
+      }
+
       if (old) {
         const rateChange = Number(r.achievement_rate || 0) - Number(old.achievement_rate || 0);
         if (Math.abs(rateChange) >= .005) {
           c.fillStyle = rateChange > 0 ? '#86efac' : '#fca5a5';
           c.font = '800 17px sans-serif';
-          c.fillText(`${rateChange > 0 ? '+' : ''}${rateChange.toFixed(2)}%`, detailX, y + 88);
+          c.textAlign = 'left';
+          c.fillText(`${rateChange > 0 ? '+' : ''}${rateChange.toFixed(2)}%`, cursorX + levelBlockW, y + 86);
         }
       }
-      // Fixed two-line right cell: current skill is always on the upper line;
-      // the delta or NEW marker always occupies the lower line.
-      c.fillStyle = '#0b1424'; c.fillRect(skillX, y + 8, skillW, 88);
+
+      c.fillStyle = '#0b1424';
+      c.fillRect(skillX, y + 8, skillW, 88);
       const paint = getSkillColorRowByTotalValue(skill * 50);
       for (const bx of [skillX, skillX + skillW - 5]) {
-        c.fillStyle = skillColorCanvasVerticalPaint(c, paint, bx, y + 8, 5, 88);
+        c.fillStyle = skillColorCanvasShareTextPaint(c, paint, bx, y + 8, 5, 88);
         c.fillRect(bx, y + 8, 5, 88);
       }
-      c.textAlign = 'center'; c.textBaseline = 'middle';
-      c.fillStyle = '#f8fafc'; c.font = '900 29px sans-serif';
-      c.fillText(skill.toFixed(2), skillX + skillW/2, y + 38);
+      c.textAlign = 'center';
+      c.textBaseline = 'middle';
+      c.fillStyle = '#f8fafc';
+      c.font = '900 29px sans-serif';
+      c.fillText(skill.toFixed(2), skillX + skillW / 2, y + 38);
       c.font = '900 19px sans-serif';
-      if (!old) { c.fillStyle = '#fdba74'; c.fillText('NEW', skillX + skillW/2, y + 72); }
-      else {
+      if (!old) {
+        c.fillStyle = '#fdba74';
+        c.fillText('NEW', skillX + skillW / 2, y + 72);
+      } else {
         const diff = skill - Number(old.skill || 0);
-        c.fillStyle = '#86efac';
-        c.fillText(`+${diff.toFixed(2)}`, skillX + skillW/2, y + 72);
+        c.fillStyle = diff >= 0 ? '#86efac' : '#fca5a5';
+        c.fillText(`${diff > 0 ? '+' : ''}${diff.toFixed(2)}`, skillX + skillW / 2, y + 72);
       }
     });
+
     if (!comparisonRows.length) {
-      c.fillStyle = '#cbd5e1'; c.font = '700 23px sans-serif';
-      c.textAlign = 'center'; c.textBaseline = 'middle';
+      c.fillStyle = '#cbd5e1';
+      c.font = '700 23px sans-serif';
+      c.textAlign = 'center';
+      c.textBaseline = 'middle';
       c.fillText('スキル値が上昇した曲・新規対象入りした曲はありません', W / 2, tableTop + 103);
     }
   } else {
