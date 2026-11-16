@@ -415,8 +415,6 @@ export async function renderAdminJacketSkillShareFile({
   const validSnapshot = snapshot && typeof snapshot === 'object' && !Array.isArray(snapshot) ? snapshot : null;
   const target = validSnapshot || currentTotals;
   const isComparison = Boolean(comparisonBaseline);
-  const rowH = isComparison ? 90 : 70;
-  const W = 1400;
   // Match exact charts first, then match a replaced part within the same
   // song. Consume baseline rows at most once; HOT/OTHER moves are not NEW.
   const songKey = row => normalizeSongTitleForMatch(String(row?.title || ''));
