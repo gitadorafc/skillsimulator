@@ -5,276 +5,279 @@ import {
   drawSkillColorCanvasSparkle,
   drawShareTotalSparkles
 } from './skill-colors.js?v=4_14_33';
-import { formatSkillHistoryDate } from './skill-history.js?v=4_14_45';
 import { normalizeSongTitleForMatch } from './songs.js?v=4_15_6';
 
-export async function renderSkillShareFile({
-  instrument,
-  snapshot = null,
-  comparisonBaseline = null,
-  currentTotals,
-  currentVersionName = '',
-  username = ''
-}) {
-  // Array.mapのコールバックとして渡された場合のindexなどを、
-  // 履歴スナップショットとして誤認しない。
-  const validSnapshot = snapshot && typeof snapshot === 'object' && !Array.isArray(snapshot)
-    ? snapshot
-    : null;
-  const target = validSnapshot || currentTotals;
-  const rowsHot = target.hotRows || [];
-  const rowsOther = target.otherRows || [];
-  const isComparison = Boolean(comparisonBaseline);
-  // スマホで見やすいよう、HOT / OTHER を左右2カラムに戻す。
-  // 背景はダークのまま維持。
-  const W = 1400;
-  const H = isComparison ? 2200 : 2000;
-  const c = document.createElement('canvas');
-  c.width = W;
-  c.height = H;
-  const x = c.getContext('2d');
+// Keep the public and admin entry points separate. The admin-only jacket
+// treatment must never alter ordinary users' exported skill images.
+const number = value => Number(value) || 0;
+const fixed = value => number(value).toFixed(2);
+const rows = (source, key, legacy) => Array.isArray(source?.[key]) ? source[key]
+  : Array.isArray(source?.[legacy]) ? source[legacy] : [];
+const rankPaint = (ctx, value, left, top, width, height) =>
+  skillColorCanvasShareTextPaint(ctx, getSkillColorRowByTotalValue(value), left, top, width, height);
 
-  const totalPaint = (value, left, top, width, height) =>
-    skillColorCanvasShareTextPaint(x, getSkillColorRowByTotalValue(value), left, top, width, height);
-  // 共有画像の外枠も画面上の登録曲一覧と同じスキルカラーを使う。
-  // CanvasのstrokeStyleにはCanvasGradientを直接渡せるため、
-  // RAINBOW等を代表色1色へ潰さず、そのままグラデーション枠として描画する。
-  const songBorderPaint = (value, left, top, width, height) =>
-    skillColorCanvasVerticalPaint(
-      x,
-      getSkillColorRowByTotalValue((Number(value) || 0) * 50),
-      left,
-      top,
-      width,
-      height
-    );
+function pill(ctx, text, x, y, w, h, bg, fg = '#fff', border = bg, font = 15) {
+  ctx.save();
+  ctx.fillStyle = bg;
+  ctx.strokeStyle = border;
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.roundRect(x, y, w, h, 5);
+  ctx.fill();
+  ctx.stroke();
+  ctx.font = `900 ${font}px sans-serif`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillStyle = fg;
+  ctx.fillText(text, x + w / 2, y + h / 2, w - 7);
+  ctx.restore();
+}
+function fitted(ctx, title, width, font) {
+  ctx.font = font;
+  const original = String(title || '');
+  if (ctx.measureText(original).width <= width) return original;
+  let value = original;
+  while (value.length > 1 && ctx.measureText(`${value}…`).width > width) value = value.slice(0, -1);
+  return `${value}…`;
+}
+const partColor = part => {
+  const p = String(part || '').toUpperCase();
+  if (p.startsWith('MAS')) return ['#b824d4', '#fff'];
+  if (p.startsWith('EXT')) return ['#f43f46', '#fff'];
+  if (p.startsWith('ADV')) return ['#eab308', '#101827'];
+  return ['#3b9ff2', '#fff'];
+};
+const sectionColor = section => section === 'HOT'
+  ? {bg:'#e94b88', fg:'#0b1020', border:'#be185d'}
+  : {bg:'#83c63d', fg:'#0b1020', border:'#5f9423'};
+const optionColor = option => ({
+  RAN:['#153326','#86efac','#15803d'], 'RAN+':['#123340','#67e8f9','#0369a1'],
+  SRA:['#302017','#fdba74','#c2410c'], 'SRA+':['#361b29','#fecdd3','#be123c'],
+  BASS_MIRROR:['#302044','#c4b5fd','#7c3aed']
+})[option] || ['#1e293b','#cbd5e1','#475569'];
 
-  // background
-  x.fillStyle = '#07101d';
-  x.fillRect(0, 0, W, H);
-  x.fillStyle = '#0f1a2d';
-  x.fillRect(28, 28, W - 56, H - 56);
-
-  // header: 以前のシンプルなレイアウトに戻す
-  x.fillStyle = '#f8fafc';
-  x.font = '900 42px sans-serif';
-  const shareGameTitle = instrument === 'GF'
-    ? 'GITADORA GuitarFreaks Skill'
-    : 'GITADORA DrumMania Skill';
-  x.fillText(shareGameTitle, 54, 82);
-
-  x.fillStyle = '#94a3b8';
-  x.font = '700 24px sans-serif';
-  x.fillText(validSnapshot?.versionName || currentVersionName, 54, 118);
-
-  // ユーザー名 + TOTALスキルを横並び。
-  // 旧ユーザー名(22px)と旧TOTAL(68px)の中間程度として42pxに統一。
-  // 両方ともTOTALスキルカラーに準拠する。
-  const shareUsername = String(validSnapshot?.username || username).trim();
-  const shareTotal = Number(target.total).toFixed(2);
-  const shareLineY = 174;
-  const shareFontSize = 42;
-  const shareGap = 28;
-
-  x.font = `900 ${shareFontSize}px sans-serif`;
-  x.textAlign = 'left';
-  x.textBaseline = 'alphabetic';
-
-  let shareNameText = shareUsername || 'USER';
-  const maxNameWidth = 700;
-  while (x.measureText(shareNameText).width > maxNameWidth && shareNameText.length > 2) {
-    shareNameText = shareNameText.slice(0, -1);
+async function loadJackets(allRows, getJacketUrls) {
+  const map = new Map();
+  if (typeof getJacketUrls !== 'function') return map;
+  const unique = [...new Set(allRows.map(r => String(r?.title || '')).filter(Boolean))];
+  await Promise.all(unique.map(async title => {
+    const urls = getJacketUrls(title);
+    for (const url of Array.isArray(urls) ? urls : []) {
+      try {
+        const image = await new Promise((resolve, reject) => {
+          const img = new Image();
+          img.crossOrigin = 'anonymous';
+          img.onload = () => resolve(img);
+          img.onerror = reject;
+          img.src = url;
+        });
+        map.set(normalizeSongTitleForMatch(title), image);
+        break;
+      } catch (_) { /* Fall back to another image or the placeholder. */ }
+    }
+  }));
+  return map;
+}
+function drawJacket(ctx, image, x, y, size) {
+  ctx.fillStyle = '#263953';
+  ctx.fillRect(x, y, size, size);
+  if (!image) {
+    ctx.fillStyle = '#8396b0';
+    ctx.font = `900 ${Math.round(size / 2)}px sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('♫', x + size/2, y + size/2);
+    return;
   }
-  if (shareNameText !== (shareUsername || 'USER')) {
-    shareNameText = shareNameText.slice(0, -1) + '…';
+  const w = image.naturalWidth || image.width;
+  const h = image.naturalHeight || image.height;
+  const square = Math.min(w,h);
+  ctx.save();
+  ctx.beginPath();
+  ctx.roundRect(x,y,size,size,5);
+  ctx.clip();
+  ctx.drawImage(image, (w-square)/2,(h-square)/2,square,square,x,y,size,size);
+  ctx.restore();
+}
+function drawSkill(ctx, value, x, y, w, h, compare = false) {
+  const skill = number(value);
+  const rank = getSkillColorRowByTotalValue(skill * 50);
+  ctx.fillStyle = '#0b1424';
+  ctx.fillRect(x,y,w,h);
+  for (const bx of [x, x+w-5]) {
+    ctx.fillStyle = rankPaint(ctx, skill*50, bx, y, 5,h);
+    ctx.fillRect(bx,y,5,h);
   }
+  ctx.textAlign = 'right';
+  ctx.textBaseline = 'middle';
+  ctx.font = `900 ${compare ? 19 : 22}px sans-serif`;
+  ctx.fillStyle = '#f8fafc';
+  ctx.fillText(fixed(skill),x+w-11,y+h/2);
+  if (rank.rank === 'sparkle-rainbow') {
+    drawSkillColorCanvasSparkle(ctx,x+4,y+7,2.8,'#ffffff');
+    drawSkillColorCanvasSparkle(ctx,x+w-4,y+h-7,2.8,'#fff7c2');
+  }
+}
+function drawDetail(ctx, record, x, y, maxX, compact = false) {
+  if (!record) {
+    ctx.fillStyle = '#94a3b8';
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'middle';
+    ctx.font = '700 17px sans-serif';
+    ctx.fillText('対象外',x,y+12);
+    return;
+  }
+  const part = String(record.part || '').toUpperCase();
+  const opt = String(record.play_option || 'NORMAL').toUpperCase();
+  const [partBg,partFg] = partColor(part);
+  const badgeW = compact ? 62 : 72;
+  pill(ctx,part,x,y,badgeW,24,partBg,partFg,partBg,13);
+  ctx.fillStyle='#dbe6f3';
+  ctx.font=`800 ${compact ? 16 : 18}px sans-serif`;
+  ctx.textBaseline='middle';
+  ctx.textAlign='left';
+  let at=x+badgeW+10;
+  ctx.fillText(fixed(record.level),at,y+12);
+  at+=compact?53:63;
+  ctx.fillText(`${fixed(record.achievement_rate)}%`,at,y+12);
+  at+=compact?80:95;
+  const medal = number(record.achievement_rate)>=100 ? 'EXC' : String(record.fc||'').toUpperCase()==='FC'?'FC':'';
+  if (medal) {
+    pill(ctx,medal,at,y+1,compact?43:48,22,medal==='EXC'?'#f6ce54':'#374d76',medal==='EXC'?'#1c2334':'#fff',undefined,12);
+  }
+  at+=compact?50:58;
+  if (opt !== 'NORMAL' && (part.endsWith('-D') ? opt==='BASS_MIRROR' : true) && at+51 <= maxX) {
+    pill(ctx,opt==='BASS_MIRROR'?'B-MIR':opt,at,y+1,51,22,...optionColor(opt),12);
+  }
+}
 
-  const nameWidth = x.measureText(shareNameText).width;
-  const totalX = 54 + nameWidth + shareGap;
-  const totalWidth = x.measureText(shareTotal).width;
-
-  // ユーザー名とTOTALスキルは、それぞれの文字幅で独立して
-  // 同じスキルカラーのグラデーションを描画する。
-  x.fillStyle = totalPaint(target.total, 54, 132, nameWidth, 52);
-  x.fillText(shareNameText, 54, shareLineY);
-  x.fillStyle = totalPaint(target.total, totalX, 132, totalWidth, 52);
-  x.fillText(shareTotal, totalX, shareLineY);
-
-  drawShareTotalSparkles(
-    x,
-    getSkillColorRowByTotalValue(target.total),
-    54,
-    nameWidth,
-    totalX,
-    totalWidth,
-    132,
-    52
-  );
-
-  x.fillStyle = '#94a3b8';
-  x.font = '800 26px sans-serif';
-  x.fillText(`HOT ${Number(target.hot).toFixed(2)}   OTHER ${Number(target.other).toFixed(2)}`,54,220);
-  if (isComparison) {
-    c.fillStyle = '#243248';
-    c.fillRect(54, tableTop, W - 108, 44);
-    c.fillStyle = '#f8fafc';
-    c.font = '900 23px sans-serif';
-    c.textAlign = 'left';
-    c.textBaseline = 'middle';
-    c.fillText(`スキル更新曲  ${comparisonRows.length}曲`, 70, tableTop + 22);
-
-    const left = 54;
-    const width = W - 108;
-    const rightAreaW = 184;
-    const skillCellW = 118;
-    const skillX = left + width - rightAreaW - 18;
-    const deltaX = skillX + skillCellW + 8;
-    const contentX = left + 110;
-    const artSize = 72;
-    const detailLabelWidth = 58;
-    const detailGap = 12;
-    const sectionPalette = {
-      HOT: {bg: '#e94b88', fg: '#0b1020', border: '#be185d'},
-      OTHER: {bg: '#83c63d', fg: '#0b1020', border: '#5f9423'}
-    };
-    const partPalette = part => {
-      if (part.startsWith('MAS')) return ['#bb20c9', '#fff'];
-      if (part.startsWith('EXT')) return ['#f43f46', '#fff'];
-      if (part.startsWith('ADV')) return ['#eab308', '#0b1020'];
-      return ['#3b9ff2', '#fff'];
-    };
-    const optPalette = {
-      'RAN':['#153326','#86efac','#15803d'], 'RAN+':['#123340','#67e8f9','#0369a1'],
-      'SRA':['#302017','#fdba74','#c2410c'], 'SRA+':['#361b29','#fecdd3','#be123c'],
-      'BASS_MIRROR':['#302044','#c4b5fd','#7c3aed']
-    };
-    const drawComparisonSkillCell = (record, leftX, topY, currentRecord = null) => {
-      if (!record) return;
-      const skill = Number(record.skill || 0);
-      const paint = getSkillColorRowByTotalValue(skill * 50);
-      c.fillStyle = '#0b1424';
-      c.fillRect(leftX, topY, skillCellW, 28);
-      for (const bx of [leftX, leftX + skillCellW - 5]) {
-        c.fillStyle = skillColorCanvasShareTextPaint(c, paint, bx, topY, 5, 28);
-        c.fillRect(bx, topY, 5, 28);
-      }
-      c.textAlign = 'right';
-      c.textBaseline = 'middle';
-      c.font = '900 22px sans-serif';
-      c.fillStyle = '#f8fafc';
-      c.fillText(skill.toFixed(2), leftX + skillCellW - 11, topY + 14);
-      if (paint.rank === 'sparkle-rainbow') {
-        drawSkillColorCanvasSparkle(c, leftX + 4, topY + 8, 2.8, '#ffffff');
-        drawSkillColorCanvasSparkle(c, leftX + skillCellW - 4, topY + 20, 2.8, '#fff7c2');
-      }
-      if (currentRecord === record) {
-        const previous = matches.get(record);
-        c.textAlign = 'left';
-        c.font = '900 17px sans-serif';
-        const diff = previous ? Number(record.skill || 0) - Number(previous.skill || 0) : null;
-        if (diff === null) {
-          c.fillStyle = '#fdba74';
-          c.fillText('NEW', deltaX, topY + 14);
-        } else if (Math.abs(diff) >= .005) {
-          c.fillStyle = diff > 0 ? '#60a5fa' : '#fca5a5';
-          c.fillText(`${diff > 0 ? '+' : ''}${diff.toFixed(2)}`, deltaX, topY + 14);
+async function render(data, admin = false) {
+  const {
+    instrument, snapshot = null, comparisonBaseline = null, currentTotals,
+    currentVersionName = '', username = '', getJacketUrls
+  } = data;
+  const validSnapshot = snapshot && typeof snapshot === 'object' && !Array.isArray(snapshot) ? snapshot : null;
+  const target = validSnapshot || currentTotals || {};
+  const hot = rows(target,'hotRows','hot_rows');
+  const other = rows(target,'otherRows','other_rows');
+  const comparing = !!comparisonBaseline;
+  const previousHot = rows(comparisonBaseline,'hotRows','hot_rows');
+  const previousOther = rows(comparisonBaseline,'otherRows','other_rows');
+  const entries = [...hot.map(row=>({row,section:'HOT'})),...other.map(row=>({row,section:'OTHER'}))];
+  const prior = new Map([...previousHot,...previousOther].map(row=>[`${normalizeSongTitleForMatch(row.title)}|${row.part}`,row]));
+  const comparisonEntries = entries.filter(({row})=> {
+    const p = prior.get(`${normalizeSongTitleForMatch(row.title)}|${row.part}`);
+    return !p || number(row.skill)>number(p.skill)+0.004;
+  });
+  const W=1400;
+  const tableY=270;
+  const cardH=admin?88:62;
+  const compareH=admin?128:103;
+  const lineH=comparing?compareH:cardH;
+  const gapY=admin?6:4;
+  const contentRows=comparing?comparisonEntries.length:Math.max(hot.length,other.length);
+  const H=Math.max(comparing?650:950,tableY+74+contentRows*(lineH+gapY)+100);
+  const canvas=document.createElement('canvas');
+  canvas.width=W; canvas.height=H;
+  const ctx=canvas.getContext('2d');
+  if (!ctx) throw new Error('画像生成用のCanvasを取得できません。');
+  ctx.fillStyle='#07101d';ctx.fillRect(0,0,W,H);
+  ctx.fillStyle='#0f1a2d';ctx.fillRect(28,28,W-56,H-56);
+  ctx.fillStyle='#f8fafc';ctx.font='900 42px sans-serif';ctx.textAlign='left';ctx.textBaseline='alphabetic';
+  ctx.fillText(instrument==='GF'?'GITADORA GuitarFreaks Skill':'GITADORA DrumMania Skill',54,82);
+  ctx.fillStyle='#94a3b8';ctx.font='700 24px sans-serif';
+  ctx.fillText(validSnapshot?.versionName||currentVersionName,54,118);
+  const name=String(validSnapshot?.username||username).trim()||'USER';
+  const nameFont='900 42px sans-serif';
+  const displayName=fitted(ctx,name,700,nameFont);
+  const nameW=ctx.measureText(displayName).width;
+  const total=fixed(target.total);
+  const totalX=54+nameW+28;
+  const totalW=ctx.measureText(total).width;
+  ctx.fillStyle=rankPaint(ctx,target.total,54,132,nameW,52);
+  ctx.fillText(displayName,54,174);
+  ctx.fillStyle=rankPaint(ctx,target.total,totalX,132,totalW,52);
+  ctx.fillText(total,totalX,174);
+  drawShareTotalSparkles(ctx,getSkillColorRowByTotalValue(target.total),54,nameW,totalX,totalW,132,52);
+  ctx.fillStyle='#94a3b8';ctx.font='800 26px sans-serif';
+  ctx.fillText(`HOT ${fixed(target.hot)}   OTHER ${fixed(target.other)}`,54,220);
+  const jackets = admin ? await loadJackets((comparing?comparisonEntries:entries).map(x=>x.row),getJacketUrls) : new Map();
+  const getImage = r => jackets.get(normalizeSongTitleForMatch(r?.title));
+  if (comparing) {
+    ctx.fillStyle='#253449';ctx.fillRect(54,tableY,W-108,45);
+    ctx.fillStyle='#f8fafc';ctx.font='900 23px sans-serif';ctx.textBaseline='middle';
+    ctx.fillText(`スキル更新曲  ${comparisonEntries.length}曲`,70,tableY+23);
+    comparisonEntries.forEach(({row,section},index)=>{
+      const x=54,y=tableY+53+index*(compareH+gapY),w=W-108;
+      const priorRow=prior.get(`${normalizeSongTitleForMatch(row.title)}|${row.part}`);
+      ctx.fillStyle=index%2?'#0e192a':'#142137';ctx.fillRect(x,y,w,compareH);
+      ctx.strokeStyle='#60758e';ctx.lineWidth=2;ctx.strokeRect(x+1,y+1,w-2,compareH-2);
+      const contentX=x+(admin?110:17);
+      if(admin) drawJacket(ctx,getImage(row),x+13,y+24,76);
+      const title=fitted(ctx,row.title,795,'900 23px sans-serif');
+      ctx.fillStyle='#f8fafc';ctx.font='900 23px sans-serif';ctx.textBaseline='middle';ctx.textAlign='left';
+      ctx.fillText(title,contentX,y+21);
+      const badgeX=Math.min(contentX+ctx.measureText(title).width+13,x+w-270);
+      const sc=sectionColor(section);
+      pill(ctx,section,badgeX,y+9,73,23,sc.bg,sc.fg,sc.border,13);
+      const skillX=x+w-205;
+      ctx.font='900 17px sans-serif';ctx.fillStyle='#f8fafc';ctx.fillText('現在',contentX,y+53);
+      ctx.fillStyle='#9baec3';ctx.fillText('前回',contentX,y+86);
+      drawDetail(ctx,row,contentX+54,y+41,skillX-8,true);
+      drawDetail(ctx,priorRow,contentX+54,y+74,skillX-8,true);
+      drawSkill(ctx,row.skill,skillX,y+41,117,27,true);
+      if(priorRow) drawSkill(ctx,priorRow.skill,skillX,y+74,117,27,true);
+      ctx.font='900 16px sans-serif';ctx.textAlign='left';ctx.fillStyle='#fdba74';
+      if(!priorRow) ctx.fillText('NEW',skillX+126,y+55);
+      else {
+        const delta=number(row.skill)-number(priorRow.skill);
+        if(Math.abs(delta)>=.005) {
+          ctx.fillStyle=delta>0?'#60a5fa':'#fca5a5';
+          ctx.fillText(`${delta>0?'+':''}${delta.toFixed(2)}`,skillX+126,y+55);
         }
       }
-    };
-    const drawInfoLine = (record, topY, label, emphasized) => {
-      c.textAlign = 'left';
-      c.textBaseline = 'middle';
-      c.fillStyle = emphasized ? '#f8fafc' : '#94a3b8';
-      c.font = '900 18px sans-serif';
-      c.fillText(label, contentX, topY + 11);
-      if (!record) {
-        c.font = '700 18px sans-serif';
-        c.fillText('対象外', contentX + detailLabelWidth + 4, topY + 11);
-        return;
-      }
-      const part = String(record.part || '').toUpperCase();
-      let xx = contentX + detailLabelWidth + 4;
-      drawPill(part, xx, topY, 72, 22, ...partPalette(part), null, 13);
-      xx += 72 + detailGap;
-      c.fillStyle = emphasized ? '#e2e8f0' : '#a9b6c8';
-      c.font = '800 18px sans-serif';
-      c.fillText(Number(record.level || 0).toFixed(2), xx, topY + 11);
-      xx += 58;
-      c.fillText(`${Number(record.achievement_rate || 0).toFixed(2)}%`, xx, topY + 11);
-      xx += 92;
-      const medal = Number(record.achievement_rate) === 100 ? 'EXC' : String(record.fc || '').toUpperCase() === 'FC' ? 'FC' : '';
-      if (medal) drawMedal(medal, xx + 12, topY + 11);
-      xx += 32;
-      const option = String(record.play_option || 'NORMAL').toUpperCase();
-      const visible = part.endsWith('-D') ? option === 'BASS_MIRROR' : option !== 'NORMAL';
-      if (visible) {
-        const palette = optPalette[option] || ['#1e293b','#cbd5e1','#475569'];
-        drawPill(option === 'BASS_MIRROR' ? 'B-MIR' : option, xx, topY, 60, 22, ...palette, 13);
-      }
-    };
-    comparisonRows.forEach(({row:r, section}, i) => {
-      const previous = matches.get(r);
-      const y = tableTop + 52 + i * (comparisonCardHeight + comparisonCardGap);
-      c.fillStyle = i % 2 ? '#0d1729' : '#111e31';
-      c.fillRect(left, y, width, comparisonCardHeight);
-      c.strokeStyle = '#667a92';
-      c.lineWidth = 2;
-      c.strokeRect(left + 1, y + 1, width - 2, comparisonCardHeight - 2);
-
-      const artX = left + 12;
-      const artY = y + 22;
-      c.fillStyle = '#23354d';
-      c.fillRect(artX, artY, artSize, artSize);
-      const img = jacketMap.get(String(r.title || ''));
-      if (img) {
-        const iw = img.naturalWidth || img.width;
-        const ih = img.naturalHeight || img.height;
-        const size = Math.min(iw, ih);
-        c.save();
-        c.beginPath();
-        c.roundRect(artX, artY, artSize, artSize, 4);
-        c.clip();
-        c.drawImage(img, (iw - size) / 2, (ih - size) / 2, size, size, artX, artY, artSize, artSize);
-        c.restore();
-      }
-
-      c.fillStyle = '#f8fafc';
-      c.font = '900 23px sans-serif';
-      c.textAlign = 'left';
-      c.textBaseline = 'middle';
-      const titleMaxW = skillX - contentX - 106;
-      const titleText = fitText(r.title, titleMaxW, '900 23px sans-serif');
-      c.fillText(titleText, contentX, y + 23);
-      const titleWidth = c.measureText(titleText).width;
-      const palette = sectionPalette[section] || sectionPalette.HOT;
-      const badgeX = Math.min(contentX + titleWidth + 14, skillX - 84);
-      drawPill(section, badgeX, y + 11, 74, 22, palette.bg, palette.fg, palette.border, 13);
-
-      drawInfoLine(r, y + 42, '現在', true);
-      drawInfoLine(previous, y + 74, '前回', false);
-      drawComparisonSkillCell(r, skillX, y + 39, r);
-      drawComparisonSkillCell(previous, skillX, y + 71);
     });
-
-    if (!comparisonRows.length) {
-      c.fillStyle = '#cbd5e1';
-      c.font = '700 23px sans-serif';
-      c.textAlign = 'center';
-      c.textBaseline = 'middle';
-      c.fillText('スキル値が上昇した曲・新規対象入りした曲はありません', W / 2, tableTop + 103);
-    }
+    if(!comparisonEntries.length){ctx.textAlign='center';ctx.font='700 23px sans-serif';ctx.fillStyle='#cbd5e1';ctx.fillText('スキル値が上昇した曲・新規対象入りした曲はありません',W/2,tableY+160);}
   } else {
-    drawTable('HOT TOP 25', hotRows, 54, '#e94b88');
-    drawTable('OTHER TOP 25', otherRows, 54 + colW + gap, '#83c63d');
+    const colW=630, colGap=32;
+    const drawColumn=(section,list,x)=>{
+      const sc=sectionColor(section);
+      ctx.fillStyle=sc.bg;ctx.fillRect(x,tableY,colW,46);
+      ctx.fillStyle=sc.fg;ctx.font='900 25px sans-serif';ctx.textAlign='left';ctx.textBaseline='middle';
+      ctx.fillText(`${section} TOP 25`,x+16,tableY+23);
+      list.forEach((row,index)=>{
+        const y=tableY+53+index*(cardH+gapY);
+        ctx.fillStyle=index%2?'#0d1729':'#152238';ctx.fillRect(x,y,colW,cardH);
+        ctx.strokeStyle=skillColorCanvasVerticalPaint(ctx,getSkillColorRowByTotalValue(number(row.skill)*50),x,y,colW,cardH);
+        ctx.lineWidth=1.5;ctx.strokeRect(x+1,y+1,colW-2,cardH-2);
+        ctx.fillStyle='#9baec3';ctx.font='800 18px sans-serif';ctx.textAlign='left';ctx.textBaseline='middle';
+        ctx.fillText(String(index+1).padStart(2,'0'),x+10,y+19);
+        const artSize=admin?62:0;
+        const titleX=x+(admin?99:45);
+        if(admin) drawJacket(ctx,getImage(row),x+31,y+11,artSize);
+        const title=fitted(ctx,row.title,colW-(titleX-x)-125,'900 19px sans-serif');
+        ctx.font='900 19px sans-serif';ctx.fillStyle='#f8fafc';ctx.fillText(title,titleX,y+(admin?24:18));
+        drawDetail(ctx,row,titleX,y+(admin?47:31),x+colW-112,true);
+        drawSkill(ctx,row.skill,x+colW-113,y+(admin?34:17),103,28);
+      });
+    };
+    drawColumn('HOT',hot,54);
+    drawColumn('OTHER',other,54+colW+colGap);
   }
-  c.fillStyle = '#0b1424'; c.fillRect(54, H - 62, W - 108, 30);
-  c.fillStyle = '#94a3b8'; c.font = '700 24px sans-serif'; c.textAlign = 'left'; c.textBaseline = 'alphabetic';
-  c.fillText('GITADORA Skill Simulator', 64, H - 41);
-  c.textAlign = 'right';
-  c.fillText(new Date(validSnapshot?.savedAt || Date.now()).toLocaleDateString('ja-JP'), W - 64, H - 41);
+  ctx.fillStyle='#0b1424';ctx.fillRect(54,H-63,W-108,32);
+  ctx.fillStyle='#94a3b8';ctx.font='700 23px sans-serif';ctx.textBaseline='middle';ctx.textAlign='left';
+  ctx.fillText('GITADORA Skill Simulator',64,H-47);
+  ctx.textAlign='right';
+  const date=new Date(validSnapshot?.savedAt||Date.now());
+  ctx.fillText(Number.isNaN(date.getTime())?'':date.toLocaleDateString('ja-JP'),W-64,H-47);
+  const blob=await new Promise((resolve,reject)=>canvas.toBlob(result=>result?resolve(result):reject(new Error('共有画像の生成に失敗しました。')),'image/png'));
+  return new File([blob],`GITADORA_${instrument}_skill.png`,{type:'image/png'});
+}
 
-  const blob = await new Promise((resolve, reject) => {
-    canvas.toBlob(result => result ? resolve(result) : reject(new Error('共有画像の生成に失敗しました。')), 'image/png');
-  });
-  return new File([blob], `GITADORA_${instrument}_skill.png`, {type:'image/png'});
+export async function renderSkillShareFile(data) {
+  return render(data,false);
+}
+
+export async function renderAdminJacketSkillShareFile(data) {
+  return render(data,true);
 }
