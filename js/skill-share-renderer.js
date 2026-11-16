@@ -279,5 +279,136 @@ export async function renderSkillShareFile(data) {
 }
 
 export async function renderAdminJacketSkillShareFile(data) {
-  return render(data,true);
+  return renderAdminLegacy(data);
+}
+
+// Admin-specific legacy layout. Keep this drawing pipeline independent of the
+// ordinary user's share image; its geometry follows the pre-4.40.89 exports.
+async function renderAdminLegacy(data) {
+  const {instrument,snapshot=null,comparisonBaseline=null,currentTotals,currentVersionName='',username='',getJacketUrls,getMedalSvg} = data;
+  const snap = snapshot && typeof snapshot === 'object' && !Array.isArray(snapshot) ? snapshot : null;
+  const target = snap || currentTotals || {};
+  const hot = rows(target,'hotRows','hot_rows');
+  const other = rows(target,'otherRows','other_rows');
+  const comparing = Boolean(comparisonBaseline);
+  const priorRows = [...rows(comparisonBaseline,'hotRows','hot_rows'),...rows(comparisonBaseline,'otherRows','other_rows')];
+  const key = r => `${normalizeSongTitleForMatch(r?.title)}|${r?.part||''}`;
+  const prior = new Map(priorRows.map(r=>[key(r),r]));
+  const all = [...hot.map(row=>({row,section:'HOT'})),...other.map(row=>({row,section:'OTHER'}))];
+  const updated = all.filter(({row})=>{const p=prior.get(key(row));return !p || number(row.skill)>number(p.skill)+0.004;})
+    .sort((a,b)=>(a.section==='OTHER'?0:1)-(b.section==='OTHER'?0:1) || number(b.row.skill)-number(a.row.skill));
+  // Use the original export dimensions (1400 logical units, PNG at 1.5x).
+  const W=1400, H=comparing?Math.max(1268,540+updated.length*150):2180, scale=1.5;
+  const canvas=document.createElement('canvas');canvas.width=Math.round(W*scale);canvas.height=Math.round(H*scale);
+  const ctx=canvas.getContext('2d');if(!ctx)throw new Error('Canvasの取得に失敗しました。');
+  ctx.scale(scale,scale);
+  ctx.fillStyle='#07101d';ctx.fillRect(0,0,W,H);
+  ctx.fillStyle='#0f1a2d';ctx.fillRect(28,28,W-56,H-56);
+  ctx.textAlign='left';ctx.textBaseline='alphabetic';ctx.fillStyle='#f8fafc';ctx.font='900 42px sans-serif';
+  ctx.fillText(instrument==='GF'?'GITADORA GuitarFreaks Skill':'GITADORA DrumMania Skill',54,82);
+  ctx.fillStyle='#94a3b8';ctx.font='700 24px sans-serif';ctx.fillText(snap?.versionName||currentVersionName,54,118);
+  const uname=String(snap?.username||username).trim()||'USER';
+  const display=fitted(ctx,uname,700,'900 42px sans-serif');
+  const nw=ctx.measureText(display).width, skill=fixed(target.total), sx=54+nw+28, sw=ctx.measureText(skill).width;
+  ctx.fillStyle=rankPaint(ctx,target.total,54,132,nw,52);ctx.fillText(display,54,174);
+  ctx.fillStyle=rankPaint(ctx,target.total,sx,132,sw,52);ctx.fillText(skill,sx,174);
+  drawShareTotalSparkles(ctx,getSkillColorRowByTotalValue(target.total),54,nw,sx,sw,132,52);
+  ctx.fillStyle='#94a3b8';ctx.font='800 26px sans-serif';ctx.fillText(`HOT ${fixed(target.hot)}   OTHER ${fixed(target.other)}`,54,220);
+  const jackets=await loadJackets([...all.map(v=>v.row),...priorRows],getJacketUrls);
+  const imageOf=r=>jackets.get(normalizeSongTitleForMatch(r?.title));
+  const medalCache=new Map();
+  if(typeof getMedalSvg==='function'){
+    for(const type of ['EXC','FC']){
+      try {
+        const svg=getMedalSvg(type);
+        const blob=new Blob([svg],{type:'image/svg+xml;charset=utf-8'}),url=URL.createObjectURL(blob);
+        try {const image=await new Promise((resolve,reject)=>{const im=new Image();im.onload=()=>resolve(im);im.onerror=reject;im.src=url;});medalCache.set(type,image);}finally{URL.revokeObjectURL(url);}
+      } catch (_) { /* Emoji fallback below */ }
+    }
+  }
+  const badge=(name,x,y,w,h,kind)=>{
+    const pal=kind==='HOT'?['#e94b88','#081221','#be185d']:kind==='OTHER'?['#83c63d','#081221','#659a25']:null;
+    if(pal)pill(ctx,name,x,y,w,h,...pal,13);
+  };
+  const medal=(record,x,y,size=26)=>{
+    const type=number(record?.achievement_rate)>=99.995?'EXC':String(record?.fc||'').toUpperCase()==='FC'?'FC':null;
+    if(!type)return;
+    const im=medalCache.get(type);
+    if(im)ctx.drawImage(im,x,y,size,size);
+    else {ctx.textAlign='center';ctx.font=`${size}px sans-serif`;ctx.textBaseline='middle';ctx.fillStyle='#f8ce54';ctx.fillText('🏅',x+size/2,y+size/2);ctx.textAlign='left';}
+  };
+  const detail=(record,x,y,allowMedal=true)=>{
+    if(!record){ctx.fillStyle='#94a3b8';ctx.font='700 18px sans-serif';ctx.fillText('—',x,y+18);return;}
+    const part=String(record.part||'').toUpperCase(),[pbg,pfg]=partColor(part);
+    pill(ctx,part,x,y,72,25,pbg,pfg,pbg,13);
+    ctx.textAlign='left';ctx.textBaseline='middle';ctx.fillStyle='#e2e8f0';ctx.font='800 18px sans-serif';
+    ctx.fillText(fixed(record.level),x+90,y+12);
+    ctx.fillText(`${fixed(record.achievement_rate)}%`,x+165,y+12);
+    if(allowMedal)medal(record,x+265,y,25);
+    const opt=String(record.play_option||'NORMAL').toUpperCase();
+    if(opt!=='NORMAL'&&(!part.endsWith('-D')||opt==='BASS_MIRROR'))pill(ctx,opt==='BASS_MIRROR'?'B-MIR':opt,x+303,y+1,61,23,...optionColor(opt),13);
+  };
+  const skillText=(value,x,y)=>{ctx.fillStyle='#f8fafc';ctx.font='900 23px sans-serif';ctx.textAlign='right';ctx.textBaseline='middle';ctx.fillText(fixed(value),x,y);};
+  if(comparing){
+    // The old image includes the two-row summary above the comparison list.
+    const tx=54,tw=W-108;
+    ctx.fillStyle='#18283e';ctx.fillRect(tx,238,tw,91);
+    const positions=[{x:74,t:'区分'},{x:244,t:'日時'},{x:623,t:'スキル値'},{x:809,t:'上昇値'}];
+    ctx.textBaseline='middle';ctx.textAlign='left';ctx.font='800 19px sans-serif';ctx.fillStyle='#94a3b8';
+    positions.forEach(p=>ctx.fillText(p.t,p.x,254));
+    const dateText=v=>{const dt=new Date(v||Date.now());if(Number.isNaN(dt.getTime()))return '—';return `${dt.getFullYear()}/${String(dt.getMonth()+1).padStart(2,'0')}/${String(dt.getDate()).padStart(2,'0')} ${String(dt.getHours()).padStart(2,'0')}:${String(dt.getMinutes()).padStart(2,'0')}`;};
+    ctx.fillStyle='#f8fafc';ctx.font='800 20px sans-serif';
+    ctx.fillText('現在',74,280);ctx.fillText('前回',74,309);
+    ctx.fillText(dateText(snap?.savedAt),244,280);ctx.fillText(dateText(comparisonBaseline?.savedAt),244,309);
+    ctx.fillText(fixed(target.total),623,280);ctx.fillText(fixed(comparisonBaseline?.total),623,309);
+    const totalDelta=number(target.total)-number(comparisonBaseline?.total);
+    ctx.fillStyle='#60a5fa';ctx.fillText(`${totalDelta>=0?'+':''}${fixed(totalDelta)}`,809,280);
+    ctx.fillStyle='#253449';ctx.fillRect(tx,346,tw,44);
+    ctx.fillStyle='#f8fafc';ctx.font='900 23px sans-serif';ctx.fillText(`スキル更新曲  ${updated.length}曲`,70,368);
+    const cH=144,gap=9,start=399;
+    updated.forEach(({row,section},index)=>{
+      const y=start+index*(cH+gap),x=tx,w=tw,pre=prior.get(key(row));
+      ctx.fillStyle=index%2?'#0d1729':'#142137';ctx.fillRect(x,y,w,cH);
+      ctx.strokeStyle='#63758f';ctx.lineWidth=2;ctx.strokeRect(x+1,y+1,w-2,cH-2);
+      drawJacket(ctx,imageOf(row),x+13,y+24,102);
+      const contentX=x+127, skillX=x+w-193;
+      ctx.fillStyle='#f8fafc';ctx.font='900 24px sans-serif';ctx.textAlign='left';ctx.textBaseline='middle';
+      ctx.fillText(fitted(ctx,row.title,630,'900 24px sans-serif'),contentX,y+28);
+      badge(section,x+w-347,y+13,78,25,section);
+      ctx.font='900 18px sans-serif';ctx.fillStyle='#f8fafc';ctx.fillText('現在',contentX,y+71);
+      ctx.fillStyle='#94a3b8';ctx.fillText('前回',contentX,y+112);
+      detail(row,contentX+70,y+57);detail(pre,contentX+70,y+98);
+      skillText(row.skill,x+w-112,y+71);
+      if(pre)skillText(pre.skill,x+w-112,y+112);
+      const delta=number(row.skill)-number(pre?.skill);
+      ctx.textAlign='left';ctx.font='900 18px sans-serif';ctx.fillStyle='#60a5fa';
+      ctx.fillText(pre?`${delta>=0?'+':''}${fixed(delta)}`:'NEW',x+w-78,y+71);
+    });
+  }else{
+    const top=240,colW=630,colGap=32,start=294,cardH=61,cardGap=4;
+    const drawColumn=(section,list,x)=>{
+      const color=sectionColor(section);
+      ctx.fillStyle=color.bg;ctx.fillRect(x,top,colW,42);
+      ctx.fillStyle=color.fg;ctx.font='900 23px sans-serif';ctx.textAlign='left';ctx.textBaseline='middle';ctx.fillText(`${section} TOP 25`,x+10,top+21);
+      list.forEach((row,index)=>{
+        const y=start+index*(cardH+cardGap);
+        ctx.fillStyle=index%2?'#0d1729':'#152238';ctx.fillRect(x,y,colW,cardH);
+        ctx.strokeStyle=skillColorCanvasVerticalPaint(ctx,getSkillColorRowByTotalValue(number(row.skill)*50),x,y,colW,cardH);
+        ctx.lineWidth=1.5;ctx.strokeRect(x+1,y+1,colW-2,cardH-2);
+        drawJacket(ctx,imageOf(row),x+6,y+5,51);
+        const titleX=x+65;
+        ctx.font='900 18px sans-serif';ctx.fillStyle='#f8fafc';ctx.textAlign='left';ctx.textBaseline='middle';
+        ctx.fillText(fitted(ctx,row.title,390,'900 18px sans-serif'),titleX,y+20);
+        detail(row,titleX,y+33);
+        drawSkill(ctx,row.skill,x+colW-106,y+15,96,32);
+      });
+    };
+    drawColumn('HOT',hot,54);drawColumn('OTHER',other,54+colW+colGap);
+  }
+  ctx.fillStyle='#0b1424';ctx.fillRect(54,H-63,W-108,32);
+  ctx.fillStyle='#94a3b8';ctx.font='700 23px sans-serif';ctx.textAlign='left';ctx.textBaseline='middle';
+  ctx.fillText('GITADORA Skill Simulator',64,H-47);ctx.textAlign='right';
+  const date=new Date(snap?.savedAt||Date.now());ctx.fillText(Number.isNaN(date.getTime())?'':date.toLocaleDateString('ja-JP'),W-64,H-47);
+  const blob=await new Promise((resolve,reject)=>canvas.toBlob(b=>b?resolve(b):reject(new Error('共有画像の生成に失敗しました。')),'image/png'));
+  return new File([blob],`GITADORA_${instrument}_skill.png`,{type:'image/png'});
 }
