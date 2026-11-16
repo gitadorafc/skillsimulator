@@ -3839,10 +3839,10 @@ function renderSkill() {
 
   $('viewSkill').innerHTML = `
     <div class="sk-section skill-hot-section"><h2>HOT Top25</h2><div class="list-container">
-      ${renderAdminRegisteredRecords(target.hotRows, 'SKILL')} || '<div class="empty-state">まだ登録がありません</div>'}
+      ${renderAdminRegisteredRecords(target.hotRows, 'SKILL') || '<div class="empty-state">まだ登録がありません</div>'}
     </div></div>
     <div class="sk-section skill-other-section"><h2>OTHER Top25</h2><div class="list-container">
-      ${renderAdminRegisteredRecords(target.otherRows, 'SKILL')} || '<div class="empty-state">まだ登録がありません</div>'}
+      ${renderAdminRegisteredRecords(target.otherRows, 'SKILL') || '<div class="empty-state">まだ登録がありません</div>'}
     </div></div>`;
 }
 
