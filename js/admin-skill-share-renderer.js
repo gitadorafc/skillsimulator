@@ -55,14 +55,14 @@ export async function renderAdminJacketSkillShareFile({
   const comparisonHotRows = comparisonRows.filter(entry => entry.section === 'HOT');
   const comparisonOtherRows = comparisonRows.filter(entry => entry.section === 'OTHER');
   const tableTop = isComparison ? 350 : 256;
-  const comparisonCardH = 118;
-  const comparisonCardGap = 10;
+  const comparisonCardH = 126;
+  const comparisonCardGap = 12;
   const comparisonSectionTop = tableTop + 52;
   const comparisonCardsTop = comparisonSectionTop + 44;
   const comparisonVisibleRows = Math.max(comparisonHotRows.length, comparisonOtherRows.length, 1);
   const comparisonCardsBottom = comparisonCardsTop + comparisonVisibleRows * comparisonCardH + Math.max(0, comparisonVisibleRows - 1) * comparisonCardGap;
   const H = isComparison ? Math.max(580, comparisonCardsBottom + 96) : 2180;
-  const W = isComparison ? 1160 : 1400;
+  const W = isComparison ? 1400 : 1400;
   const rowH = 70;
   // Export at higher pixel density so small jackets, labels and medal artwork
   // remain sharp when viewing the full saved PNG. Logical layout is unchanged.
@@ -149,12 +149,7 @@ export async function renderAdminJacketSkillShareFile({
     const change = total - base;
     const infoX = 54;
     const infoY = 239;
-    const infoW = W - 108;
-    c.fillStyle = '#15253a';
-    c.fillRect(infoX, infoY, infoW, 94);
 
-    // Advance by the widest *visible* value of each column rather than
-    // reserving wide fixed slots that leave a large hole after the date.
     const infoGap = 22;
     const infoCols = [
       { key: 'type', label: '区分', values: ['現在', '前回'] },
@@ -172,6 +167,9 @@ export async function renderAdminJacketSkillShareFile({
       const columnWidth = Math.max(valueWidth, c.measureText(col.label).width);
       cursor += Math.ceil(columnWidth) + (index < infoCols.length - 1 ? infoGap : 0);
     });
+    const infoW = (cursor - infoX) + 16;
+    c.fillStyle = '#15253a';
+    c.fillRect(infoX, infoY, infoW, 94);
 
     c.textBaseline = 'middle';
     c.textAlign = 'left';
@@ -408,17 +406,17 @@ export async function renderAdminJacketSkillShareFile({
       const jacketSize = 68;
       const titleX = left + 14 + jacketSize + 12;
       const detailLabelX = titleX;
-      const currentLineY = 68;
-      const previousLineY = 94;
-      const skillRight = left + columnWidth - 48;
-      const deltaX = skillRight + 16;
-      const decimalX = skillRight - 26;
-      const percentX = titleX + 248;
+      const currentLineY = 72;
+      const previousLineY = 100;
+      const skillRight = left + columnWidth - 88;
+      const deltaX = skillRight + 22;
+      const decimalX = skillRight - 24;
+      const percentX = titleX + 256;
       const partX = titleX + 64;
       const levelDecimalX = titleX + 188;
-      const medalX = titleX + 304;
-      const optionX = titleX + 332;
-      const titleMax = optionX - titleX - 16;
+      const medalX = titleX + 320;
+      const optionX = titleX + 350;
+      const titleMax = columnWidth - (titleX - left) - 20;
 
       const drawLine = (row, label, y, previousRow, isPrevious) => {
         c.textBaseline = 'middle';
@@ -461,7 +459,7 @@ export async function renderAdminJacketSkillShareFile({
         c.lineWidth = 2;
         c.strokeRect(left + 1, y + 1, columnWidth - 2, cardH - 2);
 
-        const jacketX = left + 14, jacketY = y + 14;
+        const jacketX = left + 14, jacketY = y + (cardH - jacketSize) / 2;
         c.fillStyle = '#23354d';
         c.fillRect(jacketX, jacketY, jacketSize, jacketSize);
         const img = jacketMap.get(String(row.title || ''));

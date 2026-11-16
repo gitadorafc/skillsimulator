@@ -3522,7 +3522,7 @@ async function createSkillShareFile(instrument, snapshot = null, comparisonBasel
     throw new Error('比較画像は管理者専用機能です。');
   }
   if (canUseAdminSkillComparison()) {
-    const { renderAdminJacketSkillShareFile } = await import('./admin-skill-share-renderer.js?v=4_40_97');
+    const { renderAdminJacketSkillShareFile } = await import('./admin-skill-share-renderer.js?v=4_40_98');
     await loadAdminRegisteredJackets(supabase);
     return renderAdminJacketSkillShareFile({...data, getJacketUrls:getAdminJacketUrls, getMedalSvg:bearMedal});
   }
