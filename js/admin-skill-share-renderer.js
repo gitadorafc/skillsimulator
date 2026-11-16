@@ -54,7 +54,7 @@ export async function renderAdminJacketSkillShareFile({
   const otherRows = (target.otherRows || []).slice(0, 25);
   const tableTop = isComparison ? 350 : 256;
   const H = isComparison ? Math.max(580, tableTop + 52 + Math.max(comparisonRows.length, 1) * 154 + 96) : 2180;
-  const W = 1400;
+  const W = isComparison ? 1160 : 1400;
   const rowH = 70;
   // Export at higher pixel density so small jackets, labels and medal artwork
   // remain sharp when viewing the full saved PNG. Logical layout is unchanged.
@@ -145,14 +145,14 @@ export async function renderAdminJacketSkillShareFile({
     c.fillStyle = '#15253a';
     c.fillRect(infoX, infoY, infoW, 94);
 
-    const infoGap = 34;
+    const infoGap = 22;
     const infoCols = [
-      { key: 'type',  label: '区分',      width: 120 },
-      { key: 'date',  label: '日時',      width: 310 },
-      { key: 'skill', label: 'スキル値',  width: 140 },
-      { key: 'delta', label: '上昇値',    width: 140 }
+      { key: 'type',  label: '区分',      width: 82 },
+      { key: 'date',  label: '日時',      width: 254 },
+      { key: 'skill', label: 'スキル値',  width: 118 },
+      { key: 'delta', label: '上昇値',    width: 118 }
     ];
-    let cursor = infoX + 18;
+    let cursor = infoX + 16;
     const colX = {};
     infoCols.forEach((col, index) => {
       colX[col.key] = cursor;
@@ -345,19 +345,36 @@ export async function renderAdminJacketSkillShareFile({
       'SRA+':['#361b29','#fecdd3','#be123c'],
       'BASS_MIRROR':['#302044','#c4b5fd','#7c3aed']
     };
-    const skillX = Math.min(left + width - 182, left + 708);
-    const skillNumberX = skillX + 96;
-    const diffX = skillX + 154;
-    const valueFont = '800 19px sans-serif';
-    const formatPart = part => String(part || '—').toUpperCase();
-    const detailBaseX = left + 126;
+
+    const jacketX = left + 13;
+    const jacketYInset = 20;
+    const jacketSize = 102;
+    const titleX = left + 126;
     const labelW = 50;
     const detailGap = 16;
     const partW = 78;
     const medalW = 26;
     const optionW = 63;
+    const skillW = 96;
+    const deltaW = 82;
+    const valueFont = '800 19px sans-serif';
     const levelSample = '9.95';
     const rateSample = '100.00%';
+    const formatPart = part => String(part || '—').toUpperCase();
+
+    const detailBaseX = titleX;
+    const partX = detailBaseX + labelW + detailGap;
+    c.font = valueFont;
+    const levelW = Math.ceil(c.measureText(levelSample).width);
+    const rateW = Math.ceil(c.measureText(rateSample).width);
+    const levelX = partX + partW + detailGap;
+    const rateX = levelX + levelW + detailGap;
+    const medalX = rateX + rateW + detailGap + medalW / 2;
+    const optionX = medalX + medalW / 2 + detailGap;
+    const skillValueRight = optionX + optionW + detailGap + skillW;
+    const diffX = skillValueRight + detailGap;
+    const skillBlockLeft = optionX + optionW + detailGap;
+
     const drawDetailLine = (row, label, baselineY, isPrevious, previousRow) => {
       c.textBaseline = 'middle';
       c.textAlign = 'left';
@@ -365,19 +382,12 @@ export async function renderAdminJacketSkillShareFile({
       c.font = '800 19px sans-serif';
       c.fillText(label, detailBaseX, baselineY);
       if (!row) {
-        c.fillText('—', detailBaseX + labelW + detailGap, baselineY);
+        c.fillText('—', partX, baselineY);
         return;
       }
       const part = formatPart(row.part);
-      const partX = detailBaseX + labelW + detailGap;
       drawPill(part, partX, baselineY - 13, partW, 26, ...partPalette(part), null, 14);
       c.font = valueFont;
-      const levelX = partX + partW + detailGap;
-      const levelW = Math.ceil(c.measureText(levelSample).width);
-      const rateX = levelX + levelW + detailGap;
-      const rateW = Math.ceil(c.measureText(rateSample).width);
-      const medalX = rateX + rateW + detailGap + medalW / 2;
-      const optionX = medalX + medalW / 2 + detailGap;
       c.fillStyle = isPrevious ? '#cbd5e1' : '#f8fafc';
       c.textAlign = 'left';
       c.fillText(Number(row.level || 0).toFixed(2), levelX, baselineY);
@@ -394,7 +404,7 @@ export async function renderAdminJacketSkillShareFile({
       c.fillStyle = isPrevious ? '#cbd5e1' : '#ffffff';
       c.font = '900 23px sans-serif';
       c.textAlign = 'right';
-      c.fillText(Number(row.skill || 0).toFixed(2), skillNumberX, baselineY);
+      c.fillText(Number(row.skill || 0).toFixed(2), skillValueRight, baselineY);
       c.textAlign = 'left';
       if (!isPrevious) {
         const delta = previousRow ? Number(row.skill || 0) - Number(previousRow.skill || 0) : null;
@@ -414,7 +424,7 @@ export async function renderAdminJacketSkillShareFile({
       c.lineWidth = 2;
       c.strokeRect(left + 1, y + 1, width - 2, cardHeight - 2);
 
-      const jacketX = left + 13, jacketY = y + 20, jacketSize = 102;
+      const jacketY = y + jacketYInset;
       c.fillStyle = '#23354d';
       c.fillRect(jacketX, jacketY, jacketSize, jacketSize);
       const img = jacketMap.get(String(row.title || ''));
@@ -426,21 +436,20 @@ export async function renderAdminJacketSkillShareFile({
         c.beginPath();
         c.roundRect(jacketX, jacketY, jacketSize, jacketSize, 4);
         c.clip();
-        c.drawImage(img, (iw - size) / 2, (ih - size) / 2, size, size,
-          jacketX, jacketY, jacketSize, jacketSize);
+        c.drawImage(img, (iw - size) / 2, (ih - size) / 2, size, size, jacketX, jacketY, jacketSize, jacketSize);
         c.restore();
       }
+
+      const marker = sectionPalette[section] || sectionPalette.HOT;
+      drawPill(section, jacketX + (jacketSize - 68) / 2, y + 6, 68, 22, marker.bg, marker.fg, marker.border, 12);
 
       c.fillStyle = '#f8fafc';
       c.textAlign = 'left';
       c.textBaseline = 'middle';
       c.font = '900 26px sans-serif';
-      const titleText = fitText(row.title, skillX - (left + 126) - 122, '900 26px sans-serif');
-      c.fillText(titleText, left + 126, y + 27);
-      const marker = sectionPalette[section] || sectionPalette.HOT;
-      const titleWidth = c.measureText(titleText).width;
-      const badgeX = Math.min(left + 126 + titleWidth + 14, skillX - 94);
-      drawPill(section, badgeX, y + 14, 77, 24, marker.bg, marker.fg, marker.border, 13);
+      const titleText = fitText(row.title, Math.max(160, skillBlockLeft - titleX - 18), '900 26px sans-serif');
+      c.fillText(titleText, titleX, y + 27);
+
       drawDetailLine(row, '現在', y + 73, false, previous);
       drawDetailLine(previous, '前回', y + 111, true, previous);
     });
