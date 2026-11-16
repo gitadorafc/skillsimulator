@@ -28,13 +28,12 @@ export function renderSkillHistoryRows(rows, getTotalSkillRank) {
   }
 
   return rows.map(row => `
-    <div class="skill-history-row has-compare">
+    <div class="skill-history-row">
       <div class="skill-history-summary">
         <span class="skill-history-date">${escapeHtml(formatSkillHistoryDate(row.saved_at))}</span>
         <strong class="skill-history-value score-rank-${getTotalSkillRank(row.total_skill)}">${Number(row.total_skill).toFixed(2)}</strong>
       </div>
       <button type="button" class="skill-history-display" data-open-skill-history="${escapeHtml(row.snapshot_id)}">表示</button>
-      <button type="button" class="skill-history-compare" data-compare-skill-history="${escapeHtml(row.snapshot_id)}">比較</button>
       <button type="button" class="skill-history-delete" data-delete-skill-history="${escapeHtml(row.snapshot_id)}">削除</button>
     </div>
   `).join('');

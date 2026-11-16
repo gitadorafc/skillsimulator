@@ -36,12 +36,12 @@ import {
   sortSkillRankingRows
 } from './ranking-renderer.js?v=4_14_43';
 import { shareGeneratedSkillFiles } from './skill-share.js?v=4_14_44';
-import { renderSkillShareFile, renderAdminJacketSkillShareFile } from './skill-share-renderer.js?v=4_40_92';
+import { renderSkillShareFile } from './skill-share-renderer.js?v=4_40_93';
 import {
   formatSkillHistoryDate,
   renderSkillHistoryRows,
   serializeSkillHistoryRow
-} from './skill-history.js?v=4_14_45';
+} from './skill-history.js?v=4_40_93';
 import {
   detectSkillSyncGuideBrowser,
   getSkillSyncVisualGuideMarkup
@@ -74,6 +74,7 @@ import {
 } from './official-skill-ranking.js?v=4_27_10';
 
 let adminEnabled = false;
+let renderAdminSkillHistoryRows = null;
 import { supabase } from './supabase.js?v=21_57';
 import { register, login, loginForAccountSwitch, logout, changePassword, getSession, validateUsername, isEmailLikeUsername } from './auth.js?v=4_36_9';
 import { initAuthCaptcha, prepareAuthCaptcha, getAuthCaptchaToken, resetAuthCaptcha } from './captcha.js?v=21_84';
@@ -2220,9 +2221,16 @@ function showSkillHistoryListView() {
   $('btnCloseSkillHistory').textContent = '戻る';
 }
 
+function canUseAdminSkillComparison() {
+  return adminEnabled && document.body.classList.contains('admin-new-ui') &&
+    $('headerUsername')?.textContent?.trim() === 'admin';
+}
+
 function renderSkillHistoryList() {
   const list = $('skillHistoryList');
-  list.innerHTML = renderSkillHistoryRows(skillHistoryRows, getTotalSkillRank);
+  list.innerHTML = canUseAdminSkillComparison() && renderAdminSkillHistoryRows
+    ? renderAdminSkillHistoryRows(skillHistoryRows, getTotalSkillRank)
+    : renderSkillHistoryRows(skillHistoryRows, getTotalSkillRank);
 }
 
 async function loadSkillHistory(reset = false) {
@@ -2444,6 +2452,7 @@ async function openSkillHistoryPreview(snapshotId) {
 }
 
 async function openSkillHistoryComparison(snapshotId) {
+  if (!canUseAdminSkillComparison()) return;
   const status = $('skillHistoryStatus');
   status.textContent = '現在のスキル対象と比較しています...';
   try {
@@ -3508,14 +3517,17 @@ async function createSkillShareFile(instrument, snapshot = null, comparisonBasel
     currentVersionName: activeVersion?.name || '',
     username: $('headerUsername')?.textContent || ''
   };
-  // The image redesign belongs to the named admin account only. Never change
-  // generated images for ordinary users or other privileged accounts.
-  if (adminEnabled && document.body.classList.contains('admin-new-ui') &&
-      $('headerUsername')?.textContent?.trim() === 'admin') {
+  // 比較画像は管理者専用。一般ユーザー側には生成処理を渡さない。
+  if (comparisonBaseline && !canUseAdminSkillComparison()) {
+    throw new Error('比較画像は管理者専用機能です。');
+  }
+  if (canUseAdminSkillComparison()) {
+    const { renderAdminJacketSkillShareFile } = await import('./admin-skill-share-renderer.js?v=4_40_93');
     await loadAdminRegisteredJackets(supabase);
     return renderAdminJacketSkillShareFile({...data, getJacketUrls:getAdminJacketUrls, getMedalSvg:bearMedal});
   }
-  return renderSkillShareFile(data);
+  return renderSkillShareFile({ instrument, snapshot, currentTotals: data.currentTotals,
+    currentVersionName: data.currentVersionName, username: data.username });
 }
 async function shareSkillImage(selection = activeInstrument) {
   const instruments = selection === 'BOTH' ? ['GF', 'DM'] : [selection];
@@ -5258,6 +5270,12 @@ async function checkAdminAccess() {
   const adminNewUi = adminEnabled && $('headerUsername')?.textContent?.trim() === 'admin';
   document.body.classList.remove('admin-responsive-preview');
   document.body.classList.toggle('admin-new-ui', adminNewUi);
+  // 管理者専用履歴UIは管理者認証後のみ遅延読込。一般ユーザーにはロードしない。
+  renderAdminSkillHistoryRows = null;
+  if (adminNewUi) {
+    const adminHistory = await import('./admin-skill-history.js?v=4_40_93');
+    renderAdminSkillHistoryRows = adminHistory.renderAdminSkillHistoryRows;
+  }
   if (!adminNewUi) restorePublicScoreEditor();
   updateAdminUiVersion(adminNewUi);
   if (!adminNewUi) restoreAdminUnifiedMenuScreens();
@@ -8330,7 +8348,7 @@ $('skillHistoryList').addEventListener('click', event => {
     deleteSkillHistory(deleteButton.dataset.deleteSkillHistory).catch(console.error);
     return;
   }
-  if (compareButton) {
+  if (compareButton && canUseAdminSkillComparison()) {
     openSkillHistoryComparison(compareButton.dataset.compareSkillHistory).catch(console.error);
     return;
   }
