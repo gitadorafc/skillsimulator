@@ -418,6 +418,17 @@ body.admin-new-ui #appScreen>.p-header{position:sticky;top:0;z-index:100;}
 body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-edit button{font-size:19px;}
 body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) :is(.ar-edit,.ar-skill){align-self:center;}
 body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-fc-cell{justify-self:center;}
+/* OFF-mode scroll compositing: keep the animated skill border, card fill and
+   content on the same local paint/compositing surface. Without the boundary,
+   a large scrolling list can repaint its animated gradient out of step with
+   jackets/text during fast asynchronous scrolling. ON-mode remains untouched. */
+body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-record {
+  contain:paint;
+  isolation:isolate;
+  transform:translateZ(0);
+  backface-visibility:hidden;
+}
+
 /* Admin OFF mode: a single compact registered-card layout through 1099px.
    The 400px logical width is handled in JS for narrower viewports.
    Keep ON-mode CSS below this block unchanged. */
