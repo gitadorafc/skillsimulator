@@ -67,15 +67,15 @@ body.admin-new-ui :is(
 /* All admin skill-card lists follow the same running animation clock while
    scrolling. The shared public scroll optimization stays unchanged.
    No viewed-profile-specific animation keyframes or Safari overrides. */
-body.admin-new-ui.app-scroll-layout.app-scrolling :is(#viewSkill,#viewAllManage,#userDetailSkill,#userDetailRecords) :is(
+body.admin-new-ui.app-scroll-layout.app-scrolling :is(#viewSkill,#viewAllManage) :is(
   .score-rank-sparkle-rainbow,.user-list-row-sparkle-rainbow,
   .skill-box-sparkle-rainbow,.ar-record.skill-row-sparkle-rainbow
 ){animation-play-state:running!important;}
-body.admin-new-ui.app-scroll-layout.app-scrolling :is(#viewSkill,#viewAllManage,#userDetailSkill,#userDetailRecords) .skill-box-sparkle-rainbow::before,
-body.admin-new-ui.app-scroll-layout.app-scrolling :is(#viewSkill,#viewAllManage,#userDetailSkill,#userDetailRecords) .skill-box-sparkle-rainbow::after,
-body.admin-new-ui.app-scroll-layout.app-scrolling :is(#viewSkill,#viewAllManage,#userDetailSkill,#userDetailRecords) .dc-card:has(.skill-box-sparkle-rainbow)::before,
-body.admin-new-ui.app-scroll-layout.app-scrolling :is(#viewSkill,#viewAllManage,#userDetailSkill,#userDetailRecords) .ar-record.skill-row-sparkle-rainbow::before,
-body.admin-new-ui.app-scroll-layout.app-scrolling :is(#viewSkill,#viewAllManage,#userDetailSkill,#userDetailRecords) .ar-record.skill-row-sparkle-rainbow::after
+body.admin-new-ui.app-scroll-layout.app-scrolling :is(#viewSkill,#viewAllManage) .skill-box-sparkle-rainbow::before,
+body.admin-new-ui.app-scroll-layout.app-scrolling :is(#viewSkill,#viewAllManage) .skill-box-sparkle-rainbow::after,
+body.admin-new-ui.app-scroll-layout.app-scrolling :is(#viewSkill,#viewAllManage) .dc-card:has(.skill-box-sparkle-rainbow)::before,
+body.admin-new-ui.app-scroll-layout.app-scrolling :is(#viewSkill,#viewAllManage) .ar-record.skill-row-sparkle-rainbow::before,
+body.admin-new-ui.app-scroll-layout.app-scrolling :is(#viewSkill,#viewAllManage) .ar-record.skill-row-sparkle-rainbow::after
 {animation-play-state:running!important;}
 /* Admin registered rows: layout only; reuse public UI color, badge, and skill tokens. */
 body.admin-new-ui :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords){width:100%;max-width:none;display:block;--ar-cols:40px 70px minmax(160px,1fr) 82px 55px 87px 74px 62px 76px 48px}
@@ -1450,6 +1450,26 @@ body.admin-new-ui.light-mode #adminBoardEditorMask #btnAdminBoardSave {
  body.admin-new-ui #userDetailPage.user-detail-page {
    min-height:0!important;overflow:hidden!important;z-index:1100;
  }
+ /* Keep viewed profile cards and gradient borders in one scrolling paint flow.
+    Do not impose a second isolated paint layer on the scroll container. */
+ body.admin-new-ui.app-scroll-layout #userDetailPage.user-detail-open > .user-detail-body:not(.hidden) {
+   contain:none;
+   isolation:auto;
+   padding:8px 8px 28px;
+   box-sizing:border-box;
+ }
+ body.admin-new-ui.app-scroll-layout.app-scrolling #userDetailPage :is(
+   .ar-record.skill-row-sparkle-rainbow,.ar-skill.skill-box-sparkle-rainbow,
+   .dc-card:has(.skill-box-sparkle-rainbow),.score-rank-sparkle-rainbow
+ ) { animation-play-state:paused!important; }
+ body.admin-new-ui.app-scroll-layout.app-scrolling #userDetailPage :is(
+   .ar-record.skill-row-sparkle-rainbow,.ar-skill.skill-box-sparkle-rainbow,
+   .dc-card:has(.skill-box-sparkle-rainbow)
+ )::before,
+ body.admin-new-ui.app-scroll-layout.app-scrolling #userDetailPage :is(
+   .ar-record.skill-row-sparkle-rainbow,.ar-skill.skill-box-sparkle-rainbow
+ )::after { animation-play-state:paused!important; }
+
 
  /* Read-only user detail: same breakpoint as editable cards. */
  body.admin-new-ui:not(.skill-target-columns) :is(#userDetailSkill,#userDetailRecords).ar-readonly,
@@ -1467,8 +1487,16 @@ body.admin-new-ui.light-mode #adminBoardEditorMask #btnAdminBoardSave {
 body.admin-new-ui #userDetailPage .user-detail-sticky {
   min-width:0;box-sizing:border-box;
 }
+/* User-detail headings use the same visible inset in ON and OFF layouts. */
+body.admin-new-ui #userDetailSkill .sk-section > h2 {
+  width:100%;max-width:100%;min-width:0;box-sizing:border-box;
+  margin:0 0 6px!important;padding:7px 10px!important;
+  border-left:3px solid transparent!important;
+  overflow:visible;
+}
+
 body.admin-new-ui #userDetailPage .user-detail-header {
-  height:50px;min-height:50px;max-height:50px;
+  height:48px;min-height:48px;max-height:48px;
   box-sizing:border-box;padding:4px 9px;gap:8px;
   align-items:center;
 }
@@ -1488,7 +1516,7 @@ body.admin-new-ui #userDetailPage .user-detail-summary .score-val {
 }
 /* Only the compact header adapts in the 768-1099 gap before the desktop
    sidebar becomes active. Keep controls on a single row and cap their size. */
-@media (min-width:768px) and (max-width:1099px) {
+@media (768px <= width < 1100px) {
   body.admin-new-ui #appScreen>.p-header>.user-header-row {
     display:flex;flex-wrap:nowrap;align-items:center;gap:8px;
     min-width:0;height:50px;min-height:50px;box-sizing:border-box;
@@ -1512,6 +1540,12 @@ body.admin-new-ui #userDetailPage .user-detail-summary .score-val {
   }
   body.admin-new-ui #appScreen>.p-header #btnAdmin {
     flex:0 0 auto;white-space:nowrap;margin:0;
+  }
+  body.admin-new-ui #appScreen>.p-header>.user-header-row .header-account-controls :is(#btnMenu,#btnRefreshApp) {
+    display:inline-flex!important;flex:0 0 38px!important;
+    width:38px!important;min-width:38px!important;max-width:38px!important;
+    height:38px!important;min-height:38px!important;max-height:38px!important;
+    padding:0!important;box-sizing:border-box!important;
   }
 }
 

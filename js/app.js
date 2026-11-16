@@ -4037,7 +4037,14 @@ function getAdminPulseRoots() {
   // repeatedly seek their timelines during unrelated renders or fast scrolls.
   const visible = node => node && node.getClientRects().length &&
     getComputedStyle(node).display !== 'none';
-  return [ownHeader, viewedHeader, ...ids.map(id => $(id))].filter(visible);
+  // While scrolling the viewed profile, do not repeatedly seek the card
+  // animations against the main header. Resume normal sync after scrolling.
+  const profileScrolling = document.body.classList.contains('app-scrolling') &&
+    document.getElementById('userDetailPage')?.classList.contains('user-detail-open');
+  const roots = profileScrolling
+    ? [ownHeader, ...['viewSkill', 'viewAllManage'].map(id => $(id))]
+    : [ownHeader, viewedHeader, ...ids.map(id => $(id))];
+  return roots.filter(visible);
 }
 function syncAdminPublicPulsePhase() {
   if (!document.body.classList.contains('admin-new-ui')) return;
@@ -5279,7 +5286,7 @@ async function checkAdminAccess() {
   if (adminNewUi) {
     const adminHistory = await import('./admin-skill-history.js?v=4_40_93');
     renderAdminSkillHistoryRows = adminHistory.renderAdminSkillHistoryRows;
-    const { installAdminColorTheme } = await import('./admin-color-theme.js?v=4_40_108');
+    const { installAdminColorTheme } = await import('./admin-color-theme.js?v=4_40_109');
     installAdminColorTheme();
   }
   if (!adminNewUi) restorePublicScoreEditor();
