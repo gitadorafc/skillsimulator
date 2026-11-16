@@ -451,9 +451,9 @@ export async function renderAdminJacketSkillShareFile({
   const hotRows = (target.hotRows || []).slice(0, 25);
   const otherRows = (target.otherRows || []).slice(0, 25);
   const tableTop = isComparison ? 350 : 256;
-  const H = isComparison ? Math.max(580, tableTop + 52 + Math.max(comparisonRows.length, 1) * 112 + 106) : 2180;
+  const H = isComparison ? Math.max(580, tableTop + 52 + Math.max(comparisonRows.length, 1) * 154 + 96) : 2180;
   const W = 1400;
-  const rowH = isComparison ? 90 : 70;
+  const rowH = 70;
   // Export at higher pixel density so small jackets, labels and medal artwork
   // remain sharp when viewing the full saved PNG. Logical layout is unchanged.
   const exportScale = 1.5;
@@ -543,11 +543,12 @@ export async function renderAdminJacketSkillShareFile({
     c.fillStyle = '#15253a';
     c.fillRect(infoX, infoY, infoW, 94);
 
+    // Columns are aligned with content, not spread across the entire canvas.
     const colX = {
       type: infoX + 20,
-      date: infoX + 200,
-      skill: infoX + 760,
-      delta: infoX + 1050
+      date: infoX + 190,
+      skill: infoX + 565,
+      delta: infoX + 755
     };
     c.textBaseline = 'middle';
     c.textAlign = 'left';
@@ -567,7 +568,7 @@ export async function renderAdminJacketSkillShareFile({
     c.fillText(`${change > 0 ? '+' : ''}${change.toFixed(2)}`, colX.delta, infoY + 46);
 
     c.fillStyle = '#f8fafc';
-    c.fillText('比較対象', colX.type, infoY + 76);
+    c.fillText('前回', colX.type, infoY + 76);
     c.fillText(fmt(comparisonBaseline.savedAt), colX.date, infoY + 76);
     c.fillText(base.toFixed(2), colX.skill, infoY + 76);
   }
@@ -592,16 +593,22 @@ export async function renderAdminJacketSkillShareFile({
     const icon = medalImages.get(type);
     if (icon) c.drawImage(icon, centerX - 13, centerY - 13, 26, 26);
   };
-  const deltaLabel = (current, prior, newRow) => {
-    if (newRow) return 'new';
-    const value = Number(current || 0) - Number(prior || 0);
-    if (Math.abs(value) < .005) return '';
-    return `${value > 0 ? '+' : ''}${value.toFixed(2)}`;
-  };
-  const deltaColor = (current, prior, newRow) => {
-    if (newRow) return '#fdba74';
-    const diff = Number(current || 0) - Number(prior || 0);
-    return diff > .0001 ? '#86efac' : diff < -.0001 ? '#93c5fd' : '#94a3b8';
+  // Use the same 170-degree diagonal as site song-card borders for ALL
+  // non-solid skill-color gradients. Skill value side bars stay unchanged.
+  const cardBorderPaint = (row, left, top, width, height) => {
+    if (!row) return '#475569';
+    if (row.type === 'solid') return row.color;
+    // Sparkle-rainbow is already implemented in the shared helper.
+    if (['rainbow', 'deep-rainbow', 'sparkle-rainbow'].includes(row.rank)) {
+      return skillColorCanvasShareTextPaint(c, row, left, top, width, height);
+    }
+    const radians = 170 * Math.PI / 180;
+    const dx = Math.sin(radians), dy = -Math.cos(radians);
+    const cx = left + width / 2, cy = top + height / 2;
+    const half = (Math.abs(width * dx) + Math.abs(height * dy)) / 2;
+    const gradient = c.createLinearGradient(cx - half * dx, cy - half * dy, cx + half * dx, cy + half * dy);
+    for (const [color, percent] of row.stops || []) gradient.addColorStop(Number(percent) / 100, color);
+    return gradient;
   };
   const gap = 24, colW = (W - 108 - gap) / 2;
   const drawTable = (caption, rows, left, accent) => {
@@ -616,7 +623,7 @@ export async function renderAdminJacketSkillShareFile({
       // vertical rainbow. Reuse the canonical skill-color stop definitions.
       const skillColor = getSkillColorRowByTotalValue(skill * 50);
       const border = skillColor.type === 'solid' ? skillColor.color
-        : skillColorCanvasShareTextPaint(c, skillColor, left, y, colW, rowH - 4);
+        : cardBorderPaint(skillColor, left, y, colW, rowH - 4);
       c.fillStyle = i % 2 ? '#0d1627' : '#111827';
       c.fillRect(left, y, colW, rowH - 4);
       c.strokeStyle = border; c.lineWidth = 2;
@@ -638,13 +645,13 @@ export async function renderAdminJacketSkillShareFile({
       }
       const contentX = jacketX + jacketSize + 10;
       const skillW = 99, skillX = left + colW - skillW - 7;
-      const titleTop = y + (isComparison ? 22 : 20);
+      const titleTop = y + 20;
       c.fillStyle = '#f8fafc'; c.textAlign = 'left'; c.textBaseline = 'middle';
       c.font = '900 19px sans-serif';
       c.fillText(fitText(r.title, skillX - contentX - 8, '900 19px sans-serif'), contentX, titleTop);
 
       // Details occupy the second line, matching the 2-row admin song cards.
-      const pillTop = y + (isComparison ? 43 : 41);
+      const pillTop = y + 41;
       const part = String(r.part || '');
       const partStyle = part.startsWith('MAS') ? ['#cf2ce4', '#fff']
         : part.startsWith('EXT') ? ['#f43f46', '#fff']
@@ -695,14 +702,7 @@ export async function renderAdminJacketSkillShareFile({
       c.textAlign = 'center'; c.textBaseline = 'middle';
       c.fillStyle = '#ffffff'; c.font = '900 21px sans-serif';
       const middleY = y + (rowH - 4) / 2;
-      c.fillText(skill.toFixed(2), skillX + skillW / 2, isComparison ? middleY - 9 : middleY);
-      if (isComparison) {
-        const previous = previousByKey.get(compareKey(r));
-        c.fillStyle = deltaColor(skill, previous?.skill, !previous);
-        c.font = '900 13px sans-serif';
-        const skillDelta = deltaLabel(skill, previous?.skill, !previous);
-        if (skillDelta) c.fillText(skillDelta, skillX + skillW / 2, middleY + 14);
-      }
+      c.fillText(skill.toFixed(2), skillX + skillW / 2, middleY);
     });
   };
   if (isComparison) {
@@ -714,133 +714,110 @@ export async function renderAdminJacketSkillShareFile({
     c.textBaseline = 'middle';
     c.fillText(`スキル更新曲  ${comparisonRows.length}曲`, 70, tableTop + 22);
 
-    const left = 54;
-    const width = W - 108;
-    const cardGap = 10;
-    const skillX = left + width - 162;
-    const skillW = 140;
-    const titleColor = '#f8fafc';
-    const labelColor = '#cbd5e1';
-    const valueColor = '#e2e8f0';
+    const left = 54, width = W - 108;
     const sectionPalette = {
-      HOT: { bg: '#66121f', fg: '#ffffff', border: '#ef4444' },
-      OTHER: { bg: '#12364f', fg: '#ffffff', border: '#38bdf8' }
+      HOT: { bg: '#6a0d10', fg: '#ffffff', border: '#ef4444' },
+      OTHER: { bg: '#173c50', fg: '#ffffff', border: '#38bdf8' }
     };
-    const currentPartPalette = ['#9f25bd', '#fff', null];
-    const previousPartPalette = ['#4c1d95', '#ddd6fe', '#8b5cf6'];
+    const partPalette = part => {
+      const value = String(part || '').toUpperCase();
+      if (value.startsWith('MAS')) return ['#c51edd', '#ffffff'];
+      if (value.startsWith('EXT')) return ['#ef4444', '#ffffff'];
+      if (value.startsWith('ADV')) return ['#eab308', '#0f172a'];
+      return ['#3b82f6', '#ffffff'];
+    };
+    const optionPalette = {
+      'RAN':['#153326','#86efac','#15803d'],
+      'RAN+':['#123340','#67e8f9','#0369a1'],
+      'SRA':['#302017','#fdba74','#c2410c'],
+      'SRA+':['#361b29','#fecdd3','#be123c'],
+      'BASS_MIRROR':['#302044','#c4b5fd','#7c3aed']
+    };
+    const skillX = left + width - 247;
+    const skillNumberX = skillX + 101;
+    const diffX = skillX + 172;
+    const valueFont = '800 19px sans-serif';
+    const formatPart = part => String(part || '—').toUpperCase();
+    const drawDetailLine = (row, label, baselineY, isPrevious, previousRow, section) => {
+      c.textBaseline = 'middle';
+      c.textAlign = 'left';
+      c.fillStyle = isPrevious ? '#94a3b8' : '#f8fafc';
+      c.font = '800 19px sans-serif';
+      c.fillText(label, left + 121, baselineY);
+      if (!row) {
+        c.fillText('—', left + 190, baselineY);
+        return;
+      }
+      const part = formatPart(row.part);
+      const partX = left + 195;
+      const partW = 78;
+      drawPill(part, partX, baselineY - 13, partW, 26, ...partPalette(part), null, 14);
+      // Fixed numeric positions preserve alignment even with 99.xx%.
+      c.font = valueFont;
+      c.fillStyle = isPrevious ? '#cbd5e1' : '#f8fafc';
+      c.textAlign = 'left';
+      c.fillText(Number(row.level || 0).toFixed(2), left + 294, baselineY);
+      c.fillText(`${Number(row.achievement_rate || 0).toFixed(2)}%`, left + 371, baselineY);
+      const fc = Number(row.achievement_rate || 0) >= 99.999 ? 'EXC'
+        : String(row.fc || '').toUpperCase() === 'FC' ? 'FC' : '';
+      drawMedal(fc, left + 490, baselineY);
+      const opt = String(row.play_option || 'NORMAL').toUpperCase();
+      if (opt !== 'NORMAL') {
+        const optionLabel = opt === 'BASS_MIRROR' ? 'B-MIR' : opt;
+        drawPill(optionLabel, left + 513, baselineY - 13, 63, 26,
+          ...(optionPalette[opt] || ['#1e293b','#cbd5e1','#475569']), 13);
+      }
+      c.fillStyle = isPrevious ? '#cbd5e1' : '#ffffff';
+      c.font = '900 23px sans-serif';
+      c.textAlign = 'right';
+      c.fillText(Number(row.skill || 0).toFixed(2), skillNumberX + 34, baselineY);
+      c.textAlign = 'left';
+      if (!isPrevious) {
+        const delta = previousRow ? Number(row.skill || 0) - Number(previousRow.skill || 0) : null;
+        c.font = '900 20px sans-serif';
+        c.fillStyle = delta === null ? '#fdba74' : delta >= 0 ? '#60a5fa' : '#fca5a5';
+        c.fillText(delta === null ? 'NEW' : `${delta > 0 ? '+' : ''}${delta.toFixed(2)}`, diffX, baselineY);
+      }
+    };
 
-    comparisonRows.forEach(({row:r, section}, i) => {
-      const old = matches.get(r);
-      const skill = Number(r.skill || 0);
-      const y = tableTop + 52 + i * 112;
+    comparisonRows.forEach(({row, section}, i) => {
+      const previous = matches.get(row) || null;
+      const y = tableTop + 52 + i * 154;
+      const cardHeight = 146;
       c.fillStyle = i % 2 ? '#0d1729' : '#111e31';
-      c.fillRect(left, y, width, 104);
+      c.fillRect(left, y, width, cardHeight);
       c.strokeStyle = '#667a92';
       c.lineWidth = 2;
-      c.strokeRect(left + 1, y + 1, width - 2, 102);
+      c.strokeRect(left + 1, y + 1, width - 2, cardHeight - 2);
 
-      const artX = left + 12;
-      const artY = y + 12;
-      const artSize = 80;
+      const jacketX = left + 13, jacketY = y + 20, jacketSize = 102;
       c.fillStyle = '#23354d';
-      c.fillRect(artX, artY, artSize, artSize);
-      const img = jacketMap.get(String(r.title || ''));
+      c.fillRect(jacketX, jacketY, jacketSize, jacketSize);
+      const img = jacketMap.get(String(row.title || ''));
       if (img) {
         const iw = img.naturalWidth || img.width;
         const ih = img.naturalHeight || img.height;
         const size = Math.min(iw, ih);
         c.save();
         c.beginPath();
-        c.roundRect(artX, artY, artSize, artSize, 4);
+        c.roundRect(jacketX, jacketY, jacketSize, jacketSize, 4);
         c.clip();
-        c.drawImage(img, (iw - size) / 2, (ih - size) / 2, size, size, artX, artY, artSize, artSize);
+        c.drawImage(img, (iw - size) / 2, (ih - size) / 2, size, size,
+          jacketX, jacketY, jacketSize, jacketSize);
         c.restore();
       }
 
-      const textX = artX + artSize + 17;
-      c.fillStyle = titleColor;
-      c.font = '900 24px sans-serif';
-      c.textAlign = 'left';
-      c.textBaseline = 'middle';
-      c.fillText(fitText(r.title, skillX - textX - 28, '900 24px sans-serif'), textX, y + 26);
-
-      const sectionStyle = sectionPalette[section] || sectionPalette.HOT;
-      drawPill(section, textX, y + 49, section === 'HOT' ? 67 : 86, 24, sectionStyle.bg, sectionStyle.fg, sectionStyle.border, 14);
-
-      const oldPart = String(old?.part || '').toUpperCase();
-      const newPart = String(r.part || '').toUpperCase();
-      const partChanged = Boolean(old && oldPart && oldPart !== newPart);
-      let cursorX = textX + (section === 'HOT' ? 77 : 96);
-      if (partChanged) {
-        drawPill(oldPart, cursorX, y + 49, 78, 24, previousPartPalette[0], previousPartPalette[1], previousPartPalette[2], 14);
-        cursorX += 88;
-        c.fillStyle = '#94a3b8';
-        c.font = '900 18px sans-serif';
-        c.textAlign = 'center';
-        c.fillText('→', cursorX + 10, y + 61);
-        cursorX += 22;
-        drawPill(newPart, cursorX, y + 49, 78, 24, currentPartPalette[0], currentPartPalette[1], currentPartPalette[2], 14);
-        cursorX += 88;
-      } else {
-        drawPill(newPart, cursorX, y + 49, 78, 24, currentPartPalette[0], currentPartPalette[1], currentPartPalette[2], 14);
-        cursorX += 88;
-      }
-
-      c.fillStyle = valueColor;
-      c.font = '700 18px sans-serif';
-      c.textAlign = 'left';
-      const metaY = y + 61;
-      c.fillText(`Lv ${Number(r.level || 0).toFixed(2)}`, cursorX, metaY);
-      const levelBlockW = Math.ceil(c.measureText('Lv 9.99').width) + 22;
-      c.fillText(`${Number(r.achievement_rate || 0).toFixed(2)}%`, cursorX + levelBlockW, metaY);
-
-      const type = Number(r.achievement_rate) === 100 ? 'EXC' : String(r.fc || '').toUpperCase() === 'FC' ? 'FC' : '';
-      const rateBlockW = Math.ceil(c.measureText('100.00%').width) + 24;
-      drawMedal(type, cursorX + levelBlockW + rateBlockW + 14, metaY);
-      const option = String(r.play_option || 'NORMAL').toUpperCase();
-      const optLabel = option === 'BASS_MIRROR' ? 'B-MIR' : option;
-      const visibleOption = newPart.endsWith('-D') ? option === 'BASS_MIRROR' : option !== 'NORMAL';
-      const optPalette = {
-        'RAN':['#153326','#86efac','#15803d'], 'RAN+':['#123340','#67e8f9','#0369a1'],
-        'SRA':['#302017','#fdba74','#c2410c'], 'SRA+':['#361b29','#fecdd3','#be123c'],
-        'BASS_MIRROR':['#302044','#c4b5fd','#7c3aed']
-      };
-      if (visibleOption) {
-        const palette = optPalette[option] || ['#1e293b','#cbd5e1','#475569'];
-        drawPill(optLabel, cursorX + levelBlockW + rateBlockW + 34, y + 49, 58, 24, ...palette, 13);
-      }
-
-      if (old) {
-        const rateChange = Number(r.achievement_rate || 0) - Number(old.achievement_rate || 0);
-        if (Math.abs(rateChange) >= .005) {
-          c.fillStyle = rateChange > 0 ? '#86efac' : '#fca5a5';
-          c.font = '800 17px sans-serif';
-          c.textAlign = 'left';
-          c.fillText(`${rateChange > 0 ? '+' : ''}${rateChange.toFixed(2)}%`, cursorX + levelBlockW, y + 86);
-        }
-      }
-
-      c.fillStyle = '#0b1424';
-      c.fillRect(skillX, y + 8, skillW, 88);
-      const paint = getSkillColorRowByTotalValue(skill * 50);
-      for (const bx of [skillX, skillX + skillW - 5]) {
-        c.fillStyle = skillColorCanvasShareTextPaint(c, paint, bx, y + 8, 5, 88);
-        c.fillRect(bx, y + 8, 5, 88);
-      }
-      c.textAlign = 'center';
-      c.textBaseline = 'middle';
       c.fillStyle = '#f8fafc';
-      c.font = '900 29px sans-serif';
-      c.fillText(skill.toFixed(2), skillX + skillW / 2, y + 38);
-      c.font = '900 19px sans-serif';
-      if (!old) {
-        c.fillStyle = '#fdba74';
-        c.fillText('NEW', skillX + skillW / 2, y + 72);
-      } else {
-        const diff = skill - Number(old.skill || 0);
-        c.fillStyle = diff >= 0 ? '#86efac' : '#fca5a5';
-        c.fillText(`${diff > 0 ? '+' : ''}${diff.toFixed(2)}`, skillX + skillW / 2, y + 72);
-      }
+      c.textAlign = 'left';
+      c.textBaseline = 'middle';
+      c.font = '900 26px sans-serif';
+      c.fillText(fitText(row.title, skillX - left - 245, '900 26px sans-serif'), left + 126, y + 27);
+      const marker = sectionPalette[section] || sectionPalette.HOT;
+      drawPill(section, skillX - 99, y + 14, 77, 24,
+        marker.bg, marker.fg, marker.border, 13);
+      // Three explicit lines: title, current chart, previous chart.
+      drawDetailLine(row, '現在', y + 73, false, previous, section);
+      drawDetailLine(previous, '前回', y + 111, true, previous, section);
     });
 
     if (!comparisonRows.length) {
