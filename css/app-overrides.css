@@ -3712,11 +3712,13 @@ body.light-mode .admin-usage-card{
 .skill-history-row{
   min-width:0;
   display:grid;
-  grid-template-columns:minmax(0,1fr) auto;
+  /* Public history: summary / display / delete (three columns). */
+  grid-template-columns:minmax(0,1fr) auto auto;
   align-items:stretch;
   gap:5px;
 }
-.skill-history-row.has-compare{
+/* Admin history alone contains the fourth action: comparison. */
+body.admin-new-ui .skill-history-row.has-compare{
   grid-template-columns:minmax(0,1fr) auto auto auto;
 }
 .skill-history-summary{
