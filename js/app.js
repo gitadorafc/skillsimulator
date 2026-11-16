@@ -36,7 +36,7 @@ import {
   sortSkillRankingRows
 } from './ranking-renderer.js?v=4_14_43';
 import { shareGeneratedSkillFiles } from './skill-share.js?v=4_14_44';
-import { renderSkillShareFile, renderAdminJacketSkillShareFile } from './skill-share-renderer.js?v=4_40_87';
+import { renderSkillShareFile, renderAdminJacketSkillShareFile } from './skill-share-renderer.js?v=4_40_88';
 import {
   formatSkillHistoryDate,
   renderSkillHistoryRows,
