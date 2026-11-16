@@ -1850,33 +1850,45 @@ body.admin-new-ui #skillHistoryList .skill-history-date {
   overflow:hidden;
   text-overflow:ellipsis;
 }
+/* A 400px logical viewport must keep the history actions on the same row.
+   The dialog's content area is narrower than the viewport, so size the four
+   cells by their actual contents instead of switching to a two-row grid.
+   Below 400px the existing admin overlay zoom scales this exact layout. */
 @container (max-width: 370px) {
   body.admin-new-ui #skillHistoryList .skill-history-row.has-compare {
-    grid-template-columns:repeat(3,minmax(0,1fr));
-    gap:5px;
-  }
-  body.admin-new-ui #skillHistoryList .skill-history-row.has-compare .skill-history-summary {
-    grid-column:1/-1;
-    justify-content:space-between;
-    gap:8px;
-  }
-  body.admin-new-ui #skillHistoryList .skill-history-row.has-compare :is(
-    .skill-history-display,.skill-history-compare,.skill-history-delete
-  ) {
-    min-width:0;
-    width:100%;
+    grid-template-columns:minmax(0,1fr) repeat(3,minmax(0,39px));
+    gap:4px;
   }
   body.admin-new-ui #skillHistoryList .skill-history-row:not(.has-compare) {
-    grid-template-columns:repeat(2,minmax(0,1fr));
-    gap:5px;
+    grid-template-columns:minmax(0,1fr) repeat(2,minmax(0,39px));
+    gap:4px;
   }
-  body.admin-new-ui #skillHistoryList .skill-history-row:not(.has-compare) .skill-history-summary {
-    grid-column:1/-1;
+  body.admin-new-ui #skillHistoryList .skill-history-summary {
+    grid-column:auto;
+    min-width:0;
+    padding-inline:5px;
+    gap:3px;
+    white-space:nowrap;
+    font-size:10px;
   }
-  body.admin-new-ui #skillHistoryList .skill-history-row:not(.has-compare) :is(
-    .skill-history-display,.skill-history-delete
+  body.admin-new-ui #skillHistoryList .skill-history-date {
+    min-width:0;
+    flex:1 1 auto;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+  body.admin-new-ui #skillHistoryList .skill-history-value {
+    flex:0 0 auto;
+    font-size:11px;
+  }
+  body.admin-new-ui #skillHistoryList .skill-history-row :is(
+    .skill-history-display,.skill-history-compare,.skill-history-delete
   ) {
+    box-sizing:border-box;
     min-width:0;
     width:100%;
+    padding-inline:1px;
+    font-size:10px;
+    white-space:nowrap;
   }
 }
