@@ -6,10 +6,7 @@ import {
   getSkillColorRowByTotalValue
 } from './skill-colors.js?v=4_14_33';
 import { renderAdminRegisteredRecords, loadAdminRegisteredJackets, getAdminJacketUrls, bearMedal } from './admin-register-ui.js?v=4_40_38';
-import {
-  createCard,
-  getPartColorClass
-} from './card-renderer.js?v=4_40_41';
+import { getPartColorClass } from './card-renderer.js?v=4_40_41';
 import {
   renderAccountSwitchRows,
   renderFavoriteRows,
@@ -1803,7 +1800,7 @@ async function showApp(session) {
   }
 
   $('headerUsername').textContent = username;
-  document.body.classList.remove('admin-responsive-preview', 'admin-new-ui', 'public-card-ui', 'public-palette-ui');
+  document.body.classList.remove('admin-responsive-preview', 'admin-new-ui');
       updateAdminUiVersion();
   setAppLoading('表示設定を読み込み中...');
   await syncMyDisplaySettings();
@@ -1986,7 +1983,7 @@ async function init() {
       adminEnabled = false;
       adminAccessChecked = false;
       restoreAdminUnifiedMenuScreens();
-      document.body.classList.remove('admin-responsive-preview', 'admin-new-ui', 'public-card-ui', 'public-palette-ui');
+      document.body.classList.remove('admin-responsive-preview', 'admin-new-ui');
       updateAdminUiVersion();
       applyAppScrollLayout(false);
       updateDmBassMirrorFieldVisibility();
@@ -3874,39 +3871,11 @@ function renderSkill() {
 
   $('viewSkill').innerHTML = `
     <div class="sk-section skill-hot-section"><h2>HOT Top25</h2><div class="list-container">
-      ${((document.body.classList.contains('admin-new-ui')) ? renderAdminRegisteredRecords(target.hotRows, 'SKILL') : target.hotRows.map((r,i) => createCard(r,i+1,'SKILL')).join('')) || '<div class="empty-state">まだ登録がありません</div>'}
+      ${renderAdminRegisteredRecords(target.hotRows, 'SKILL')} || '<div class="empty-state">まだ登録がありません</div>'}
     </div></div>
     <div class="sk-section skill-other-section"><h2>OTHER Top25</h2><div class="list-container">
-      ${((document.body.classList.contains('admin-new-ui')) ? renderAdminRegisteredRecords(target.otherRows, 'SKILL') : target.otherRows.map((r,i) => createCard(r,i+1,'SKILL')).join('')) || '<div class="empty-state">まだ登録がありません</div>'}
+      ${renderAdminRegisteredRecords(target.otherRows, 'SKILL')} || '<div class="empty-state">まだ登録がありません</div>'}
     </div></div>`;
-}
-
-function renderRegisteredCardList(data, mode = 'MANAGE') {
-  if (!document.body.classList.contains('skill-target-columns')) {
-    return data.map((record, index) => createCard(record, index + 1, mode)).join('');
-  }
-
-  // 横並び表示では、左列をHOT、右列をOTHERに固定する。
-  // 各列の中では、呼び出し元で確定したスキル値順を維持する。
-  const hotRows = data.filter(record => Boolean(record.is_hot));
-  const otherRows = data.filter(record => !record.is_hot);
-  const rowCount = Math.max(hotRows.length, otherRows.length);
-  const cards = [];
-
-  for (let index = 0; index < rowCount; index += 1) {
-    cards.push(
-      hotRows[index]
-        ? createCard(hotRows[index], index + 1, mode)
-        : '<div class="record-column-placeholder" aria-hidden="true"></div>'
-    );
-    cards.push(
-      otherRows[index]
-        ? createCard(otherRows[index], index + 1, mode)
-        : '<div class="record-column-placeholder" aria-hidden="true"></div>'
-    );
-  }
-
-  return cards.join('');
 }
 
 function getVisibleRegisteredRows(data, batch) {
@@ -3977,48 +3946,27 @@ function renderManage() {
   const visibleRows = getVisibleRegisteredRows(data, ownRegisteredBatch);
   const hasMore = visibleRows.length < data.length;
 
-  // Canonical registered cards for all accounts; edit rights remain owner-only.
-  const useUnifiedRegisteredCards = document.body.classList.contains('admin-new-ui');
+  // Canonical record markup. No legacy card-renderer or parallel CSS path.
+  const cards = document.body.classList.contains('skill-target-columns')
+    ? `<div class="admin-records-two-column">`
+        + `<section class="admin-records-pane hot"><h2>HOT</h2>${renderAdminRegisteredRecords(visibleRows.filter(row => Boolean(row.is_hot))) || '<div class="empty-state">登録曲なし</div>'}</section>`
+        + `<section class="admin-records-pane other"><h2>OTHER</h2>${renderAdminRegisteredRecords(visibleRows.filter(row => !row.is_hot)) || '<div class="empty-state">登録曲なし</div>'}</section>`
+      + `</div>`
+    : renderAdminRegisteredRecords(visibleRows);
   $('viewAllManage').innerHTML =
-    ((useUnifiedRegisteredCards
-      ? (document.body.classList.contains('skill-target-columns')
-        ? `<div class="admin-records-two-column">`
-            + `<section class="admin-records-pane hot"><h2>HOT</h2>${renderAdminRegisteredRecords(visibleRows.filter(row => Boolean(row.is_hot))) || '<div class="empty-state">登録曲なし</div>'}</section>`
-            + `<section class="admin-records-pane other"><h2>OTHER</h2>${renderAdminRegisteredRecords(visibleRows.filter(row => !row.is_hot)) || '<div class="empty-state">登録曲なし</div>'}</section>`
-          + `</div>`
-        : renderAdminRegisteredRecords(visibleRows))
-      : renderRegisteredCardList(visibleRows)) ||
-      '<div class="empty-state">条件に一致する登録データがありません</div>') +
+    (cards || '<div class="empty-state">条件に一致する登録データがありません</div>') +
     (hasMore ? `
       <div class="user-detail-records-more own-registered-records-more">
         <span>${visibleRows.length} / ${data.length}件表示</span>
         <button type="button" data-own-records-more>もっと見る</button>
       </div>` : '');
 
-  if (useUnifiedRegisteredCards) requestAnimationFrame(() => {
-    if (document.body.classList.contains('admin-new-ui')) syncAdminTwoColumnViewport();
+  requestAnimationFrame(() => {
+    syncAdminTwoColumnViewport();
     clampAdminTwoColumnTitles();
     scheduleAdminPublicPulsePhase();
   });
-  else requestAnimationFrame(syncRegisteredEditButtonWidths);
 }
-
-function syncRegisteredEditButtonWidths() {
-  document.querySelectorAll('#viewAllManage .dc-card-manage').forEach(card => {
-    const skillBox = card.querySelector('.dc-skill');
-    const editButton = card.querySelector('.dc-edit .m-action-btn.btn-e');
-    if (!skillBox || !editButton) return;
-
-    const width = skillBox.getBoundingClientRect().width;
-    if (!Number.isFinite(width) || width <= 0) return;
-
-    const cssWidth = `${width}px`;
-    editButton.style.setProperty('width', cssWidth, 'important');
-    editButton.style.setProperty('min-width', cssWidth, 'important');
-    editButton.style.setProperty('max-width', cssWidth, 'important');
-  });
-}
-
 
 // One animation clock for the own header and every admin song list, including
 // viewed-user lists. The identical collector works for both screens; there is
@@ -4770,12 +4718,8 @@ function renderViewedUserSkill() {
 
 
   $('userDetailSkill').innerHTML = renderUserDetailSkillSections({
-    hotCards: (document.body.classList.contains('admin-new-ui'))
-      ? renderAdminRegisteredRecords(target.hotRows, 'SKILL', true)
-      : target.hotRows.map((r,i) => createCard(r,i+1,'SKILL')).join(''),
-    otherCards: (document.body.classList.contains('admin-new-ui'))
-      ? renderAdminRegisteredRecords(target.otherRows, 'SKILL', true)
-      : target.otherRows.map((r,i) => createCard(r,i+1,'SKILL')).join('')
+    hotCards: renderAdminRegisteredRecords(target.hotRows, 'SKILL', true),
+    otherCards: renderAdminRegisteredRecords(target.otherRows, 'SKILL', true)
   });
   scheduleAdminPublicPulsePhase();
 }
@@ -4798,14 +4742,12 @@ function renderViewedUserRegisteredScores() {
   $('userDetailRecords').innerHTML = renderUserDetailRegisteredSection({
     totalCount: data.length,
     visibleCount: visibleRows.length,
-    cards: (document.body.classList.contains('admin-new-ui'))
-      ? (document.body.classList.contains('skill-target-columns')
-        ? `<div class="admin-records-two-column">`
-          + `<section class="admin-records-pane hot"><h2>HOT</h2>${renderAdminRegisteredRecords(visibleRows.filter(row => Boolean(row.is_hot)), 'PUBLIC', true) || '<div class="empty-state">登録曲なし</div>'}</section>`
-          + `<section class="admin-records-pane other"><h2>OTHER</h2>${renderAdminRegisteredRecords(visibleRows.filter(row => !row.is_hot), 'PUBLIC', true) || '<div class="empty-state">登録曲なし</div>'}</section>`
-          + `</div>`
-        : renderAdminRegisteredRecords(visibleRows, 'PUBLIC', true))
-      : renderRegisteredCardList(visibleRows, 'PUBLIC'),
+    cards: document.body.classList.contains('skill-target-columns')
+      ? `<div class="admin-records-two-column">`
+        + `<section class="admin-records-pane hot"><h2>HOT</h2>${renderAdminRegisteredRecords(visibleRows.filter(row => Boolean(row.is_hot)), 'PUBLIC', true) || '<div class="empty-state">登録曲なし</div>'}</section>`
+        + `<section class="admin-records-pane other"><h2>OTHER</h2>${renderAdminRegisteredRecords(visibleRows.filter(row => !row.is_hot), 'PUBLIC', true) || '<div class="empty-state">登録曲なし</div>'}</section>`
+        + `</div>`
+      : renderAdminRegisteredRecords(visibleRows, 'PUBLIC', true),
     hasMore
   });
   scheduleAdminPublicPulsePhase();
@@ -5258,7 +5200,7 @@ async function deleteOwnAccount() {
 
 /* All accounts now use one visual UI version. Authorization remains separate. */
 function updateAdminUiVersion() {
-  const version = document.querySelector('meta[name="app-version"]')?.content || '4.37.12';
+  const version = document.querySelector('meta[name="app-version"]')?.content || '4.37.13';
   const value = `APP VERSION ${version}`;
   const label = document.querySelector('.app-code-version');
   if (label) label.textContent = value;
@@ -5278,7 +5220,7 @@ async function checkAdminAccess() {
   adminAccessChecked = true;
   // Display is shared for every authenticated user. Permission is adminEnabled,
   // which controls admin tools independently from the visual class.
-  document.body.classList.remove('admin-responsive-preview', 'public-card-ui', 'public-palette-ui');
+  document.body.classList.remove('admin-responsive-preview');
   document.body.classList.add('admin-new-ui');
   const { installAdminColorTheme } = await import('./admin-color-theme.js?v=4_40_110');
   installAdminColorTheme();
@@ -8593,7 +8535,7 @@ const refreshAdminViewport = () => {
     syncAdminTwoColumnViewport();
     clampAdminTwoColumnTitles();
     scheduleAdminBoardHeaderAlignment();
-  } else syncRegisteredEditButtonWidths();
+  }
 };
 window.addEventListener('resize', refreshAdminViewport);
 // Safari can resize its visual viewport without issuing a window resize.
