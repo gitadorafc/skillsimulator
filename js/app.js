@@ -4033,7 +4033,11 @@ function getAdminPulseRoots() {
   const ids = ['viewSkill', 'viewAllManage', 'userDetailSkill', 'userDetailRecords'];
   // CSS display:none suppresses animations for inactive screens.
   const viewedHeader = document.querySelector('#userDetailPage .user-detail-summary');
-  return [ownHeader, viewedHeader, ...ids.map(id => $(id))].filter(Boolean);
+  // Hidden profile/list roots may retain animations in the DOM. Do not
+  // repeatedly seek their timelines during unrelated renders or fast scrolls.
+  const visible = node => node && node.getClientRects().length &&
+    getComputedStyle(node).display !== 'none';
+  return [ownHeader, viewedHeader, ...ids.map(id => $(id))].filter(visible);
 }
 function syncAdminPublicPulsePhase() {
   if (!document.body.classList.contains('admin-new-ui')) return;
@@ -5275,7 +5279,7 @@ async function checkAdminAccess() {
   if (adminNewUi) {
     const adminHistory = await import('./admin-skill-history.js?v=4_40_93');
     renderAdminSkillHistoryRows = adminHistory.renderAdminSkillHistoryRows;
-    const { installAdminColorTheme } = await import('./admin-color-theme.js?v=4_40_107');
+    const { installAdminColorTheme } = await import('./admin-color-theme.js?v=4_40_108');
     installAdminColorTheme();
   }
   if (!adminNewUi) restorePublicScoreEditor();

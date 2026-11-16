@@ -915,6 +915,9 @@ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetail
  /* Links use flex for centered text; action containers are independent of inputs. */
  body.admin-new-ui .admin-workspace-panel .support-ofuse-button {
    display:inline-flex!important;align-items:center;justify-content:center;
+   box-sizing:border-box!important;height:36px!important;
+   min-height:36px!important;max-height:36px!important;
+   line-height:1!important;padding:0 14px!important;
    align-self:flex-end;margin-top:4px!important;
  }
  /* Shared share/save control layout: two explicit steps rather than
@@ -938,7 +941,7 @@ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetail
  }
  body.admin-new-ui #skillHistoryUnifiedControls :is(.skill-history-save-option,.skill-history-unified-action) {
    box-sizing:border-box;width:100%;min-width:0;max-width:none;
-   min-height:42px;margin:0;padding:8px 4px;
+   height:36px;min-height:36px;max-height:36px;margin:0;padding:0 6px;
    font-size:12px;line-height:1.2;white-space:nowrap;
  }
  body.admin-new-ui.light-mode #skillHistoryUnifiedControls .skill-history-control-row {
@@ -976,8 +979,8 @@ body.admin-new-ui.skill-target-columns :is(#viewSkill,#viewAllManage,#userDetail
    #btnSubmitFeedback,#btnCopyOfficialRankingScript,
    .support-ofuse-button) {
    width:max-content!important;min-width:0!important;
-   max-width:100%!important;min-height:40px;
-   padding:9px 18px!important;margin-left:auto!important;
+   max-width:100%!important;min-height:36px;
+   padding:8px 14px!important;margin-left:auto!important;
  }
  body.admin-new-ui :is(.p-tab-btn.active,.p-tab-btn[aria-selected="true"]) {
    background:var(--app-accent)!important;
@@ -1202,15 +1205,25 @@ body.admin-new-ui.light-mode #adminBoardEditorMask #btnAdminBoardSave {
      #btnDeleteAccount,#btnLogout,#btnMypageUserSwitch
    ) {font-size:11px!important;padding:0 9px!important;height:38px!important;min-height:38px!important;}
  }
+ /* Official ranking GF / DM switch: keep its intrinsic width, left aligned. */
+ body.admin-new-ui #officialSkillRankingMask .official-ranking-tabs {
+   display:flex;justify-content:flex-start;align-items:center;
+   width:max-content;max-width:100%;gap:7px;
+ }
+ body.admin-new-ui #officialSkillRankingMask .official-ranking-tab {
+   flex:0 0 96px;width:96px;min-width:0;max-width:96px;
+   height:36px;min-height:36px;box-sizing:border-box;
+ }
+
  /* Three distinct action colors, scoped to the administrator's new UI. */
  body.admin-new-ui #btnUnifiedSkillShare {
-   background:#6d28d9;border-color:#5b21b6;color:#fff;
+   background:#514390;border-color:#403475;color:#fff;
  }
  body.admin-new-ui #btnUnifiedSkillSave {
-   background:#b45309;border-color:#92400e;color:#fff;
+   background:#855321;border-color:#70451b;color:#fff;
  }
  body.admin-new-ui #btnUnifiedSkillSaveShare {
-   background:#047857;border-color:#065f46;color:#fff;
+   background:#17654f;border-color:#11513f;color:#fff;
  }
  body.admin-new-ui .menu-screen-body {min-width:0;}
  body.admin-new-ui.light-mode .menu-screen-dialog {
@@ -1445,6 +1458,60 @@ body.admin-new-ui.light-mode #adminBoardEditorMask #btnAdminBoardSave {
   }
   body.admin-new-ui:not(.skill-target-columns) :is(#userDetailSkill,#userDetailRecords) .ar-record.ar-readonly .ar-skill {
     grid-column:9;justify-self:end;
+  }
+}
+
+/* Viewed-profile header follows the same height / score-row geometry as
+   the admin main header. All selectors are admin-only; the scroll panes
+   retain the shared layout-canonical.css containment/scroll configuration. */
+body.admin-new-ui #userDetailPage .user-detail-sticky {
+  min-width:0;box-sizing:border-box;
+}
+body.admin-new-ui #userDetailPage .user-detail-header {
+  height:50px;min-height:50px;max-height:50px;
+  box-sizing:border-box;padding:4px 9px;gap:8px;
+  align-items:center;
+}
+body.admin-new-ui #userDetailPage .user-detail-summary {
+  min-height:54px;box-sizing:border-box;align-items:stretch;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+}
+body.admin-new-ui #userDetailPage .user-detail-summary > div {
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:4px 3px;min-width:0;box-sizing:border-box;
+}
+body.admin-new-ui #userDetailPage .user-detail-summary .score-val {
+  align-self:center!important;margin:2px auto 0!important;
+}
+@media (min-width:1100px) {
+  body.admin-new-ui #userDetailPage .user-detail-summary {min-height:63px;}
+}
+/* Only the compact header adapts in the 768-1099 gap before the desktop
+   sidebar becomes active. Keep controls on a single row and cap their size. */
+@media (min-width:768px) and (max-width:1099px) {
+  body.admin-new-ui #appScreen>.p-header>.user-header-row {
+    display:flex;flex-wrap:nowrap;align-items:center;gap:8px;
+    min-width:0;height:50px;min-height:50px;box-sizing:border-box;
+  }
+  body.admin-new-ui #appScreen>.p-header>.user-header-row>.header-mode-controls {
+    flex:1 1 auto;min-width:0;overflow:hidden;
+  }
+  body.admin-new-ui #appScreen>.p-header>.user-header-row>.header-account-controls {
+    display:flex;flex:0 0 auto;min-width:0;gap:6px;
+  }
+  body.admin-new-ui #appScreen>.p-header .header-active-version {
+    flex:0 1 auto;min-width:0;max-width:clamp(100px,24vw,250px);
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  }
+  body.admin-new-ui #appScreen>.p-header :is(#btnMenu,#btnRefreshApp) {
+    display:inline-flex;align-items:center;justify-content:center;
+    flex:0 0 38px;width:38px;min-width:38px;max-width:38px;
+    height:38px;min-height:38px;max-height:38px;
+    box-sizing:border-box;padding:0;margin:0;
+    font-size:21px;line-height:1;
+  }
+  body.admin-new-ui #appScreen>.p-header #btnAdmin {
+    flex:0 0 auto;white-space:nowrap;margin:0;
   }
 }
 

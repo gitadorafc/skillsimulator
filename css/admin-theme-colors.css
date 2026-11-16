@@ -22,3 +22,23 @@ body.admin-new-ui .p-badge[data-admin-part="ADV-G"] { background: #FACC15 !impor
 body.admin-new-ui .p-badge[data-admin-part="ADV-B"] { background: #B7AC12 !important; color: #111827 !important; -webkit-text-fill-color: #111827 !important; }
 body.admin-new-ui .p-badge[data-admin-part="BSC-G"] { background: #3B82F6 !important; color: #FFFFFF !important; -webkit-text-fill-color: #FFFFFF !important; }
 body.admin-new-ui .p-badge[data-admin-part="BSC-B"] { background: #4F46E5 !important; color: #FFFFFF !important; -webkit-text-fill-color: #FFFFFF !important; }
+
+/* Admin viewed profiles share the own-page HOT/OTHER palette in both layouts.
+   The public legacy selector also matches #userDetailSkill, so the admin
+   headings need the same explicit semantic rule as the own page. */
+body.admin-new-ui #userDetailSkill .skill-hot-section > h2 {
+  background:#450a0a !important;color:#fecaca !important;
+  -webkit-text-fill-color:#fecaca !important;border-color:#991b1b !important;
+}
+body.admin-new-ui #userDetailSkill .skill-other-section > h2 {
+  background:#173447 !important;color:#b6ebf5 !important;
+  -webkit-text-fill-color:#b6ebf5 !important;border-color:#367e9d !important;
+}
+body.admin-new-ui.light-mode #userDetailSkill .skill-hot-section > h2 {
+  background:#ffffff !important;color:#7f1d1d !important;
+  -webkit-text-fill-color:#7f1d1d !important;border-color:#b91c1c !important;
+}
+body.admin-new-ui.light-mode #userDetailSkill .skill-other-section > h2 {
+  background:#ffffff !important;color:#15556d !important;
+  -webkit-text-fill-color:#15556d !important;border-color:#257a9e !important;
+}
