@@ -1450,7 +1450,8 @@ function applyDisplayCustomization(skillTargetColumns = null, textSizeUp = null)
 
   // 対象コンテナ側で表示中かを判定するため、設定値は他ユーザー画面でも維持する。
   document.body.classList.toggle('skill-target-columns', columnsEnabled);
-  document.body.classList.toggle('text-size-up', textSizeEnabled && !document.body.classList.contains('admin-new-ui'));
+  // 統一UIでは旧ユーザーUI専用の文字拡大モードを使用しない。
+  document.body.classList.remove('text-size-up');
 
   return {
     skillTargetColumns: columnsEnabled,
@@ -1621,8 +1622,8 @@ async function openFeatureSettings() {
       localStorage.getItem(DISPLAY_CUSTOMIZATION_KEYS.skillTargetColumns) === '1';
   }
   if (textSizeInput) {
-    textSizeInput.closest('.feature-setting-row')?.toggleAttribute('hidden', document.body.classList.contains('admin-new-ui'));
-    textSizeInput.disabled = document.body.classList.contains('admin-new-ui');
+    textSizeInput.closest('.feature-setting-row')?.setAttribute('hidden', '');
+    textSizeInput.disabled = true;
     textSizeInput.checked =
       localStorage.getItem(DISPLAY_CUSTOMIZATION_KEYS.textSizeUp) === '1';
   }
@@ -1675,7 +1676,7 @@ async function saveFeatureSettings() {
     const keepUnifiedMenuOpen = document.body.classList.contains('admin-new-ui');
     const light = $('settingLightMode').checked;
     const skillTargetColumns = Boolean($('settingSkillTargetColumns')?.checked);
-    const textSizeUp = !document.body.classList.contains('admin-new-ui') && Boolean($('settingTextSizeUp')?.checked);
+    const textSizeUp = false; // 旧UIの文字拡大設定は廃止（DB項目は互換維持）
     const displaySettings = writeLocalDisplaySettings({
       lightMode: light,
       skillTargetColumns,
@@ -5190,7 +5191,7 @@ async function deleteOwnAccount() {
 
 /* All accounts now use one visual UI version. Authorization remains separate. */
 function updateAdminUiVersion() {
-  const version = document.querySelector('meta[name="app-version"]')?.content || '4.37.14';
+  const version = document.querySelector('meta[name="app-version"]')?.content || '4.37.15';
   const value = `APP VERSION ${version}`;
   const label = document.querySelector('.app-code-version');
   if (label) label.textContent = value;

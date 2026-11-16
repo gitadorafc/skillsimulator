@@ -131,12 +131,6 @@ body.app-scroll-layout:not(.admin-new-ui) .user-list-header-slot #userListSortDi
   width:calc(4em + 42px) !important;
   padding-right:34px !important;
 }
-body.text-size-up.app-scroll-layout .user-list-header-slot .user-list-sort-field{
-  font-size:10px !important;
-}
-body.text-size-up.app-scroll-layout .user-list-header-slot .user-list-sort-field select{
-  font-size:15px !important;
-}
 body.app-scroll-layout:not(.admin-new-ui) .user-list-header-slot :is(
   .users-toolbar input,
   .user-list-sort-field select
@@ -851,32 +845,8 @@ body.skill-target-columns #userDetailRecords .list-container {
   gap: 4px !important;
 }
 
-body.text-size-up.skill-target-columns :is(
-  #viewSkill,
-  #userDetailSkill,
-  #viewAllManage,
-  #userDetailRecords
-) .dc-card {
-  --dc-horizontal-title-h: calc(12px * 1.12 * 2 + 6px);
-}
 
-body.text-size-up.skill-target-columns :is(
-  #viewSkill,
-  #userDetailSkill,
-  #viewAllManage,
-  #userDetailRecords
-) .dc-card :is(.dc-song-title, .dc-lv, .dc-rate) {
-  font-size: 12px !important;
-}
 
-body.text-size-up.skill-target-columns :is(
-  #viewSkill,
-  #userDetailSkill,
-  #viewAllManage,
-  #userDetailRecords
-) .dc-card .dc-skill {
-  font-size: 13px !important;
-}
 
 @media (max-width: 700px) {
   body.skill-target-columns :is(#viewSkill, #userDetailSkill),
