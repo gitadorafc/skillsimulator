@@ -177,18 +177,39 @@ export async function renderAdminJacketSkillShareFile({
     c.font = '800 19px sans-serif';
     infoCols.forEach(col => c.fillText(col.label, colX[col.key], infoY + 18));
 
+    // A common right edge gives the current and previous TOTAL values the
+    // same decimal-point position, even when their integer digits differ.
+    c.font = '800 21px sans-serif';
+    const totalSkillRight = colX.skill + Math.ceil(Math.max(
+      c.measureText(total.toFixed(2)).width,
+      c.measureText(base.toFixed(2)).width,
+      c.measureText('スキル値').width
+    ));
+    const paintTotalSkill = (value, y) => {
+      const formatted = value.toFixed(2);
+      const row = getSkillColorRowByTotalValue(value);
+      c.font = '800 21px sans-serif';
+      c.textBaseline = 'middle';
+      c.textAlign = 'right';
+      const textWidth = c.measureText(formatted).width;
+      c.fillStyle = skillColorCanvasShareTextPaint(
+        c, row, totalSkillRight - textWidth, y - 13, textWidth, 26
+      );
+      c.fillText(formatted, totalSkillRight, y);
+      c.textAlign = 'left';
+    };
     c.fillStyle = '#f8fafc';
     c.font = '800 21px sans-serif';
     c.fillText('現在', colX.type, infoY + 46);
     c.fillText(fmt(validSnapshot?.savedAt || new Date()), colX.date, infoY + 46);
-    c.fillText(total.toFixed(2), colX.skill, infoY + 46);
+    paintTotalSkill(total, infoY + 46);
     c.fillStyle = change >= 0 ? '#60a5fa' : '#fca5a5';
     c.fillText(`${change > 0 ? '+' : ''}${change.toFixed(2)}`, colX.delta, infoY + 46);
 
     c.fillStyle = '#f8fafc';
     c.fillText('前回', colX.type, infoY + 76);
     c.fillText(fmt(comparisonBaseline.savedAt), colX.date, infoY + 76);
-    c.fillText(base.toFixed(2), colX.skill, infoY + 76);
+    paintTotalSkill(base, infoY + 76);
   }
 
   const drawPill = (label, left, top, width, height, bg, fg, border = null, font = 15) => {
@@ -387,7 +408,7 @@ export async function renderAdminJacketSkillShareFile({
       const titleX = left + 14 + jacketSize + 12;
       const currentLineY = 72;
       const previousLineY = 102;
-      const fieldGap = 12;
+      const fieldGap = 18;
       const labelW = 44;
       const partW = 74;
       const levelW = 54;
@@ -412,6 +433,7 @@ export async function renderAdminJacketSkillShareFile({
         throw new Error('比較画像の列幅が不足しています。');
       }
       const textFont = '800 18px ui-monospace, monospace';
+      // Fixed-width digits and right alignment keep the decimal points aligned.
       const skillFont = '900 21px ui-monospace, monospace';
       const drawAlignedValue = (formatted, field, y, font, color) => {
         c.fillStyle = color;
