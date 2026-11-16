@@ -2718,7 +2718,9 @@ const ADMIN_UNIFIED_MENU_SCREENS = [
 ];
 const adminUnifiedMenuMounts = [];
 function initAdminUnifiedMenuScreens() {
-  if (!document.body.classList.contains('admin-new-ui')) return;
+  // Both UIs use one presentation header; permission checks remain in menu actions.
+  if (!document.body.classList.contains('admin-new-ui') &&
+      !document.body.classList.contains('public-card-ui')) return;
   for (const [maskId, oldHeaderClass, backId] of ADMIN_UNIFIED_MENU_SCREENS) {
     const mask = $(maskId);
     const oldHeader = mask?.querySelector(`.${oldHeaderClass}`);
@@ -5313,9 +5315,10 @@ async function checkAdminAccess() {
   }
   if (!adminNewUi) restorePublicScoreEditor();
   updateAdminUiVersion(adminNewUi);
-  if (!adminNewUi) restoreAdminUnifiedMenuScreens();
+  // Re-mount the shared menu headers for both users; preserve existing listeners.
+  restoreAdminUnifiedMenuScreens();
+  initAdminUnifiedMenuScreens();
   if (adminNewUi) {
-    initAdminUnifiedMenuScreens();
     // Start the same users RPC while the first tab is being prepared, so
     // the first user-list visit can reuse its result or its in-flight promise.
     void fetchAdminUserListCached('', activeInstrument, activeVersionId)

@@ -1,0 +1,94 @@
+/* Public menu workspace v4.37.7. These selectors intentionally never target admin-new-ui.
+   The actual buttons and handlers are the original user-permission-aware nodes. */
+body.public-card-ui .admin-workspace-header {
+  display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:start;
+  gap:10px;min-width:0;margin:0 0 16px;padding:0 0 12px;
+  border:0;border-bottom:1px solid #30445c;background:transparent;box-sizing:border-box;
+}
+body.public-card-ui .admin-workspace-title {display:flex;flex-direction:column;min-width:0;gap:4px;}
+body.public-card-ui .admin-workspace-title > :is(h1,h2,h3,strong) {
+  display:block;margin:0;padding:0;color:#f8fafc;font-size:19px;font-weight:900;
+  line-height:1.4;overflow-wrap:anywhere;
+}
+body.public-card-ui .admin-workspace-title > :not(h1,h2,h3,strong) {
+  margin:0;color:#9fb5ca;font-size:12px;font-weight:700;line-height:1.4;
+}
+body.public-card-ui .admin-workspace-actions {
+  display:flex;flex:0 0 auto;align-items:center;justify-content:flex-end;gap:7px;
+}
+body.public-card-ui .admin-workspace-actions > :is(button,.menu-context-help) {
+  display:inline-flex;align-items:center;justify-content:center;flex:none;
+  box-sizing:border-box;width:auto;min-width:52px;height:36px;min-height:36px;
+  margin:0;padding:0 11px;border:1px solid #64748b;border-radius:7px;
+  background:#111827;color:#e2e8f0;-webkit-text-fill-color:#e2e8f0;
+  font-family:inherit;font-size:12px;font-weight:900;line-height:1;
+  white-space:nowrap;box-shadow:none;text-align:center;cursor:pointer;
+}
+body.public-card-ui.light-mode .admin-workspace-header {border-bottom-color:#cbd5e1;}
+body.public-card-ui.light-mode .admin-workspace-title > :is(h1,h2,h3,strong) {color:#17243a;}
+body.public-card-ui.light-mode .admin-workspace-title > :not(h1,h2,h3,strong) {color:#526579;}
+body.public-card-ui.light-mode .admin-workspace-actions > :is(button,.menu-context-help) {
+  background:#f8fafc;color:#1e293b;-webkit-text-fill-color:#1e293b;border-color:#94a3b8;
+}
+@media (max-width:1099.98px) {
+  body.public-card-ui #menuMask .app-menu-item {font-size:16px;line-height:1.4;}
+  body.public-card-ui #menuMask .app-menu-group-label {font-size:12px;}
+  body.public-card-ui :is(
+    #menuMask,#mypageModal,#featureSettingsMask,#tagSettingsMask,
+    #skillSyncMask,#allScoreSyncMask,#skillShareMask,#skillHistoryMask,
+    #skillRankingMask,#officialSkillRankingMask,#rivalManageMask,
+    #songCatalogMask,#howToMask,#feedbackMask,#supportMask,#accountSwitchMask
+  ) {
+    box-sizing:border-box;background:rgba(2,6,23,.72)!important;
+    backdrop-filter:blur(2px)!important;-webkit-backdrop-filter:blur(2px)!important;
+    padding:16px!important;align-items:center!important;justify-content:center!important;
+  }
+  body.public-card-ui.light-mode :is(
+    #menuMask,#mypageModal,#featureSettingsMask,#tagSettingsMask,
+    #skillSyncMask,#allScoreSyncMask,#skillShareMask,#skillHistoryMask,
+    #skillRankingMask,#officialSkillRankingMask,#rivalManageMask,
+    #songCatalogMask,#howToMask,#feedbackMask,#supportMask,#accountSwitchMask
+  ) {background:rgba(15,23,42,.25)!important;}
+  body.public-card-ui :is(
+    #menuMask > .app-menu-sheet,
+    #mypageModal > .mypage-sheet,
+    #featureSettingsMask > .menu-screen-dialog,
+    #tagSettingsMask > .menu-screen-dialog,
+    #skillSyncMask > .menu-screen-dialog,
+    #allScoreSyncMask > .menu-screen-dialog,
+    #skillShareMask > .menu-screen-dialog,
+    #skillHistoryMask > .menu-screen-dialog,
+    #skillRankingMask > .menu-screen-dialog,
+    #officialSkillRankingMask > .menu-screen-dialog,
+    #rivalManageMask > .menu-screen-dialog,
+    #songCatalogMask > .menu-screen-dialog,
+    #howToMask > .menu-screen-dialog,
+    #feedbackMask > .menu-screen-dialog,
+    #supportMask > .menu-screen-dialog,
+    #accountSwitchMask > .menu-screen-dialog
+  ) {
+    position:relative!important;flex-shrink:1;width:100%!important;
+    max-width:520px!important;max-height:calc(100dvh - 32px)!important;
+    margin:0 auto!important;padding:16px!important;border-radius:14px!important;
+    box-sizing:border-box!important;overflow-x:hidden;overflow-y:auto;
+  }
+  body.public-card-ui .menu-screen-dialog {display:flex;flex-direction:column;min-width:0;}
+}
+@media (max-width:600px) {
+  body.public-card-ui :is(
+    #menuMask,#mypageModal,#featureSettingsMask,#tagSettingsMask,
+    #skillSyncMask,#allScoreSyncMask,#skillShareMask,#skillHistoryMask,
+    #skillRankingMask,#officialSkillRankingMask,#rivalManageMask,
+    #songCatalogMask,#howToMask,#feedbackMask,#supportMask,#accountSwitchMask
+  ) {padding:12px!important;}
+  body.public-card-ui :is(
+    #menuMask > .app-menu-sheet,#mypageModal > .mypage-sheet,
+    #featureSettingsMask > .menu-screen-dialog,#tagSettingsMask > .menu-screen-dialog,
+    #skillSyncMask > .menu-screen-dialog,#allScoreSyncMask > .menu-screen-dialog,
+    #skillShareMask > .menu-screen-dialog,#skillHistoryMask > .menu-screen-dialog,
+    #skillRankingMask > .menu-screen-dialog,#officialSkillRankingMask > .menu-screen-dialog,
+    #rivalManageMask > .menu-screen-dialog,#songCatalogMask > .menu-screen-dialog,
+    #howToMask > .menu-screen-dialog,#feedbackMask > .menu-screen-dialog,
+    #supportMask > .menu-screen-dialog,#accountSwitchMask > .menu-screen-dialog
+  ) {max-width:460px!important;max-height:calc(100dvh - 24px)!important;}
+}
