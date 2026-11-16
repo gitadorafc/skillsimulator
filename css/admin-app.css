@@ -148,12 +148,30 @@ body.admin-new-ui.light-mode #skillHistoryList .skill-history-summary {
   color:#111827!important;
   box-shadow:none!important;
 }
-/* Match the user list's numeric typography and its subtle common stroke. */
+/* Skill history numbers use the same glyph metrics and text-sized gradient
+   canvas as the user-list skill values.  Keep this admin-only so the public
+   user-list styles and all other score-rank colors remain untouched. */
+body.admin-new-ui #skillHistoryList .skill-history-value[class*="score-rank-"] {
+  display:inline-block !important;
+  width:max-content !important;
+  min-width:0 !important;
+  max-width:none !important;
+  margin:0 !important;
+  padding:0 !important;
+  line-height:1 !important;
+  text-align:right !important;
+  font-size:12px !important;
+  font-weight:900 !important;
+  font-family:"SFMono-Regular","Roboto Mono","Noto Sans Mono",Consolas,monospace !important;
+  font-variant-numeric:tabular-nums lining-nums !important;
+  font-feature-settings:"tnum" 1,"lnum" 1 !important;
+  letter-spacing:0 !important;
+  white-space:nowrap !important;
+  background-size:100% 100%;
+}
+/* Match the fine outline used for user-list rank values in light mode. */
 body.admin-new-ui.light-mode #skillHistoryList .skill-history-value[class*="score-rank-"] {
-  font-family:inherit;
-  font-size:12px;
-  font-weight:900;
-  -webkit-text-stroke:.2px rgba(15,23,42,.75)!important;
+  -webkit-text-stroke:.2px rgba(15,23,42,.75) !important;
 }
 body.admin-new-ui.light-mode .favorite-toggle {
   background:#f8fafc !important;
@@ -1953,7 +1971,6 @@ body.admin-new-ui #skillHistoryList .skill-history-date {
   }
   body.admin-new-ui #skillHistoryList .skill-history-value {
     flex:0 0 auto;
-    font-size:11px;
   }
   body.admin-new-ui #skillHistoryList .skill-history-row :is(
     .skill-history-display,.skill-history-compare,.skill-history-delete
