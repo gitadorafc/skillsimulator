@@ -52,14 +52,19 @@ body.admin-new-ui #domModal .admin-score-mini-label::after {
   border-top:1px solid var(--ase-rule);
   background:none;
 }
-/* The song title / picker separator uses the same single CSS border as
-   the other editor dividers. Remove any inherited edge on the two slots. */
+/* The empty song-suggestion container inherits a full border from the public
+   form, which looks like a second horizontal rule under the title input.
+   Hide only the empty container in the admin editor; show it as soon as
+   suggestions exist. Keep the input's own single bottom border. */
+body.admin-new-ui #domModal .admin-score-editor #songSuggestions:empty {
+  display:none!important;
+  border:0!important;
+  margin:0!important;
+}
 body.admin-new-ui #domModal .admin-score-song-fields > [data-admin-score-slot="title"] {
   border-bottom:0!important;
 }
 body.admin-new-ui #domModal .admin-score-song-fields > [data-admin-score-slot="part"] {
-  /* The title input already has a bottom edge close to this row.
-     Do not draw another divider immediately underneath it. */
   border-top:0;
   border-bottom:0;
   margin-top:5px;
