@@ -1603,7 +1603,7 @@ let adminFeatureSettingsRequest = 0;
 async function openFeatureSettings() {
   const request = ++adminFeatureSettingsRequest;
   closeMenu();
-  if (document.body.classList.contains('admin-new-ui')) $('featureSettingsMask').style.display = 'flex';
+  if (document.body.classList.contains('admin-new-ui') || document.body.classList.contains('public-card-ui')) $('featureSettingsMask').style.display = 'flex';
   $('featureSettingsStatus').textContent = '';
   delete $('featureSettingsStatus').dataset.state;
 
@@ -1675,7 +1675,7 @@ async function saveFeatureSettings() {
     delete $('featureSettingsStatus').dataset.state;
 
     // Capture the UI variant before render(), which can re-evaluate display state.
-    const keepAdminMenuOpen = document.body.classList.contains('admin-new-ui');
+    const keepUnifiedMenuOpen = document.body.classList.contains('admin-new-ui') || document.body.classList.contains('public-card-ui');
     const light = $('settingLightMode').checked;
     const skillTargetColumns = Boolean($('settingSkillTargetColumns')?.checked);
     const textSizeUp = !document.body.classList.contains('admin-new-ui') && Boolean($('settingTextSizeUp')?.checked);
@@ -1696,7 +1696,7 @@ async function saveFeatureSettings() {
     });
     if (error) throw error;
 
-    if (keepAdminMenuOpen) {
+    if (keepUnifiedMenuOpen) {
       $('featureSettingsMask').style.display = 'flex';
       showAdminMenuSaveStatus('featureSettingsStatus', '機能設定を保存しました。');
     } else {
@@ -1728,7 +1728,7 @@ async function saveMyXId() {
     if (error) throw error;
 
     $('mypageXIdInput').value = xId;
-    if (document.body.classList.contains('admin-new-ui')) {
+    if (document.body.classList.contains('admin-new-ui') || document.body.classList.contains('public-card-ui')) {
       showAdminMenuSaveStatus('mypageSaveStatus', xId ? 'X IDを保存しました。' : 'X IDを削除しました。');
     } else {
       await showSiteDialog(xId ? 'X IDを保存しました。' : 'X IDを削除しました。', '保存完了');
@@ -2798,7 +2798,7 @@ $('howToMask').querySelector('.howto-index').addEventListener('click', event => 
   if (!section) return;
   const mask = $('howToMask');
   const body = mask.querySelector('.howto-body');
-  const scroller = document.body.classList.contains('admin-new-ui')
+  const scroller = (document.body.classList.contains('admin-new-ui') || document.body.classList.contains('public-card-ui'))
     && window.matchMedia('(min-width: 1100px)').matches ? mask : body;
   scroller.scrollTo({
     top: scroller.scrollTop + section.getBoundingClientRect().top - scroller.getBoundingClientRect().top - 8,
@@ -5183,7 +5183,7 @@ let adminMyPageRequest = 0;
 async function openMyPage(fromMenu = false) {
   const request = ++adminMyPageRequest;
   myPageOpenedFromMenu = Boolean(fromMenu);
-  if (document.body.classList.contains('admin-new-ui')) $('mypageModal').style.display = 'flex';
+  if (document.body.classList.contains('admin-new-ui') || document.body.classList.contains('public-card-ui')) $('mypageModal').style.display = 'flex';
   const { data } = await supabase.auth.getUser();
   if (request !== adminMyPageRequest) return;
   $('mypageUsernameInput').value = data.user?.user_metadata?.username || $('headerUsername').textContent || '';
@@ -5212,7 +5212,7 @@ async function changeOwnUsername() {
   $('mypageUsernameInput').value = data.username;
   $('headerUsername').textContent = data.username;
   $('authUsername').value = data.username;
-  if (document.body.classList.contains('admin-new-ui')) {
+  if (document.body.classList.contains('admin-new-ui') || document.body.classList.contains('public-card-ui')) {
     showAdminMenuSaveStatus('mypageSaveStatus', 'ユーザー名を変更しました。次回から新しいユーザー名でログインしてください。');
   } else {
     await showSiteDialog('ユーザー名を変更しました。\n次回から新しいユーザー名でログインしてください。', '変更完了');
@@ -5260,12 +5260,13 @@ async function deleteOwnAccount() {
   }
 }
 
-/* admin専用UIの表示版番号。共通配信バージョンは変更しない。 */
+/* UI移行中は公開版と管理者版を独立表示し、公開版はHTMLメタから取得する。 */
 function updateAdminUiVersion(enabled) {
   const label = document.querySelector('.app-code-version');
   if (!label) return;
   const adminVersion = document.querySelector('meta[name="admin-ui-version"]')?.content || '4.38.42';
-  label.textContent = `APP VERSION ${enabled ? adminVersion : '4.37.9'}`;
+  const publicVersion = document.querySelector('meta[name="app-version"]')?.content || '4.37.10';
+  label.textContent = `APP VERSION ${enabled ? adminVersion : publicVersion}`;
   const desktopLabel = $('adminDesktopAppVersion');
   if (desktopLabel) desktopLabel.textContent = label.textContent;
 }
