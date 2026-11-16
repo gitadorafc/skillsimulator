@@ -1870,7 +1870,6 @@ body.light-mode .sync-mini-toolbar{
   background:#83c63d !important;
 }
 
-/* 文字サイズUP：主要画面・入力・モーダルを一段階大きくする */
 /* 他ユーザー詳細の固定エリアも、ユーザー一覧と同じく最下部に影を付ける */
 .user-detail-sticky{
   box-shadow:0 5px 10px rgba(0,0,0,.28) !important;
@@ -2947,8 +2946,6 @@ body.light-mode .skill-share-option.active {
   color:#fff;
 }
 
-/* === APP VERSION 4.0.1: 文字サイズUP適用範囲の再調整 === */
-
 /* 上部VERSIONは、ダークでは視認性を上げ、ライトでは文字色を一段濃くする。 */
 .header-active-version{
   color:#94a3b8;
@@ -2956,24 +2953,6 @@ body.light-mode .skill-share-option.active {
 body.light-mode .header-active-version{
   color:#475569 !important;
 }
-
-/* 文字サイズUPで意図せず縮小していた箇所は、通常時のサイズを維持する。 */
-
-/* 上部VERSION */
-
-/* 登録タブ：通常表示と横並び表示で、編集ボタンの指定サイズを分ける。 */
-
-
-/* 曲詳細 */
-
-/* 曲登録・編集 */
-
-/* MENU / How to use / マイページ */
-
-/* スキル対象同期 */
-/* スキル対象の画像共有 */
-
-/* スキル対象ランキング */
 
 /* === APP VERSION 4.1.0: GF初期オプション / アカウント切り替え === */
 .feature-setting-select{

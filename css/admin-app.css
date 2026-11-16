@@ -1143,12 +1143,6 @@ body.admin-new-ui #mypageSaveStatus:not(:empty) {
   line-height:1.5;
 }
 
-/* Admin-only feature settings: text size is now fixed, not a per-user toggle.
-   Public UI keeps its own display setting and CSS unchanged. */
-body.admin-new-ui #featureSettingsMask .feature-setting-row:has(#settingTextSizeUp) {
-  display:none!important;
-}
-
 /* Consistent legible help text throughout the admin menus, in both themes.
    Avoid song-card metrics/badges: their fixed layout is intentionally unchanged. */
 body.admin-new-ui :is(

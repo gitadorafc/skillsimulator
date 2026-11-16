@@ -1297,8 +1297,7 @@ function applyLightMode(enabled = null) {
 }
 
 const DISPLAY_CUSTOMIZATION_KEYS = Object.freeze({
-  skillTargetColumns: 'gitadora_skill_target_columns',
-  textSizeUp: 'gitadora_text_size_up'
+  skillTargetColumns: 'gitadora_skill_target_columns'
 });
 
 // 未保存のテーマ変更はログイン時のDB同期で上書きしない。ユーザー別に保持し、
@@ -1345,8 +1344,6 @@ function readLocalDisplaySettings() {
     lightMode: localStorage.getItem('gitadora_light_mode') === '1',
     skillTargetColumns:
       localStorage.getItem(DISPLAY_CUSTOMIZATION_KEYS.skillTargetColumns) === '1',
-    textSizeUp:
-      localStorage.getItem(DISPLAY_CUSTOMIZATION_KEYS.textSizeUp) === '1',
     gfDefaultOption: getGfDefaultOption()
   };
 }
@@ -1354,7 +1351,6 @@ function readLocalDisplaySettings() {
 function writeLocalDisplaySettings(settings) {
   const lightMode = Boolean(settings?.lightMode);
   const skillTargetColumns = Boolean(settings?.skillTargetColumns);
-  const textSizeUp = Boolean(settings?.textSizeUp);
   const gfDefaultOption = setGfDefaultOption(
     settings?.gfDefaultOption || 'NORMAL'
   );
@@ -1364,18 +1360,13 @@ function writeLocalDisplaySettings(settings) {
     DISPLAY_CUSTOMIZATION_KEYS.skillTargetColumns,
     skillTargetColumns ? '1' : '0'
   );
-  localStorage.setItem(
-    DISPLAY_CUSTOMIZATION_KEYS.textSizeUp,
-    textSizeUp ? '1' : '0'
-  );
 
   applyLightMode(lightMode);
-  applyDisplayCustomization(skillTargetColumns, textSizeUp);
+  applyDisplayCustomization(skillTargetColumns);
 
   return {
     lightMode,
     skillTargetColumns,
-    textSizeUp,
     gfDefaultOption
   };
 }
@@ -1384,7 +1375,6 @@ async function saveMyDisplaySettingsToSupabase(settings) {
   const normalized = {
     lightMode: Boolean(settings?.lightMode),
     skillTargetColumns: Boolean(settings?.skillTargetColumns),
-    textSizeUp: Boolean(settings?.textSizeUp),
     gfDefaultOption: GF_DEFAULT_OPTIONS.includes(settings?.gfDefaultOption)
       ? settings.gfDefaultOption
       : 'NORMAL'
@@ -1393,7 +1383,7 @@ async function saveMyDisplaySettingsToSupabase(settings) {
   const { error } = await supabase.rpc('set_my_display_settings', {
     p_light_mode: normalized.lightMode,
     p_skill_target_columns: normalized.skillTargetColumns,
-    p_text_size_up: normalized.textSizeUp,
+    p_text_size_up: false, // 廃止済み設定。既存のSupabase RPC引数は互換性のため維持
     p_gf_default_option: normalized.gfDefaultOption
   });
   if (error) throw error;
@@ -1426,7 +1416,6 @@ async function syncMyDisplaySettings() {
     return writeLocalDisplaySettings({
       lightMode: pendingLightMode ?? Boolean(row.light_mode),
       skillTargetColumns: Boolean(row.skill_target_columns),
-      textSizeUp: Boolean(row.text_size_up),
       gfDefaultOption: row.gf_default_option || 'NORMAL'
     });
   } catch (error) {
@@ -1436,27 +1425,18 @@ async function syncMyDisplaySettings() {
   }
 }
 
-function applyDisplayCustomization(skillTargetColumns = null, textSizeUp = null) {
+function applyDisplayCustomization(skillTargetColumns = null) {
   const columnsEnabled = (
     skillTargetColumns == null
       ? localStorage.getItem(DISPLAY_CUSTOMIZATION_KEYS.skillTargetColumns) === '1'
       : Boolean(skillTargetColumns)
   );
-  const textSizeEnabled = (
-    textSizeUp == null
-      ? localStorage.getItem(DISPLAY_CUSTOMIZATION_KEYS.textSizeUp) === '1'
-      : Boolean(textSizeUp)
-  );
-
   // 対象コンテナ側で表示中かを判定するため、設定値は他ユーザー画面でも維持する。
   document.body.classList.toggle('skill-target-columns', columnsEnabled);
   // 統一UIでは旧ユーザーUI専用の文字拡大モードを使用しない。
   document.body.classList.remove('text-size-up');
 
-  return {
-    skillTargetColumns: columnsEnabled,
-    textSizeUp: textSizeEnabled
-  };
+  return { skillTargetColumns: columnsEnabled };
 }
 
 async function getMyFeatureSettings() {
@@ -1615,17 +1595,10 @@ async function openFeatureSettings() {
   }
 
   const columnsInput = $('settingSkillTargetColumns');
-  const textSizeInput = $('settingTextSizeUp');
   if (columnsInput) {
     columnsInput.disabled = false;
     columnsInput.checked =
       localStorage.getItem(DISPLAY_CUSTOMIZATION_KEYS.skillTargetColumns) === '1';
-  }
-  if (textSizeInput) {
-    textSizeInput.closest('.feature-setting-row')?.setAttribute('hidden', '');
-    textSizeInput.disabled = true;
-    textSizeInput.checked =
-      localStorage.getItem(DISPLAY_CUSTOMIZATION_KEYS.textSizeUp) === '1';
   }
 
   const gfDefaultOptionInput = $('settingGfDefaultOption');
@@ -1676,11 +1649,9 @@ async function saveFeatureSettings() {
     const keepUnifiedMenuOpen = document.body.classList.contains('admin-new-ui');
     const light = $('settingLightMode').checked;
     const skillTargetColumns = Boolean($('settingSkillTargetColumns')?.checked);
-    const textSizeUp = false; // 旧UIの文字拡大設定は廃止（DB項目は互換維持）
     const displaySettings = writeLocalDisplaySettings({
       lightMode: light,
       skillTargetColumns,
-      textSizeUp,
       gfDefaultOption: $('settingGfDefaultOption')?.value || 'NORMAL'
     });
     await saveMyDisplaySettingsToSupabase(displaySettings);
@@ -1988,7 +1959,7 @@ async function init() {
       updateAdminUiVersion();
       applyAppScrollLayout(false);
       updateDmBassMirrorFieldVisibility();
-      applyDisplayCustomization(false, false);
+      applyDisplayCustomization(false);
       applyLightMode(false);
       $('btnAdmin').classList.add('hidden');
       $('mypageUserSwitchBlock')?.classList.add('hidden');
