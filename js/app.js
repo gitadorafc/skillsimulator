@@ -459,12 +459,19 @@ async function processOfficialRankingTokenRequest() {
 
 async function recordMyActivity(eventType = 'OPEN') {
   try {
+    // 認証直後はSIGNED_INイベントとセッションの保存が並行する場合がある。
+    // 匿名キーでRPCを呼ばないよう、送信直前に認証セッションを確認する。
+    const { data, error: sessionError } = await supabase.auth.getSession();
+    if (sessionError) throw sessionError;
+    const session = data?.session;
+    if (!session?.access_token || !session?.user?.id || session.user.id !== currentUserId) return;
+
     const { error } = await supabase.rpc('record_my_activity', {
       p_event: String(eventType || 'OPEN').toUpperCase()
     });
     if (error) throw error;
   } catch (e) {
-    // 集計用の記録失敗で、画面表示・同期・手動登録を止めない。
+    // 活動記録は補助処理。記録失敗で画面表示・同期・編集を止めない。
     console.warn('activity record failed:', e);
   }
 }
@@ -1779,7 +1786,6 @@ async function showApp(session) {
   applyAppScrollLayout(true);
   clearAdminUserListCache();
   currentUserId = session?.user?.id || null;
-  void recordMyActivity('OPEN');
 
   let username =
     session?.user?.user_metadata?.username ||
@@ -1810,6 +1816,8 @@ async function showApp(session) {
   setAppLoading('画面を準備中...');
   await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
   finishAppLoading();
+  // 初期画面の構築とセッション確立が終わってからOPENを記録する。
+  void recordMyActivity('OPEN');
   if (document.body.classList.contains('admin-new-ui')) {
     const versionForWarmup = activeVersionId;
     const warmup = () => {
@@ -1973,6 +1981,7 @@ async function init() {
     }
 
     if (event === 'SIGNED_OUT' || !session) {
+      currentUserId = null;
       $('registrationNoticeMask').style.display = 'none';
       registrationNoticeDisplayedFor = null;
       finishAppLoading();
