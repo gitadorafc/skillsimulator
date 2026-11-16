@@ -256,6 +256,17 @@ export async function renderAdminJacketSkillShareFile({
     return gradient;
   };
   const gap = 24, colW = (W - 108 - gap) / 2;
+  // Palette is identical to the admin UI and independent of public colors.
+  const adminPartPalette = part => {
+    const colors = {
+      'MAS-G':['#C51EDD','#FFFFFF'], 'MAS-B':['#9333EA','#FFFFFF'],
+      'EXT-G':['#EF4444','#FFFFFF'], 'EXT-B':['#C0264D','#FFFFFF'],
+      'ADV-G':['#FACC15','#111827'], 'ADV-B':['#B7AC12','#111827'],
+      'BSC-G':['#3B82F6','#FFFFFF'], 'BSC-B':['#4F46E5','#FFFFFF']
+    };
+    return colors[String(part || '').toUpperCase()] || ['#64748b','#ffffff'];
+  };
+  const adminSongTitlePaint = '#ddd6fe'; // Shared images always use the dark background.
   const drawTable = (caption, rows, left, accent) => {
     // Match the admin skill-target headings, not the public pink/green palette.
     c.fillStyle = accent; c.fillRect(left, tableTop, colW, 40);
@@ -292,16 +303,14 @@ export async function renderAdminJacketSkillShareFile({
       const contentX = jacketX + jacketSize + 10;
       const skillW = 99, skillX = left + colW - skillW - 7;
       const titleTop = y + 20;
-      c.fillStyle = '#f8fafc'; c.textAlign = 'left'; c.textBaseline = 'middle';
+      c.fillStyle = adminSongTitlePaint; c.textAlign = 'left'; c.textBaseline = 'middle';
       c.font = '900 19px sans-serif';
       c.fillText(fitText(r.title, skillX - contentX - 8, '900 19px sans-serif'), contentX, titleTop);
 
       // Details occupy the second line, matching the 2-row admin song cards.
       const pillTop = y + 41;
       const part = String(r.part || '');
-      const partStyle = part.startsWith('MAS') ? ['#cf2ce4', '#fff']
-        : part.startsWith('EXT') ? ['#f43f46', '#fff']
-        : part.startsWith('ADV') ? ['#eab308', '#0b1020'] : ['#3b9ff2', '#fff'];
+      const partStyle = adminPartPalette(part);
       // Measure the *visible glyphs*, not their padded columns. Every
       // adjacent item has the same optical gap, even when the rate is 99.xx%.
       // The achievement is reserved at its maximum 100.00% width.
@@ -382,13 +391,7 @@ export async function renderAdminJacketSkillShareFile({
       HOT: { headerBg: '#450a0a', headerFg: '#fecaca', headerBorder: '#991b1b' },
       OTHER: { headerBg: '#173447', headerFg: '#b6ebf5', headerBorder: '#367e9d' }
     };
-    const partPalette = part => {
-      const value = String(part || '').toUpperCase();
-      if (value.startsWith('MAS')) return ['#c51edd', '#ffffff'];
-      if (value.startsWith('EXT')) return ['#ef4444', '#ffffff'];
-      if (value.startsWith('ADV')) return ['#eab308', '#0f172a'];
-      return ['#3b82f6', '#ffffff'];
-    };
+
     const optionPalette = {
       'RAN':['#153326','#86efac','#15803d'],
       'RAN+':['#123340','#67e8f9','#0369a1'],
@@ -469,7 +472,7 @@ export async function renderAdminJacketSkillShareFile({
           return;
         }
         const part = String(row.part || '—').toUpperCase();
-        drawPill(part, fields.part.x, y - 12, partW, 24, ...partPalette(part), null, 13);
+        drawPill(part, fields.part.x, y - 12, partW, 24, ...adminPartPalette(part), null, 13);
         const color = isPrevious ? '#cbd5e1' : '#f8fafc';
         drawAlignedValue(Number(row.level || 0).toFixed(2), fields.level, y, textFont, color);
         drawAlignedValue(`${Number(row.achievement_rate || 0).toFixed(2)}%`, fields.rate, y, textFont, color);
@@ -521,7 +524,7 @@ export async function renderAdminJacketSkillShareFile({
             jacketX, jacketY, jacketSize, jacketSize);
           c.restore();
         }
-        c.fillStyle = '#f8fafc';
+        c.fillStyle = adminSongTitlePaint;
         c.textAlign = 'left';
         c.textBaseline = 'middle';
         c.font = '900 23px sans-serif';

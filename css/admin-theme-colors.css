@@ -1,0 +1,24 @@
+/* v4.40.107: Admin-only song typography and Guitar/Bass part palette.
+   Never modify public .p-* or public song-title declarations. */
+body.admin-new-ui {
+  --admin-song-title-color: #ddd6fe;
+}
+body.admin-new-ui.light-mode {
+  --admin-song-title-color: #5b21b6;
+}
+body.admin-new-ui :is(
+  .ar-song-name, .dc-song-title, .song-catalog-title, .skill-ranking-song,
+  .admin-master-mobile-title, .admin-master-title-controls .master-title,
+  .song-title-text
+) {
+  color: var(--admin-song-title-color) !important;
+  -webkit-text-fill-color: var(--admin-song-title-color) !important;
+}
+body.admin-new-ui .p-badge[data-admin-part="MAS-G"] { background: #C51EDD !important; color: #FFFFFF !important; -webkit-text-fill-color: #FFFFFF !important; }
+body.admin-new-ui .p-badge[data-admin-part="MAS-B"] { background: #9333EA !important; color: #FFFFFF !important; -webkit-text-fill-color: #FFFFFF !important; }
+body.admin-new-ui .p-badge[data-admin-part="EXT-G"] { background: #EF4444 !important; color: #FFFFFF !important; -webkit-text-fill-color: #FFFFFF !important; }
+body.admin-new-ui .p-badge[data-admin-part="EXT-B"] { background: #C0264D !important; color: #FFFFFF !important; -webkit-text-fill-color: #FFFFFF !important; }
+body.admin-new-ui .p-badge[data-admin-part="ADV-G"] { background: #FACC15 !important; color: #111827 !important; -webkit-text-fill-color: #111827 !important; }
+body.admin-new-ui .p-badge[data-admin-part="ADV-B"] { background: #B7AC12 !important; color: #111827 !important; -webkit-text-fill-color: #111827 !important; }
+body.admin-new-ui .p-badge[data-admin-part="BSC-G"] { background: #3B82F6 !important; color: #FFFFFF !important; -webkit-text-fill-color: #FFFFFF !important; }
+body.admin-new-ui .p-badge[data-admin-part="BSC-B"] { background: #4F46E5 !important; color: #FFFFFF !important; -webkit-text-fill-color: #FFFFFF !important; }

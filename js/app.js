@@ -3522,7 +3522,7 @@ async function createSkillShareFile(instrument, snapshot = null, comparisonBasel
     throw new Error('比較画像は管理者専用機能です。');
   }
   if (canUseAdminSkillComparison()) {
-    const { renderAdminJacketSkillShareFile } = await import('./admin-skill-share-renderer.js?v=4_40_106');
+    const { renderAdminJacketSkillShareFile } = await import('./admin-skill-share-renderer.js?v=4_40_107');
     await loadAdminRegisteredJackets(supabase);
     return renderAdminJacketSkillShareFile({...data, getJacketUrls:getAdminJacketUrls, getMedalSvg:bearMedal});
   }
@@ -5275,6 +5275,8 @@ async function checkAdminAccess() {
   if (adminNewUi) {
     const adminHistory = await import('./admin-skill-history.js?v=4_40_93');
     renderAdminSkillHistoryRows = adminHistory.renderAdminSkillHistoryRows;
+    const { installAdminColorTheme } = await import('./admin-color-theme.js?v=4_40_107');
+    installAdminColorTheme();
   }
   if (!adminNewUi) restorePublicScoreEditor();
   updateAdminUiVersion(adminNewUi);
