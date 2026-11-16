@@ -24,11 +24,38 @@ function rejectWaiters(error) {
   waiters.forEach(({ reject }) => reject(error));
 }
 
+// Load Cloudflare only when a user actually opens an authentication flow.
+// Keep a single script and promise for repeated login/account-switch dialogs.
+let turnstileScriptPromise = null;
+const TURNSTILE_SCRIPT_URL = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
+
 async function waitForTurnstile(timeoutMs = 15000) {
-  const started = Date.now();
+  if (window.turnstile) return;
+  if (!turnstileScriptPromise) {
+    turnstileScriptPromise = new Promise((resolve, reject) => {
+      const script = document.createElement('script');
+      script.src = TURNSTILE_SCRIPT_URL;
+      script.async = true;
+      script.dataset.gssTurnstile = '1';
+      script.onload = resolve;
+      script.onerror = () => {
+        script.remove();
+        reject(new Error('セキュリティ確認のスクリプトを読み込めませんでした。'));
+      };
+      document.head.appendChild(script);
+    }).catch(error => {
+      turnstileScriptPromise = null; // Allow a subsequent user retry.
+      throw error;
+    });
+  }
+  const deadline = Date.now() + timeoutMs;
+  await Promise.race([
+    turnstileScriptPromise,
+    new Promise((_, reject) => setTimeout(() => reject(new Error('セキュリティ確認の読み込みがタイムアウトしました。')), timeoutMs))
+  ]);
   while (!window.turnstile) {
-    if (Date.now() - started > timeoutMs) {
-      throw new Error('セキュリティ確認の読み込みに失敗しました。ページを再読み込みしてください。');
+    if (Date.now() > deadline) {
+      throw new Error('セキュリティ確認の初期化に失敗しました。ページを再読み込みしてください。');
     }
     await new Promise(resolve => setTimeout(resolve, 50));
   }

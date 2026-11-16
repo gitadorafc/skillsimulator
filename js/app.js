@@ -77,7 +77,7 @@ let adminEnabled = false;
 let renderAdminSkillHistoryRows = null;
 import { supabase } from './supabase.js?v=21_57';
 import { register, login, loginForAccountSwitch, logout, changePassword, getSession, validateUsername, isEmailLikeUsername } from './auth.js?v=4_36_9';
-import { initAuthCaptcha, prepareAuthCaptcha, getAuthCaptchaToken, resetAuthCaptcha } from './captcha.js?v=21_84';
+import { initAuthCaptcha, prepareAuthCaptcha, getAuthCaptchaToken, resetAuthCaptcha } from './captcha.js?v=4_40_116';
 import { PARTS, partsForInstrument, normalizeSongTitleForMatch, searchSongTitles, getSongByTitleAndPart, requestSongMaster, requestSongLevelCorrection } from './songs.js?v=4_37_0';
 import { calcSkill, formatLevel, formatRate, formatSkill, getMyScores, saveScore, deleteScore } from './scores.js?v=4_19_1';
 import { getGameVersions } from './versions.js?v=21_57';
@@ -1936,7 +1936,7 @@ async function init() {
   captureOfficialSyncBridgeRequest();
   captureSkillSyncHash();
   applyInstrumentUI();
-  await initAuthCaptcha();
+  // Turnstile is initialized on demand by showAuth/openAccountSwitch.
   const session = await getSession();
   if (session) {
     await showApp(session);
