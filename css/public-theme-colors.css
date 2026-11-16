@@ -1,0 +1,24 @@
+/* v4.37.2: Public UI typography / Guitar-Bass palette migration.
+   Admin UI remains unchanged. This stylesheet is intentionally scoped to
+   public authenticated screens, not the signed-out landing/auth pages. */
+body.public-palette-ui {
+  --public-song-title-color: #ddd6fe;
+}
+body.public-palette-ui.light-mode {
+  --public-song-title-color: #5b21b6;
+}
+body.public-palette-ui :is(
+  .dc-song-title, .skill-ranking-song, .song-catalog-title,
+  .song-title-text, .ar-song-name
+) {
+  color: var(--public-song-title-color) !important;
+  -webkit-text-fill-color: var(--public-song-title-color) !important;
+}
+body.public-palette-ui .p-badge[data-public-part="MAS-G"] { background: #C51EDD !important; color: #FFFFFF !important; -webkit-text-fill-color: #FFFFFF !important; }
+body.public-palette-ui .p-badge[data-public-part="MAS-B"] { background: #9333EA !important; color: #FFFFFF !important; -webkit-text-fill-color: #FFFFFF !important; }
+body.public-palette-ui .p-badge[data-public-part="EXT-G"] { background: #EF4444 !important; color: #FFFFFF !important; -webkit-text-fill-color: #FFFFFF !important; }
+body.public-palette-ui .p-badge[data-public-part="EXT-B"] { background: #C0264D !important; color: #FFFFFF !important; -webkit-text-fill-color: #FFFFFF !important; }
+body.public-palette-ui .p-badge[data-public-part="ADV-G"] { background: #FACC15 !important; color: #111827 !important; -webkit-text-fill-color: #111827 !important; }
+body.public-palette-ui .p-badge[data-public-part="ADV-B"] { background: #B7AC12 !important; color: #111827 !important; -webkit-text-fill-color: #111827 !important; }
+body.public-palette-ui .p-badge[data-public-part="BSC-G"] { background: #3B82F6 !important; color: #FFFFFF !important; -webkit-text-fill-color: #FFFFFF !important; }
+body.public-palette-ui .p-badge[data-public-part="BSC-B"] { background: #4F46E5 !important; color: #FFFFFF !important; -webkit-text-fill-color: #FFFFFF !important; }

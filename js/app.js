@@ -5271,7 +5271,7 @@ function updateAdminUiVersion(enabled) {
   const label = document.querySelector('.app-code-version');
   if (!label) return;
   const adminVersion = document.querySelector('meta[name="admin-ui-version"]')?.content || '4.38.42';
-  label.textContent = `APP VERSION ${enabled ? adminVersion : '4.37.1'}`;
+  label.textContent = `APP VERSION ${enabled ? adminVersion : '4.37.2'}`;
   const desktopLabel = $('adminDesktopAppVersion');
   if (desktopLabel) desktopLabel.textContent = label.textContent;
 }
@@ -5290,6 +5290,12 @@ async function checkAdminAccess() {
   const adminNewUi = adminEnabled && $('headerUsername')?.textContent?.trim() === 'admin';
   document.body.classList.remove('admin-responsive-preview');
   document.body.classList.toggle('admin-new-ui', adminNewUi);
+  // Migration step 1: public theme only. Do not activate administrator layout or permissions.
+  document.body.classList.toggle('public-palette-ui', !adminNewUi);
+  if (!adminNewUi) {
+    const { installPublicColorTheme } = await import('./public-color-theme.js?v=4_37_2');
+    installPublicColorTheme();
+  }
   // 管理者専用履歴UIは管理者認証後のみ遅延読込。一般ユーザーにはロードしない。
   renderAdminSkillHistoryRows = null;
   if (adminNewUi) {
