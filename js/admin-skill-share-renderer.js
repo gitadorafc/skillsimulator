@@ -54,7 +54,7 @@ export async function renderAdminJacketSkillShareFile({
   const otherRows = (target.otherRows || []).slice(0, 25);
   const tableTop = isComparison ? 350 : 256;
   const H = isComparison ? Math.max(580, tableTop + 52 + Math.max(comparisonRows.length, 1) * 154 + 96) : 2180;
-  const W = isComparison ? 1160 : 1400;
+  const W = isComparison ? 900 : 1400;
   const rowH = 70;
   // Export at higher pixel density so small jackets, labels and medal artwork
   // remain sharp when viewing the full saved PNG. Logical layout is unchanged.
@@ -145,18 +145,24 @@ export async function renderAdminJacketSkillShareFile({
     c.fillStyle = '#15253a';
     c.fillRect(infoX, infoY, infoW, 94);
 
+    // Advance by the widest *visible* value of each column rather than
+    // reserving wide fixed slots that leave a large hole after the date.
     const infoGap = 22;
     const infoCols = [
-      { key: 'type',  label: '区分',      width: 82 },
-      { key: 'date',  label: '日時',      width: 254 },
-      { key: 'skill', label: 'スキル値',  width: 118 },
-      { key: 'delta', label: '上昇値',    width: 118 }
+      { key: 'type', label: '区分', values: ['現在', '前回'] },
+      { key: 'date', label: '日時', values: [fmt(validSnapshot?.savedAt || new Date()), fmt(comparisonBaseline.savedAt)] },
+      { key: 'skill', label: 'スキル値', values: [total.toFixed(2), base.toFixed(2)] },
+      { key: 'delta', label: '上昇値', values: [`${change > 0 ? '+' : ''}${change.toFixed(2)}`] }
     ];
     let cursor = infoX + 16;
     const colX = {};
     infoCols.forEach((col, index) => {
       colX[col.key] = cursor;
-      cursor += col.width + (index < infoCols.length - 1 ? infoGap : 0);
+      c.font = '800 21px sans-serif';
+      const valueWidth = Math.max(...col.values.map(value => c.measureText(value).width));
+      c.font = '800 19px sans-serif';
+      const columnWidth = Math.max(valueWidth, c.measureText(col.label).width);
+      cursor += Math.ceil(columnWidth) + (index < infoCols.length - 1 ? infoGap : 0);
     });
 
     c.textBaseline = 'middle';
@@ -218,8 +224,9 @@ export async function renderAdminJacketSkillShareFile({
   };
   const gap = 24, colW = (W - 108 - gap) / 2;
   const drawTable = (caption, rows, left, accent) => {
+    // Match the admin skill-target headings, not the public pink/green palette.
     c.fillStyle = accent; c.fillRect(left, tableTop, colW, 40);
-    c.fillStyle = '#0b1020'; c.font = '900 21px sans-serif';
+    c.fillStyle = '#f8fafc'; c.font = '900 21px sans-serif';
     c.textAlign = 'left'; c.textBaseline = 'alphabetic';
     c.fillText(caption, left + 10, tableTop + 27);
     rows.slice(0, 25).forEach((r, i) => {
@@ -347,16 +354,15 @@ export async function renderAdminJacketSkillShareFile({
     };
 
     const jacketX = left + 13;
-    const jacketYInset = 20;
-    const jacketSize = 102;
-    const titleX = left + 126;
+    const jacketYInset = 34;
+    const jacketSize = 94;
+    const titleX = left + 118;
     const labelW = 50;
     const detailGap = 16;
     const partW = 78;
     const medalW = 26;
     const optionW = 63;
-    const skillW = 96;
-    const deltaW = 82;
+    const skillNumberSample = '999.99';
     const valueFont = '800 19px sans-serif';
     const levelSample = '9.95';
     const rateSample = '100.00%';
@@ -371,9 +377,13 @@ export async function renderAdminJacketSkillShareFile({
     const rateX = levelX + levelW + detailGap;
     const medalX = rateX + rateW + detailGap + medalW / 2;
     const optionX = medalX + medalW / 2 + detailGap;
-    const skillValueRight = optionX + optionW + detailGap + skillW;
-    const diffX = skillValueRight + detailGap;
+    // The skill value starts exactly one normal gap after the option badge.
+    // Right alignment still keeps current and previous scores aligned.
+    c.font = '900 23px sans-serif';
+    const skillNumberWidth = Math.ceil(c.measureText(skillNumberSample).width);
     const skillBlockLeft = optionX + optionW + detailGap;
+    const skillValueRight = skillBlockLeft + skillNumberWidth;
+    const diffX = skillValueRight + detailGap;
 
     const drawDetailLine = (row, label, baselineY, isPrevious, previousRow) => {
       c.textBaseline = 'middle';
@@ -440,14 +450,16 @@ export async function renderAdminJacketSkillShareFile({
         c.restore();
       }
 
+      // Dedicated category strip: full jacket width, above the jacket,
+      // with no overlap between the badge and artwork.
       const marker = sectionPalette[section] || sectionPalette.HOT;
-      drawPill(section, jacketX + (jacketSize - 68) / 2, y + 6, 68, 22, marker.bg, marker.fg, marker.border, 12);
+      drawPill(section, jacketX, y + 7, jacketSize, 22, marker.bg, marker.fg, marker.border, 12);
 
       c.fillStyle = '#f8fafc';
       c.textAlign = 'left';
       c.textBaseline = 'middle';
       c.font = '900 26px sans-serif';
-      const titleText = fitText(row.title, Math.max(160, skillBlockLeft - titleX - 18), '900 26px sans-serif');
+      const titleText = fitText(row.title, Math.max(160, width - (titleX - left) - 20), '900 26px sans-serif');
       c.fillText(titleText, titleX, y + 27);
 
       drawDetailLine(row, '現在', y + 73, false, previous);
@@ -462,8 +474,8 @@ export async function renderAdminJacketSkillShareFile({
       c.fillText('スキル値が上昇した曲・新規対象入りした曲はありません', W / 2, tableTop + 103);
     }
   } else {
-    drawTable('HOT TOP 25', hotRows, 54, '#e94b88');
-    drawTable('OTHER TOP 25', otherRows, 54 + colW + gap, '#83c63d');
+    drawTable('HOT TOP 25', hotRows, 54, '#450a0a');
+    drawTable('OTHER TOP 25', otherRows, 54 + colW + gap, '#173447');
   }
   c.fillStyle = '#0b1424'; c.fillRect(54, H - 62, W - 108, 30);
   c.fillStyle = '#94a3b8'; c.font = '700 24px sans-serif'; c.textAlign = 'left'; c.textBaseline = 'alphabetic';
