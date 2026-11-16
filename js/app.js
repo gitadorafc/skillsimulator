@@ -3817,22 +3817,28 @@ function syncAdminTwoColumnViewport() {
   if (!screen) return;
   const adminNewUi = document.body.classList.contains('admin-new-ui');
   const viewportWidth = document.documentElement.clientWidth || window.innerWidth;
-  // iOS Safari changes the visual viewport as its browser chrome moves.
-  // Use the layout viewport here so a transient visualViewport shrink does
-  // not leave a blank strip below the zoomed app when scrolling.
   const viewportHeight = window.innerHeight || document.documentElement.clientHeight;
   const logicalWidth = 400;
   const scale = adminNewUi && viewportWidth < logicalWidth ? viewportWidth / logicalWidth : 1;
 
-  // The viewed-user sheet is a separate fixed overlay outside appScreen.
-  // Apply the same 400px logical viewport when it is opened.
-  const detail = $('userDetailPage');
-  if (scale >= 1) {
-    ['zoom', 'width', 'height'].forEach(prop => screen.style.removeProperty(prop));
-    if (detail) ['zoom', 'width', 'height'].forEach(prop => detail.style.removeProperty(prop));
-    return;
-  }
-  for (const surface of [screen, detail].filter(Boolean)) {
+  // All admin surfaces must use the same logical width. Modal masks are
+  // siblings of appScreen, so scaling appScreen alone does not scale them.
+  const adminOverlayIds = [
+    'menuMask', 'mypageModal', 'featureSettingsMask', 'tagSettingsMask',
+    'skillSyncMask', 'allScoreSyncMask', 'skillShareMask', 'skillHistoryMask',
+    'skillRankingMask', 'officialSkillRankingMask', 'rivalManageMask',
+    'songCatalogMask', 'howToMask', 'feedbackMask', 'supportMask',
+    'accountSwitchMask', 'rateCompareMask', 'domModal', 'siteDialogMask',
+    'adminModal', 'adminSongFormMask', 'adminPasswordMask',
+    'userDetailPage'
+  ];
+  const surfaces = [screen, ...adminOverlayIds.map(id => $(id)).filter(Boolean)];
+  for (const surface of surfaces) {
+    if (scale >= 1) {
+      // Do not change display, position, scrolling or other inline state.
+      ['zoom', 'width', 'height'].forEach(prop => surface.style.removeProperty(prop));
+      continue;
+    }
     surface.style.setProperty('zoom', String(scale), 'important');
     surface.style.setProperty('width', `${logicalWidth}px`, 'important');
     surface.style.setProperty('height', `${Math.ceil(viewportHeight / scale)}px`, 'important');

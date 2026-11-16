@@ -1152,11 +1152,6 @@ body.admin-new-ui.light-mode #adminBoardEditorMask #btnAdminBoardEditorCancel {
 body.admin-new-ui.light-mode #adminBoardEditorMask #btnAdminBoardSave {
   background:#236d83!important; border-color:#236d83!important;
 }
-@media(max-width:380px) {
-  body.admin-new-ui #adminBoardEditorMask .admin-board-editor-actions > button {
-    min-width:78px!important; padding:0 12px!important;
-  }
-}
 
  /* My Page: exactly one compact action row on admin desktop and modal.
     Order and semantics come from the existing HTML: delete / logout / switch. */
@@ -1777,3 +1772,53 @@ body.admin-new-ui.light-mode #rateCompareMask .rate-compare-edit-area:not(.hidde
 }
 
 
+
+/* v4.40.113 — Admin-only: a 400px logical canvas on narrow viewports.
+   Individual modal content responds to its own available width, not a second
+   global breakpoint that would compete with the 400/700/1100 card rules. */
+body.admin-new-ui #skillHistoryList {
+  container-type:inline-size;
+  min-width:0;
+}
+body.admin-new-ui #skillHistoryList .skill-history-row {
+  min-width:0;
+}
+body.admin-new-ui #skillHistoryList .skill-history-summary {
+  min-width:0;
+  overflow:hidden;
+}
+body.admin-new-ui #skillHistoryList .skill-history-date {
+  min-width:0;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+@container (max-width: 370px) {
+  body.admin-new-ui #skillHistoryList .skill-history-row.has-compare {
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:5px;
+  }
+  body.admin-new-ui #skillHistoryList .skill-history-row.has-compare .skill-history-summary {
+    grid-column:1/-1;
+    justify-content:space-between;
+    gap:8px;
+  }
+  body.admin-new-ui #skillHistoryList .skill-history-row.has-compare :is(
+    .skill-history-display,.skill-history-compare,.skill-history-delete
+  ) {
+    min-width:0;
+    width:100%;
+  }
+  body.admin-new-ui #skillHistoryList .skill-history-row:not(.has-compare) {
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:5px;
+  }
+  body.admin-new-ui #skillHistoryList .skill-history-row:not(.has-compare) .skill-history-summary {
+    grid-column:1/-1;
+  }
+  body.admin-new-ui #skillHistoryList .skill-history-row:not(.has-compare) :is(
+    .skill-history-display,.skill-history-delete
+  ) {
+    min-width:0;
+    width:100%;
+  }
+}
