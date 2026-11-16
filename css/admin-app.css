@@ -1470,10 +1470,18 @@ body.admin-new-ui #userDetailSkill .sk-section > h2 {
   overflow:visible;
 }
 
+/* Use the same first-row height as the administrator's own header.
+   Compact (<768px): 48px; tablet/desktop (>=768px): 50px.
+   Do not change the read-only card renderer or public profile UI. */
 body.admin-new-ui #userDetailPage .user-detail-header {
   height:48px;min-height:48px;max-height:48px;
   box-sizing:border-box;padding:4px 9px;gap:8px;
   align-items:center;
+}
+@media (min-width:768px) {
+  body.admin-new-ui #userDetailPage .user-detail-header {
+    height:50px;min-height:50px;max-height:50px;
+  }
 }
 body.admin-new-ui #userDetailPage .user-detail-summary {
   min-height:54px;box-sizing:border-box;align-items:stretch;
