@@ -964,6 +964,7 @@ let favoriteListLoadSeq = 0;
 let viewedUserScores = [];
 let currentUserId = null;
 let viewedUserId = null;
+let userDetailRequestSeq = 0;
 let viewedUserName = '';
 let viewedUserProfile = null;
 let viewedUserRegisteredScores = [];
@@ -4805,35 +4806,48 @@ function renderViewedUserRegisteredScores() {
 
 async function loadViewedUserRegisteredScores() {
   if (!viewedUserId || !viewedUserProfile?.registration_public) return;
+  const requestSeq = userDetailRequestSeq;
+  const requestedUserId = viewedUserId;
 
   $('userDetailRecords').__adminSongMarkup = null;
   $('userDetailRecords').innerHTML = '<div class="empty-state">読み込み中...</div>';
 
   try {
-    viewedUserRegisteredScores = await getPublicUserRegisteredScores(
-      viewedUserId,
+    const rows = await getPublicUserRegisteredScores(
+      requestedUserId,
       activeInstrument,
       activeVersionId
     );
+    if (requestSeq !== userDetailRequestSeq || viewedUserId !== requestedUserId) return;
+    viewedUserRegisteredScores = rows;
     viewedUserRegisteredBatch = 1;
     viewedUserRegisteredLoaded = true;
     renderViewedUserRegisteredScores();
   } catch (e) {
+    if (requestSeq !== userDetailRequestSeq || viewedUserId !== requestedUserId) return;
     $('userDetailRecords').innerHTML =
       `<div class="empty-state">登録曲の取得に失敗しました: ${esc(e.message)}</div>`;
   }
 }
 
 async function openUserDetail(userId, username, returnTarget = null) {
+  const requestSeq = ++userDetailRequestSeq;
   userDetailReturnTarget = returnTarget;
   viewedUserId = userId;
   viewedUserName = username;
+  viewedUserScores = [];
   viewedUserProfile = null;
   viewedUserRegisteredScores = [];
   viewedUserRegisteredBatch = 1;
   viewedUserRegisteredLoaded = false;
 
   $('userDetailName').textContent = username;
+  // ユーザー切替時は前ユーザーのスキル値・スキルカラーを即時クリアする。
+  ['userDetailTotal', 'userDetailHot', 'userDetailOther'].forEach(id => {
+    const el = $(id);
+    el.textContent = '—';
+    el.className = 'score-val user-detail-skill-value';
+  });
   $('userDetailSkill').__adminSongMarkup = null;
   $('userDetailSkill').innerHTML = '<div class="empty-state">読み込み中...</div>';
   $('userDetailRecords').innerHTML = '';
@@ -4853,7 +4867,10 @@ async function openUserDetail(userId, username, returnTarget = null) {
       getUserPublicProfile(userId)
     ]);
 
-    viewedUserScores = await attachMasterOrder(skillRows, activeVersionId);
+    if (requestSeq !== userDetailRequestSeq || viewedUserId !== userId) return;
+    const orderedRows = await attachMasterOrder(skillRows, activeVersionId);
+    if (requestSeq !== userDetailRequestSeq || viewedUserId !== userId) return;
+    viewedUserScores = orderedRows;
     viewedUserProfile = profile;
     renderViewedUserSkill();
 
@@ -4872,12 +4889,14 @@ async function openUserDetail(userId, username, returnTarget = null) {
       link.classList.remove('hidden');
     }
   } catch (e) {
+    if (requestSeq !== userDetailRequestSeq || viewedUserId !== userId) return;
     $('userDetailSkill').innerHTML =
       `<div class="empty-state">取得に失敗しました: ${esc(e.message)}</div>`;
   }
 }
 
 function closeUserDetail(returnToOrigin = false) {
+  ++userDetailRequestSeq; // 閉じた画面への遅延レスポンスを破棄
   const returnTarget = userDetailReturnTarget;
   const detailPage = $('userDetailPage');
   detailPage.classList.remove('user-detail-open');
