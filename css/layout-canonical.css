@@ -98,56 +98,44 @@ body.app-scroll-layout {
   overflow: hidden !important;
 }
 
-body.app-scroll-layout #appScreen:not(.hidden) {
-  display: grid !important;
-  grid-template-columns: minmax(0, 1fr);
-  grid-template-rows: max-content minmax(0, 1fr);
-  width: 100%;
-  height: 100dvh;
-  min-height: 0;
-  overflow: hidden !important;
+/* Canonical two-row scroll frame for both own and viewed-user pages.
+   Both HTML shells carry ui-scroll-frame / ui-scroll-header / ui-scroll-body.
+   The page header stays in row one; only the body in row two scrolls.
+   Keep the overlays, authorization and read-only card columns untouched. */
+body.app-scroll-layout :is(#appScreen:not(.hidden),#userDetailPage.user-detail-open).ui-scroll-frame {
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr);
+  grid-template-rows:max-content minmax(0,1fr);
+  width:100%;
+  min-width:0;
+  min-height:0;
+  overflow:hidden!important;
 }
-
-body.app-scroll-layout #appScreen > .p-header {
-  position: relative !important;
-  top: auto !important;
-  grid-column: 1;
-  grid-row: 1;
-  min-width: 0;
+body.app-scroll-layout #appScreen:not(.hidden).ui-scroll-frame {
+  height:100dvh;
 }
-
-/* Own page and viewed-user body use one canonical scroll behavior.
-   Their separate containers preserve their respective fixed headers. */
-body.app-scroll-layout #appScreen > .p-container,
-body.app-scroll-layout .user-detail-page.user-detail-open > .user-detail-body:not(.hidden) {
-  grid-column: 1;
-  grid-row: 2;
-  min-width: 0;
-  min-height: 0;
-  overflow-x: hidden;
-  overflow-y: auto;
-  overscroll-behavior: contain;
-  overscroll-behavior-y: contain;
-  -webkit-overflow-scrolling: touch;
+/* Desktop viewed-user overlay owns its own inset in admin-app.css. */
+body.app-scroll-layout #userDetailPage.user-detail-open.ui-scroll-frame {
+  width:auto;
 }
-
-body.app-scroll-layout .user-detail-page.user-detail-open {
-  display: grid !important;
-  grid-template-columns: minmax(0, 1fr);
-  grid-template-rows: max-content minmax(0, 1fr);
-  min-height: 0;
-  overflow: hidden !important;
+body.app-scroll-layout :is(#appScreen:not(.hidden),#userDetailPage.user-detail-open).ui-scroll-frame > .ui-scroll-header {
+  position:relative!important;
+  top:auto!important;
+  grid-column:1;
+  grid-row:1;
+  min-width:0;
 }
-
-body.app-scroll-layout .user-detail-page.user-detail-open > .user-detail-sticky {
-  position: relative !important;
-  top: auto !important;
-  grid-column: 1;
-  grid-row: 1;
-  min-width: 0;
+body.app-scroll-layout :is(#appScreen:not(.hidden),#userDetailPage.user-detail-open).ui-scroll-frame > .ui-scroll-body:not(.hidden) {
+  grid-column:1;
+  grid-row:2;
+  min-width:0;
+  min-height:0;
+  overflow-x:hidden;
+  overflow-y:auto;
+  overscroll-behavior:contain;
+  overscroll-behavior-y:contain;
+  -webkit-overflow-scrolling:touch;
 }
-
-
 
 /* 固定領域に旧背景画像・影・filterを持ち込まない。 */
 body :is(

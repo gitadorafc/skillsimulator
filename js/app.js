@@ -8514,10 +8514,10 @@ if (/iP(?:hone|ad|od)/.test(navigator.userAgent || '')) {
   window.visualViewport?.addEventListener('resize', refreshAdminViewport, {passive:true});
 }
 
+// Both pages share the same two-row frame/scroll-body contract.
+// Listen to both viewed-user tabs: the active one is the scrolling element.
 [
-  document.querySelector('#appScreen > .p-container'),
-  // The user-detail tabs are children, not the scroll container.
-  document.querySelector('#userDetailPage > .user-detail-body'),
+  ...document.querySelectorAll('#appScreen > .ui-scroll-body, #userDetailPage > .ui-scroll-body'),
   $('adminBody')
 ].filter(Boolean).forEach(scroller => {
   scroller.addEventListener('scroll', markAppScrolling, { passive:true });
