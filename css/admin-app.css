@@ -466,11 +466,15 @@ body.admin-new-ui #appScreen>.p-header{position:sticky;top:0;z-index:100;}
 body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-edit button{font-size:19px;}
 body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) :is(.ar-edit,.ar-skill){align-self:center;}
 body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-fc-cell{justify-self:center;}
-/* OFF-mode scroll compositing: keep the animated skill border, card fill and
-   content on the same local paint/compositing surface. Without the boundary,
-   a large scrolling list can repaint its animated gradient out of step with
-   jackets/text during fast asynchronous scrolling. ON-mode remains untouched. */
-body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-record {
+/* OFF-mode dark scrolling: avoid per-record GPU promotion. WebKit can
+   scroll independently composited animated cards ahead of their normal-flow
+   HOT/OTHER headings and the registered-list heading. Keep paint clipping;
+   leave the working light-mode compositing and ON layouts untouched. */
+body.admin-new-ui:not(.light-mode):not(.skill-target-columns) :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-record {
+  contain:paint;
+  isolation:isolate;
+}
+body.admin-new-ui.light-mode:not(.skill-target-columns) :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-record {
   contain:paint;
   isolation:isolate;
   transform:translateZ(0);
