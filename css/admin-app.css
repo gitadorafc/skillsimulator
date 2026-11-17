@@ -252,8 +252,8 @@ body.admin-new-ui.light-mode :is(#viewSkill,#viewAllManage,#userDetailSkill,#use
 body.admin-new-ui :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-record.skill-row-sparkle-rainbow {
  animation:admin-song-border-pulse var(--skill-sparkle-cycle,1.6s) ease-in-out infinite;
 }
-/* v4.37.51: keep the verified user-detail scroll compositor isolation.
-   Restore ordinary card animations and transitions (no diagnostic suppression). */
+/* Keep the user-detail scroll content in a single compositing layer to
+   prevent card borders and contents from visually separating during scrolling. */
 body.admin-new-ui.app-scroll-layout #userDetailPage.user-detail-open.ui-scroll-frame > .user-detail-body.ui-scroll-body:not(.hidden) {
  transform:translateZ(0);
 }
