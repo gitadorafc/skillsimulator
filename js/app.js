@@ -8516,8 +8516,8 @@ if (/iP(?:hone|ad|od)/.test(navigator.userAgent || '')) {
 
 [
   document.querySelector('#appScreen > .p-container'),
-  $('userDetailSkill'),
-  $('userDetailRecords'),
+  // The user-detail tabs are children, not the scroll container.
+  document.querySelector('#userDetailPage > .user-detail-body'),
   $('adminBody')
 ].filter(Boolean).forEach(scroller => {
   scroller.addEventListener('scroll', markAppScrolling, { passive:true });

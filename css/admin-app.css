@@ -1553,14 +1553,6 @@ body.admin-new-ui.light-mode #adminBoardEditorMask #btnAdminBoardSave {
 body.admin-new-ui #userDetailPage .user-detail-sticky {
   min-width:0;box-sizing:border-box;
 }
-/* User-detail headings use the same visible inset in ON and OFF layouts. */
-body.admin-new-ui #userDetailSkill .sk-section > h2 {
-  width:100%;max-width:100%;min-width:0;box-sizing:border-box;
-  margin:0 0 6px!important;padding:7px 10px!important;
-  border-left:3px solid transparent!important;
-  overflow:visible;
-}
-
 /* Use the same first-row height as the administrator's own header at
    every logical width; below 400px JS scales the 400px-wide layout.
    Viewed profiles remain read-only; public profile CSS is not affected. */
