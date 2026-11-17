@@ -1538,11 +1538,6 @@ body.admin-new-ui.light-mode #adminBoardEditorMask #btnAdminBoardSave {
  body.admin-new-ui #userDetailPage.user-detail-page {
    min-height:0!important;overflow:hidden!important;z-index:1100;
  }
- /* User details share the same normal scroll paint flow as the own-page list. */
- body.admin-new-ui.app-scroll-layout #userDetailPage.user-detail-open > .user-detail-body:not(.hidden) {
-   padding:8px 8px 28px;
-   box-sizing:border-box;
- }
  /* Read-only records hide the edit action; OFF-mode layout removes its
     rightmost grid track and ON-mode keeps the existing bottom-right geometry. */
 }

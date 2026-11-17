@@ -135,6 +135,12 @@ body.app-scroll-layout :is(#appScreen:not(.hidden),#userDetailPage.user-detail-o
   overscroll-behavior:contain;
   overscroll-behavior-y:contain;
   -webkit-overflow-scrolling:touch;
+  /* Shared own/viewed record insets. Desktop side-menu geometry
+     keeps its existing left offset in admin-app.css. */
+  padding-top:6px;
+  padding-right:6px;
+  padding-left:6px;
+  box-sizing:border-box;
 }
 
 /* 固定領域に旧背景画像・影・filterを持ち込まない。 */
