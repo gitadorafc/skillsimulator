@@ -11,11 +11,9 @@ import {
   renderAccountSwitchRows,
   renderFavoriteRows,
   renderFeedbackHistoryRows,
-  renderUserDetailRegisteredSection,
-  renderUserDetailSkillSections,
   renderUserListPager,
   renderUserListRow
-} from './user-renderer.js?v=4_40_36';
+} from './user-renderer.js?v=4_37_28';
 import {
   renderAdminCsvVersionOptions as renderAdminCsvVersionOptionsMarkup,
   renderAdminFeedbackList,
@@ -3813,7 +3811,8 @@ function clampAdminTwoColumnTitles() {
   if (!(document.body.classList.contains('admin-new-ui')) ||
       !document.body.classList.contains('skill-target-columns')) return;
   for (const title of document.querySelectorAll(
-      '#viewSkill .ar-title, #viewAllManage .ar-title')) {
+      '#viewSkill .ar-title, #viewAllManage .ar-title, ' +
+      '#userDetailSkill .ar-title, #userDetailRecords .ar-title')) {
     if (title.closest('.hidden')) continue;
     const name = title.querySelector('.ar-song-name');
     if (!name) continue;
@@ -3834,16 +3833,23 @@ function clampAdminTwoColumnTitles() {
   }
 }
 
-function renderSkill() {
-  const target = calcTargetTotals(getOwnSkillTargetRows());
-
-  $('viewSkill').innerHTML = `
+// Skill sections share identical markup, headers, and card wrappers for
+// the own page and read-only viewed profiles. Only data and editability differ.
+function renderSkillSections(hotRows, otherRows, readOnly = false) {
+  const cards = rows => renderAdminRegisteredRecords(rows, 'SKILL', readOnly)
+    || '<div class="empty-state">まだ登録がありません</div>';
+  return `
     <div class="sk-section skill-hot-section"><h2>HOT Top25</h2><div class="list-container">
-      ${renderAdminRegisteredRecords(target.hotRows, 'SKILL') || '<div class="empty-state">まだ登録がありません</div>'}
+      ${cards(hotRows)}
     </div></div>
     <div class="sk-section skill-other-section"><h2>OTHER Top25</h2><div class="list-container">
-      ${renderAdminRegisteredRecords(target.otherRows, 'SKILL') || '<div class="empty-state">まだ登録がありません</div>'}
+      ${cards(otherRows)}
     </div></div>`;
+}
+
+function renderSkill() {
+  const target = calcTargetTotals(getOwnSkillTargetRows());
+  $('viewSkill').innerHTML = renderSkillSections(target.hotRows, target.otherRows);
 }
 
 function getVisibleRegisteredRows(data, batch) {
@@ -3861,6 +3867,29 @@ function getVisibleRegisteredRows(data, batch) {
 
   return [...hotRows, ...otherRows]
     .sort(compareSkillRows);
+}
+
+// One registered-record view structure for own and public read-only profiles.
+// The caller keeps its own batch counter, loading state and permissions.
+function renderRegisteredView(rows, totalCount, { readOnly = false } = {}) {
+  const rendererMode = readOnly ? 'PUBLIC' : 'RECORDS';
+  const renderRows = items => renderAdminRegisteredRecords(items, rendererMode, readOnly)
+    || '<div class="empty-state">登録曲なし</div>';
+  const columns = document.body.classList.contains('skill-target-columns');
+  const cards = columns
+    ? `<div class="admin-records-two-column">`
+      + `<section class="admin-records-pane hot"><h2>HOT</h2>${renderRows(rows.filter(row => Boolean(row.is_hot)))}</section>`
+      + `<section class="admin-records-pane other"><h2>OTHER</h2>${renderRows(rows.filter(row => !row.is_hot)))}</section>`
+      + `</div>`
+    : renderAdminRegisteredRecords(rows, rendererMode, readOnly)
+      || '<div class="empty-state">条件に一致する登録データがありません</div>';
+  const hasMore = rows.length < totalCount;
+  const moreAttribute = readOnly ? 'data-user-detail-records-more' : 'data-own-records-more';
+  return cards + (hasMore ? `
+    <div class="user-detail-records-more${readOnly ? '' : ' own-registered-records-more'}">
+      <span>${rows.length} / ${totalCount}件表示</span>
+      <button type="button" ${moreAttribute}>もっと見る</button>
+    </div>` : '');
 }
 
 function renderManage() {
@@ -3912,22 +3941,7 @@ function renderManage() {
     .sort(compareSkillRows);
 
   const visibleRows = getVisibleRegisteredRows(data, ownRegisteredBatch);
-  const hasMore = visibleRows.length < data.length;
-
-  // Canonical record markup. No legacy card-renderer or parallel CSS path.
-  const cards = document.body.classList.contains('skill-target-columns')
-    ? `<div class="admin-records-two-column">`
-        + `<section class="admin-records-pane hot"><h2>HOT</h2>${renderAdminRegisteredRecords(visibleRows.filter(row => Boolean(row.is_hot))) || '<div class="empty-state">登録曲なし</div>'}</section>`
-        + `<section class="admin-records-pane other"><h2>OTHER</h2>${renderAdminRegisteredRecords(visibleRows.filter(row => !row.is_hot)) || '<div class="empty-state">登録曲なし</div>'}</section>`
-      + `</div>`
-    : renderAdminRegisteredRecords(visibleRows);
-  $('viewAllManage').innerHTML =
-    (cards || '<div class="empty-state">条件に一致する登録データがありません</div>') +
-    (hasMore ? `
-      <div class="user-detail-records-more own-registered-records-more">
-        <span>${visibleRows.length} / ${data.length}件表示</span>
-        <button type="button" data-own-records-more>もっと見る</button>
-      </div>` : '');
+  $('viewAllManage').innerHTML = renderRegisteredView(visibleRows, data.length);
 
   requestAnimationFrame(() => {
     syncAdminTwoColumnViewport();
@@ -4664,56 +4678,6 @@ function renderUsers() {
   }
 }
 
-// Viewed profiles have a separate fixed scrollpane. At 190+ skill, every
-// rainbow row animates a painted background even when far outside the viewport.
-// Only pause invisible rows; visible cards retain the exact existing CSS,
-// dimensions, colors and header-synchronized timing.
-let viewedCardPulseObserver = null;
-function observeViewedCardPulses() {
-  viewedCardPulseObserver?.disconnect();
-  viewedCardPulseObserver = null;
-  if (!document.body.classList.contains('admin-new-ui') ||
-      !('IntersectionObserver' in window)) return;
-  const scroller = document.querySelector('#userDetailPage > .user-detail-body');
-  if (!scroller) return;
-  const rows = [...scroller.querySelectorAll(
-    '#userDetailSkill:not(.hidden) .ar-record.skill-row-sparkle-rainbow, ' +
-    '#userDetailRecords:not(.hidden) .ar-record.skill-row-sparkle-rainbow'
-  )];
-  if (!rows.length) return;
-  const getHeaderPhase = () => {
-    const header = document.querySelector('#appScreen > .p-header');
-    const master = [...(header?.querySelectorAll('.score-val.score-rank-sparkle-rainbow') || [])]
-      .flatMap(element => element.getAnimations({subtree:false}))
-      .find(animation => animation.animationName === 'skill-sparkle-text-glow' && animation.currentTime != null);
-    return master ? Number(master.currentTime) : null;
-  };
-  viewedCardPulseObserver = new IntersectionObserver(entries => {
-    let phase;
-    for (const entry of entries) {
-      const card = entry.target;
-      if (!card.isConnected) continue;
-      if (!entry.isIntersecting) {
-        card.classList.add('admin-pulse-offscreen');
-        continue;
-      }
-      card.classList.remove('admin-pulse-offscreen');
-      if (phase === undefined) phase = getHeaderPhase();
-      if (phase == null) continue;
-      // Align only cards entering the visible area, not all 50 cards on scroll.
-      for (const animation of card.getAnimations({subtree:true})) {
-        if (!ADMIN_PULSE_ANIMATION_NAMES.has(animation.animationName) ||
-            animation.currentTime == null) continue;
-        try { animation.currentTime = phase; } catch (_) { /* detached row */ }
-      }
-    }
-  }, {root:scroller, rootMargin:'80px 0px', threshold:0});
-  for (const row of rows) {
-    row.classList.add('admin-pulse-offscreen');
-    viewedCardPulseObserver.observe(row);
-  }
-}
-
 function renderViewedUserSkill() {
   const target = calcTargetTotals(viewedUserScores);
 
@@ -4729,12 +4693,8 @@ function renderViewedUserSkill() {
   });
 
 
-  $('userDetailSkill').innerHTML = renderUserDetailSkillSections({
-    hotCards: renderAdminRegisteredRecords(target.hotRows, 'SKILL', true),
-    otherCards: renderAdminRegisteredRecords(target.otherRows, 'SKILL', true)
-  });
-  observeViewedCardPulses();
-  scheduleAdminPublicPulsePhase();
+  $('userDetailSkill').innerHTML = renderSkillSections(target.hotRows, target.otherRows, true);
+  requestAnimationFrame(() => { clampAdminTwoColumnTitles(); scheduleAdminPublicPulsePhase(); });
 }
 
 function setUserDetailTab(tab) {
@@ -4744,28 +4704,15 @@ function setUserDetailTab(tab) {
 
   $('userDetailSkill').classList.toggle('hidden', tab !== 'skill');
   $('userDetailRecords').classList.toggle('hidden', tab !== 'records');
-  observeViewedCardPulses();
+  requestAnimationFrame(() => { clampAdminTwoColumnTitles(); scheduleAdminPublicPulsePhase(); });
 }
 
 function renderViewedUserRegisteredScores() {
   const data = [...viewedUserRegisteredScores]
     .sort(compareSkillRows);
   const visibleRows = getVisibleRegisteredRows(data, viewedUserRegisteredBatch);
-  const hasMore = visibleRows.length < data.length;
-
-  $('userDetailRecords').innerHTML = renderUserDetailRegisteredSection({
-    totalCount: data.length,
-    visibleCount: visibleRows.length,
-    cards: document.body.classList.contains('skill-target-columns')
-      ? `<div class="admin-records-two-column">`
-        + `<section class="admin-records-pane hot"><h2>HOT</h2>${renderAdminRegisteredRecords(visibleRows.filter(row => Boolean(row.is_hot)), 'PUBLIC', true) || '<div class="empty-state">登録曲なし</div>'}</section>`
-        + `<section class="admin-records-pane other"><h2>OTHER</h2>${renderAdminRegisteredRecords(visibleRows.filter(row => !row.is_hot), 'PUBLIC', true) || '<div class="empty-state">登録曲なし</div>'}</section>`
-        + `</div>`
-      : renderAdminRegisteredRecords(visibleRows, 'PUBLIC', true),
-    hasMore
-  });
-  observeViewedCardPulses();
-  scheduleAdminPublicPulsePhase();
+  $('userDetailRecords').innerHTML = renderRegisteredView(visibleRows, data.length, { readOnly:true });
+  requestAnimationFrame(() => { clampAdminTwoColumnTitles(); scheduleAdminPublicPulsePhase(); });
 }
 
 async function loadViewedUserRegisteredScores() {
@@ -4841,8 +4788,6 @@ async function openUserDetail(userId, username, returnTarget = null) {
 function closeUserDetail(returnToOrigin = false) {
   const returnTarget = userDetailReturnTarget;
   const detailPage = $('userDetailPage');
-  viewedCardPulseObserver?.disconnect();
-  viewedCardPulseObserver = null;
   detailPage.classList.remove('user-detail-open');
   detailPage.style.display = 'none';
   viewedUserScores = [];
@@ -8559,8 +8504,7 @@ if (/iP(?:hone|ad|od)/.test(navigator.userAgent || '')) {
 
 [
   document.querySelector('#appScreen > .p-container'),
-  $('userDetailSkill'),
-  $('userDetailRecords'),
+  document.querySelector('#userDetailPage > .user-detail-body'),
   $('adminBody')
 ].filter(Boolean).forEach(scroller => {
   scroller.addEventListener('scroll', markAppScrolling, { passive:true });

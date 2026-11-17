@@ -51,36 +51,6 @@ export function renderUserListRow({
     </div>`;
 }
 
-export function renderUserDetailSkillSections({ hotCards, otherCards }) {
-  return `
-    <div class="sk-section skill-hot-section"><h2>HOT Top25</h2><div class="list-container">
-      ${hotCards || '<div class="empty-state">記録がありません</div>'}
-    </div></div>
-    <div class="sk-section skill-other-section"><h2>OTHER Top25</h2><div class="list-container">
-      ${otherCards || '<div class="empty-state">記録がありません</div>'}
-    </div></div>`;
-}
-
-export function renderUserDetailRegisteredSection({
-  totalCount,
-  visibleCount,
-  cards,
-  hasMore
-}) {
-  return `
-    <div class="sk-section">
-      <h2>登録曲 ${totalCount}件（${visibleCount}件表示）</h2>
-      <div class="list-container">
-        ${cards || '<div class="empty-state">登録曲がありません</div>'}
-      </div>
-      ${hasMore ? `
-        <div class="user-detail-records-more">
-          <span>${visibleCount} / ${totalCount}件表示</span>
-          <button type="button" data-user-detail-records-more>もっと見る</button>
-        </div>` : ''}
-    </div>`;
-}
-
 export function renderAccountSwitchRows(accounts, currentUserId) {
   if (!accounts.length) {
     return '<div class="account-switch-empty">保存済みのユーザーはありません。</div>';
