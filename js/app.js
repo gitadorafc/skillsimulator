@@ -973,6 +973,7 @@ const REGISTERED_RECORD_COLUMN_BATCH_SIZE = 25;
 let ownRegisteredBatch = 1;
 let ownRegisteredViewKey = '';
 let viewedUserRegisteredBatch = 1;
+let viewedUserRegisteredLoaded = false;
 let adminPasswordUserId = null;
 let adminBoardMode = 'blocked';
 let adminBoardThreads = [];
@@ -3808,13 +3809,11 @@ function syncAdminTwoColumnViewport() {
 
 // CSS line-clamp combined with an inline HOT badge stretches the badge in
 // iOS WebKit. Keep normal inline flow and truncate measured text to two lines.
-function clampAdminTwoColumnTitles() {
+function clampAdminTwoColumnTitles(root) {
   if (!(document.body.classList.contains('admin-new-ui')) ||
       !document.body.classList.contains('skill-target-columns')) return;
-  for (const title of document.querySelectorAll(
-      '#viewSkill .ar-title, #viewAllManage .ar-title, ' +
-      '#userDetailSkill .ar-title, #userDetailRecords .ar-title')) {
-    if (title.closest('.hidden')) continue;
+  if (!root || root.classList.contains('hidden') || !root.getClientRects().length) return;
+  for (const title of root.querySelectorAll('.ar-title')) {
     const name = title.querySelector('.ar-song-name');
     if (!name) continue;
     const full = name.getAttribute('title') || name.textContent || '';
@@ -3844,19 +3843,37 @@ function renderSkillTargetCards(target, { readOnly = false, emptyMessage = 'ま�
   });
 }
 
-// Both skill targets and registered records need the same post-render title
-// measurement and synchronized sparkle timeline, regardless of whose page.
-function scheduleAdminSongCardLayout() {
+// Own and viewed profiles use the same DOM commit and post-render pipeline.
+// Measure only the changed, visible list; a hidden tab is laid out when opened.
+const pendingAdminSongCardLayouts = new Set();
+let adminSongCardLayoutFrame = false;
+function scheduleAdminSongCardLayout(root) {
+  if (!root) return;
+  pendingAdminSongCardLayouts.add(root);
+  if (adminSongCardLayoutFrame) return;
+  adminSongCardLayoutFrame = true;
   requestAnimationFrame(() => {
-    clampAdminTwoColumnTitles();
+    adminSongCardLayoutFrame = false;
+    const roots = [...pendingAdminSongCardLayouts];
+    pendingAdminSongCardLayouts.clear();
+    for (const container of roots) clampAdminTwoColumnTitles(container);
     scheduleAdminPublicPulsePhase();
   });
+}
+function commitAdminSongCards(containerId, markup) {
+  const container = $(containerId);
+  // Avoid destroying images, animation instances and the list scroll position
+  // when an unrelated state change leaves the rendered cards unchanged.
+  if (container.__adminSongMarkup !== markup) {
+    container.innerHTML = markup;
+    container.__adminSongMarkup = markup;
+  }
+  scheduleAdminSongCardLayout(container);
 }
 
 function renderSkill() {
   const target = calcTargetTotals(getOwnSkillTargetRows());
-  $('viewSkill').innerHTML = renderSkillTargetCards(target);
-  scheduleAdminSongCardLayout();
+  commitAdminSongCards('viewSkill', renderSkillTargetCards(target));
 }
 
 function getVisibleRegisteredRows(data, batch) {
@@ -3966,10 +3983,9 @@ function renderManage() {
 
   const visibleRows = getVisibleRegisteredRows(data, ownRegisteredBatch);
 
-  $('viewAllManage').innerHTML = renderRegisteredSongList(visibleRows, data.length);
+  commitAdminSongCards('viewAllManage', renderRegisteredSongList(visibleRows, data.length));
 
   requestAnimationFrame(syncAdminTwoColumnViewport);
-  scheduleAdminSongCardLayout();
 }
 
 // One animation clock for the own header and every admin song list, including
@@ -4715,11 +4731,10 @@ function renderViewedUserSkill() {
   });
 
 
-  $('userDetailSkill').innerHTML = renderSkillTargetCards(target, {
+  commitAdminSongCards('userDetailSkill', renderSkillTargetCards(target, {
     readOnly: true,
     emptyMessage: '記録がありません'
-  });
-  scheduleAdminSongCardLayout();
+  }));
 }
 
 function setUserDetailTab(tab) {
@@ -4729,7 +4744,7 @@ function setUserDetailTab(tab) {
 
   $('userDetailSkill').classList.toggle('hidden', tab !== 'skill');
   $('userDetailRecords').classList.toggle('hidden', tab !== 'records');
-  scheduleAdminSongCardLayout();
+  scheduleAdminSongCardLayout($(tab === 'skill' ? 'userDetailSkill' : 'userDetailRecords'));
 }
 
 function renderViewedUserRegisteredScores() {
@@ -4737,13 +4752,13 @@ function renderViewedUserRegisteredScores() {
     .sort(compareSkillRows);
   const visibleRows = getVisibleRegisteredRows(data, viewedUserRegisteredBatch);
 
-  $('userDetailRecords').innerHTML = renderRegisteredSongList(visibleRows, data.length, true);
-  scheduleAdminSongCardLayout();
+  commitAdminSongCards('userDetailRecords', renderRegisteredSongList(visibleRows, data.length, true));
 }
 
 async function loadViewedUserRegisteredScores() {
   if (!viewedUserId || !viewedUserProfile?.registration_public) return;
 
+  $('userDetailRecords').__adminSongMarkup = null;
   $('userDetailRecords').innerHTML = '<div class="empty-state">読み込み中...</div>';
 
   try {
@@ -4753,6 +4768,7 @@ async function loadViewedUserRegisteredScores() {
       activeVersionId
     );
     viewedUserRegisteredBatch = 1;
+    viewedUserRegisteredLoaded = true;
     renderViewedUserRegisteredScores();
   } catch (e) {
     $('userDetailRecords').innerHTML =
@@ -4767,8 +4783,10 @@ async function openUserDetail(userId, username, returnTarget = null) {
   viewedUserProfile = null;
   viewedUserRegisteredScores = [];
   viewedUserRegisteredBatch = 1;
+  viewedUserRegisteredLoaded = false;
 
   $('userDetailName').textContent = username;
+  $('userDetailSkill').__adminSongMarkup = null;
   $('userDetailSkill').innerHTML = '<div class="empty-state">読み込み中...</div>';
   $('userDetailRecords').innerHTML = '';
   $('userDetailTabs').classList.add('hidden');
@@ -4819,6 +4837,7 @@ function closeUserDetail(returnToOrigin = false) {
   viewedUserScores = [];
   viewedUserRegisteredScores = [];
   viewedUserRegisteredBatch = 1;
+  viewedUserRegisteredLoaded = false;
   viewedUserProfile = null;
   viewedUserId = null;
   viewedUserName = '';
@@ -7550,7 +7569,7 @@ $('userDetailTabs').addEventListener('click', async e => {
   const tab = button.dataset.userDetailTab;
   setUserDetailTab(tab);
 
-  if (tab === 'records' && !viewedUserRegisteredScores.length) {
+  if (tab === 'records' && !viewedUserRegisteredLoaded) {
     await loadViewedUserRegisteredScores();
   }
 });
