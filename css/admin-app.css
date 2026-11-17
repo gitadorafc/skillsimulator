@@ -252,27 +252,17 @@ body.admin-new-ui.light-mode :is(#viewSkill,#viewAllManage,#userDetailSkill,#use
 body.admin-new-ui :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-record.skill-row-sparkle-rainbow {
  animation:admin-song-border-pulse var(--skill-sparkle-cycle,1.6s) ease-in-out infinite;
 }
-/* v4.37.46 diagnostic step 2: pause ALL row/card animations in the
-   viewed-user skill/records areas, including the border from step 1.
-   This is temporary isolation only. Preserve card geometry and colors;
-   own-page cards, user-detail sticky header and tabs are unaffected. */
-body.admin-new-ui #userDetailPage :is(#userDetailSkill,#userDetailRecords) .ar-record.skill-row-sparkle-rainbow {
- --admin-border-pulse-alpha:0;
-}
-body.admin-new-ui #userDetailPage :is(#userDetailSkill,#userDetailRecords) .ar-record,
+/* v4.37.50 diagnostic step 6: restore the original outer border sparkle
+   while keeping only inner animations/transitions paused in viewed-user cards.
+   The successful v4.37.48 scroll compositor isolation stays in place. */
 body.admin-new-ui #userDetailPage :is(#userDetailSkill,#userDetailRecords) .ar-record *,
-body.admin-new-ui #userDetailPage :is(#userDetailSkill,#userDetailRecords) .ar-record::before,
-body.admin-new-ui #userDetailPage :is(#userDetailSkill,#userDetailRecords) .ar-record::after,
 body.admin-new-ui #userDetailPage :is(#userDetailSkill,#userDetailRecords) .ar-record *::before,
 body.admin-new-ui #userDetailPage :is(#userDetailSkill,#userDetailRecords) .ar-record *::after {
  animation:none!important;
  transition:none!important;
 }
-/* v4.37.49 diagnostic step 5: keep the successful scroll compositor
-   isolation while restoring the original card gradients, borders and shadows.
-   Card animation remains paused for this controlled comparison. */
 body.admin-new-ui.app-scroll-layout #userDetailPage.user-detail-open.ui-scroll-frame > .user-detail-body.ui-scroll-body:not(.hidden) {
-  transform:translateZ(0);
+ transform:translateZ(0);
 }
 body.admin-new-ui :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-metrics{display:contents}
 body.admin-new-ui :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-no{font-size:12px;color:#84b5d0;text-align:center;font-variant-numeric:tabular-nums}
