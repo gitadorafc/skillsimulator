@@ -3813,7 +3813,8 @@ function clampAdminTwoColumnTitles() {
   if (!(document.body.classList.contains('admin-new-ui')) ||
       !document.body.classList.contains('skill-target-columns')) return;
   for (const title of document.querySelectorAll(
-      '#viewSkill .ar-title, #viewAllManage .ar-title')) {
+      '#viewSkill .ar-title, #viewAllManage .ar-title, ' +
+      '#userDetailSkill .ar-title, #userDetailRecords .ar-title')) {
     if (title.closest('.hidden')) continue;
     const name = title.querySelector('.ar-song-name');
     if (!name) continue;
@@ -3837,13 +3838,12 @@ function clampAdminTwoColumnTitles() {
 function renderSkill() {
   const target = calcTargetTotals(getOwnSkillTargetRows());
 
-  $('viewSkill').innerHTML = `
-    <div class="sk-section skill-hot-section"><h2>HOT Top25</h2><div class="list-container">
-      ${renderAdminRegisteredRecords(target.hotRows, 'SKILL') || '<div class="empty-state">まだ登録がありません</div>'}
-    </div></div>
-    <div class="sk-section skill-other-section"><h2>OTHER Top25</h2><div class="list-container">
-      ${renderAdminRegisteredRecords(target.otherRows, 'SKILL') || '<div class="empty-state">まだ登録がありません</div>'}
-    </div></div>`;
+  // Own and viewed skill pages use the same HTML wrapper and section headings.
+  $('viewSkill').innerHTML = renderUserDetailSkillSections({
+    hotCards: renderAdminRegisteredRecords(target.hotRows, 'SKILL'),
+    otherCards: renderAdminRegisteredRecords(target.otherRows, 'SKILL'),
+    emptyMessage: 'まだ登録がありません'
+  });
 }
 
 function getVisibleRegisteredRows(data, batch) {
@@ -4734,7 +4734,7 @@ function renderViewedUserSkill() {
     otherCards: renderAdminRegisteredRecords(target.otherRows, 'SKILL', true)
   });
   observeViewedCardPulses();
-  scheduleAdminPublicPulsePhase();
+  requestAnimationFrame(() => { clampAdminTwoColumnTitles(); scheduleAdminPublicPulsePhase(); });
 }
 
 function setUserDetailTab(tab) {
@@ -4765,7 +4765,7 @@ function renderViewedUserRegisteredScores() {
     hasMore
   });
   observeViewedCardPulses();
-  scheduleAdminPublicPulsePhase();
+  requestAnimationFrame(() => { clampAdminTwoColumnTitles(); scheduleAdminPublicPulsePhase(); });
 }
 
 async function loadViewedUserRegisteredScores() {

@@ -51,13 +51,13 @@ export function renderUserListRow({
     </div>`;
 }
 
-export function renderUserDetailSkillSections({ hotCards, otherCards }) {
+export function renderUserDetailSkillSections({ hotCards, otherCards, emptyMessage = '記録がありません' }) {
   return `
     <div class="sk-section skill-hot-section"><h2>HOT Top25</h2><div class="list-container">
-      ${hotCards || '<div class="empty-state">記録がありません</div>'}
+      ${hotCards || `<div class="empty-state">${emptyMessage}</div>`}
     </div></div>
     <div class="sk-section skill-other-section"><h2>OTHER Top25</h2><div class="list-container">
-      ${otherCards || '<div class="empty-state">記録がありません</div>'}
+      ${otherCards || `<div class="empty-state">${emptyMessage}</div>`}
     </div></div>`;
 }
 
