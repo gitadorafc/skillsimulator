@@ -137,6 +137,13 @@ body.app-scroll-layout :is(#appScreen:not(.hidden),#userDetailPage.user-detail-o
   -webkit-overflow-scrolling:touch;
 }
 
+/* The viewed-user page is a fixed overlay covering the own-page records.
+   Keep underlying layout and scroll position intact, but do not paint the
+   offscreen own-page cards while their second list is being displayed. */
+body.viewing-user-detail #appScreen > .p-container.ui-scroll-body {
+  visibility:hidden;
+}
+
 /* 固定領域に旧背景画像・影・filterを持ち込まない。 */
 body :is(
   #appScreen > .p-header,
