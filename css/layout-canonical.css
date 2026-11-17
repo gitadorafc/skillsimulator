@@ -44,98 +44,8 @@ body.app-scroll-layout.app-scrolling :is(
 .user-list-header-slot{
   display:none;
 }
-body.app-scroll-layout:not(.admin-new-ui) .user-list-header-slot:not(.hidden){
-  display:block;
-  flex:0 0 auto;
-  padding:4px 4px 0;
-  background:#0b1220;
-}
-body.app-scroll-layout:not(.admin-new-ui) .user-list-header-slot .user-list-sticky{
-  position:relative !important;
-  top:auto !important;
-  z-index:auto !important;
-  margin:0 !important;
-  padding:0 0 5px !important;
-  overflow:visible !important;
-  isolation:isolate !important;
-  background:#0b1220 !important;
-}
 body.app-scroll-layout .user-list-header-slot .user-list-sticky::before{
   display:none !important;
-}
-body.app-scroll-layout:not(.admin-new-ui) .user-list-header-slot :is(
-  .users-toolbar,
-  .user-list-sort-controls,
-  .user-list-sort-field
-){
-  background:#0b1220 !important;
-  background-color:#0b1220 !important;
-  background-image:none !important;
-  box-shadow:none !important;
-  filter:none !important;
-}
-body.app-scroll-layout:not(.admin-new-ui) .user-list-header-slot .users-toolbar{
-  display:block !important;
-  position:relative !important;
-  top:auto !important;
-  z-index:auto !important;
-  padding:0 0 5px !important;
-  margin:0 !important;
-}
-body.app-scroll-layout:not(.admin-new-ui) .user-list-header-slot .user-list-sort-controls{
-  position:relative !important;
-  top:auto !important;
-  z-index:auto !important;
-  display:grid;
-  grid-template-columns:max-content max-content !important;
-  justify-content:start !important;
-  align-items:center !important;
-  gap:6px;
-  width:100%;
-  margin:0;
-  padding:5px 6px;
-  border:1px solid #273449;
-  border-radius:7px;
-  box-sizing:border-box;
-}
-body.app-scroll-layout:not(.admin-new-ui) .user-list-header-slot .user-list-sort-field{
-  display:grid;
-  grid-template-columns:auto max-content !important;
-  align-items:center;
-  gap:5px;
-  width:max-content !important;
-  min-width:0;
-  color:#94a3b8;
-  font-size:9px;
-  font-weight:900;
-  white-space:nowrap;
-}
-body.app-scroll-layout:not(.admin-new-ui) .user-list-header-slot .user-list-sort-field select{
-  min-width:0;
-  height:34px;
-  min-height:34px;
-  padding-top:0;
-  padding-bottom:0;
-  padding-left:8px;
-  border:1px solid #475569;
-  border-radius:7px;
-  color:#f8fafc;
-  font-size:11px;
-  font-weight:900;
-}
-body.app-scroll-layout:not(.admin-new-ui) .user-list-header-slot #userListSortKey{
-  width:calc(8.5em + 42px) !important;
-  padding-right:34px !important;
-}
-body.app-scroll-layout:not(.admin-new-ui) .user-list-header-slot #userListSortDirection{
-  width:calc(4em + 42px) !important;
-  padding-right:34px !important;
-}
-body.app-scroll-layout:not(.admin-new-ui) .user-list-header-slot :is(
-  .users-toolbar input,
-  .user-list-sort-field select
-){
-  background-color:#111827 !important;
 }
 body.light-mode.app-scroll-layout .user-list-header-slot,
 body.light-mode.app-scroll-layout .user-list-header-slot .user-list-sticky,
@@ -164,22 +74,6 @@ body.light-mode.app-scroll-layout .user-list-header-slot .user-list-sort-control
 }
 body.light-mode.app-scroll-layout .user-list-header-slot .user-list-sort-field{
   color:#64748b !important;
-}
-@media(max-width:430px){
-  body.app-scroll-layout:not(.admin-new-ui) .user-list-header-slot .user-list-sort-controls{
-    gap:5px;
-    padding:4px 5px;
-  }
-  body.app-scroll-layout:not(.admin-new-ui) .user-list-header-slot .user-list-sort-field{
-    gap:4px;
-    font-size:8px;
-  }
-  body.app-scroll-layout:not(.admin-new-ui) .user-list-header-slot .user-list-sort-field select{
-    height:32px;
-    min-height:32px;
-    padding-left:6px;
-    font-size:10px;
-  }
 }
 
 /*
@@ -591,7 +485,6 @@ body:not(.skill-target-columns) .dc-card > .dc-skill-span {
 }
 
 /* === 4.14.18: 横並びONの全曲カードを画像3基準の単一定義へ集約 === */
-body.skill-target-columns:not(.admin-new-ui) :is(#viewSkill, #userDetailSkill):not(.hidden),
 body.skill-target-columns.admin-new-ui #userDetailSkill:not(.hidden) {
   display: grid !important;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
@@ -837,7 +730,6 @@ body.skill-target-columns #viewAllManage .dc-card-manage .dc-edit .m-action-btn 
   line-height: 1 !important;
 }
 
-body.skill-target-columns:not(.admin-new-ui) #viewAllManage:not(.hidden),
 body.skill-target-columns #userDetailRecords .list-container {
   display: grid !important;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
