@@ -4766,9 +4766,6 @@ async function openUserDetail(userId, username, returnTarget = null) {
   setUserDetailTab('skill');
   const detailPage = $('userDetailPage');
   detailPage.classList.add('user-detail-open');
-  // The viewed-user overlay covers the own-page records. Avoid painting both
-  // animated lists at once; preserve own-page scroll position and DOM state.
-  document.body.classList.add('viewing-user-detail');
   detailPage.style.display = 'flex';
   refreshUserDetailBoardBan(userId).catch(console.error);
 
@@ -4806,7 +4803,6 @@ function closeUserDetail(returnToOrigin = false) {
   const returnTarget = userDetailReturnTarget;
   const detailPage = $('userDetailPage');
   detailPage.classList.remove('user-detail-open');
-  document.body.classList.remove('viewing-user-detail');
   detailPage.style.display = 'none';
   viewedUserScores = [];
   viewedUserRegisteredScores = [];
