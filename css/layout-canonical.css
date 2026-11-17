@@ -116,23 +116,16 @@ body.app-scroll-layout #appScreen > .p-header {
   min-width: 0;
 }
 
-/* Own and viewed-user content use the same native scrolling rules.
-   Their parent/header markup differs, but paint/compositor behavior must not. */
-body.app-scroll-layout :is(
-  #appScreen > .p-container,
-  .user-detail-page.user-detail-open > .user-detail-body:not(.hidden)
-) {
-  min-width:0;
-  min-height:0;
-  overflow-x:hidden;
-  overflow-y:auto;
-  overscroll-behavior:contain;
-  -webkit-overflow-scrolling:touch;
-}
-
 body.app-scroll-layout #appScreen > .p-container {
   grid-column: 1;
   grid-row: 2;
+  min-width: 0;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  overscroll-behavior-y: contain;
+  -webkit-overflow-scrolling: touch;
 }
 
 body.app-scroll-layout .user-detail-page.user-detail-open {
@@ -154,6 +147,13 @@ body.app-scroll-layout .user-detail-page.user-detail-open > .user-detail-sticky 
 body.app-scroll-layout .user-detail-page.user-detail-open > .user-detail-body:not(.hidden) {
   grid-column: 1;
   grid-row: 2;
+  min-width: 0;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  overscroll-behavior-y: contain;
+  -webkit-overflow-scrolling: touch;
 }
 
 /* 固定領域に旧背景画像・影・filterを持ち込まない。 */
