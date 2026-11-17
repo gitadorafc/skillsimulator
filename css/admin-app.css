@@ -248,7 +248,9 @@ body.admin-new-ui.light-mode :is(#viewSkill,#viewAllManage,#userDetailSkill,#use
 body.admin-new-ui :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-record.skill-row-sparkle-rainbow::after {
   content:"";
   position:absolute;
-  inset:-2px;
+  /* Keep the pulse inside the actual border.  PC / ON cards clip overflow,
+     so the previous inset:-2px placed the entire glow outside the clip. */
+  inset:0;
   z-index:2;
   border:2px solid rgba(255,255,255,.56);
   border-radius:inherit;
@@ -1553,13 +1555,17 @@ body.admin-new-ui.light-mode #adminBoardEditorMask #btnAdminBoardSave {
  body.admin-new-ui #userDetailPage.user-detail-page {
    min-height:0!important;overflow:hidden!important;z-index:1100;
  }
- /* Use the same scroller paint containment as #appScreen > .p-container.
-    Card, border and content stay in one scrolled raster surface. */
+ /* User-detail dark OFF must scroll in normal paint flow.  Large readonly
+    lists were isolated as a separate paint surface from the sticky header,
+    and Chrome could update them out of step.  Keep the original containment
+    for the already-working light theme and horizontal ON mode. */
  body.admin-new-ui.app-scroll-layout #userDetailPage.user-detail-open > .user-detail-body:not(.hidden) {
-   contain:paint;
-   isolation:isolate;
    padding:8px 8px 28px;
    box-sizing:border-box;
+ }
+ body.admin-new-ui.app-scroll-layout:is(.light-mode,.skill-target-columns) #userDetailPage.user-detail-open > .user-detail-body:not(.hidden) {
+   contain:paint;
+   isolation:isolate;
  }
  /* Read-only records inherit the same columns as the editable renderer.
     The unused last column is reserved for the (absent) edit control; no
