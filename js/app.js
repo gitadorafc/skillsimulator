@@ -3890,6 +3890,18 @@ function renderRegisteredSongList(visibleRows, totalCount, readOnly = false) {
       </div>` : '');
 }
 
+// Keep the two paging states independent, but use one implementation for
+// the registered-song 'more' action on both own and viewed-user pages.
+function showMoreRegisteredSongs(readOnly) {
+  if (readOnly) {
+    viewedUserRegisteredBatch += 1;
+    renderViewedUserRegisteredScores();
+  } else {
+    ownRegisteredBatch += 1;
+    renderManage();
+  }
+}
+
 function renderManage() {
   const keyword = $('domSearch').value.trim().toLowerCase();
   const typeFilter = document.body.classList.contains('skill-target-columns')
@@ -6742,8 +6754,7 @@ $('viewAllManage').addEventListener('click', e => {
   const button = e.target.closest('[data-own-records-more]');
   if (!button) return;
 
-  ownRegisteredBatch += 1;
-  renderManage();
+  showMoreRegisteredSongs(false);
 });
 
 $('btnOpenLevelCorrection').addEventListener('click', () => {
@@ -7591,8 +7602,7 @@ $('userDetailRecords').addEventListener('click', e => {
   const button = e.target.closest('[data-user-detail-records-more]');
   if (!button) return;
 
-  viewedUserRegisteredBatch += 1;
-  renderViewedUserRegisteredScores();
+  showMoreRegisteredSongs(true);
 });
 
 $('btnCloseRateCompare').addEventListener('click', closeRateComparison);
