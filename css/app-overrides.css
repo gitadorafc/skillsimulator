@@ -1852,7 +1852,7 @@ body.light-mode .sync-mini-toolbar{
 
 /* === APP VERSION 3.13.0: 表示カスタマイズ === */
 
-:is(body:not(.admin-new-ui) #viewSkill,#userDetailSkill) .sk-section h2{
+#userDetailSkill .sk-section h2{
   min-height:30px;
   display:flex;
   align-items:center;
@@ -1863,10 +1863,10 @@ body.light-mode .sync-mini-toolbar{
   color:#0b1020 !important;
   font-size:12px !important;
 }
- :is(body:not(.admin-new-ui) #viewSkill, #userDetailSkill) .skill-hot-section h2{
+ #userDetailSkill .skill-hot-section h2{
   background:#e94b88 !important;
 }
- :is(body:not(.admin-new-ui) #viewSkill, #userDetailSkill) .skill-other-section h2{
+ #userDetailSkill .skill-other-section h2{
   background:#83c63d !important;
 }
 
@@ -4138,9 +4138,6 @@ body.light-mode .admin-activity-legend b{ color:#111827; }
 .p-container{
   padding-top:4px !important;
 }
-body:not(.admin-new-ui) #searchArea.search-bar-container{
-  padding-top:4px !important;
-}
 #viewSkill > .sk-section:first-child > h2{
   margin-top:0 !important;
 }
@@ -6044,28 +6041,6 @@ body.light-mode .board-main-rule-note{
 
 /* === APP VERSION 4.30.3: 掲示板固定領域・画像圧縮・投稿UI微調整 === */
 /* 掲示板の固定領域はp-header内に置き、タブ直下に連結する。ボタン行そのものには面色を付けない。 */
-body:not(.admin-new-ui) #boardMainFixed.board-main-fixed{
-  position:static!important;
-  z-index:auto;
-  margin:0;
-  padding:6px 8px 8px!important;
-  border-bottom:1px solid #334155;
-  background:#0f172a!important;
-}
-body:not(.admin-new-ui) #boardMainFixed .board-main-toolbar{
-  margin:0 0 7px!important;
-  padding:0!important;
-  background:transparent!important;
-  border:0!important;
-  box-shadow:none!important;
-}
-body:not(.admin-new-ui) #boardMainFixed .board-main-toolbar::before,
-body:not(.admin-new-ui) #boardMainFixed .board-main-toolbar::after{display:none!important;}
-body.light-mode:not(.admin-new-ui) #boardMainFixed.board-main-fixed{
-  background:var(--app-light-page-bg,#e5e7eb)!important;
-  border-bottom-color:#cbd5e1;
-}
-body.light-mode:not(.admin-new-ui) #boardMainFixed .board-main-toolbar{background:transparent!important;}
 
 /* 画像ビューアの「○.の投稿へ」も矢印・閉じると同じ高さに揃える。 */
 .admin-board-image-viewer-controls #btnAdminBoardImageJump{
@@ -6132,7 +6107,6 @@ body.light-mode .admin-board-file-button{
 }
 body.light-mode .admin-board-unblock{background:#dcfce7;color:#166534;border-color:#22c55e;}
 @media(max-width:560px){
-  body:not(.admin-new-ui) #boardMainFixed.board-main-fixed{padding:5px 7px 7px!important;}
   .admin-board-image-viewer-controls #btnAdminBoardImageJump{height:34px!important;min-height:34px!important;}
   .admin-board-file-button,
   .admin-board-reply-bottom .btn-submit,
@@ -6162,70 +6136,6 @@ body.light-mode .admin-board-unblock{background:#dcfce7;color:#166534;border-col
 }
 
 /* === APP VERSION 4.31.0: 掲示板一般公開・検索・Chrome操作ボタン統一 === */
-body:not(.admin-new-ui) #boardMainFixed.board-main-fixed{
-  background:transparent!important;
-  border-bottom:0!important;
-  padding:6px 8px 8px!important;
-}
-body:not(.admin-new-ui) #boardMainFixed .board-main-toolbar{
-  display:grid!important;
-  grid-template-columns:minmax(0,1fr) auto!important;
-  align-items:stretch!important;
-  gap:8px!important;
-  margin:0 0 7px!important;
-  padding:0!important;
-  background:transparent!important;
-  border:0!important;
-  box-shadow:none!important;
-}
-body:not(.admin-new-ui) .board-thread-search{
-  appearance:none;
-  -webkit-appearance:none;
-  width:100%;
-  min-width:0;
-  height:38px;
-  min-height:38px;
-  box-sizing:border-box;
-  padding:0 11px;
-  border:1px solid #475569;
-  border-radius:8px;
-  outline:none;
-  background:#111827;
-  color:#f8fafc;
-  -webkit-text-fill-color:#f8fafc;
-  font:inherit;
-  font-size:11px;
-  font-weight:800;
-}
-body:not(.admin-new-ui) .board-thread-search::placeholder{color:#64748b;-webkit-text-fill-color:#64748b;opacity:1;}
-body:not(.admin-new-ui) #btnBoardNewThread{
-  appearance:none!important;
-  -webkit-appearance:none!important;
-  display:inline-flex!important;
-  align-items:center!important;
-  justify-content:center!important;
-  box-sizing:border-box!important;
-  height:38px!important;
-  min-height:38px!important;
-  min-width:136px!important;
-  padding:0 14px!important;
-  margin:0!important;
-  border:1px solid var(--app-accent)!important;
-  border-radius:8px!important;
-  background:var(--app-accent)!important;
-  color:#fff!important;
-  -webkit-text-fill-color:#fff!important;
-  font:inherit!important;
-  font-size:11px!important;
-  font-weight:900!important;
-  line-height:1!important;
-  white-space:nowrap!important;
-}
-body.light-mode:not(.admin-new-ui) #boardMainFixed.board-main-fixed{background:transparent!important;border-bottom:0!important;}
-body.light-mode:not(.admin-new-ui) .board-thread-search{
-  background:#fff;color:#111827;-webkit-text-fill-color:#111827;border-color:#94a3b8;
-}
-body.light-mode:not(.admin-new-ui) .board-thread-search::placeholder{color:#94a3b8;-webkit-text-fill-color:#94a3b8;}
 
 /* browser既定スタイルを切り、Chrome/Safariで掲示板操作ボタンの寸法を揃える */
 .admin-board-post-actions button,
@@ -6271,13 +6181,6 @@ body.light-mode:not(.admin-new-ui) .board-thread-search::placeholder{color:#94a3
   vertical-align:middle!important;
 }
 .admin-board-post-actions{align-items:center!important;}
-
-@media(max-width:560px){
-  body:not(.admin-new-ui) #boardMainFixed.board-main-fixed{padding:5px 7px 7px!important;}
-  body:not(.admin-new-ui) #boardMainFixed .board-main-toolbar{gap:6px!important;}
-  body:not(.admin-new-ui) .board-thread-search{height:36px;min-height:36px;font-size:10px;}
-  body:not(.admin-new-ui) #btnBoardNewThread{height:36px!important;min-height:36px!important;min-width:112px!important;padding:0 10px!important;font-size:10px!important;}
-}
 
 /* === APP VERSION 4.31.0: 掲示板一覧メタ情報1行固定 === */
 .admin-board-thread-summary{
