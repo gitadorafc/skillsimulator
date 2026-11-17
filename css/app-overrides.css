@@ -1852,24 +1852,34 @@ body.light-mode .sync-mini-toolbar{
 
 /* === APP VERSION 3.13.0: 表示カスタマイズ === */
 
-#userDetailSkill .sk-section h2{
-  min-height:30px;
-  display:flex;
-  align-items:center;
-  margin:2px 0 5px !important;
-  padding:5px 7px !important;
-  border-left:0 !important;
-  border-radius:5px;
-  color:#0b1020 !important;
+/* 文字サイズUP：主要画面・入力・モーダルを一段階大きくする */
+body.text-size-up{
+  font-size:17px;
+}
+body.text-size-up :is(button,input,select,textarea){
+  font-size:15px !important;
+}
+body.text-size-up .score-lbl{ font-size:11px !important; }
+body.text-size-up .p-tab-btn{ font-size:15px !important; }
+body.text-size-up .sk-section h2{ font-size:15px !important; }
+body.text-size-up .dc-card .dc-song-title{ font-size:15px !important; }
+body.text-size-up .dc-card :is(.dc-lv,.dc-rate){ font-size:13px !important; }
+body.text-size-up .dc-card .dc-skill{ font-size:14px !important; }
+body.text-size-up .dc-card .p-badge{ font-size:13px !important; }
+body.text-size-up .dc-card .hot-tag{ font-size:12px !important; }
+body.text-size-up .dc-card :is(.fc-unified-badge,.opt-badge){ font-size:10px !important; }
+body.text-size-up :is(.app-menu-item,.menu-entry,.user-list-row,.favorite-user-row){
+  font-size:15px !important;
+}
+body.text-size-up :is(.feature-setting-row strong,.mypage-section-title,.rate-compare-title){
+  font-size:15px !important;
+}
+body.text-size-up :is(.feature-setting-row small,.section-note,.feature-settings-status){
   font-size:12px !important;
 }
- #userDetailSkill .skill-hot-section h2{
-  background:#e94b88 !important;
+body.text-size-up :is(.howto-body p,.feedback-body,.support-dialog-body,.skill-sync-dialog,.rate-compare-dialog){
+  font-size:15px !important;
 }
- #userDetailSkill .skill-other-section h2{
-  background:#83c63d !important;
-}
-
 /* 他ユーザー詳細の固定エリアも、ユーザー一覧と同じく最下部に影を付ける */
 .user-detail-sticky{
   box-shadow:0 5px 10px rgba(0,0,0,.28) !important;
@@ -2946,12 +2956,176 @@ body.light-mode .skill-share-option.active {
   color:#fff;
 }
 
+/* === APP VERSION 4.0.1: 文字サイズUP適用範囲の再調整 === */
+
 /* 上部VERSIONは、ダークでは視認性を上げ、ライトでは文字色を一段濃くする。 */
 .header-active-version{
   color:#94a3b8;
 }
 body.light-mode .header-active-version{
   color:#475569 !important;
+}
+
+/* 文字サイズUPで意図せず縮小していた箇所は、通常時のサイズを維持する。 */
+body.text-size-up .menu-entry{
+  font-size:20px !important;
+}
+body.text-size-up .score-val{
+  font-size:18px !important;
+}
+body.text-size-up .favorite-toggle{
+  font-size:20px !important;
+}
+body.text-size-up .mypage-sheet input{
+  font-size:16px !important;
+}
+
+/* 上部VERSION */
+body.text-size-up .header-active-version{
+  font-size:10px !important;
+  flex:0 0 auto !important;
+  max-width:none !important;
+  overflow:visible !important;
+  text-overflow:clip !important;
+  letter-spacing:0 !important;
+}
+
+/* 登録タブ：通常表示と横並び表示で、編集ボタンの指定サイズを分ける。 */
+body.text-size-up:not(.skill-target-columns) #viewAllManage .dc-edit .m-action-btn.btn-e{
+  font-size:15px !important;
+}
+body.text-size-up.skill-target-columns #viewAllManage .dc-card-manage .dc-edit .m-action-btn.btn-e{
+  font-size:12px !important;
+}
+
+body.text-size-up .user-list-name{
+  font-size:12px !important;
+}
+body.text-size-up :is(.user-list-skill-value,.user-list-total-skill){
+  font-size:11px !important;
+}
+
+/* 曲詳細 */
+body.text-size-up .rate-personal-best-label{
+  font-size:11px !important;
+}
+body.text-size-up .rate-personal-best-value{
+  font-size:14px !important;
+}
+body.text-size-up .rate-personal-best-version{
+  font-size:11px !important;
+}
+body.text-size-up .rate-personal-best-badges :is(.fc-unified-badge,.opt-badge,.history-option-badge){
+  font-size:10px !important;
+}
+body.text-size-up .option-share-title{
+  font-size:10px !important;
+}
+body.text-size-up .rate-compare-section-title{
+  font-size:11px !important;
+}
+body.text-size-up .rate-value{
+  font-size:15px !important;
+}
+body.text-size-up .rate-skill{
+  font-size:12px !important;
+}
+body.text-size-up .rate-comment-history{
+  font-size:13px !important;
+}
+
+/* 曲登録・編集 */
+body.text-size-up #domModal .f-group label{
+  font-size:12px !important;
+}
+body.text-size-up #domModal :is(
+  #formTitle,
+  #partSelect,
+  #formLevel,
+  #formRate,
+  #formFc,
+  #formOption,
+  #formDmOption,
+  #formPrivateComment
+){
+  font-size:14px !important;
+}
+body.text-size-up #domModal :is(.level-correction-title,.master-request-title){
+  font-size:11px !important;
+}
+body.text-size-up #domModal :is(.level-correction-note,.master-request-note){
+  font-size:10px !important;
+}
+body.text-size-up #domModal #btnOpenLevelCorrection,
+body.text-size-up #domModal #btnSendLevelCorrection{
+  font-size:11px !important;
+}
+body.text-size-up #domModal .score-private-comment-note{
+  font-size:10px !important;
+}
+body.text-size-up #domModal .btn-delete-editing-score,
+body.text-size-up #domModal :is(.btn-submit,.btn-cancel){
+  font-size:14px !important;
+}
+
+/* MENU / How to use / マイページ */
+body.text-size-up .app-menu-version label{
+  font-size:11px !important;
+}
+body.text-size-up .howto-body b{
+  font-size:15px !important;
+}
+body.text-size-up .mypage-title-row h3{
+  font-size:17px !important;
+}
+body.text-size-up .mypage-sheet > label,
+body.text-size-up .mypage-x-block > label{
+  font-size:12px !important;
+}
+
+/* スキル対象同期 */
+body.text-size-up .skill-sync-kicker{
+  font-size:11px !important;
+}
+body.text-size-up .skill-sync-status{
+  font-size:12px !important;
+}
+body.text-size-up .sync-visual-content > strong{
+  font-size:14px !important;
+}
+body.text-size-up .sync-visual-content p{
+  font-size:11.5px !important;
+}
+@media(max-width:420px){
+  body.text-size-up .sync-visual-content > strong{
+    font-size:13px !important;
+  }
+  body.text-size-up .sync-visual-content p{
+    font-size:10.5px !important;
+  }
+}
+
+/* スキル対象の画像共有 */
+body.text-size-up .skill-share-note{
+  font-size:14px !important;
+}
+
+/* スキル対象ランキング */
+body.text-size-up .skill-ranking-context,
+body.text-size-up :is(.skill-ranking-status,.skill-ranking-sort-label){
+  font-size:11px !important;
+}
+body.text-size-up :is(.skill-ranking-position,.skill-ranking-song){
+  font-size:12px !important;
+}
+body.text-size-up .skill-ranking-row :is(.p-badge,.skill-ranking-level){
+  font-size:11px !important;
+}
+body.text-size-up .skill-ranking-metric small{
+  font-size:10px !important;
+}
+body.text-size-up .skill-ranking-empty{
+  font-size:12px !important;
 }
 
 /* === APP VERSION 4.1.0: GF初期オプション / アカウント切り替え === */
@@ -3145,6 +3319,16 @@ body.light-mode .account-switch-add input{
 }
 
 /* 要望・不具合 */
+body.text-size-up :is(
+  .feedback-env-note,
+  .feedback-admin-env,
+  .feedback-history-env,
+  .feedback-history-head span,
+  .feedback-history-date,
+  .feedback-history-status
+){
+  font-size:12px !important;
+}
 
 /* === APP VERSION 4.2.0: 設定利用率 / 管理者ユーザー日時ソート === */
 #adminUserToolbar{
@@ -3505,13 +3689,11 @@ body.light-mode .admin-usage-card{
 .skill-history-row{
   min-width:0;
   display:grid;
-  /* Public history: summary / display / delete (three columns). */
-  grid-template-columns:minmax(0,1fr) auto auto;
+  grid-template-columns:minmax(0,1fr) auto;
   align-items:stretch;
   gap:5px;
 }
-/* Admin history alone contains the fourth action: comparison. */
-body.admin-new-ui .skill-history-row.has-compare{
+.skill-history-row.has-compare{
   grid-template-columns:minmax(0,1fr) auto auto auto;
 }
 .skill-history-summary{
@@ -3766,6 +3948,9 @@ body.light-mode .skill-history-save-option[data-skill-unified-selection="BOTH"].
 body.light-mode #menuMask .app-menu-group-label{
   border-color:#cbd5e1;
   color:#64748b;
+}
+body.text-size-up #menuMask .app-menu-group-label{
+  font-size:10px !important;
 }
 
 /* === APP VERSION 4.7.0: 全ユーザー向け曲名分類／管理者向け一括保存 === */
@@ -4138,8 +4323,8 @@ body.light-mode .admin-activity-legend b{ color:#111827; }
 .p-container{
   padding-top:4px !important;
 }
-#viewSkill > .sk-section:first-child > h2{
-  margin-top:0 !important;
+body:not(.admin-new-ui) #searchArea.search-bar-container{
+  padding-top:4px !important;
 }
 
 /* 登録曲側に残っていた下マージンを外し、全カードをgap:4pxへ統一する。 */
@@ -4299,6 +4484,9 @@ body.light-mode #adminSongCandidate:disabled{
   letter-spacing:0 !important;
   text-align:center !important;
 }
+body.text-size-up .rate-compare-dialog .rate-skill[class*="skill-box-"]{
+  font-size:14px !important;
+}
 body.light-mode .rate-compare-dialog .rate-skill[class*="skill-box-"]{
   background-color:#f3f4f6 !important;
 }
@@ -4388,6 +4576,13 @@ body.light-mode :is(.dc-card .dc-skill,.rate-compare-dialog .rate-skill)[class*=
   color:inherit;
   -webkit-text-fill-color:inherit;
   line-height:1;
+}
+body.text-size-up .dc-card .dc-skill[class*="skill-box-"],
+body.text-size-up .rate-compare-dialog .rate-skill[class*="skill-box-"]{
+  font-size:13px !important;
+}
+body.text-size-up.skill-target-columns .dc-card .dc-skill[class*="skill-box-"]{
+  font-size:12px !important;
 }
 
 /* 横並びカードのFC・EXC・オプションも、パートと同じ方式で文字を中央へ置く。 */
@@ -4689,10 +4884,6 @@ body.light-mode .own-registered-records-more{
 
 /* === APP VERSION 4.13.8: カード枠を4.13.5以前の描画へ復元 === */
 
-/* === APP VERSION 4.13.9: 横並び時のHOT／OTHER見出し上端を揃える === */
-body.skill-target-columns #viewSkill > .sk-section > h2{
-  margin-top:0 !important;
-}
 
 /* === APP VERSION 4.13.10: iPhone Safari最下部バウンド時の固定ずれを防止 === */
 html.ios-webkit,
@@ -4799,6 +4990,7 @@ body.light-mode .app-loading-symbol{color:#334155;}
 }
 .howto-body section li{display:list-item;font-size:inherit;line-height:inherit;overflow-wrap:anywhere;}
 .howto-body section li+li{margin-top:4px;}
+body.text-size-up .howto-body section ul{font-size:15px !important;}
 body.light-mode .howto-body section ul{color:#334155;}
 
 
@@ -6041,6 +6233,28 @@ body.light-mode .board-main-rule-note{
 
 /* === APP VERSION 4.30.3: 掲示板固定領域・画像圧縮・投稿UI微調整 === */
 /* 掲示板の固定領域はp-header内に置き、タブ直下に連結する。ボタン行そのものには面色を付けない。 */
+body:not(.admin-new-ui) #boardMainFixed.board-main-fixed{
+  position:static!important;
+  z-index:auto;
+  margin:0;
+  padding:6px 8px 8px!important;
+  border-bottom:1px solid #334155;
+  background:#0f172a!important;
+}
+body:not(.admin-new-ui) #boardMainFixed .board-main-toolbar{
+  margin:0 0 7px!important;
+  padding:0!important;
+  background:transparent!important;
+  border:0!important;
+  box-shadow:none!important;
+}
+body:not(.admin-new-ui) #boardMainFixed .board-main-toolbar::before,
+body:not(.admin-new-ui) #boardMainFixed .board-main-toolbar::after{display:none!important;}
+body.light-mode:not(.admin-new-ui) #boardMainFixed.board-main-fixed{
+  background:var(--app-light-page-bg,#e5e7eb)!important;
+  border-bottom-color:#cbd5e1;
+}
+body.light-mode:not(.admin-new-ui) #boardMainFixed .board-main-toolbar{background:transparent!important;}
 
 /* 画像ビューアの「○.の投稿へ」も矢印・閉じると同じ高さに揃える。 */
 .admin-board-image-viewer-controls #btnAdminBoardImageJump{
@@ -6107,6 +6321,7 @@ body.light-mode .admin-board-file-button{
 }
 body.light-mode .admin-board-unblock{background:#dcfce7;color:#166534;border-color:#22c55e;}
 @media(max-width:560px){
+  body:not(.admin-new-ui) #boardMainFixed.board-main-fixed{padding:5px 7px 7px!important;}
   .admin-board-image-viewer-controls #btnAdminBoardImageJump{height:34px!important;min-height:34px!important;}
   .admin-board-file-button,
   .admin-board-reply-bottom .btn-submit,
@@ -6136,6 +6351,70 @@ body.light-mode .admin-board-unblock{background:#dcfce7;color:#166534;border-col
 }
 
 /* === APP VERSION 4.31.0: 掲示板一般公開・検索・Chrome操作ボタン統一 === */
+body:not(.admin-new-ui) #boardMainFixed.board-main-fixed{
+  background:transparent!important;
+  border-bottom:0!important;
+  padding:6px 8px 8px!important;
+}
+body:not(.admin-new-ui) #boardMainFixed .board-main-toolbar{
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) auto!important;
+  align-items:stretch!important;
+  gap:8px!important;
+  margin:0 0 7px!important;
+  padding:0!important;
+  background:transparent!important;
+  border:0!important;
+  box-shadow:none!important;
+}
+body:not(.admin-new-ui) .board-thread-search{
+  appearance:none;
+  -webkit-appearance:none;
+  width:100%;
+  min-width:0;
+  height:38px;
+  min-height:38px;
+  box-sizing:border-box;
+  padding:0 11px;
+  border:1px solid #475569;
+  border-radius:8px;
+  outline:none;
+  background:#111827;
+  color:#f8fafc;
+  -webkit-text-fill-color:#f8fafc;
+  font:inherit;
+  font-size:11px;
+  font-weight:800;
+}
+body:not(.admin-new-ui) .board-thread-search::placeholder{color:#64748b;-webkit-text-fill-color:#64748b;opacity:1;}
+body:not(.admin-new-ui) #btnBoardNewThread{
+  appearance:none!important;
+  -webkit-appearance:none!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  box-sizing:border-box!important;
+  height:38px!important;
+  min-height:38px!important;
+  min-width:136px!important;
+  padding:0 14px!important;
+  margin:0!important;
+  border:1px solid var(--app-accent)!important;
+  border-radius:8px!important;
+  background:var(--app-accent)!important;
+  color:#fff!important;
+  -webkit-text-fill-color:#fff!important;
+  font:inherit!important;
+  font-size:11px!important;
+  font-weight:900!important;
+  line-height:1!important;
+  white-space:nowrap!important;
+}
+body.light-mode:not(.admin-new-ui) #boardMainFixed.board-main-fixed{background:transparent!important;border-bottom:0!important;}
+body.light-mode:not(.admin-new-ui) .board-thread-search{
+  background:#fff;color:#111827;-webkit-text-fill-color:#111827;border-color:#94a3b8;
+}
+body.light-mode:not(.admin-new-ui) .board-thread-search::placeholder{color:#94a3b8;-webkit-text-fill-color:#94a3b8;}
 
 /* browser既定スタイルを切り、Chrome/Safariで掲示板操作ボタンの寸法を揃える */
 .admin-board-post-actions button,
@@ -6181,6 +6460,13 @@ body.light-mode .admin-board-unblock{background:#dcfce7;color:#166534;border-col
   vertical-align:middle!important;
 }
 .admin-board-post-actions{align-items:center!important;}
+
+@media(max-width:560px){
+  body:not(.admin-new-ui) #boardMainFixed.board-main-fixed{padding:5px 7px 7px!important;}
+  body:not(.admin-new-ui) #boardMainFixed .board-main-toolbar{gap:6px!important;}
+  body:not(.admin-new-ui) .board-thread-search{height:36px;min-height:36px;font-size:10px;}
+  body:not(.admin-new-ui) #btnBoardNewThread{height:36px!important;min-height:36px!important;min-width:112px!important;padding:0 10px!important;font-size:10px!important;}
+}
 
 /* === APP VERSION 4.31.0: 掲示板一覧メタ情報1行固定 === */
 .admin-board-thread-summary{
