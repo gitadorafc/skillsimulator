@@ -4664,6 +4664,56 @@ function renderUsers() {
   }
 }
 
+// Viewed profiles have a separate fixed scrollpane. At 190+ skill, every
+// rainbow row animates a painted background even when far outside the viewport.
+// Only pause invisible rows; visible cards retain the exact existing CSS,
+// dimensions, colors and header-synchronized timing.
+let viewedCardPulseObserver = null;
+function observeViewedCardPulses() {
+  viewedCardPulseObserver?.disconnect();
+  viewedCardPulseObserver = null;
+  if (!document.body.classList.contains('admin-new-ui') ||
+      !('IntersectionObserver' in window)) return;
+  const scroller = document.querySelector('#userDetailPage > .user-detail-body');
+  if (!scroller) return;
+  const rows = [...scroller.querySelectorAll(
+    '#userDetailSkill:not(.hidden) .ar-record.skill-row-sparkle-rainbow, ' +
+    '#userDetailRecords:not(.hidden) .ar-record.skill-row-sparkle-rainbow'
+  )];
+  if (!rows.length) return;
+  const getHeaderPhase = () => {
+    const header = document.querySelector('#appScreen > .p-header');
+    const master = [...(header?.querySelectorAll('.score-val.score-rank-sparkle-rainbow') || [])]
+      .flatMap(element => element.getAnimations({subtree:false}))
+      .find(animation => animation.animationName === 'skill-sparkle-text-glow' && animation.currentTime != null);
+    return master ? Number(master.currentTime) : null;
+  };
+  viewedCardPulseObserver = new IntersectionObserver(entries => {
+    let phase;
+    for (const entry of entries) {
+      const card = entry.target;
+      if (!card.isConnected) continue;
+      if (!entry.isIntersecting) {
+        card.classList.add('admin-pulse-offscreen');
+        continue;
+      }
+      card.classList.remove('admin-pulse-offscreen');
+      if (phase === undefined) phase = getHeaderPhase();
+      if (phase == null) continue;
+      // Align only cards entering the visible area, not all 50 cards on scroll.
+      for (const animation of card.getAnimations({subtree:true})) {
+        if (!ADMIN_PULSE_ANIMATION_NAMES.has(animation.animationName) ||
+            animation.currentTime == null) continue;
+        try { animation.currentTime = phase; } catch (_) { /* detached row */ }
+      }
+    }
+  }, {root:scroller, rootMargin:'80px 0px', threshold:0});
+  for (const row of rows) {
+    row.classList.add('admin-pulse-offscreen');
+    viewedCardPulseObserver.observe(row);
+  }
+}
+
 function renderViewedUserSkill() {
   const target = calcTargetTotals(viewedUserScores);
 
@@ -4683,6 +4733,7 @@ function renderViewedUserSkill() {
     hotCards: renderAdminRegisteredRecords(target.hotRows, 'SKILL', true),
     otherCards: renderAdminRegisteredRecords(target.otherRows, 'SKILL', true)
   });
+  observeViewedCardPulses();
   scheduleAdminPublicPulsePhase();
 }
 
@@ -4693,6 +4744,7 @@ function setUserDetailTab(tab) {
 
   $('userDetailSkill').classList.toggle('hidden', tab !== 'skill');
   $('userDetailRecords').classList.toggle('hidden', tab !== 'records');
+  observeViewedCardPulses();
 }
 
 function renderViewedUserRegisteredScores() {
@@ -4712,6 +4764,7 @@ function renderViewedUserRegisteredScores() {
       : renderAdminRegisteredRecords(visibleRows, 'PUBLIC', true),
     hasMore
   });
+  observeViewedCardPulses();
   scheduleAdminPublicPulsePhase();
 }
 
@@ -4788,6 +4841,8 @@ async function openUserDetail(userId, username, returnTarget = null) {
 function closeUserDetail(returnToOrigin = false) {
   const returnTarget = userDetailReturnTarget;
   const detailPage = $('userDetailPage');
+  viewedCardPulseObserver?.disconnect();
+  viewedCardPulseObserver = null;
   detailPage.classList.remove('user-detail-open');
   detailPage.style.display = 'none';
   viewedUserScores = [];
