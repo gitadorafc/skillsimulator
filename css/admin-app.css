@@ -268,21 +268,11 @@ body.admin-new-ui #userDetailPage :is(#userDetailSkill,#userDetailRecords) .ar-r
  animation:none!important;
  transition:none!important;
 }
-/* v4.37.48 diagnostic step 4: test compositor ownership of the viewed-user
-   scroll body. The outer frame and its fixed header remain unchanged.
-   Force ONLY the viewed-user scroll content into one composited layer.
-   This is temporary and must be removed or replaced after the test. */
+/* v4.37.49 diagnostic step 5: keep the successful scroll compositor
+   isolation while restoring the original card gradients, borders and shadows.
+   Card animation remains paused for this controlled comparison. */
 body.admin-new-ui.app-scroll-layout #userDetailPage.user-detail-open.ui-scroll-frame > .user-detail-body.ui-scroll-body:not(.hidden) {
   transform:translateZ(0);
-}
-/* v4.37.47 diagnostic step 3: isolate multi-layer card backgrounds.
-   DARK, viewed-user, OFF layout only. Temporarily replace the animated/gradient
-   background layers with one solid surface and solid border. Keep the same
-   box geometry, scroll container, text and images. Remove after diagnosis. */
-body.admin-new-ui:not(.light-mode):not(.skill-target-columns) #userDetailPage :is(#userDetailSkill,#userDetailRecords) .ar-record {
-  background:#0c1728!important;
-  border-color:#52677e!important;
-  box-shadow:none!important;
 }
 body.admin-new-ui :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-metrics{display:contents}
 body.admin-new-ui :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-no{font-size:12px;color:#84b5d0;text-align:center;font-variant-numeric:tabular-nums}
