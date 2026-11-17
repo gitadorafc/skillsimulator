@@ -116,7 +116,10 @@ body.app-scroll-layout #appScreen > .p-header {
   min-width: 0;
 }
 
-body.app-scroll-layout #appScreen > .p-container {
+/* Own page and viewed-user body use one canonical scroll behavior.
+   Their separate containers preserve their respective fixed headers. */
+body.app-scroll-layout #appScreen > .p-container,
+body.app-scroll-layout .user-detail-page.user-detail-open > .user-detail-body:not(.hidden) {
   grid-column: 1;
   grid-row: 2;
   min-width: 0;
@@ -144,17 +147,7 @@ body.app-scroll-layout .user-detail-page.user-detail-open > .user-detail-sticky 
   min-width: 0;
 }
 
-body.app-scroll-layout .user-detail-page.user-detail-open > .user-detail-body:not(.hidden) {
-  grid-column: 1;
-  grid-row: 2;
-  min-width: 0;
-  min-height: 0;
-  overflow-x: hidden;
-  overflow-y: auto;
-  overscroll-behavior: contain;
-  overscroll-behavior-y: contain;
-  -webkit-overflow-scrolling: touch;
-}
+
 
 /* 固定領域に旧背景画像・影・filterを持ち込まない。 */
 body :is(
