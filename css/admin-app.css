@@ -479,6 +479,13 @@ body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill,#user
    grid-template-columns:40px minmax(0,1fr) 67px 32px;
    grid-template-rows:20px 20px;gap:3px 2px;padding:4px;min-height:53px;
  }
+ /* In compact OFF rows, remove the empty fourth (edit) track for viewed users. */
+ body.admin-new-ui:not(.skill-target-columns) :is(#userDetailSkill,#userDetailRecords) .ar-record.ar-readonly {
+   grid-template-columns:40px minmax(0,1fr) 67px;
+ }
+ body.admin-new-ui:not(.skill-target-columns) :is(#userDetailSkill,#userDetailRecords) .ar-record.ar-readonly .ar-skill {
+   justify-self:end;
+ }
  body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-no{display:none;}
  body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-art{
    grid-column:1;grid-row:1/3;width:37px;height:37px;align-self:center;
@@ -1450,8 +1457,17 @@ body.admin-new-ui.light-mode #adminBoardEditorMask #btnAdminBoardSave {
    min-width:0;max-width:none;box-sizing:border-box;
  }
  body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) {--ar-cols:30px 64px minmax(125px,1fr) 80px 54px 92px 52px 78px 82px 42px;}
- /* Keep the same grid on both pages. Read-only rows simply have no edit
-    control; reserving its slot prevents the other columns from jumping. */
+ /* Read-only detail cards have no editor. In OFF mode the freed final column
+    belongs to the skill value; own-page editable rows retain their grid. */
+ body.admin-new-ui:not(.skill-target-columns) :is(#userDetailSkill,#userDetailRecords) {
+   --ar-cols:30px 64px minmax(125px,1fr) 80px 54px 92px 52px 78px 82px;
+ }
+ body.admin-new-ui:not(.skill-target-columns) :is(#userDetailSkill,#userDetailRecords) .ar-record.ar-readonly .ar-skill {
+   justify-self:end;
+ }
+ body.admin-new-ui:not(.skill-target-columns) :is(#userDetailSkill,#userDetailRecords) .ar-register-view.ar-readonly .ar-table-head span:last-child {
+   display:none;
+ }
  body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-record,
  body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-table-head {column-gap:8px;}
  body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-record {grid-template-rows:46px;min-height:54px;padding:2px 5px;overflow:hidden;}
@@ -1738,8 +1754,6 @@ body.admin-new-ui.light-mode #songCatalogMask .admin-catalog-jacket {
   background:#e2e8f0;color:#64748b;
 }
 
-/* Read-only user-detail cards use the same geometry, without an edit button. */
-body.admin-new-ui :is(#userDetailSkill,#userDetailRecords) .ar-record.ar-readonly .ar-edit {display:none;}
 
 /* Admin rival rows: independent user-info and delete surfaces.
    Public rival cards retain the original layout. */
