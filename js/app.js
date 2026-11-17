@@ -11,11 +11,10 @@ import {
   renderAccountSwitchRows,
   renderFavoriteRows,
   renderFeedbackHistoryRows,
-  renderUserDetailRegisteredSection,
   renderUserDetailSkillSections,
   renderUserListPager,
   renderUserListRow
-} from './user-renderer.js?v=4_37_29';
+} from './user-renderer.js?v=4_37_31';
 import {
   renderAdminCsvVersionOptions as renderAdminCsvVersionOptionsMarkup,
   renderAdminFeedbackList,
@@ -3863,6 +3862,34 @@ function getVisibleRegisteredRows(data, batch) {
     .sort(compareSkillRows);
 }
 
+// Shared registered-song shell for own and viewed-user pages.  Only the
+// read-only flag, paging state and click target depend on the viewer.
+function renderRegisteredSongCards(rows, readOnly = false) {
+  const recordMarkup = subset => renderAdminRegisteredRecords(
+    subset, readOnly ? 'PUBLIC' : undefined, readOnly
+  );
+  if (!document.body.classList.contains('skill-target-columns')) {
+    return recordMarkup(rows);
+  }
+  return `<div class="admin-records-two-column">`
+    + `<section class="admin-records-pane hot"><h2>HOT</h2>${recordMarkup(rows.filter(row => Boolean(row.is_hot))) || '<div class="empty-state">登録曲なし</div>'}</section>`
+    + `<section class="admin-records-pane other"><h2>OTHER</h2>${recordMarkup(rows.filter(row => !row.is_hot)) || '<div class="empty-state">登録曲なし</div>'}</section>`
+    + `</div>`;
+}
+
+function renderRegisteredSongList(visibleRows, totalCount, readOnly = false) {
+  const cards = renderRegisteredSongCards(visibleRows, readOnly);
+  const emptyText = readOnly ? '登録曲がありません' : '条件に一致する登録データがありません';
+  const moreButton = readOnly ? 'data-user-detail-records-more' : 'data-own-records-more';
+  const moreClass = readOnly ? '' : ' own-registered-records-more';
+  return (cards || `<div class="empty-state">${emptyText}</div>`)
+    + (visibleRows.length < totalCount ? `
+      <div class="user-detail-records-more${moreClass}">
+        <span>${visibleRows.length} / ${totalCount}件表示</span>
+        <button type="button" ${moreButton}>もっと見る</button>
+      </div>` : '');
+}
+
 function renderManage() {
   const keyword = $('domSearch').value.trim().toLowerCase();
   const typeFilter = document.body.classList.contains('skill-target-columns')
@@ -3912,22 +3939,8 @@ function renderManage() {
     .sort(compareSkillRows);
 
   const visibleRows = getVisibleRegisteredRows(data, ownRegisteredBatch);
-  const hasMore = visibleRows.length < data.length;
 
-  // Canonical record markup. No legacy card-renderer or parallel CSS path.
-  const cards = document.body.classList.contains('skill-target-columns')
-    ? `<div class="admin-records-two-column">`
-        + `<section class="admin-records-pane hot"><h2>HOT</h2>${renderAdminRegisteredRecords(visibleRows.filter(row => Boolean(row.is_hot))) || '<div class="empty-state">登録曲なし</div>'}</section>`
-        + `<section class="admin-records-pane other"><h2>OTHER</h2>${renderAdminRegisteredRecords(visibleRows.filter(row => !row.is_hot)) || '<div class="empty-state">登録曲なし</div>'}</section>`
-      + `</div>`
-    : renderAdminRegisteredRecords(visibleRows);
-  $('viewAllManage').innerHTML =
-    (cards || '<div class="empty-state">条件に一致する登録データがありません</div>') +
-    (hasMore ? `
-      <div class="user-detail-records-more own-registered-records-more">
-        <span>${visibleRows.length} / ${data.length}件表示</span>
-        <button type="button" data-own-records-more>もっと見る</button>
-      </div>` : '');
+  $('viewAllManage').innerHTML = renderRegisteredSongList(visibleRows, data.length);
 
   requestAnimationFrame(() => {
     syncAdminTwoColumnViewport();
@@ -4751,19 +4764,8 @@ function renderViewedUserRegisteredScores() {
   const data = [...viewedUserRegisteredScores]
     .sort(compareSkillRows);
   const visibleRows = getVisibleRegisteredRows(data, viewedUserRegisteredBatch);
-  const hasMore = visibleRows.length < data.length;
 
-  $('userDetailRecords').innerHTML = renderUserDetailRegisteredSection({
-    totalCount: data.length,
-    visibleCount: visibleRows.length,
-    cards: document.body.classList.contains('skill-target-columns')
-      ? `<div class="admin-records-two-column">`
-        + `<section class="admin-records-pane hot"><h2>HOT</h2>${renderAdminRegisteredRecords(visibleRows.filter(row => Boolean(row.is_hot)), 'PUBLIC', true) || '<div class="empty-state">登録曲なし</div>'}</section>`
-        + `<section class="admin-records-pane other"><h2>OTHER</h2>${renderAdminRegisteredRecords(visibleRows.filter(row => !row.is_hot), 'PUBLIC', true) || '<div class="empty-state">登録曲なし</div>'}</section>`
-        + `</div>`
-      : renderAdminRegisteredRecords(visibleRows, 'PUBLIC', true),
-    hasMore
-  });
+  $('userDetailRecords').innerHTML = renderRegisteredSongList(visibleRows, data.length, true);
   observeViewedCardPulses();
   requestAnimationFrame(() => { clampAdminTwoColumnTitles(); scheduleAdminPublicPulsePhase(); });
 }
