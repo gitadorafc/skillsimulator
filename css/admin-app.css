@@ -252,8 +252,11 @@ body.admin-new-ui.light-mode :is(#viewSkill,#viewAllManage,#userDetailSkill,#use
 body.admin-new-ui :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-record.skill-row-sparkle-rainbow {
  animation:admin-song-border-pulse var(--skill-sparkle-cycle,1.6s) ease-in-out infinite;
 }
-/* Keep the user-detail scroll content in a single compositing layer to
-   prevent card borders and contents from visually separating during scrolling. */
+/* Share the proven user-detail compositing treatment with the main app's
+   scrolling content (skill targets, registered songs, user list, board, etc.).
+   Only the active scroll bodies are promoted: headers, sidebar and each song
+   card remain untouched, avoiding unnecessary per-card GPU layers. */
+body.admin-new-ui.app-scroll-layout #appScreen:not(.hidden).ui-scroll-frame > .p-container.ui-scroll-body:not(.hidden),
 body.admin-new-ui.app-scroll-layout #userDetailPage.user-detail-open.ui-scroll-frame > .user-detail-body.ui-scroll-body:not(.hidden) {
  transform:translateZ(0);
 }
