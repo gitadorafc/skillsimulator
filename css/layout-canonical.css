@@ -126,8 +126,6 @@ body.app-scroll-layout #appScreen > .p-container {
   overscroll-behavior: contain;
   overscroll-behavior-y: contain;
   -webkit-overflow-scrolling: touch;
-  contain: paint;
-  isolation: isolate;
 }
 
 body.app-scroll-layout .user-detail-page.user-detail-open {
@@ -156,8 +154,6 @@ body.app-scroll-layout .user-detail-page.user-detail-open > .user-detail-body:no
   overscroll-behavior: contain;
   overscroll-behavior-y: contain;
   -webkit-overflow-scrolling: touch;
-  contain: paint;
-  isolation: isolate;
 }
 
 /* 固定領域に旧背景画像・影・filterを持ち込まない。 */
