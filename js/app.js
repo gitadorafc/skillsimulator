@@ -4012,9 +4012,57 @@ function getAdminPulseRoots() {
     getComputedStyle(node).display !== 'none';
   return [ownHeader, viewedHeader, ...ids.map(id => $(id))].filter(visible);
 }
+// Align only the currently displayed screen. The viewed-user header is the
+// reference while the detail page is open; the own header may keep animating
+// behind that page and must not pull its phase away from the viewed header.
 function syncAdminPublicPulsePhase() {
   if (!document.body.classList.contains('admin-new-ui') ||
       document.body.classList.contains('app-scrolling')) return;
+
+  const detailPage = $('userDetailPage');
+  const viewingDetail = detailPage?.classList.contains('user-detail-open') &&
+    detailPage.style.display !== 'none';
+  if (viewingDetail) {
+    const header = detailPage.querySelector('.user-detail-summary');
+    const list = $('userDetailRecords')?.classList.contains('hidden')
+      ? $('userDetailSkill') : $('userDetailRecords');
+    if (!header || !list || !list.getClientRects().length) return;
+
+    const headerTargets = header.querySelectorAll('.score-val.score-rank-sparkle-rainbow');
+    const cardTargets = list.querySelectorAll(ADMIN_PULSE_TARGET_SELECTOR);
+    // If the profile total does not sparkle, use the first sparkling card.
+    // Avoid a document-wide scan or a scroll listener.
+    const findClock = elements => {
+      for (const element of elements) {
+        const animation = element.getAnimations({subtree:true}).find(a =>
+          ADMIN_PULSE_ANIMATION_NAMES.has(a.animationName) && a.currentTime != null);
+        if (animation) return animation;
+      }
+      return null;
+    };
+    const clock = findClock(headerTargets) || findClock(cardTargets);
+    if (!clock) return;
+    const sourceDuration = Number(clock.effect?.getComputedTiming().duration);
+    const sourceTime = Number(clock.currentTime);
+    if (!Number.isFinite(sourceTime)) return;
+    const normalizedPhase = Number.isFinite(sourceDuration) && sourceDuration > 0
+      ? ((sourceTime % sourceDuration) + sourceDuration) % sourceDuration / sourceDuration
+      : null;
+    for (const element of [...headerTargets, ...cardTargets]) {
+      for (const animation of element.getAnimations({subtree:true})) {
+        if (!ADMIN_PULSE_ANIMATION_NAMES.has(animation.animationName) ||
+            animation.currentTime == null || animation === clock) continue;
+        const duration = Number(animation.effect?.getComputedTiming().duration);
+        const targetTime = normalizedPhase !== null && Number.isFinite(duration) && duration > 0
+          ? normalizedPhase * duration : sourceTime;
+        if (Math.abs(Number(animation.currentTime) - targetTime) < 12) continue;
+        try { animation.currentTime = targetTime; } catch (_) { /* detached animation */ }
+      }
+    }
+    return;
+  }
+
+  // Preserve the existing own-page synchronization behavior unchanged.
   const ownHeader = document.querySelector('#appScreen > .p-header');
   const master = [...(ownHeader?.querySelectorAll('.score-val.score-rank-sparkle-rainbow') || [])]
     .flatMap(element => element.getAnimations({subtree:false}))
