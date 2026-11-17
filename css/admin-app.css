@@ -236,27 +236,36 @@ body.admin-new-ui.light-mode :is(#viewSkill,#viewAllManage,#userDetailSkill,#use
   filter:drop-shadow(0 1px 1px rgba(30,41,59,.72));
 }
 
-/* Skill-colored gradient borders are static paint.  The old animated CSS
-   @property was recomputing the entire multi-layer background of every
-   dark card on every animation frame, causing scroll/raster lag.  Pulse
-   a thin translucent border overlay using compositor-friendly opacity.
-   The gradient, card fill, pulse cycle and rounded corners stay unchanged. */
+/* 190+ border: only ONE skill-colored stroke is painted.  The previous
+   static gradient border plus white inset ::after painted two separate
+   outlines.  Here the underlying border is transparent for animated cards,
+   and a single masked gradient edge pulses by compositor opacity. */
 @keyframes admin-song-border-pulse {
-  0%,100% { opacity:0; }
+  0%,100% { opacity:.52; }
   50% { opacity:1; }
+}
+body.admin-new-ui :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-record.skill-row-sparkle-rainbow {
+  background:linear-gradient(90deg,#112c55,#281531 15%,#0c1728 65%) padding-box,
+    linear-gradient(transparent,transparent) border-box !important;
+}
+body.admin-new-ui.light-mode :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-record.skill-row-sparkle-rainbow {
+  background:linear-gradient(#f3f4f6,#f3f4f6) padding-box,
+    linear-gradient(transparent,transparent) border-box !important;
 }
 body.admin-new-ui :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-record.skill-row-sparkle-rainbow::after {
   content:"";
   position:absolute;
-  /* Keep the pulse inside the actual border.  PC / ON cards clip overflow,
-     so the previous inset:-2px placed the entire glow outside the clip. */
   inset:0;
   z-index:2;
-  border:2px solid rgba(255,255,255,.56);
+  padding:2px;
+  border:0;
   border-radius:inherit;
   box-sizing:border-box;
+  background:var(--admin-song-border-image,linear-gradient(#475569,#475569));
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+  -webkit-mask-composite:xor;
+  mask-composite:exclude;
   pointer-events:none;
-  opacity:0;
   animation:admin-song-border-pulse var(--skill-sparkle-cycle,1.6s) ease-in-out infinite;
 }
 body.admin-new-ui :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-metrics{display:contents}
@@ -1570,6 +1579,22 @@ body.admin-new-ui.light-mode #adminBoardEditorMask #btnAdminBoardSave {
  /* Read-only records inherit the same columns as the editable renderer.
     The unused last column is reserved for the (absent) edit control; no
     edit button is created for other users. */
+}
+
+/* Chrome desktop dark/OFF: avoid repainting all readonly cards in a
+   single isolated scroll layer, and skip offscreen rows.  Desktop OFF rows
+   have a 54px minimum height; keeping that intrinsic height prevents jumps. */
+@media (min-width:1100px) {
+  body.admin-new-ui.app-scroll-layout:not(.light-mode):not(.skill-target-columns)
+    #userDetailPage.user-detail-open > .user-detail-body:not(.hidden) {
+    contain:none;
+    isolation:auto;
+  }
+  body.admin-new-ui:not(.light-mode):not(.skill-target-columns)
+    #userDetailPage :is(#userDetailSkill,#userDetailRecords) .ar-record.ar-readonly {
+    content-visibility:auto;
+    contain-intrinsic-size:auto 54px;
+  }
 }
 
 /* Viewed-profile header follows the same height / score-row geometry as
