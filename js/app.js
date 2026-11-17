@@ -3483,7 +3483,7 @@ async function createSkillShareFile(instrument, snapshot = null, comparisonBasel
     username: $('headerUsername')?.textContent || ''
   };
   // 管理者・一般ユーザー共通の画像エンジン。比較元は本人の保存履歴RPCから取得する。
-  const { renderAdminJacketSkillShareFile } = await import('./admin-skill-share-renderer.js?v=4_40_107');
+  const { renderAdminJacketSkillShareFile } = await import('./admin-skill-share-renderer.js?v=4_37_19');
   await loadAdminRegisteredJackets(supabase);
   return renderAdminJacketSkillShareFile({
     ...data,

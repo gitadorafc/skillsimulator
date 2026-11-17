@@ -262,7 +262,11 @@ export async function renderAdminJacketSkillShareFile({
       'MAS-G':['#C51EDD','#FFFFFF'], 'MAS-B':['#9333EA','#FFFFFF'],
       'EXT-G':['#EF4444','#FFFFFF'], 'EXT-B':['#C0264D','#FFFFFF'],
       'ADV-G':['#FACC15','#111827'], 'ADV-B':['#B7AC12','#111827'],
-      'BSC-G':['#3B82F6','#FFFFFF'], 'BSC-B':['#4F46E5','#FFFFFF']
+      'BSC-G':['#3B82F6','#FFFFFF'], 'BSC-B':['#4F46E5','#FFFFFF'],
+      // DM shares the difficulty palette of Guitar. Without these keys,
+      // the image renderer falls back to gray for every drum part.
+      'MAS-D':['#C51EDD','#FFFFFF'], 'EXT-D':['#EF4444','#FFFFFF'],
+      'ADV-D':['#FACC15','#111827'], 'BSC-D':['#3B82F6','#FFFFFF']
     };
     return colors[String(part || '').toUpperCase()] || ['#64748b','#ffffff'];
   };
