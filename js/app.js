@@ -3834,15 +3834,29 @@ function clampAdminTwoColumnTitles() {
   }
 }
 
+// Single skill-target markup path for own and viewed-user pages. Only the
+// permission to edit and the empty-state message are contextual.
+function renderSkillTargetCards(target, { readOnly = false, emptyMessage = 'まだ登録がありません' } = {}) {
+  return renderUserDetailSkillSections({
+    hotCards: renderAdminRegisteredRecords(target.hotRows, 'SKILL', readOnly),
+    otherCards: renderAdminRegisteredRecords(target.otherRows, 'SKILL', readOnly),
+    emptyMessage
+  });
+}
+
+// Both skill targets and registered records need the same post-render title
+// measurement and synchronized sparkle timeline, regardless of whose page.
+function scheduleAdminSongCardLayout() {
+  requestAnimationFrame(() => {
+    clampAdminTwoColumnTitles();
+    scheduleAdminPublicPulsePhase();
+  });
+}
+
 function renderSkill() {
   const target = calcTargetTotals(getOwnSkillTargetRows());
-
-  // Own and viewed skill pages use the same HTML wrapper and section headings.
-  $('viewSkill').innerHTML = renderUserDetailSkillSections({
-    hotCards: renderAdminRegisteredRecords(target.hotRows, 'SKILL'),
-    otherCards: renderAdminRegisteredRecords(target.otherRows, 'SKILL'),
-    emptyMessage: 'まだ登録がありません'
-  });
+  $('viewSkill').innerHTML = renderSkillTargetCards(target);
+  scheduleAdminSongCardLayout();
 }
 
 function getVisibleRegisteredRows(data, batch) {
@@ -3954,11 +3968,8 @@ function renderManage() {
 
   $('viewAllManage').innerHTML = renderRegisteredSongList(visibleRows, data.length);
 
-  requestAnimationFrame(() => {
-    syncAdminTwoColumnViewport();
-    clampAdminTwoColumnTitles();
-    scheduleAdminPublicPulsePhase();
-  });
+  requestAnimationFrame(syncAdminTwoColumnViewport);
+  scheduleAdminSongCardLayout();
 }
 
 // One animation clock for the own header and every admin song list, including
@@ -4704,11 +4715,11 @@ function renderViewedUserSkill() {
   });
 
 
-  $('userDetailSkill').innerHTML = renderUserDetailSkillSections({
-    hotCards: renderAdminRegisteredRecords(target.hotRows, 'SKILL', true),
-    otherCards: renderAdminRegisteredRecords(target.otherRows, 'SKILL', true)
+  $('userDetailSkill').innerHTML = renderSkillTargetCards(target, {
+    readOnly: true,
+    emptyMessage: '記録がありません'
   });
-  requestAnimationFrame(() => { clampAdminTwoColumnTitles(); scheduleAdminPublicPulsePhase(); });
+  scheduleAdminSongCardLayout();
 }
 
 function setUserDetailTab(tab) {
@@ -4718,6 +4729,7 @@ function setUserDetailTab(tab) {
 
   $('userDetailSkill').classList.toggle('hidden', tab !== 'skill');
   $('userDetailRecords').classList.toggle('hidden', tab !== 'records');
+  scheduleAdminSongCardLayout();
 }
 
 function renderViewedUserRegisteredScores() {
@@ -4726,7 +4738,7 @@ function renderViewedUserRegisteredScores() {
   const visibleRows = getVisibleRegisteredRows(data, viewedUserRegisteredBatch);
 
   $('userDetailRecords').innerHTML = renderRegisteredSongList(visibleRows, data.length, true);
-  requestAnimationFrame(() => { clampAdminTwoColumnTitles(); scheduleAdminPublicPulsePhase(); });
+  scheduleAdminSongCardLayout();
 }
 
 async function loadViewedUserRegisteredScores() {

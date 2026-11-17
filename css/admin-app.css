@@ -479,9 +479,6 @@ body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill,#user
    grid-template-columns:40px minmax(0,1fr) 67px 32px;
    grid-template-rows:20px 20px;gap:3px 2px;padding:4px;min-height:53px;
  }
- body.admin-new-ui:not(.skill-target-columns) :is(#userDetailSkill,#userDetailRecords) .ar-record.ar-readonly{
-   grid-template-columns:40px minmax(0,1fr) 67px;
- }
  body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-no{display:none;}
  body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-art{
    grid-column:1;grid-row:1/3;width:37px;height:37px;align-self:center;
@@ -1453,8 +1450,8 @@ body.admin-new-ui.light-mode #adminBoardEditorMask #btnAdminBoardSave {
    min-width:0;max-width:none;box-sizing:border-box;
  }
  body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) {--ar-cols:30px 64px minmax(125px,1fr) 80px 54px 92px 52px 78px 82px 42px;}
- /* Read-only user detail omits the editing column; own-page grid is unchanged. */
- body.admin-new-ui:not(.skill-target-columns) :is(#userDetailSkill,#userDetailRecords) {--ar-cols:30px 64px minmax(125px,1fr) 80px 54px 92px 52px 78px 82px;}
+ /* Keep the same grid on both pages. Read-only rows simply have no edit
+    control; reserving its slot prevents the other columns from jumping. */
  body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-record,
  body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-table-head {column-gap:8px;}
  body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) .ar-record {grid-template-rows:46px;min-height:54px;padding:2px 5px;overflow:hidden;}
