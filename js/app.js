@@ -143,7 +143,8 @@ function getAllScoreSyncEntry(mode = allScoreSyncMode) {
   const payload = encodeURIComponent(JSON.stringify({
     mode: mode === 'all' ? 'all' : 'highest',
     syncId: allScoreSyncId,
-    slug
+    slug,
+    diagnostics: !!adminEnabled
   }));
   return `https://p.eagate.573.jp/game/gfdm/${slug}/p/playdata/music.html#gitadora-all-score-sync=${payload}`;
 }
@@ -332,7 +333,7 @@ async function handleAllScoreSyncMessage(event) {
             (allScoreSyncTotals.requested ? ` / 登録依頼 ${allScoreSyncTotals.requested}件` : ''),
             'running'
           );
-          return { error: null };
+          return { error: null, result: { ...result, received: records.length } };
         } catch (error) {
           const message = error?.message || String(error);
           setSkillSyncStatus(`同期に失敗しました: ${message}`, 'error');
@@ -350,7 +351,7 @@ async function handleAllScoreSyncMessage(event) {
     if (data.syncId !== allScoreSyncId) return;
     event.source?.postMessage({
       type:'GITADORA_ALL_SCORE_SYNC_ACK', syncId:allScoreSyncId, seq,
-      ...(result.error ? { error:result.error } : {})
+      ...(result.error ? { error:result.error } : { result:result.result })
     }, EAMUSEMENT_ORIGIN);
     return;
   }
