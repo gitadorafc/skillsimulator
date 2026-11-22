@@ -210,7 +210,7 @@
     return [candidates[0]];
   }
 
-  function getCategoryContext(doc = document) {
+  function getCategoryContext(doc = document, sourceUrl = location.href) {
     let select = null;
     for (const selector of ['select[name="cat"]','#cat','select.music_category']) {
       select = doc.querySelector(selector);
@@ -220,7 +220,13 @@
     const form = select.closest('form');
     const options = [...select.options].map(option => ({ value:String(option.value ?? ''), label:String(option.textContent || '').trim() }))
       .filter(option => option.value !== '' && option.label !== '' && !/曲名カテゴリ.*選択|選択.*曲名カテゴリ/.test(option.label));
-    return { selectName:select.name || 'cat', formAction:form?.getAttribute('action') || location.href, formMethod:String(form?.method || 'get').toLowerCase(), form, options };
+    return {
+      selectName:select.name || 'cat',
+      // action省略時はフォームが属する文書自身へ送信する。
+      formAction:form?.getAttribute('action') || sourceUrl,
+      sourceUrl,
+      formMethod:String(form?.method || 'get').toLowerCase(), form, options
+    };
   }
   function collectFormParams(form, selectedName, selectedValue) {
     const params = new URLSearchParams();
@@ -271,7 +277,8 @@
   }
 
   async function fetchCategoryDocument(context, option) {
-    const actionUrl = new URL(context.formAction, location.href);
+    const actionUrl = new URL(context.formAction, context.sourceUrl);
+    if (actionUrl.origin !== ORIGIN) throw new Error('カテゴリの送信先が公式サイト以外です。同期を中止しました。');
     const params = collectFormParams(context.form, context.selectName, option.value);
     let fetchUrl = actionUrl.href;
     const init = { method:context.formMethod === 'post' ? 'POST' : 'GET', credentials:'include', cache:'no-store', redirect:'follow' };
@@ -282,7 +289,15 @@
       for (const [key,value] of params) actionUrl.searchParams.set(key,value);
       fetchUrl = actionUrl.href;
     }
-    return fetchOfficialPage(fetchUrl, init, `カテゴリ「${option.label}」`);
+    try {
+      return await fetchOfficialPage(fetchUrl, init, `カテゴリ「${option.label}」`);
+    } catch (error) {
+      // 認証情報を含み得るクエリ文字列・フォーム値は記録しない。
+      if (/HTTP 404/.test(String(error?.message || ''))) {
+        throw new Error(`${error.message}（送信方式: ${init.method} / 送信先: ${actionUrl.pathname}）`);
+      }
+      throw error;
+    }
   }
   function extractDetailUrls(doc, baseUrl) {
     const seen = new Set();
@@ -394,8 +409,8 @@
     if (!context?.options?.length) {
       updateProgress({ status:'曲別成績の一覧情報を取得しています…', percent:0 });
       const listUrl = new URL(`/game/gfdm/${slug}/p/playdata/music.html`, location.origin);
-      const { doc } = await fetchOfficialPage(listUrl.href, { credentials:'include', cache:'no-store', redirect:'follow' }, '曲別成績の一覧ページ');
-      context = getCategoryContext(doc);
+      const { doc, responseUrl } = await fetchOfficialPage(listUrl.href, { credentials:'include', cache:'no-store', redirect:'follow' }, '曲別成績の一覧ページ');
+      context = getCategoryContext(doc, responseUrl);
     }
     if (!context?.options?.length) throw new Error('曲名カテゴリを取得できませんでした。');
     targetWindow.postMessage({ type:'GITADORA_ALL_SCORE_SYNC_START', syncId:launch.syncId, slug, mode:launch.mode, instruments }, APP_ORIGIN);

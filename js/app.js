@@ -108,7 +108,10 @@ const MASTER_CSV_HEADERS = [
 
 const EAMUSEMENT_ORIGIN = 'https://p.eagate.573.jp';
 function getEamusementSlug() {
-  return activeVersion?.eamusement_slug || 'gitadora_galaxywave_delta';
+  // 旧登録値は公式サイトの現行URLとは異なるため、同期先だけ正規化する。
+  // DBのバージョン識別子や他の作品のURLは書き換えない。
+  const slug = String(activeVersion?.eamusement_slug || 'gitadora_galaxywave_delta').trim();
+  return slug === 'gitadora_delta' ? 'gitadora_galaxywave_delta' : slug;
 }
 function getEamusementSyncEntry() {
   return `https://p.eagate.573.jp/game/gfdm/${getEamusementSlug()}/p/playdata/skill.html?gtype=gf&stype=1`;
