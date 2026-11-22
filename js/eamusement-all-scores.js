@@ -64,65 +64,6 @@
   let failedSongs = 0;
   let seq = 0;
   const processedTitles = new Set();
-  // 管理者が起動した全曲同期だけ詳細診断を有効化する。通常ユーザーの同期は従来通り。
-  let diagnosticsEnabled = launch.diagnostics === true;
-  let configResolver;
-  const configReceived = new Promise(resolve => { configResolver = resolve; });
-  window.addEventListener('message', event => {
-    if (event.origin !== APP_ORIGIN || event.source !== targetWindow) return;
-    const payload = event.data || {};
-    if (payload.type !== 'GITADORA_ALL_SCORE_SYNC_CONFIG' || payload.syncId !== launch.syncId) return;
-    diagnosticsEnabled = payload.diagnostics === true;
-    if (diagnosticsEnabled) {
-      const root = document.getElementById(PROGRESS_ID);
-      const actions = root?.querySelector('.gas-actions');
-      if (actions && !actions.querySelector('.gas-log')) {
-        const button = document.createElement('button');
-        button.type = 'button';button.className = 'gas-log';button.textContent = '診断ログを保存';
-        button.addEventListener('click', downloadDiagnostics);
-        actions.prepend(button);
-      }
-      recordDiagnostic('diagnostics_confirmed', {message:'管理者画面で診断を有効化'});
-    }
-    configResolver();
-  });
-  const diagnosticEntries = [];
-  const diagnosticStartedAt = new Date().toISOString();
-  let categoryName = '';
-  function recordDiagnostic(stage, details = {}) {
-    if (!diagnosticsEnabled) return;
-    diagnosticEntries.push({ at:new Date().toISOString(), stage, category:categoryName, ...details });
-  }
-  function diagnosticReport() {
-    const summary = {};
-    for (const entry of diagnosticEntries) summary[entry.stage] = (summary[entry.stage] || 0) + 1;
-    return { version:'4.37.59', startedAt:diagnosticStartedAt, finishedAt:new Date().toISOString(),
-      gameVersion:slug, mode:launch.mode, instruments, totalSongs, totalRecords,
-      sentRecords, failedSongs, summary, entries:diagnosticEntries };
-  }
-  function sendDiagnosticsToApp() {
-    if (!diagnosticsEnabled || targetWindow.closed) return;
-    targetWindow.postMessage({type:'GITADORA_ALL_SCORE_SYNC_DIAGNOSTICS',
-      syncId:launch.syncId, slug, report:diagnosticReport()},APP_ORIGIN);
-  }
-  function persistDiagnostics() {
-    if (!diagnosticsEnabled) return;
-    try { sessionStorage.setItem('__gitadoraLastAllScoreSyncReport', JSON.stringify(diagnosticReport())); }
-    catch (error) { console.warn('診断ログの一時保存ができませんでした', error); }
-    // 公式サイトとSkill SimulatorではsessionStorageが共有されない。
-    // 管理者側にも診断ログを送信し、管理者画面で保存可能にする。
-    sendDiagnosticsToApp();
-  }
-  function downloadDiagnostics() {
-    const blob = new Blob([JSON.stringify(diagnosticReport(), null, 2)], {type:'application/json;charset=utf-8'});
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url; a.download = `gitadora-sync-diagnostics-${new Date().toISOString().replace(/[:.]/g,'-')}.json`;
-    document.body.appendChild(a); a.click(); a.remove();
-    setTimeout(() => URL.revokeObjectURL(url), 3000);
-  }
-  recordDiagnostic('start', { message:'管理者詳細診断を開始' });
-
   function ensureProgressUi() {
     let root = document.getElementById(PROGRESS_ID);
     if (root) return root;
@@ -141,7 +82,6 @@
       #${PROGRESS_ID} .gas-note{margin-top:12px;color:#94a3b8;font-size:11px;line-height:1.5}
       #${PROGRESS_ID} .gas-actions{display:none;justify-content:flex-end;margin-top:14px}
       #${PROGRESS_ID} .gas-close{min-width:96px;height:36px;padding:0 18px;border:1px solid #64748b;border-radius:10px;background:#1e293b;color:#fff;font:inherit;font-weight:800;cursor:pointer}
-      #${PROGRESS_ID} .gas-log{height:36px;padding:0 12px;border:1px solid #3b82f6;border-radius:10px;background:#1d4ed8;color:#fff;font:inherit;font-weight:700;cursor:pointer}
       #${PROGRESS_ID} .gas-close:active{transform:translateY(1px)}
       #${PROGRESS_ID} .gas-error{color:#fecaca}
       #${PROGRESS_ID} .gas-done{color:#bbf7d0}
@@ -162,11 +102,10 @@
           <div class="gas-bar"><div class="gas-fill"></div></div>
           <div class="gas-percent">0%</div>
           <div class="gas-note">公式サイトから達成率を取得し、Skill Simulatorへ順次登録しています。この画面を閉じずにお待ちください。</div>
-          <div class="gas-actions">${diagnosticsEnabled ? '<button type="button" class="gas-log">診断ログを保存</button>' : ''}<button type="button" class="gas-close">閉じる</button></div>
+          <div class="gas-actions"><button type="button" class="gas-close">閉じる</button></div>
         </div>
       </div>`;
     root.querySelector('.gas-close').addEventListener('click', () => root.remove());
-    root.querySelector('.gas-log')?.addEventListener('click', downloadDiagnostics);
     document.body.appendChild(root);
     return root;
   }
@@ -457,16 +396,9 @@
       targetWindow.postMessage(payload, APP_ORIGIN);
       try {
         const saveResult = await response;
-        recordDiagnostic('save_chunk', {seq:currentSeq, sent:records.length,
-          saved:saveResult?.saved ?? null, requested:saveResult?.requested ?? null,
-          skipped:saveResult?.skipped ?? null,
-          normalization:saveResult?.audit || null,
-          songs:[...new Set(records.map(row => row.title))],
-          note:'曲単位のDB保存成否はRPC応答からは判定できません'});
         sentRecords += records.length;
         return;
       } catch (error) {
-        recordDiagnostic('save_retry_or_error', {seq:currentSeq, attempt, reason:String(error?.message || error)});
         if (error?.message !== '応答待ちタイムアウト') throw error;
         if (attempt === 3) throw new Error(`Skill Simulatorから保存結果の応答がありません（送信 ${currentSeq}、3回確認）。同期先タブを確認してください。`);
         updateProgress({ status:`Skill Simulatorの応答を再確認しています…（送信 ${currentSeq}、${attempt}/2回目）` });
@@ -482,27 +414,20 @@
   try {
     ensureProgressUi();
     let context = getCategoryContext();
-    recordDiagnostic('category_context', {source:'current_page', categories:context?.options?.length || 0});
     if (!context?.options?.length) {
       updateProgress({ status:'曲別成績の一覧情報を取得しています…', percent:0 });
       const listUrl = new URL(`/game/gfdm/${slug}/p/playdata/music.html`, location.origin);
       const { doc, responseUrl } = await fetchOfficialPage(listUrl.href, { credentials:'include', cache:'no-store', redirect:'follow' }, '曲別成績の一覧ページ');
       context = getCategoryContext(doc, responseUrl);
-      recordDiagnostic('category_context', {source:'fetched_page', categories:context?.options?.length || 0});
     }
     if (!context?.options?.length) throw new Error('曲名カテゴリを取得できませんでした。');
     targetWindow.postMessage({ type:'GITADORA_ALL_SCORE_SYNC_START', syncId:launch.syncId, slug, mode:launch.mode, instruments }, APP_ORIGIN);
-    // 受信側の管理者認証結果を受けて診断を有効化。未応答でも同期は止めない。
-    await Promise.race([configReceived, sleep(1500)]);
     for (let categoryIndex=0; categoryIndex<context.options.length; categoryIndex++) {
       const option = context.options[categoryIndex];
       const label = option.label || option.value;
-      categoryName = label;
-      recordDiagnostic('category_start', {index:categoryIndex+1, total:context.options.length});
       updateProgress({ status:`カテゴリ「${label}」の一覧を取得中...`, catText:`${categoryIndex+1} / ${context.options.length}（${label}）`, percent:(categoryIndex/context.options.length)*100 });
       const { doc, responseUrl } = await fetchCategoryDocument(context, option);
       const urls = extractDetailUrls(doc, responseUrl);
-      recordDiagnostic('category_list', {detailLinks:urls.length, path:new URL(responseUrl).pathname});
       const categoryRecords = [];
 
       for (let offset=0; offset<urls.length; offset+=CONFIG.CONCURRENCY) {
@@ -520,50 +445,33 @@
           const title = data?.title || item.label || '(曲名取得不可)';
           if (error) {
             failedSongs++;
-            recordDiagnostic('song_error', {title, reason:error});
             console.warn('曲詳細取得失敗', title, error);
             continue;
           }
           if (!data) continue;
-          if (data.gf.status === 'error') recordDiagnostic('part_error', {title, part:'GF', reason:data.gf.reason});
-          if (data.dm.status === 'error') recordDiagnostic('part_error', {title, part:'DM', reason:data.dm.reason});
           if (!data.title) {
             failedSongs++;
-            recordDiagnostic('title_missing', {listLabel:item.label, gf:data.gf, dm:data.dm});
             continue;
           }
           if (processedTitles.has(data.title)) {
-            recordDiagnostic('duplicate_title', {title:data.title, parsed:data.parsed, selected:data.records.length});
             continue;
           }
           processedTitles.add(data.title);
           totalSongs++;
           totalRecords += data.records.length;
-          if (!data.records.length) recordDiagnostic('zero_records', {title:data.title,
-            gf:data.gf, dm:data.dm, mode:launch.mode, reason:data.parsed ? 'mode_filter_or_range' : 'no_achievement_parsed'});
-          else recordDiagnostic('song_parsed', {title:data.title, gf:data.gf, dm:data.dm,
-            records:data.records.length, parts:data.records.map(row => row.part)});
           categoryRecords.push(...data.records);
           updateProgress();
         }
       }
       await flushRecords(categoryRecords);
-      recordDiagnostic('category_done', {records:categoryRecords.length, songs:urls.length});
-      persistDiagnostics();
       updateProgress({ status:`「${label}」完了（${categoryRecords.length}件）`, catText:`${categoryIndex+1} / ${context.options.length}（${label}）`, percent:((categoryIndex+1)/context.options.length)*100 });
     }
-
-    recordDiagnostic('done', {totalSongs,totalRecords,failedSongs,sentRecords});
-    persistDiagnostics();
     targetWindow.postMessage({ type:'GITADORA_ALL_SCORE_SYNC_DONE', syncId:launch.syncId, slug, mode:launch.mode, totalSongs, totalRecords, failedSongs }, APP_ORIGIN);
     updateProgress({ status:`取得完了：${totalSongs}曲 / ${totalRecords}件。${failedSongs ? `曲詳細の取得失敗 ${failedSongs}曲（公式サイトの通信・ログイン状態を確認してください）。` : ''}Skill Simulatorへの登録が完了しました。`, percent:100, state:'done' });
   } catch (error) {
-    recordDiagnostic('sync_error', {reason:String(error?.message || error)});
-    persistDiagnostics();
     console.error(error);
     updateProgress({ status:`同期に失敗しました：${error?.message || error}`, state:'error' });
   } finally {
-    persistDiagnostics();
     window[RUNNING_KEY] = false;
     window.__GITADORA_SKILL_SIMULATOR_SYNC_RUNNING__ = false;
     delete window.__GITADORA_OFFICIAL_SYNC_LAUNCH__;
