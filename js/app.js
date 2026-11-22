@@ -189,6 +189,40 @@ function openEamusementForAllScoreSync() {
   setAllScoreSyncStatus('公式サイトを開きました。開いた曲別成績ページで全曲同期用ブックマークを実行してください。', 'running');
 }
 
+// 全曲同期のDB保存時のみ通信系の一時エラーを再試行する。
+// 入力値や権限のエラーは再試行せず、原因が分かる形で返す。
+const OFFICIAL_SYNC_SAVE_ATTEMPTS = 4;
+function isTransientOfficialSyncError(error) {
+  const status = Number(error?.status ?? error?.statusCode ?? 0);
+  if ([408, 425, 429, 500, 502, 503, 504].includes(status)) return true;
+  if (status >= 400 && status < 500) return false;
+  const code = String(error?.code || '').toUpperCase();
+  if (['PGRST301', '42501', '23505', '23503', '22P02'].includes(code)) return false;
+  const message = String(error?.message || error || '');
+  return /(?:load failed|failed to fetch|networkerror|network request failed|timeout|timed out|connection|通信|fetch failed|gateway|service unavailable|temporarily unavailable)/i.test(message);
+}
+async function saveOfficialSyncRpcChunk(chunk, chunkNumber) {
+  for (let attempt = 1; attempt <= OFFICIAL_SYNC_SAVE_ATTEMPTS; attempt++) {
+    try {
+      const { data, error } = await supabase.rpc('sync_skill_records', {
+        p_records: chunk,
+        p_version_id: activeVersionId,
+        p_default_gf_option: getGfDefaultOption()
+      });
+      if (error) throw error;
+      return Array.isArray(data) ? data[0] : data;
+    } catch (error) {
+      const transient = isTransientOfficialSyncError(error);
+      if (!transient || attempt === OFFICIAL_SYNC_SAVE_ATTEMPTS) {
+        const reason = String(error?.message || error);
+        throw new Error(`DB保存（${chunkNumber}回目の送信単位）${transient ? 'の通信' : ''}に失敗しました: ${reason}${transient ? `（${OFFICIAL_SYNC_SAVE_ATTEMPTS}回試行）` : ''}`);
+      }
+      setSkillSyncStatus(`DB保存の通信を再試行しています…（${attempt}/${OFFICIAL_SYNC_SAVE_ATTEMPTS - 1}回）`, 'running');
+      await new Promise(resolve => setTimeout(resolve, 700 * 2 ** (attempt - 1)));
+    }
+  }
+}
+
 async function saveAllScoreSyncChunk(records) {
   const rows = normalizeSkillSyncRecords(records, PARTS, normalizeSongTitleForMatch);
   if (!rows.length) return { saved: 0, requested: 0, skipped: records.length || 0 };
@@ -198,13 +232,7 @@ async function saveAllScoreSyncChunk(records) {
   let skipped = 0;
   for (let offset = 0; offset < rows.length; offset += SKILL_SYNC_CHUNK_SIZE) {
     const chunk = rows.slice(offset, offset + SKILL_SYNC_CHUNK_SIZE);
-    const { data, error } = await supabase.rpc('sync_skill_records', {
-      p_records: chunk,
-      p_version_id: activeVersionId,
-      p_default_gf_option: getGfDefaultOption()
-    });
-    if (error) throw error;
-    const result = Array.isArray(data) ? data[0] : data;
+    const result = await saveOfficialSyncRpcChunk(chunk, Math.floor(offset / SKILL_SYNC_CHUNK_SIZE) + 1);
     saved += Number(result?.saved_count) || 0;
     requested += Number(result?.requested_count) || 0;
     skipped += Number(result?.skipped_count) || 0;
@@ -305,14 +333,16 @@ async function handleAllScoreSyncMessage(event) {
         } catch (error) {
           const message = error?.message || String(error);
           setSkillSyncStatus(`同期に失敗しました: ${message}`, 'error');
-          allScoreSyncInProgress = false;
-          skillSyncInProgress = false;
           return { error: message };
         }
       })();
       allScoreChunkResults.set(seq, task);
     }
-    const result = await allScoreChunkResults.get(seq);
+    const task = allScoreChunkResults.get(seq);
+    const result = await task;
+    // 保存失敗をキャッシュし続けると公式側が再送しても必ず失敗する。
+    // 進行中のPromiseは共有し、失敗が確定した場合だけキャッシュを破棄する。
+    if (result.error && allScoreChunkResults.get(seq) === task) allScoreChunkResults.delete(seq);
     // 間に別の同期が始まっていた場合、古い同期へ応答しない。
     if (data.syncId !== allScoreSyncId) return;
     event.source?.postMessage({
@@ -328,8 +358,9 @@ async function handleAllScoreSyncMessage(event) {
       await loadScores();
       const summary = `同期完了：取得 ${allScoreSyncTotals.received}件 / 登録・更新 ${allScoreSyncTotals.saved}件` +
         (allScoreSyncTotals.requested ? ` / 登録依頼 ${allScoreSyncTotals.requested}件` : '') +
-        (allScoreSyncTotals.skipped ? ` / スキップ ${allScoreSyncTotals.skipped}件` : '');
-      setSkillSyncStatus(summary, 'success');
+        (allScoreSyncTotals.skipped ? ` / スキップ ${allScoreSyncTotals.skipped}件` : '') +
+        (Number(data.failedSongs) > 0 ? ` / 曲詳細の取得失敗 ${Number(data.failedSongs)}曲（未同期の可能性あり）` : '');
+      setSkillSyncStatus(summary, Number(data.failedSongs) > 0 ? 'error' : 'success');
       await showSiteDialog(summary, '全曲同期完了');
     } finally {
       allScoreSyncInProgress = false;

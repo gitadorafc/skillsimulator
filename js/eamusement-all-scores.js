@@ -61,6 +61,7 @@
   let totalSongs = 0;
   let totalRecords = 0;
   let sentRecords = 0;
+  let failedSongs = 0;
   let seq = 0;
   const processedTitles = new Set();
 
@@ -235,6 +236,40 @@
     params.set(selectedName, selectedValue);
     return params;
   }
+  // 通信断・429・サーバー側一時エラーだけ再試行する。
+  // 認証切れなどをリトライで隠さないようHTTP状態も確認する。
+  async function fetchOfficialPage(url, init, label) {
+    let lastError;
+    for (let attempt = 1; attempt <= CONFIG.RETRY_COUNT; attempt++) {
+      try {
+        const response = await fetch(url, init);
+        if (/\/gate\/p\/login|login\.html/i.test(response.url)) {
+          throw new Error(`${label}: 公式サイトからログアウトされています。再ログインしてください。`);
+        }
+        if (!response.ok) {
+          const error = new Error(`${label}: HTTP ${response.status}`);
+          error.retryable = [408,429,500,502,503,504].includes(response.status);
+          throw error;
+        }
+        const doc = toDocument(await response.text());
+        if (isOfficialErrorPage(doc)) {
+          const error = new Error(`${label}: 公式サイトが一時的なエラーを返しました`);
+          error.retryable = true;
+          throw error;
+        }
+        return { doc, responseUrl:response.url || url };
+      } catch (error) {
+        lastError = error;
+        const transient = error.retryable === true ||
+          (error.retryable !== false && /load failed|failed to fetch|networkerror|network request failed|timeout|connection/i.test(String(error.message || error)));
+        if (!transient || attempt === CONFIG.RETRY_COUNT) break;
+        updateProgress({ status:`${label}の通信を再試行中...（${attempt}/${CONFIG.RETRY_COUNT-1}回）` });
+        await sleep(CONFIG.RETRY_WAIT_MS * attempt * 2);
+      }
+    }
+    throw new Error(`${label}の取得に失敗しました: ${lastError?.message || lastError}`);
+  }
+
   async function fetchCategoryDocument(context, option) {
     const actionUrl = new URL(context.formAction, location.href);
     const params = collectFormParams(context.form, context.selectName, option.value);
@@ -247,10 +282,7 @@
       for (const [key,value] of params) actionUrl.searchParams.set(key,value);
       fetchUrl = actionUrl.href;
     }
-    const response = await fetch(fetchUrl, init);
-    const doc = toDocument(await response.text());
-    if (!response.ok || isOfficialErrorPage(doc)) throw new Error(`カテゴリ一覧の取得に失敗しました: ${option.label}`);
-    return { doc, responseUrl:response.url || fetchUrl };
+    return fetchOfficialPage(fetchUrl, init, `カテゴリ「${option.label}」`);
   }
   function extractDetailUrls(doc, baseUrl) {
     const seen = new Set();
@@ -362,9 +394,7 @@
     if (!context?.options?.length) {
       updateProgress({ status:'曲別成績の一覧情報を取得しています…', percent:0 });
       const listUrl = new URL(`/game/gfdm/${slug}/p/playdata/music.html`, location.origin);
-      const response = await fetch(listUrl.href, { credentials:'include', cache:'no-store', redirect:'follow' });
-      const doc = toDocument(await response.text());
-      if (!response.ok || isOfficialErrorPage(doc)) throw new Error('曲別成績の一覧ページを取得できませんでした。');
+      const { doc } = await fetchOfficialPage(listUrl.href, { credentials:'include', cache:'no-store', redirect:'follow' }, '曲別成績の一覧ページ');
       context = getCategoryContext(doc);
     }
     if (!context?.options?.length) throw new Error('曲名カテゴリを取得できませんでした。');
@@ -387,7 +417,7 @@
         });
         const results = await Promise.all(batch.map(async url => {
           try { return await fetchSong(url); }
-          catch (error) { console.warn('曲詳細取得失敗', url.href, error); return null; }
+          catch (error) { failedSongs++; console.warn('曲詳細取得失敗', url.href, error); return null; }
         }));
         for (let i=0; i<results.length; i++) {
           const records = results[i];
@@ -405,8 +435,8 @@
       updateProgress({ status:`「${label}」完了（${categoryRecords.length}件）`, catText:`${categoryIndex+1} / ${context.options.length}（${label}）`, percent:((categoryIndex+1)/context.options.length)*100 });
     }
 
-    targetWindow.postMessage({ type:'GITADORA_ALL_SCORE_SYNC_DONE', syncId:launch.syncId, slug, mode:launch.mode, totalSongs, totalRecords }, APP_ORIGIN);
-    updateProgress({ status:`取得完了：${totalSongs}曲 / ${totalRecords}件。Skill Simulatorへの登録も完了しました。`, percent:100, state:'done' });
+    targetWindow.postMessage({ type:'GITADORA_ALL_SCORE_SYNC_DONE', syncId:launch.syncId, slug, mode:launch.mode, totalSongs, totalRecords, failedSongs }, APP_ORIGIN);
+    updateProgress({ status:`取得完了：${totalSongs}曲 / ${totalRecords}件。${failedSongs ? `曲詳細の取得失敗 ${failedSongs}曲（公式サイトの通信・ログイン状態を確認してください）。` : ''}Skill Simulatorへの登録が完了しました。`, percent:100, state:'done' });
   } catch (error) {
     console.error(error);
     updateProgress({ status:`同期に失敗しました：${error?.message || error}`, state:'error' });
