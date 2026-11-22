@@ -65,7 +65,27 @@
   let seq = 0;
   const processedTitles = new Set();
   // 管理者が起動した全曲同期だけ詳細診断を有効化する。通常ユーザーの同期は従来通り。
-  const diagnosticsEnabled = launch.diagnostics === true;
+  let diagnosticsEnabled = launch.diagnostics === true;
+  let configResolver;
+  const configReceived = new Promise(resolve => { configResolver = resolve; });
+  window.addEventListener('message', event => {
+    if (event.origin !== APP_ORIGIN || event.source !== targetWindow) return;
+    const payload = event.data || {};
+    if (payload.type !== 'GITADORA_ALL_SCORE_SYNC_CONFIG' || payload.syncId !== launch.syncId) return;
+    diagnosticsEnabled = payload.diagnostics === true;
+    if (diagnosticsEnabled) {
+      const root = document.getElementById(PROGRESS_ID);
+      const actions = root?.querySelector('.gas-actions');
+      if (actions && !actions.querySelector('.gas-log')) {
+        const button = document.createElement('button');
+        button.type = 'button';button.className = 'gas-log';button.textContent = '診断ログを保存';
+        button.addEventListener('click', downloadDiagnostics);
+        actions.prepend(button);
+      }
+      recordDiagnostic('diagnostics_confirmed', {message:'管理者画面で診断を有効化'});
+    }
+    configResolver();
+  });
   const diagnosticEntries = [];
   const diagnosticStartedAt = new Date().toISOString();
   let categoryName = '';
@@ -76,14 +96,22 @@
   function diagnosticReport() {
     const summary = {};
     for (const entry of diagnosticEntries) summary[entry.stage] = (summary[entry.stage] || 0) + 1;
-    return { version:'4.37.58', startedAt:diagnosticStartedAt, finishedAt:new Date().toISOString(),
+    return { version:'4.37.59', startedAt:diagnosticStartedAt, finishedAt:new Date().toISOString(),
       gameVersion:slug, mode:launch.mode, instruments, totalSongs, totalRecords,
       sentRecords, failedSongs, summary, entries:diagnosticEntries };
+  }
+  function sendDiagnosticsToApp() {
+    if (!diagnosticsEnabled || targetWindow.closed) return;
+    targetWindow.postMessage({type:'GITADORA_ALL_SCORE_SYNC_DIAGNOSTICS',
+      syncId:launch.syncId, slug, report:diagnosticReport()},APP_ORIGIN);
   }
   function persistDiagnostics() {
     if (!diagnosticsEnabled) return;
     try { sessionStorage.setItem('__gitadoraLastAllScoreSyncReport', JSON.stringify(diagnosticReport())); }
     catch (error) { console.warn('診断ログの一時保存ができませんでした', error); }
+    // 公式サイトとSkill SimulatorではsessionStorageが共有されない。
+    // 管理者側にも診断ログを送信し、管理者画面で保存可能にする。
+    sendDiagnosticsToApp();
   }
   function downloadDiagnostics() {
     const blob = new Blob([JSON.stringify(diagnosticReport(), null, 2)], {type:'application/json;charset=utf-8'});
@@ -429,7 +457,9 @@
         recordDiagnostic('save_chunk', {seq:currentSeq, sent:records.length,
           saved:saveResult?.saved ?? null, requested:saveResult?.requested ?? null,
           skipped:saveResult?.skipped ?? null,
-          songs:[...new Set(records.map(row => row.title))]});
+          normalization:saveResult?.audit || null,
+          songs:[...new Set(records.map(row => row.title))],
+          note:'曲単位のDB保存成否はRPC応答からは判定できません'});
         sentRecords += records.length;
         return;
       } catch (error) {
@@ -459,7 +489,8 @@
     }
     if (!context?.options?.length) throw new Error('曲名カテゴリを取得できませんでした。');
     targetWindow.postMessage({ type:'GITADORA_ALL_SCORE_SYNC_START', syncId:launch.syncId, slug, mode:launch.mode, instruments }, APP_ORIGIN);
-
+    // 受信側の管理者認証結果を受けて診断を有効化。未応答でも同期は止めない。
+    await Promise.race([configReceived, sleep(1500)]);
     for (let categoryIndex=0; categoryIndex<context.options.length; categoryIndex++) {
       const option = context.options[categoryIndex];
       const label = option.label || option.value;
@@ -519,7 +550,7 @@
       updateProgress({ status:`「${label}」完了（${categoryRecords.length}件）`, catText:`${categoryIndex+1} / ${context.options.length}（${label}）`, percent:((categoryIndex+1)/context.options.length)*100 });
     }
 
-    recordDiagnostic('done', {totalSongs,totalRecords,failedSongs});
+    recordDiagnostic('done', {totalSongs,totalRecords,failedSongs,sentRecords});
     persistDiagnostics();
     targetWindow.postMessage({ type:'GITADORA_ALL_SCORE_SYNC_DONE', syncId:launch.syncId, slug, mode:launch.mode, totalSongs, totalRecords, failedSongs }, APP_ORIGIN);
     updateProgress({ status:`取得完了：${totalSongs}曲 / ${totalRecords}件。${failedSongs ? `曲詳細の取得失敗 ${failedSongs}曲（公式サイトの通信・ログイン状態を確認してください）。` : ''}Skill Simulatorへの登録が完了しました。`, percent:100, state:'done' });

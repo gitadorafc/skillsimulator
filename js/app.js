@@ -126,6 +126,41 @@ let allScoreSyncInProgress = false;
 let allScoreSyncTotals = { received: 0, saved: 0, requested: 0, skipped: 0 };
 // 同一同期ID・送信番号は一度だけ保存し、再送には同じ結果を返す。
 let allScoreChunkResults = new Map();
+const ALL_SCORE_REPORT_KEY = '__gitadoraLastAllScoreSyncReport';
+let allScoreDiagnosticReport = null;
+function ensureAllScoreDiagnosticDownload() {
+  if (!adminEnabled || !allScoreDiagnosticReport) return;
+  const status = $('allScoreSyncStatus') || $('skillSyncStatus');
+  if (!status?.parentElement) return;
+  let button = document.getElementById('allScoreDiagnosticDownload');
+  if (!button) {
+    button = document.createElement('button');
+    button.type = 'button';
+    button.id = 'allScoreDiagnosticDownload';
+    button.textContent = '全曲同期の診断ログを保存';
+    button.style.cssText = 'display:block;margin:8px 0;padding:8px 12px;border:1px solid #60a5fa;border-radius:8px;background:#1e40af;color:#fff;cursor:pointer;font:inherit';
+    button.addEventListener('click', () => {
+      const report = allScoreDiagnosticReport;
+      if (!report) return;
+      const url = URL.createObjectURL(new Blob([JSON.stringify(report,null,2)],{type:'application/json;charset=utf-8'}));
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `gitadora-sync-diagnostics-${new Date().toISOString().replace(/[:.]/g,'-')}.json`;
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 3000);
+    });
+    status.insertAdjacentElement('afterend',button);
+  }
+  button.hidden = false;
+}
+function retainAllScoreDiagnosticReport(report) {
+  if (!adminEnabled || !report || !Array.isArray(report.entries)) return;
+  allScoreDiagnosticReport = report;
+  try { sessionStorage.setItem(ALL_SCORE_REPORT_KEY,JSON.stringify(report)); }
+  catch (error) { console.warn('全曲同期の診断ログを一時保存できませんでした',error); }
+  ensureAllScoreDiagnosticDownload();
+}
+
 
 function buildAllScoreSyncBookmarklet() {
   return "javascript:void(!function(d){var s=d.createElement('script');s.src='https://gitadorafc.github.io/skillsimulator/js/eamusement-all-scores.js?t='+Date.now();d.head.appendChild(s)}(document))";
@@ -184,6 +219,8 @@ function openEamusementForAllScoreSync() {
   if (!adminEnabled) return;
   allScoreSyncId = crypto.randomUUID();
   allScoreSyncTotals = { received: 0, saved: 0, requested: 0, skipped: 0 };
+  allScoreDiagnosticReport = null;
+  document.getElementById('allScoreDiagnosticDownload')?.remove();
   const popup = window.open(getAllScoreSyncEntry(), '_blank');
   if (!popup) {
     setAllScoreSyncStatus('ポップアップがブロックされました。ブラウザのポップアップ許可を確認してください。', 'error');
@@ -229,7 +266,17 @@ async function saveOfficialSyncRpcChunk(chunk, chunkNumber) {
 
 async function saveAllScoreSyncChunk(records) {
   const rows = normalizeSkillSyncRecords(records, PARTS, normalizeSongTitleForMatch);
-  if (!rows.length) return { saved: 0, requested: 0, skipped: records.length || 0 };
+  // RPCは曲単位の保存成否を返さない。正規化前後は区別して記録し、
+  // saved_countを個別曲の確定保存証明として扱わない。
+  const original = records.map(row => ({ title:String(row?.title || ''), part:String(row?.part || '') }));
+  const normalized = rows.map(row => ({ title:row.title, part:row.part }));
+  const normalizedKeys = new Set(normalized.map(row => `${row.title}\u0000${row.part}`));
+  const dropped = original.filter(row => {
+    const normalizedTitle = normalizeSongTitleForMatch(row.title);
+    return !normalizedKeys.has(`${normalizedTitle}\u0000${row.part}`);
+  });
+  const metadata = { original, normalized, dropped, normalizedCount:rows.length };
+  if (!rows.length) return { saved:0, requested:0, skipped:records.length || 0, audit:metadata };
 
   let saved = 0;
   let requested = 0;
@@ -241,7 +288,7 @@ async function saveAllScoreSyncChunk(records) {
     requested += Number(result?.requested_count) || 0;
     skipped += Number(result?.skipped_count) || 0;
   }
-  return { saved, requested, skipped };
+  return { saved, requested, skipped, audit:metadata };
 }
 
 function normalizeOfficialSyncInstruments(value) {
@@ -312,6 +359,14 @@ async function handleAllScoreSyncMessage(event) {
     allScoreSyncInProgress = true;
     skillSyncInProgress = true;
     setSkillSyncStatus('公式サイトから全曲の達成率を取得しています…', 'running');
+    // 管理者かどうかは送信元URLではなく、受信側の認証済み状態で決める。
+    event.source?.postMessage({ type:'GITADORA_ALL_SCORE_SYNC_CONFIG',syncId:allScoreSyncId,
+      diagnostics:!!adminEnabled },EAMUSEMENT_ORIGIN);
+    return;
+  }
+
+  if (data.type === 'GITADORA_ALL_SCORE_SYNC_DIAGNOSTICS') {
+    retainAllScoreDiagnosticReport(data.report);
     return;
   }
 
@@ -360,9 +415,24 @@ async function handleAllScoreSyncMessage(event) {
     try {
       await recordMyActivity('SYNC');
       await loadScores();
+      const actualStored = scores.length;
+      const instrumentStored = scores.filter(row => isCurrentInstrumentPart(row.part)).length;
+      if (allScoreDiagnosticReport) {
+        allScoreDiagnosticReport.appSummary = {
+          received:allScoreSyncTotals.received,
+          rpcSavedOrUpdated:allScoreSyncTotals.saved,
+          rpcRequested:allScoreSyncTotals.requested,
+          rpcSkipped:allScoreSyncTotals.skipped,
+          storedTotalRows:actualStored,
+          currentInstrumentRows:instrumentStored,
+          note:'登録曲の表示件数は選択パートや検索・フィルターを反映します。RPCの登録更新件数は純増件数ではありません。個別曲のDB保存確認は別途照合が必要です。'
+        };
+        retainAllScoreDiagnosticReport(allScoreDiagnosticReport);
+      }
       const summary = `同期完了：取得 ${allScoreSyncTotals.received}件 / 登録・更新 ${allScoreSyncTotals.saved}件` +
         (allScoreSyncTotals.requested ? ` / 登録依頼 ${allScoreSyncTotals.requested}件` : '') +
         (allScoreSyncTotals.skipped ? ` / スキップ ${allScoreSyncTotals.skipped}件` : '') +
+        ` / DB取得 ${actualStored}件（現在のパート ${instrumentStored}件）` +
         (Number(data.failedSongs) > 0 ? ` / 曲詳細の取得失敗 ${Number(data.failedSongs)}曲（未同期の可能性あり）` : '');
       setSkillSyncStatus(summary, Number(data.failedSongs) > 0 ? 'error' : 'success');
       await showSiteDialog(summary, '全曲同期完了');
