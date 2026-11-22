@@ -215,12 +215,15 @@
       const label = String(cells[0]?.textContent || '').replace(/\s+/g,'').trim();
       if (!label.includes('達成率')) continue;
       const valueText = cells.slice(1).map(cell => cell.textContent || '').join(' ');
+      // 公式サイトでは達成率100.00%を「MAX」と表記する曲がある。
+      if (valueText.trim().toUpperCase() === 'MAX') return 100;
       const match = valueText.match(/(\d{1,3}(?:\.\d+)?)\s*%/);
       if (!match) return null;
       const value = Number(match[1]);
       return Number.isFinite(value) && value >= 0 && value <= 100 ? Number(value.toFixed(2)) : null;
     }
     const text = String(table.textContent || '').replace(/\s+/g,' ');
+    if (/達成率\s*MAX(?=\s|$)/i.test(text)) return 100;
     const fallback = text.match(/達成率\s*(\d{1,3}(?:\.\d+)?)\s*%/);
     if (!fallback) return null;
     const value = Number(fallback[1]);
