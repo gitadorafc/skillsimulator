@@ -1,0 +1,35 @@
+/* 後段のライトモード共通指定より9500帯を優先する。 */
+body.light-mode .user-list-row.user-list-row-sparkle-rainbow,
+body.light-mode .user-list-row.user-list-row-sparkle-rainbow:active {
+  border:2px solid #db2777 !important;
+  background:linear-gradient(90deg,rgba(219,39,119,.16),rgba(124,58,237,.13),rgba(14,165,233,.11),#d8dde5 65%) !important;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.62) !important;
+  animation:none !important;
+  filter:none !important;
+}
+body.light-mode .dc-card:has(.skill-box-sparkle-rainbow)::before {
+  padding:2.3px !important;
+  background-image:
+    linear-gradient(rgba(255,255,255,var(--skill-border-light-alpha)) 0 100%),
+    var(--song-skill-border, #475569) !important;
+  background-position:0 0,0 0 !important;
+  background-size:100% 100%,100% 100% !important;
+  background-repeat:no-repeat,no-repeat !important;
+  filter:none !important;
+  opacity:1 !important;
+  box-shadow:none !important;
+  animation:skill-sparkle-border-pulse-light var(--skill-sparkle-cycle) ease-in-out infinite !important;
+}
+
+body.skill-target-columns #recordTypeFilter {
+  display:none !important;
+}
+body.skill-target-columns .record-filter-row {
+  grid-template-columns:repeat(3, minmax(0, 1fr)) !important;
+}
+body.skill-target-columns .record-column-placeholder {
+  min-width:0 !important;
+  visibility:hidden !important;
+  pointer-events:none !important;
+}
+

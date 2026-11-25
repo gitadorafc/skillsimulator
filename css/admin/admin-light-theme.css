@@ -1,0 +1,129 @@
+/* APP VERSION 3.18.5: 管理画面のライトモード対応 */
+body.light-mode .admin-modal {
+  color-scheme:light;
+  background:#f8fafc !important;
+  color:#111827 !important;
+}
+body.light-mode .admin-header {
+  background:#ffffff !important;
+  color:#111827 !important;
+  border-bottom-color:#cbd5e1 !important;
+  box-shadow:0 3px 8px rgba(15,23,42,.12);
+}
+body.light-mode .admin-title,
+body.light-mode .admin-card-title {
+  color:#111827 !important;
+}
+body.light-mode .admin-code-version,
+body.light-mode .admin-card-meta,
+body.light-mode .admin-request-title-wrap label,
+body.light-mode .admin-master-summary,
+body.light-mode .admin-master-pager {
+  color:#64748b !important;
+}
+body.light-mode .admin-close {
+  background:#ffffff !important;
+  color:var(--app-accent-pressed) !important;
+  -webkit-text-fill-color:var(--app-accent-pressed) !important;
+  border:1px solid #94a3b8 !important;
+}
+body.light-mode .admin-tab {
+  background:#e2e8f0 !important;
+  color:#475569 !important;
+  -webkit-text-fill-color:#475569 !important;
+  border:1px solid transparent !important;
+}
+body.light-mode .admin-tab.active {
+  background:var(--app-accent) !important;
+  color:#ffffff !important;
+  -webkit-text-fill-color:#ffffff !important;
+  border-color:var(--app-accent-pressed) !important;
+}
+body.light-mode .admin-toolbar input {
+  background:#ffffff !important;
+  color:#111827 !important;
+  -webkit-text-fill-color:#111827 !important;
+  caret-color:#111827 !important;
+  border-color:#94a3b8 !important;
+  box-shadow:none !important;
+}
+body.light-mode .admin-toolbar input::placeholder {
+  color:#64748b !important;
+  -webkit-text-fill-color:#64748b !important;
+  opacity:1 !important;
+}
+body.light-mode .admin-toolbar input:focus {
+  outline:2px solid rgba(37,99,235,.20) !important;
+  border-color:var(--app-accent-pressed) !important;
+}
+body.light-mode .admin-toolbar button {
+  background:var(--app-accent) !important;
+  color:#ffffff !important;
+  -webkit-text-fill-color:#ffffff !important;
+}
+body.light-mode .admin-card {
+  background:#ffffff !important;
+  color:#111827 !important;
+  border:1px solid #cbd5e1 !important;
+  box-shadow:0 1px 3px rgba(15,23,42,.12) !important;
+}
+body.light-mode .master-sheet-wrap,
+body.light-mode .master-sheet,
+body.light-mode .master-sheet td {
+  background:#ffffff !important;
+  color:#111827 !important;
+}
+body.light-mode .master-sheet th {
+  background:#e2e8f0 !important;
+  color:#111827 !important;
+}
+body.light-mode .master-sheet th,
+body.light-mode .master-sheet td {
+  border-color:#cbd5e1 !important;
+}
+body.light-mode .master-sheet input[type="text"],
+body.light-mode .master-sheet input[type="number"],
+body.light-mode .request-title-edit,
+body.light-mode .request-level-edit,
+body.light-mode .request-part-edit,
+body.light-mode .admin-form-sheet input,
+body.light-mode .admin-form-sheet select,
+body.light-mode .admin-form-sheet textarea {
+  background:#ffffff !important;
+  color:#111827 !important;
+  -webkit-text-fill-color:#111827 !important;
+  caret-color:#111827 !important;
+  border-color:#94a3b8 !important;
+}
+body.light-mode .master-sheet input::placeholder,
+body.light-mode .request-title-edit::placeholder,
+body.light-mode .request-level-edit::placeholder,
+body.light-mode .admin-form-sheet input::placeholder,
+body.light-mode .admin-form-sheet textarea::placeholder {
+  color:#64748b !important;
+  -webkit-text-fill-color:#64748b !important;
+  opacity:1 !important;
+}
+body.light-mode .admin-master-pager button {
+  background:#ffffff !important;
+  color:#111827 !important;
+  -webkit-text-fill-color:#111827 !important;
+  border-color:#94a3b8 !important;
+}
+body.light-mode .admin-form-sheet {
+  background:#ffffff !important;
+  color:#111827 !important;
+}
+body.light-mode .admin-form-sheet label {
+  color:#475569 !important;
+}
+body.light-mode .feedback-admin-message,
+body.light-mode .feedback-admin-reply-box {
+  background:#f8fafc !important;
+  color:#1e293b !important;
+  border-color:#cbd5e1 !important;
+}
+body.light-mode .feedback-admin-reply-label {
+  color:#475569 !important;
+}
+

@@ -1,0 +1,50 @@
+/* ダークモードの登録曲編集ボタンは、通常・横並びとも青背景＋白文字に統一。 */
+body:not(.light-mode) #viewAllManage .dc-edit .m-action-btn.btn-e {
+  background:var(--app-accent) !important;
+  color:#ffffff !important;
+  -webkit-text-fill-color:#ffffff !important;
+  border:1px solid #1d4ed8 !important;
+}
+body:not(.light-mode) #viewAllManage .dc-edit .m-action-btn.btn-e:active {
+  background:var(--app-accent-pressed) !important;
+}
+
+/* 自分のスキル対象から開いた詳細だけ、4段目に編集ボタンを表示する。 */
+.rate-compare-edit-area {
+  border-top:1px solid #334155;
+}
+.rate-compare-edit-button {
+  border:0;
+  border-radius:8px;
+  background:var(--app-accent);
+  color:#ffffff;
+  font-weight:900;
+}
+.rate-compare-edit-button:active {
+  background:var(--app-accent-pressed);
+}
+body.light-mode .rate-compare-edit-area {
+  border-top-color:#cbd5e1;
+}
+body.light-mode .rate-compare-edit-button {
+  background:#f3f4f6 !important;
+  color:var(--app-accent-pressed) !important;
+  -webkit-text-fill-color:var(--app-accent-pressed) !important;
+  border:1px solid #94a3b8 !important;
+}
+body.light-mode .rate-compare-edit-button:active {
+  background:#eff6ff !important;
+}
+
+/* ライトモードの登録曲編集ボタンも、白背景・青文字・枠ありに統一。 */
+body.light-mode #viewAllManage .dc-edit .m-action-btn.btn-e {
+  background:#f3f4f6 !important;
+  color:var(--app-accent-pressed) !important;
+  -webkit-text-fill-color:var(--app-accent-pressed) !important;
+  border:1px solid #94a3b8 !important;
+  box-shadow:none !important;
+}
+body.light-mode #viewAllManage .dc-edit .m-action-btn.btn-e:active {
+  background:#eff6ff !important;
+}
+
