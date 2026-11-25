@@ -1,0 +1,331 @@
+/* === APP VERSION 3.15.0: スキル対象ランキング === */
+.skill-ranking-dialog{
+  width:min(94vw,760px);
+  max-height:min(92dvh,900px);
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+  border:1px solid #334155;
+  border-radius:14px;
+  background:#0f172a;
+  color:#f8fafc;
+  box-shadow:0 24px 60px rgba(0,0,0,.55);
+}
+.skill-ranking-head{
+  position:relative;
+  z-index:7;
+  flex:0 0 auto;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  padding:14px;
+  border-bottom:1px solid #334155;
+  background:#111827;
+}
+.skill-ranking-head-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+}
+.skill-ranking-title-line{
+  display:flex;
+  align-items:center;
+  gap:7px;
+  font-size:16px;
+  font-weight:900;
+}
+.skill-ranking-admin-badge{
+  padding:2px 6px;
+  border:1px solid #c2410c;
+  border-radius:4px;
+  background:#431407;
+  color:#fdba74;
+  font-size:8px;
+  font-weight:900;
+}
+.skill-ranking-context{
+  margin-top:3px;
+  color:#94a3b8;
+  font-size:9px;
+  font-weight:800;
+}
+.skill-ranking-body{
+  position:relative;
+  flex:1 1 auto;
+  min-height:0;
+  padding:0 12px 12px;
+  overflow-y:auto;
+  overscroll-behavior:contain;
+  scrollbar-color:#64748b #0f172a;
+  scrollbar-width:auto;
+}
+.skill-ranking-fixed-controls{
+  position:relative;
+  z-index:1;
+  margin:0;
+  padding:0;
+  background:#111827;
+  box-shadow:none;
+}
+.skill-ranking-range{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 14px minmax(0,1fr) 82px;
+  align-items:center;
+  gap:5px;
+}
+.skill-ranking-sort-wrap{
+  display:flex;
+  flex-direction:column;
+  gap:0;
+  color:#94a3b8;
+  font-size:9px;
+  font-weight:900;
+}
+.skill-ranking-range select,
+.skill-ranking-sort-wrap select{
+  width:100%;
+  height:34px;
+  min-height:34px;
+  padding:0 28px 0 10px;
+  border:1px solid #475569;
+  border-radius:7px;
+  background-color:#0f172a;
+  color:#f8fafc;
+  font-size:12px;
+  font-weight:900;
+}
+.skill-ranking-range-separator{
+  color:#94a3b8;
+  text-align:center;
+  font-weight:900;
+}
+.skill-ranking-load{
+  height:34px;
+  min-height:34px;
+  border:1px solid var(--app-accent);
+  border-radius:7px;
+  background:var(--app-accent);
+  color:#fff;
+  font-size:11px;
+  font-weight:900;
+}
+.skill-ranking-load:disabled{opacity:.55;}
+.skill-ranking-status{
+  min-width:0;
+  padding:0 2px;
+  color:#94a3b8;
+  font-size:9px;
+  font-weight:800;
+  line-height:1.15;
+}
+.skill-ranking-status.error{color:#fca5a5;}
+.skill-ranking-control-labels{
+  display:grid;
+  grid-template-columns:42% minmax(0,1fr);
+  align-items:end;
+  gap:8px;
+  margin-top:4px;
+}
+.skill-ranking-sort-label{
+  padding-left:2px;
+  color:#94a3b8;
+  font-size:9px;
+  font-weight:900;
+  line-height:1.15;
+}
+.skill-ranking-controls{
+  display:flex;
+  align-items:end;
+  gap:8px;
+  margin-top:2px;
+}
+.skill-ranking-tabs{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  flex:0 0 42%;
+  width:42%;
+  max-width:220px;
+  height:34px;
+  padding:2px;
+  border:1px solid #334155;
+  border-radius:8px;
+  background:#111827;
+  box-sizing:border-box;
+}
+.skill-ranking-tab{
+  height:28px;
+  min-height:28px;
+  border:0;
+  border-radius:6px;
+  background:transparent;
+  color:#94a3b8;
+  font-size:10px;
+  font-weight:900;
+}
+.skill-ranking-tab.active[data-ranking-category="HOT"]{
+  background:#9d174d;
+  color:#fff;
+}
+.skill-ranking-tab.active[data-ranking-category="OTHER"]{
+  background:#3f6212;
+  color:#fff;
+}
+.skill-ranking-sort-wrap{
+  flex:1 1 auto;
+  width:auto;
+  min-width:0;
+}
+.skill-ranking-list{
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+  margin-top:5px;
+}
+.skill-ranking-row{
+  padding:5px 7px;
+  border:1px solid #334155;
+  border-radius:8px;
+  background:#111827;
+}
+.skill-ranking-row-top{
+  display:grid;
+  grid-template-columns:32px minmax(0,1fr) 54px 48px;
+  align-items:center;
+  gap:6px;
+  min-width:0;
+}
+.skill-ranking-position{
+  color:#60a5fa;
+  font-size:11px;
+  font-weight:900;
+  line-height:1.1;
+}
+.skill-ranking-song{
+  min-width:0;
+  overflow:hidden;
+  color:#f8fafc;
+  font-size:11px;
+  font-weight:900;
+  line-height:1.1;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+.skill-ranking-row .p-badge{
+  width:54px;
+  height:17px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  padding:0;
+  font-size:9px;
+  line-height:1;
+}
+.skill-ranking-level{
+  color:#94a3b8;
+  font-size:9px;
+  font-weight:900;
+  line-height:1.1;
+  text-align:right;
+}
+.skill-ranking-metrics{
+  display:grid;
+  grid-template-columns:1fr 1fr 1.15fr;
+  margin-top:4px;
+  padding-top:4px;
+  border-top:1px solid rgba(148,163,184,.24);
+}
+.skill-ranking-metric{
+  min-width:0;
+  padding:0 7px;
+  border-left:1px solid rgba(148,163,184,.2);
+}
+.skill-ranking-metric:first-child{
+  padding-left:0;
+  border-left:0;
+}
+.skill-ranking-metric:last-child{padding-right:0;}
+.skill-ranking-metric small{
+  display:block;
+  color:#94a3b8;
+  font-size:8px;
+  font-weight:900;
+  line-height:1.1;
+}
+.skill-ranking-metric strong{
+  display:block;
+  margin-top:1px;
+  color:#f8fafc;
+  font-size:12px;
+  font-weight:900;
+  line-height:1.1;
+  white-space:nowrap;
+}
+.skill-ranking-metric em{
+  display:block;
+  margin-top:0;
+  color:#94a3b8;
+  font-size:8px;
+  font-style:normal;
+  font-weight:800;
+  line-height:1.1;
+  white-space:nowrap;
+}
+.skill-ranking-comparison.positive{color:#86efac;}
+.skill-ranking-comparison.negative{color:#fca5a5;}
+.skill-ranking-comparison.neutral{color:#e2e8f0;}
+.skill-ranking-empty{
+  padding:24px 10px;
+  border:1px dashed #475569;
+  border-radius:8px;
+  color:#94a3b8;
+  font-size:10px;
+  font-weight:800;
+  text-align:center;
+}
+body.light-mode .skill-ranking-dialog,
+body.light-mode .skill-ranking-head,
+body.light-mode .skill-ranking-tabs,
+body.light-mode .skill-ranking-row{
+  background:#f8fafc;
+  color:#111827;
+  border-color:#94a3b8;
+}
+body.light-mode .skill-ranking-body{
+  background:#f1f5f9;
+  scrollbar-color:#94a3b8 #f1f5f9;
+}
+body.light-mode .skill-ranking-fixed-controls{
+  background:#f8fafc;
+  box-shadow:none;
+}
+body.light-mode .skill-ranking-song,
+body.light-mode .skill-ranking-metric strong{
+  color:#111827;
+}
+body.light-mode .skill-ranking-comparison.neutral{color:#475569;}
+body.light-mode .skill-ranking-range select,
+body.light-mode .skill-ranking-sort-wrap select{
+  border-color:#94a3b8;
+  background-color:#fff;
+  color:#111827;
+}
+@media(max-width:560px){
+  .skill-ranking-dialog{width:96vw;max-height:94dvh;}
+  .skill-ranking-head{padding:11px;}
+  .skill-ranking-body{padding:0 9px 9px;}
+  .skill-ranking-fixed-controls{
+    margin:0;
+    padding:0;
+  }
+  .skill-ranking-range{
+    grid-template-columns:minmax(0,1fr) 12px minmax(0,1fr) 76px;
+  }
+  .skill-ranking-controls{align-items:stretch;}
+  .skill-ranking-tabs{flex-basis:42%;width:42%;max-width:none;align-self:end;}
+  .skill-ranking-sort-wrap{width:auto;flex:1 1 auto;}
+  .skill-ranking-row-top{grid-template-columns:28px minmax(0,1fr) 50px 43px;gap:4px;}
+  .skill-ranking-row .p-badge{width:50px;}
+  .skill-ranking-metric{padding:0 5px;}
+}
+

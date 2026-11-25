@@ -1,0 +1,38 @@
+/* === APP VERSION 3.13.0: 表示カスタマイズ === */
+
+/* 文字サイズUP：主要画面・入力・モーダルを一段階大きくする */
+body.text-size-up{
+  font-size:17px;
+}
+body.text-size-up :is(button,input,select,textarea){
+  font-size:15px !important;
+}
+body.text-size-up .score-lbl{ font-size:11px !important; }
+body.text-size-up .p-tab-btn{ font-size:15px !important; }
+body.text-size-up .sk-section h2{ font-size:15px !important; }
+body.text-size-up .dc-card .dc-song-title{ font-size:15px !important; }
+body.text-size-up .dc-card :is(.dc-lv,.dc-rate){ font-size:13px !important; }
+body.text-size-up .dc-card .dc-skill{ font-size:14px !important; }
+body.text-size-up .dc-card .p-badge{ font-size:13px !important; }
+body.text-size-up .dc-card .hot-tag{ font-size:12px !important; }
+body.text-size-up .dc-card :is(.fc-unified-badge,.opt-badge){ font-size:10px !important; }
+body.text-size-up :is(.app-menu-item,.menu-entry,.user-list-row,.favorite-user-row){
+  font-size:15px !important;
+}
+body.text-size-up :is(.feature-setting-row strong,.mypage-section-title,.rate-compare-title){
+  font-size:15px !important;
+}
+body.text-size-up :is(.feature-setting-row small,.section-note,.feature-settings-status){
+  font-size:12px !important;
+}
+body.text-size-up :is(.howto-body p,.feedback-body,.support-dialog-body,.skill-sync-dialog,.rate-compare-dialog){
+  font-size:15px !important;
+}
+/* 他ユーザー詳細の固定エリアも、ユーザー一覧と同じく最下部に影を付ける */
+.user-detail-sticky{
+  box-shadow:0 5px 10px rgba(0,0,0,.28) !important;
+}
+body.light-mode .user-detail-sticky{
+  box-shadow:0 5px 10px rgba(15,23,42,.18) !important;
+}
+
