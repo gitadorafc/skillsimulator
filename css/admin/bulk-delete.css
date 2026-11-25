@@ -1,0 +1,30 @@
+/* === APP VERSION 3.3.14: 管理者用 登録曲一括削除 === */
+.admin-bulk-delete-area{
+  display:flex;
+  justify-content:flex-end;
+  margin-top:6px;
+}
+.admin-bulk-delete-area.hidden{
+  display:none !important;
+}
+.admin-bulk-delete-btn{
+  min-height:34px;
+  padding:0 12px;
+  border:1px solid #b91c1c;
+  border-radius:7px;
+  background:#3f0d12;
+  color:#fca5a5;
+  font-size:10px;
+  font-weight:900;
+}
+.admin-bulk-delete-btn:disabled{
+  opacity:.55;
+}
+body.light-mode .admin-bulk-delete-btn{
+  background:#fee2e2 !important;
+  color:#b91c1c !important;
+  -webkit-text-fill-color:#b91c1c !important;
+  border-color:#ef4444 !important;
+}
+
+

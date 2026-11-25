@@ -1,0 +1,34 @@
+/* === APP VERSION 3.6.0 ===
+   表記: 大きな機能改善.小さな機能改善.修正 */
+.app-code-version{
+  margin-top:7px;
+  width:100%;
+  box-sizing:border-box;
+  text-align:right;
+  color:#64748b;
+  font-size:10px;
+  font-weight:800;
+  letter-spacing:.04em;
+}
+body.light-mode .app-code-version{
+  color:#64748b !important;
+}
+
+
+/* === APP VERSION 3.3.14: モーダル表示中の背面スクロール禁止 === */
+body.global-modal-scroll-lock{
+  overflow:hidden !important;
+  overscroll-behavior:none !important;
+  touch-action:none;
+}
+
+/* モーダル内部のスクロールは維持 */
+.site-dialog-mask > *,
+.mypage-modal > *,
+.admin-form-mask > *,
+.admin-modal,
+.mdl-mask > *{
+  touch-action:pan-y;
+}
+
+
