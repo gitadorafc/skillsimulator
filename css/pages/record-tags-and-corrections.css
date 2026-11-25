@@ -1,0 +1,176 @@
+/* === v4.18.0 管理者限定・登録曲タグ === */
+#recordTagFilterField{
+  min-width:0;
+}
+#recordTagFilter{width:100%}
+.score-tag-choices{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  min-height:38px;
+}
+.score-tag-choice input{
+  position:absolute;
+  opacity:0;
+  pointer-events:none;
+}
+.score-tag-choice span{
+  display:block;
+  padding:8px 12px;
+  border:1px solid #475569;
+  border-radius:999px;
+  background:#111827;
+  color:#cbd5e1;
+  font-size:12px;
+  font-weight:800;
+}
+.score-tag-empty,.tag-settings-empty{
+  color:#94a3b8;
+  font-size:12px;
+}
+.score-tag-load-error{
+  color:#fca5a5;
+  font-size:12px;
+  font-weight:800;
+}
+.tag-settings-dialog{
+  width:min(100%, 480px);
+  max-height:calc(100dvh - 32px);
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+  border:1px solid #334155;
+  border-radius:14px;
+  background:#0f172a;
+  color:#f8fafc;
+}
+.tag-settings-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:14px 16px;
+  border-bottom:1px solid #334155;
+}
+.tag-settings-head button{
+  width:38px;
+  height:38px;
+  border:0;
+  border-radius:8px;
+  background:#1e293b;
+  color:#fff;
+  font-size:23px;
+  font-weight:900;
+}
+.tag-settings-body{
+  min-height:0;
+  padding:14px;
+  overflow:auto;
+  overscroll-behavior:contain;
+}
+.tag-settings-body > p{
+  margin:0 0 12px;
+  color:#cbd5e1;
+  font-size:12px;
+  line-height:1.5;
+}
+.tag-settings-rows{
+  display:grid;
+  gap:8px;
+}
+.tag-settings-row{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  gap:8px;
+}
+.tag-settings-row input{
+  min-width:0;
+  min-height:42px;
+  padding:8px 10px;
+  border:1px solid #475569;
+  border-radius:8px;
+  background:#111827;
+  color:#f8fafc;
+  font-size:14px;
+}
+.tag-settings-row button{
+  min-width:58px;
+  border:0;
+  border-radius:8px;
+  background:#7f1d1d;
+  color:#fecaca;
+  font-weight:900;
+}
+.tag-settings-add{
+  width:100%;
+  min-height:42px;
+  margin-top:10px;
+  border:1px dashed #64748b;
+  border-radius:8px;
+  background:#1e293b;
+  color:#bfdbfe;
+  font-weight:900;
+}
+.tag-settings-add:disabled{opacity:.45}
+.tag-settings-status{
+  min-height:20px;
+  margin-top:8px;
+  color:#fca5a5;
+  font-size:12px;
+}
+.tag-settings-actions{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+  margin-top:8px;
+}
+body.light-mode .tag-settings-dialog{
+  border-color:#94a3b8;
+  background:#e2e8f0;
+  color:#0f172a;
+}
+body.light-mode .tag-settings-head{border-color:#94a3b8}
+body.light-mode .tag-settings-head button,
+body.light-mode .tag-settings-add{background:#cbd5e1;color:#0f172a}
+body.light-mode .tag-settings-body > p,
+body.light-mode .score-tag-empty,
+body.light-mode .tag-settings-empty{color:#475569}
+body.light-mode .score-tag-load-error{color:#b91c1c}
+body.light-mode .tag-settings-row input,
+body.light-mode .score-tag-choice span{background:#f8fafc;color:#0f172a}
+.score-tag-choice input:checked + span{
+  border-color:var(--app-accent-pressed);
+  background:var(--app-accent);
+  color:#fff !important;
+  -webkit-text-fill-color:#fff !important;
+}
+#domModal #correctionLevel{
+  box-sizing:border-box !important;
+  min-height:38px !important;
+  height:38px !important;
+  max-height:38px !important;
+  padding:5px 9px !important;
+  border:1px solid #475569 !important;
+  border-radius:8px !important;
+  outline:none !important;
+  background:#111827 !important;
+  color:#f8fafc !important;
+  -webkit-text-fill-color:#f8fafc !important;
+  font-size:12px !important;
+  line-height:normal !important;
+}
+#domModal #correctionLevel:focus{
+  border-color:var(--app-accent) !important;
+  box-shadow:0 0 0 2px rgba(59,130,246,.18) !important;
+}
+#domModal #btnSendLevelCorrection{
+  min-height:38px !important;
+  height:38px !important;
+  border-radius:8px !important;
+}
+body.light-mode #domModal #correctionLevel{
+  background:#ffffff !important;
+  color:#111827 !important;
+  -webkit-text-fill-color:#111827 !important;
+  border-color:#94a3b8 !important;
+}
+
