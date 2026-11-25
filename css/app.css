@@ -100,7 +100,7 @@
     /* === 5. モーダル === */
     .mdl-mask { position: fixed; inset: 0; background: rgba(0, 0, 0, .6); display: none; justify-content: center; align-items: flex-end; z-index: 1000; }
     .mdl-sheet { background: white; width: 100%; border-radius: 8px 8px 0 0; padding: 12px; }
-    .f-group { margin-bottom: 6px; }
+    
     .f-group label { display: block; font-size: 11px; font-weight: bold; margin-bottom: 2px; color: #4b5563; }
     .f-group input, .f-group select { width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #ccc; font-size: 16px; outline: none; }
     .btn-block { display: flex; gap: 6px; margin-top: 10px; }
@@ -159,7 +159,7 @@
 .auth-switch { margin-top:12px; text-align:center; color:var(--entry-link); font-size:13px; cursor:pointer; }
 .header-user { margin-left:auto; font-size:11px; color:#93c5fd; cursor:pointer; padding:5px 8px; }
 .user-header-row { display:flex; align-items:center; padding:0 6px; min-height:30px; background:#111827; }
-.user-header-title { font-size:10px; color:#9ca3af; }
+
 .suggestion-list { max-height:180px; overflow:auto; margin-top:4px; border:1px solid #d1d5db; border-radius:4px; background:#fff; }
 .suggestion { display:flex; justify-content:space-between; width:100%; padding:8px; border:0; border-bottom:1px solid #eee; background:#fff; text-align:left; color:#111827; font-size:12px; }
 .suggestion span { color:#6b7280; white-space:nowrap; margin-left:8px; }
@@ -655,13 +655,7 @@ body.light-mode .user-list-row-sparkle-rainbow:active {
 }
 
 /* === v14.9 スコア登録モーダルを中央表示 === */
-.mdl-mask {
-  align-items: center !important;
-  justify-content: center !important;
-  padding: 16px !important;
-  background: rgba(2, 6, 23, .72) !important;
-  backdrop-filter: blur(3px);
-}
+
 
 .mdl-sheet {
   width: 100% !important;
@@ -1749,23 +1743,13 @@ body.light-mode .record-rank-filter-field {
 .skill-sync-status.error{color:#fecaca;border-color:#b91c1c;}
 
 /* === v19: ユーザーリストGF/DM両表示・ライバルGF/DM分離 === */
-.user-list-row{
-  grid-template-columns:minmax(0,1fr) 82px 82px 84px 38px !important;
-}
+
 .user-list-skill{
   min-width:0;
   text-align:right;
 }
-.user-list-skill-label{
-  margin-bottom:1px;
-  color:#64748b;
-  font-size:8px;
-  font-weight:900;
-}
-.user-list-skill-value{
-  font-size:12px;
-  font-weight:900;
-}
+
+
 .mypage-rival-block + .mypage-rival-block{
   margin-top:14px;
   padding-top:12px;
@@ -1900,13 +1884,7 @@ body.light-mode .record-rank-filter-field {
   align-items:center !important;
   min-height:58px;
 }
-.user-list-name,
-.user-list-gf,
-.user-list-dm,
-.user-list-date,
-.favorite-toggle{
-  grid-area:auto !important;
-}
+
 .user-list-name{
   min-width:0;
   overflow:hidden;
@@ -2246,9 +2224,7 @@ body.dm-mode #dmOptionFieldGroup:not(.hidden){
   margin-bottom:3px !important;
 }
 
-#domModal .f-group {
-  margin-bottom:7px !important;
-}
+
 
 #domModal input:not(#formTitle),
 #domModal select,
@@ -2260,11 +2236,7 @@ body.dm-mode #dmOptionFieldGroup:not(.hidden){
   padding-bottom:5px !important;
 }
 
-#domModal #formTitle {
-  font-size:12px !important;
-  min-height:38px !important;
-  height:38px !important;
-}
+
 
 /* サジェストは現状サイズを維持 */
 #domModal #songSuggestions .suggestion {
@@ -2274,9 +2246,7 @@ body.dm-mode #dmOptionFieldGroup:not(.hidden){
   padding-bottom:inherit !important;
 }
 
-#domModal .form-grid-two {
-  gap:7px !important;
-}
+
 
 #domModal .level-correction-area,
 #domModal .master-request-area {
@@ -2548,7 +2518,7 @@ body.light-mode .auth-switch { color: var(--entry-link); }
 .skill-share-bar{padding:5px 6px 0;background:#0b1220}.skill-share-bar button{width:100%;min-height:34px;border:1px solid #334155;border-radius:6px;background:#172033;color:#dbeafe;font-size:10px;font-weight:900}
 
 /* === v21 FIX23 === */
-.favorite-user-row{grid-template-columns:minmax(0,1fr) auto !important;}
+
 .favorite-user-row .remove{min-width:64px;}
 
 /* === v21 FIX24: user list / rainbow distinction === */
@@ -2611,17 +2581,7 @@ body:not(.admin-new-ui) .users-toolbar{display:block !important;position:sticky;
   max-width: 100% !important;
   box-sizing: border-box !important;
 }
-.user-list-header,
-.user-list-row {
-  grid-template-columns:
-    minmax(0, 1.45fr)
-    minmax(48px, .78fr)
-    minmax(48px, .78fr)
-    minmax(58px, .95fr)
-    minmax(50px, .78fr)
-    32px !important;
-  gap: 3px !important;
-}
+
 .user-list-name,
 .user-list-skill,
 .user-list-total-skill,
@@ -2630,9 +2590,7 @@ body:not(.admin-new-ui) .users-toolbar{display:block !important;position:sticky;
   overflow: hidden !important;
   white-space: nowrap !important;
 }
-.user-list-total-skill {
-  font-weight: 900 !important;
-}
+
 .favorite-toggle {
   width: 32px !important;
   height: 32px !important;
@@ -2673,16 +2631,7 @@ body:not(.admin-new-ui) .users-toolbar{display:block !important;position:sticky;
     34px !important;
   gap: 5px !important;
 }
-.user-list-skill-value,
-.user-list-total-skill {
-  width: 100% !important;
-  text-align: right !important;
-  font-variant-numeric: tabular-nums lining-nums !important;
-  font-feature-settings: "tnum" 1, "lnum" 1 !important;
-  font-family: "SFMono-Regular", "Roboto Mono", "Noto Sans Mono", Consolas, monospace !important;
-  letter-spacing: 0 !important;
-  white-space: nowrap !important;
-}
+
 .user-list-total-skill {
   font-weight: 900 !important;
 }
@@ -2719,25 +2668,9 @@ body:not(.admin-new-ui) .users-toolbar{display:block !important;position:sticky;
 }
 
 /* === v21 FIX38: ユーザーリスト列幅・縦位置統一 === */
-.user-list-header,
-.user-list-row {
-  grid-template-columns:
-    minmax(112px, 1fr)
-    68px
-    68px
-    68px
-    32px !important;
-  column-gap: 4px !important;
-  align-items: center !important;
-}
 
-.user-list-skill {
-  height: 100% !important;
-  min-height: 32px !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: flex-end !important;
-}
+
+
 
 .user-list-skill-value,
 .user-list-total-skill {
@@ -2782,26 +2715,11 @@ body:not(.admin-new-ui) .users-toolbar{display:block !important;position:sticky;
 }
 
 /* === v21 FIX39: ユーザーリスト中央揃え / TOTAL配色幅統一 === */
-.user-list-header,
-.user-list-row {
-  grid-template-columns:
-    minmax(112px, 1fr)
-    68px
-    68px
-    68px
-    34px !important;
-  column-gap: 6px !important;
-  align-items: center !important;
-}
 
-.user-sort-head,
-.user-list-rival-head {
-  text-align: center !important;
-}
 
-.user-list-name {
-  text-align: left !important;
-}
+
+
+
 
 .user-list-skill,
 .user-list-total-skill {
@@ -2827,9 +2745,7 @@ body:not(.admin-new-ui) .users-toolbar{display:block !important;position:sticky;
   font-weight: 900 !important;
 }
 
-.favorite-toggle {
-  justify-self: center !important;
-}
+
 
 @media (max-width: 430px) {
   .user-list-header,
@@ -2922,19 +2838,9 @@ body:not(.admin-new-ui) .users-toolbar{display:block !important;position:sticky;
 }
 
 /* === v21 FIX41: ユーザーリスト縦幅コンパクト化 === */
-.user-list-row {
-  min-height: 58px !important;
-  padding-top: 7px !important;
-  padding-bottom: 7px !important;
-  margin-bottom: 6px !important;
-}
-.user-list-skill {
-  min-height: 26px !important;
-}
-.favorite-toggle {
-  width: 34px !important;
-  height: 34px !important;
-}
+
+
+
 @media (max-width: 430px) {
   .user-list-row {
     min-height: 54px !important;
@@ -3746,10 +3652,7 @@ body.light-mode .app-menu-head,
 body.light-mode .user-detail-name{
   color:#111827 !important;
 }
-body.light-mode .user-detail-x-link{
-  background:#111827 !important;
-  color:#fff !important;
-}
+
 body.light-mode .mypage-modal,
 body.light-mode .mdl-mask,
 body.light-mode .site-dialog-mask{
@@ -3787,33 +3690,18 @@ body.light-mode .user-detail-tabs{
   border-color:#cbd5e1 !important;
 }
 
-body.light-mode .score-box{
-  background:#ffffff !important;
-  border-color:#475569 !important;
-}
+
 body.light-mode .score-label,
 body.light-mode .user-list-header,
 body.light-mode .user-list-header *{
   color:#64748b !important;
 }
 
-body.light-mode .p-tab-btn{
-  background:#f1f5f9 !important;
-  color:#111827 !important;
-}
-body.light-mode .p-tab-btn.active{
-  background:var(--app-accent) !important;
-  color:#ffffff !important;
-}
+
+
 
 /* ユーザーリスト */
-body.light-mode .user-list-row,
-body.light-mode .user-list-row:active{
-  background:#ffffff !important;
-  color:#111827 !important;
-  border-color:#94a3b8 !important;
-  box-shadow:none !important;
-}
+
 body.light-mode .user-list-name{ color:#111827 !important; }
 body.light-mode .user-list-date{ color:#64748b !important; }
 body.light-mode .favorite-toggle{
@@ -3843,11 +3731,7 @@ body.light-mode .app-menu-sheet{
   color:#111827 !important;
   border-color:#475569 !important;
 }
-body.light-mode .app-menu-item{
-  background:#f8fafc !important;
-  color:#111827 !important;
-  border-color:#475569 !important;
-}
+
 body.light-mode .app-menu-head,
 body.light-mode .app-menu-head strong{
   color:#111827 !important;
@@ -3921,12 +3805,7 @@ body.light-mode .empty-state{
 body.light-mode .empty-state{ color:#64748b !important; }
 
 /* 背景マスクはライト時も薄いグレーに */
-body.light-mode .site-dialog-mask,
-body.light-mode .mypage-modal,
-body.light-mode .mdl-mask,
-body.light-mode .admin-form-mask{
-  background:rgba(15,23,42,.25) !important;
-}
+
 
 
 /* === FIX119: 他ユーザー登録曲は自分の登録曲デザインをそのまま使用 === */
@@ -4109,12 +3988,7 @@ body.light-mode .filter-control{
 }
 
 /* ユーザーリスト */
-body.light-mode .user-list-row,
-body.light-mode .user-list-row:active{
-  background:#f3f4f6 !important;
-  color:#111827 !important;
-  border-color:#94a3b8 !important;
-}
+
 body.light-mode .user-list-header{
   background:#e5e7eb !important;
 }
@@ -4213,12 +4087,7 @@ body.light-mode #domModal .mdl-sheet textarea{
   border-color:#94a3b8 !important;
   color-scheme:light !important;
 }
-body.light-mode #domModal .suggestion-list,
-body.light-mode #domModal .suggestion{
-  background:#ffffff !important;
-  color:#111827 !important;
-  border-color:#cbd5e1 !important;
-}
+
 
 /* サイト共通のエラー/確認メッセージもライト対応 */
 body.light-mode .site-dialog{
@@ -4605,13 +4474,7 @@ body.light-mode .user-detail-back:active{
 /* === FIX130: ライトモード ユーザーリスト背景調整 ===
    スキルカラーはダーク/ライトで完全共通。
    ライト専用の色置換・輪郭は行わず、背景側でコントラストを確保する。 */
-body.light-mode .user-list-row,
-body.light-mode .user-list-row:active{
-  background:#d8dde5 !important;
-  color:#111827 !important;
-  border-color:#8b98aa !important;
-  box-shadow:0 1px 1px rgba(15,23,42,.06) !important;
-}
+
 
 .user-detail-instrument-switch{
   flex:0 0 auto;
@@ -5002,9 +4865,7 @@ body.light-mode .rival-manage-dialog .favorite-user-open{
   box-shadow:none !important;
 }
 
-body.light-mode .rival-manage-dialog .favorite-user-open:active{
-  background:#e2e8f0 !important;
-}
+
 
 body.light-mode .rival-manage-dialog .favorite-user-open .name{
   color:#111827 !important;
@@ -5270,14 +5131,7 @@ body.light-mode .feedback-history-reply-message{
 
 
 /* === FIX147: 登録曲詳細の一覧ヘッダーをスクロール時も固定 === */
-.rate-compare-body .rate-table-head,
-.rate-compare-body .rate-header,
-.rate-compare-body .rate-row-header,
-.rate-compare-body > [class*="rate-"][class*="head"]:not(.rate-compare-head){
-  position:sticky !important;
-  top:0 !important;
-  z-index:20 !important;
-}
+
 
 /* 実際の「ユーザー / 達成率 / SKILL」行を固定 */
 .rate-compare-body .rate-row:first-of-type:has(.rate-user-header),
@@ -5288,10 +5142,7 @@ body.light-mode .feedback-history-reply-message{
 }
 
 /* FIX146のスクロール領域は維持 */
-.rate-compare-body{
-  overflow-y:auto !important;
-  -webkit-overflow-scrolling:touch !important;
-}
+
 
 
 /* === FIX149: 曲詳細の固定項目行をスクロール内容が貫通しないようにする === */
