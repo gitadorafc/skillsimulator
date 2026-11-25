@@ -35,7 +35,22 @@ async function bootstrap() {
   const parts = await Promise.all(PARTIAL_URLS.map(fetchPartial));
   root.innerHTML = parts.join('\n');
 
-  await import('./app.js?v=4_37_61');
+  // 未ログインの初回訪問では認証確認中のローディングを表示しない。
+  // 保存済みセッションがある場合は認証確認まで従来のローディングを維持する。
+  // localStorageの読み取りに失敗した場合も、誤ってログイン画面を先出ししない。
+  let hasStoredSession = true;
+  try {
+    hasStoredSession = Object.keys(localStorage).some(key =>
+      /^sb-[a-z0-9]+-auth-token$/i.test(key) && Boolean(localStorage.getItem(key))
+    );
+  } catch (_) {}
+  const isAuthCallback = /(?:^|[&#])(?:access_token|refresh_token|code)=/.test(location.hash);
+  if (!hasStoredSession && !isAuthCallback) {
+    document.getElementById('appLoadingScreen')?.classList.add('hidden');
+    document.getElementById('introScreen')?.classList.remove('hidden');
+  }
+
+  await import('./app.js?v=4_37_62');
   await loadClassicScript('./js/version-check.js?v=4_37_1');
 }
 
@@ -43,6 +58,6 @@ bootstrap().catch(error => {
   console.error('bootstrap failed:', error);
   const root = document.getElementById('appRoot');
   if (root) {
-    root.innerHTML = '<div class="app-loading-screen"><div class="app-loading-content"><strong>画面の読み込みに失敗しました</strong><span>ページを再読み込みしてください。</span></div></div>';
+    root.innerHTML = '<div class="app-loading-screen" data-nosnippet><div class="app-loading-content"><strong>画面の読み込みに失敗しました</strong><span>ページを再読み込みしてください。</span></div></div>';
   }
 });

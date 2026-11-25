@@ -1943,7 +1943,10 @@ async function switchInstrument(instrument) {
 }
 
 async function init() {
-  setAppLoading('ログイン情報を確認中...');
+  // 未ログイン初回訪問はbootstrapで紹介画面を先行表示済み。
+  if ($('introScreen').classList.contains('hidden')) {
+    setAppLoading('ログイン情報を確認中...');
+  }
   captureOfficialRankingTokenRequest();
   captureOfficialSyncBridgeRequest();
   captureSkillSyncHash();
