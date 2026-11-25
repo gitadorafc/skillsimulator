@@ -107,17 +107,56 @@
     .btn-submit { flex: 1; padding: 10px; background: var(--app-accent); color: white; border: none; border-radius: 4px; font-weight: bold; font-size: 13px; }
     .btn-cancel { flex: 1; padding: 10px; background: #e5e7eb; color: #4b5563; border: none; border-radius: 4px; font-weight: bold; font-size: 13px; }
   
-.auth-screen { min-height: 100vh; display:flex; align-items:center; justify-content:center; padding:20px; background:#111827; }
-.auth-card { width:100%; max-width:380px; background:#1f2937; border:1px solid #374151; border-radius:8px; padding:18px; box-shadow:0 10px 30px rgba(0,0,0,.35); }
-.auth-card h1 { font-size:20px; margin-bottom:16px; text-align:center; }
-.auth-card label { display:block; font-size:12px; font-weight:bold; color:#9ca3af; margin:10px 0 4px; }
-.auth-card input { width:100%; padding:10px; border:1px solid #4b5563; border-radius:4px; background:#111827; color:#fff; font-size:16px; }
-.auth-card button { width:100%; margin-top:14px; padding:10px; border:0; border-radius:4px; background:var(--app-accent); color:#fff; font-weight:bold; }
-
+/* Public entry screens: one design system for TOP, login, and registration. */
+.intro-screen,
+.auth-screen {
+  --entry-accent: #276f86;
+  --entry-accent-hover: #1f5d71;
+  --entry-secondary: #202d40;
+  --entry-bg: #111827;
+  --entry-card: #202d40;
+  --entry-field: #111827;
+  --entry-border: #3b4b60;
+  --entry-text: #f8fafc;
+  --entry-muted: #aebed0;
+  --entry-link: #82c9d9;
+  min-height: 100dvh;
+  box-sizing: border-box;
+  background: var(--entry-bg);
+  color: var(--entry-text);
+}
+.auth-screen {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.auth-card {
+  width: 100%;
+  max-width: 420px;
+  background: var(--entry-card);
+  border: 1px solid var(--entry-border);
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 10px 30px rgba(0,0,0,.2);
+}
+.auth-card h1 { font-size: 20px; margin-bottom: 16px; text-align: center; }
+.auth-card label { display: block; font-size: 12px; font-weight: bold; color: var(--entry-muted); margin: 10px 0 4px; }
+.auth-card input {
+  width: 100%; padding: 10px; border: 1px solid var(--entry-border);
+  border-radius: 6px; background: var(--entry-field); color: var(--entry-text); font-size: 16px;
+}
+.auth-card input:focus-visible { outline: 2px solid var(--entry-accent); outline-offset: 1px; }
+.auth-card button#authSubmit {
+  width: 100%; margin-top: 14px; padding: 11px; border: 0; border-radius: 7px;
+  background: var(--entry-accent); color: #fff; font-weight: bold;
+}
+.auth-card button#authSubmit:not(:disabled):hover { background: var(--entry-accent-hover); }
+.auth-card button#authSubmit:disabled { opacity: .55; cursor: not-allowed; }
 .auth-register-notice { margin:12px 0 2px; padding:10px 11px; border:1px solid #f59e0b; border-radius:6px; background:rgba(245,158,11,.08); color:#e5e7eb; font-size:12px; line-height:1.65; }
 .auth-register-notice strong { display:block; margin-bottom:3px; color:#fbbf24; font-size:13px; }
 .auth-register-notice a { color:#60a5fa; font-weight:bold; text-decoration:underline; overflow-wrap:anywhere; }
-.auth-switch { margin-top:12px; text-align:center; color:#60a5fa; font-size:13px; cursor:pointer; }
+.auth-switch { margin-top:12px; text-align:center; color:var(--entry-link); font-size:13px; cursor:pointer; }
 .header-user { margin-left:auto; font-size:11px; color:#93c5fd; cursor:pointer; padding:5px 8px; }
 .user-header-row { display:flex; align-items:center; padding:0 6px; min-height:30px; background:#111827; }
 .user-header-title { font-size:10px; color:#9ca3af; }
@@ -2464,10 +2503,42 @@ html.ios-viewport-repair {
 }
 
 /* === v21 FIX22: 導入 / MENU / SHARE === */
-.intro-screen{min-height:100dvh;background:radial-gradient(circle at 50% 0,#172554 0,#0b1220 42%,#060b14 100%);color:#f8fafc;padding:42px 20px 24px;box-sizing:border-box}
-.intro-hero{max-width:520px;margin:0 auto;text-align:center}.intro-logo{font-size:12px;letter-spacing:.35em;font-weight:900;color:#93c5fd}.intro-hero h1{font-size:34px;margin:6px 0 10px}.intro-hero p{font-size:13px;line-height:1.7;color:#cbd5e1;margin:0 auto 24px;max-width:360px}
-.intro-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}.intro-actions button{min-height:48px;border-radius:10px;font-size:14px;font-weight:900}.intro-primary{border:0;background:var(--app-accent);color:#fff}.intro-secondary{border:1px solid #475569;background:#111827;color:#fff}
-.intro-features{max-width:520px;margin:28px auto 0;display:grid;gap:9px}.intro-features div{display:grid;grid-template-columns:64px 1fr;align-items:center;padding:13px;border:1px solid #1e293b;border-radius:10px;background:rgba(15,23,42,.78)}.intro-features strong{font-size:11px;color:#60a5fa}.intro-features span{font-size:12px;color:#e2e8f0}.intro-note{text-align:center;font-size:9px;color:#64748b;margin-top:24px}
+/* TOP uses the same palette and card geometry as authentication. */
+.intro-screen { padding: 42px 20px 24px; }
+.intro-hero { max-width: 520px; margin: 0 auto; text-align: center; }
+.intro-logo { font-size: 12px; letter-spacing: .35em; font-weight: 900; color: var(--entry-link); }
+.intro-hero h1 { font-size: 34px; margin: 6px 0 10px; }
+.intro-hero p { font-size: 13px; line-height: 1.7; color: var(--entry-muted); margin: 0 auto 24px; max-width: 360px; }
+.intro-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.intro-actions button { min-height: 48px; border-radius: 7px; font-size: 14px; font-weight: 900; cursor: pointer; }
+.intro-primary { border: 1px solid var(--entry-accent); background: var(--entry-accent); color: #fff; }
+.intro-primary:hover { background: var(--entry-accent-hover); border-color: var(--entry-accent-hover); }
+.intro-secondary { border: 1px solid var(--entry-border); background: var(--entry-secondary); color: var(--entry-text); }
+.intro-secondary:hover { border-color: var(--entry-link); }
+.intro-features { max-width: 520px; margin: 28px auto 0; display: grid; gap: 9px; }
+.intro-features div {
+  display: grid; grid-template-columns: 64px 1fr; align-items: center; padding: 13px;
+  border: 1px solid var(--entry-border); border-radius: 8px; background: var(--entry-card);
+}
+.intro-features strong { font-size: 11px; color: var(--entry-link); }
+.intro-features span { font-size: 12px; color: var(--entry-text); }
+.intro-note { text-align: center; font-size: 9px; color: var(--entry-muted); margin-top: 24px; }
+/* Light mode follows the same shared entry palette, not an unrelated TOP theme. */
+body.light-mode .intro-screen,
+body.light-mode .auth-screen {
+  --entry-bg: #f8fafc;
+  --entry-card: #ffffff;
+  --entry-field: #ffffff;
+  --entry-border: #cbd5e1;
+  --entry-secondary: #e2e8f0;
+  --entry-text: #111827;
+  --entry-muted: #475569;
+  --entry-link: #246b82;
+}
+body.light-mode .auth-card { color: var(--entry-text); }
+body.light-mode .auth-card label { color: var(--entry-muted); }
+body.light-mode .auth-card input { color: var(--entry-text); }
+body.light-mode .auth-switch { color: var(--entry-link); }
 .menu-entry{border:1px solid #334155;background:#1e293b;color:#fff;border-radius:7px;min-width:38px;height:34px;font-size:20px;font-weight:900}
 .app-menu-sheet{width:min(88vw,380px);background:#0f172a;color:#fff;border:1px solid #334155;border-radius:14px;padding:14px;position:absolute;top:58px;right:10px;box-shadow:0 20px 50px rgba(0,0,0,.45)}
 .app-menu-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}.app-menu-head button{width:34px;height:34px;border:0;border-radius:8px;background:#1e293b;color:#fff;font-size:20px}
