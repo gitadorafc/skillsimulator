@@ -1,0 +1,77 @@
+/* 上部VERSIONは、ダークでは視認性を上げ、ライトでは文字色を一段濃くする。 */
+.header-active-version{
+  color:#94a3b8;
+}
+body.light-mode .header-active-version{
+  color:#475569 !important;
+}
+
+/* 上部VERSION */
+
+/* 登録タブ：通常表示と横並び表示で、編集ボタンの指定サイズを分ける。 */
+
+/* 曲詳細 */
+
+/* 曲登録・編集 */
+
+/* MENU / How to use / マイページ */
+
+/* スキル対象同期 */
+
+@media(max-width:420px){
+
+}
+
+/* スキル対象の画像共有 */
+
+/* スキル対象ランキング */
+
+/* === APP VERSION 4.1.0: GF初期オプション / アカウント切り替え === */
+.feature-setting-select{
+  flex:0 0 auto;
+  width:124px;
+  min-height:38px;
+  padding:5px 32px 5px 10px;
+  border:1px solid #475569;
+  border-radius:7px;
+  background-color:#0f172a;
+  color:#f8fafc;
+  font-size:12px;
+  font-weight:900;
+}
+
+/* 青背景の主要ボタンは、ダーク・ライトとも白文字を標準とする。 */
+.app-primary-button,
+body.light-mode button.app-primary-button{
+  border-color:#1d4ed8 !important;
+  background:var(--app-accent) !important;
+  color:#ffffff !important;
+  -webkit-text-fill-color:#ffffff !important;
+}
+.app-primary-button:disabled,
+body.light-mode button.app-primary-button:disabled{
+  border-color:#94a3b8 !important;
+  background:#cbd5e1 !important;
+  color:#475569 !important;
+  -webkit-text-fill-color:#475569 !important;
+}
+
+.mypage-user-switch{
+  margin-top:16px;
+  padding-top:14px;
+  border-top:1px solid #334155;
+}
+.mypage-user-switch-button{
+  width:100%;
+  min-height:42px;
+  margin-bottom:5px;
+}
+body.light-mode .mypage-user-switch{
+  border-color:#cbd5e1;
+}
+body.light-mode .feature-setting-select{
+  border-color:#94a3b8 !important;
+  background-color:#ffffff !important;
+  color:#111827 !important;
+}
+
