@@ -1514,9 +1514,9 @@ body.admin-new-ui.light-mode #adminBoardEditorMask #btnAdminBoardSave {
 
  /* In the desktop workspace, the mask is the sole vertical scroller.
     Compact modal nested scrollers must not swallow wheel gestures over
-    help, catalog, both ranking pages, or the skill-history image preview. Mobile retains
+    help, catalog, ranking, or the skill-history image preview. Mobile retains
     the original independently scrolling modal body. */
- body.admin-new-ui :is(#howToMask .howto-body,#songCatalogMask .song-catalog-body,#skillRankingMask .skill-ranking-body,#officialSkillRankingMask .official-ranking-body,#skillHistoryMask .skill-history-body) {
+ body.admin-new-ui :is(#howToMask .howto-body,#songCatalogMask .song-catalog-body,#officialSkillRankingMask .official-ranking-body,#skillHistoryMask .skill-history-body) {
    flex:0 0 auto;
    overflow:visible;
    overscroll-behavior:auto;
