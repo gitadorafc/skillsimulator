@@ -1,0 +1,15 @@
+/* APP VERSION 3.18.4: 理論値のCLASSIC登録削除・大量スコア分割取得 */
+/* === APP VERSION 4.20.0: 公式スキルランキング（開発者限定） === */
+.official-ranking-dialog{
+  width:min(94vw,620px);
+  height:min(92dvh,880px);
+  max-height:min(92dvh,880px);
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+  border:1px solid #334155;
+  border-radius:14px;
+  background:#0f172a;
+  color:#f8fafc;
+  box-shadow:0 24px 60px rgba(0,0,0,.55);
+}
