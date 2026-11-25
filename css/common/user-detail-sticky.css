@@ -1,0 +1,9 @@
+/* ユーザー詳細の固定領域 */
+
+/* 他ユーザー詳細の固定エリアも、ユーザー一覧と同じく最下部に影を付ける */
+.user-detail-sticky{
+  box-shadow:0 5px 10px rgba(0,0,0,.28) !important;
+}
+body.light-mode .user-detail-sticky{
+  box-shadow:0 5px 10px rgba(15,23,42,.18) !important;
+}

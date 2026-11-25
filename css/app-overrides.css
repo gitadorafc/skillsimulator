@@ -735,8 +735,6 @@ body.light-mode .skill-share-option.active {
   color:#fff;
 }
 
-/* === APP VERSION 4.0.1: 文字サイズUP適用範囲の再調整 === */
-
 /* 上部VERSIONは、ダークでは視認性を上げ、ライトでは文字色を一段濃くする。 */
 .header-active-version{
   color:#94a3b8;
@@ -745,167 +743,25 @@ body.light-mode .header-active-version{
   color:#475569 !important;
 }
 
-/* 文字サイズUPで意図せず縮小していた箇所は、通常時のサイズを維持する。 */
-body.text-size-up .menu-entry{
-  font-size:20px !important;
-}
-body.text-size-up .score-val{
-  font-size:18px !important;
-}
-body.text-size-up .favorite-toggle{
-  font-size:20px !important;
-}
-body.text-size-up .mypage-sheet input{
-  font-size:16px !important;
-}
-
 /* 上部VERSION */
-body.text-size-up .header-active-version{
-  font-size:10px !important;
-  flex:0 0 auto !important;
-  max-width:none !important;
-  overflow:visible !important;
-  text-overflow:clip !important;
-  letter-spacing:0 !important;
-}
 
 /* 登録タブ：通常表示と横並び表示で、編集ボタンの指定サイズを分ける。 */
-body.text-size-up:not(.skill-target-columns) #viewAllManage .dc-edit .m-action-btn.btn-e{
-  font-size:15px !important;
-}
-body.text-size-up.skill-target-columns #viewAllManage .dc-card-manage .dc-edit .m-action-btn.btn-e{
-  font-size:12px !important;
-}
-
-body.text-size-up .user-list-name{
-  font-size:12px !important;
-}
-body.text-size-up :is(.user-list-skill-value,.user-list-total-skill){
-  font-size:11px !important;
-}
 
 /* 曲詳細 */
-body.text-size-up .rate-personal-best-label{
-  font-size:11px !important;
-}
-body.text-size-up .rate-personal-best-value{
-  font-size:14px !important;
-}
-body.text-size-up .rate-personal-best-version{
-  font-size:11px !important;
-}
-body.text-size-up .rate-personal-best-badges :is(.fc-unified-badge,.opt-badge,.history-option-badge){
-  font-size:10px !important;
-}
-body.text-size-up .option-share-title{
-  font-size:10px !important;
-}
-body.text-size-up .rate-compare-section-title{
-  font-size:11px !important;
-}
-body.text-size-up .rate-value{
-  font-size:15px !important;
-}
-body.text-size-up .rate-skill{
-  font-size:12px !important;
-}
-body.text-size-up .rate-comment-history{
-  font-size:13px !important;
-}
 
 /* 曲登録・編集 */
-body.text-size-up #domModal .f-group label{
-  font-size:12px !important;
-}
-body.text-size-up #domModal :is(
-  #formTitle,
-  #partSelect,
-  #formLevel,
-  #formRate,
-  #formFc,
-  #formOption,
-  #formDmOption,
-  #formPrivateComment
-){
-  font-size:14px !important;
-}
-body.text-size-up #domModal :is(.level-correction-title,.master-request-title){
-  font-size:11px !important;
-}
-body.text-size-up #domModal :is(.level-correction-note,.master-request-note){
-  font-size:10px !important;
-}
-body.text-size-up #domModal #btnOpenLevelCorrection,
-body.text-size-up #domModal #btnSendLevelCorrection{
-  font-size:11px !important;
-}
-body.text-size-up #domModal .score-private-comment-note{
-  font-size:10px !important;
-}
-body.text-size-up #domModal .btn-delete-editing-score,
-body.text-size-up #domModal :is(.btn-submit,.btn-cancel){
-  font-size:14px !important;
-}
 
 /* MENU / How to use / マイページ */
-body.text-size-up .app-menu-version label{
-  font-size:11px !important;
-}
-body.text-size-up .howto-body b{
-  font-size:15px !important;
-}
-body.text-size-up .mypage-title-row h3{
-  font-size:17px !important;
-}
-body.text-size-up .mypage-sheet > label,
-body.text-size-up .mypage-x-block > label{
-  font-size:12px !important;
-}
 
 /* スキル対象同期 */
-body.text-size-up .skill-sync-kicker{
-  font-size:11px !important;
-}
-body.text-size-up .skill-sync-status{
-  font-size:12px !important;
-}
-body.text-size-up .sync-visual-content > strong{
-  font-size:14px !important;
-}
-body.text-size-up .sync-visual-content p{
-  font-size:11.5px !important;
-}
+
 @media(max-width:420px){
-  body.text-size-up .sync-visual-content > strong{
-    font-size:13px !important;
-  }
-  body.text-size-up .sync-visual-content p{
-    font-size:10.5px !important;
-  }
+
 }
 
 /* スキル対象の画像共有 */
-body.text-size-up .skill-share-note{
-  font-size:14px !important;
-}
 
 /* スキル対象ランキング */
-body.text-size-up .skill-ranking-context,
-body.text-size-up :is(.skill-ranking-status,.skill-ranking-sort-label){
-  font-size:11px !important;
-}
-body.text-size-up :is(.skill-ranking-position,.skill-ranking-song){
-  font-size:12px !important;
-}
-body.text-size-up .skill-ranking-row :is(.p-badge,.skill-ranking-level){
-  font-size:11px !important;
-}
-body.text-size-up .skill-ranking-metric small{
-  font-size:10px !important;
-}
-body.text-size-up .skill-ranking-empty{
-  font-size:12px !important;
-}
 
 /* === APP VERSION 4.1.0: GF初期オプション / アカウント切り替え === */
 .feature-setting-select{
@@ -1098,16 +954,6 @@ body.light-mode .account-switch-add input{
 }
 
 /* 要望・不具合 */
-body.text-size-up :is(
-  .feedback-env-note,
-  .feedback-admin-env,
-  .feedback-history-env,
-  .feedback-history-head span,
-  .feedback-history-date,
-  .feedback-history-status
-){
-  font-size:12px !important;
-}
 
 /* === APP VERSION 4.2.0: 設定利用率 / 管理者ユーザー日時ソート === */
 #adminUserToolbar{
@@ -1728,9 +1574,6 @@ body.light-mode #menuMask .app-menu-group-label{
   border-color:#cbd5e1;
   color:#64748b;
 }
-body.text-size-up #menuMask .app-menu-group-label{
-  font-size:10px !important;
-}
 
 /* === APP VERSION 4.7.0: 全ユーザー向け曲名分類／管理者向け一括保存 === */
 .admin-song-picker{
@@ -2263,9 +2106,7 @@ body.light-mode #adminSongCandidate:disabled{
   letter-spacing:0 !important;
   text-align:center !important;
 }
-body.text-size-up .rate-compare-dialog .rate-skill[class*="skill-box-"]{
-  font-size:14px !important;
-}
+
 body.light-mode .rate-compare-dialog .rate-skill[class*="skill-box-"]{
   background-color:#f3f4f6 !important;
 }
@@ -2355,13 +2196,6 @@ body.light-mode :is(.dc-card .dc-skill,.rate-compare-dialog .rate-skill)[class*=
   color:inherit;
   -webkit-text-fill-color:inherit;
   line-height:1;
-}
-body.text-size-up .dc-card .dc-skill[class*="skill-box-"],
-body.text-size-up .rate-compare-dialog .rate-skill[class*="skill-box-"]{
-  font-size:13px !important;
-}
-body.text-size-up.skill-target-columns .dc-card .dc-skill[class*="skill-box-"]{
-  font-size:12px !important;
 }
 
 /* 横並びカードのFC・EXC・オプションも、パートと同じ方式で文字を中央へ置く。 */
@@ -2663,7 +2497,6 @@ body.light-mode .own-registered-records-more{
 
 /* === APP VERSION 4.13.8: カード枠を4.13.5以前の描画へ復元 === */
 
-
 /* === APP VERSION 4.13.10: iPhone Safari最下部バウンド時の固定ずれを防止 === */
 html.ios-webkit,
 html.ios-webkit body{
@@ -2769,9 +2602,8 @@ body.light-mode .app-loading-symbol{color:#334155;}
 }
 .howto-body section li{display:list-item;font-size:inherit;line-height:inherit;overflow-wrap:anywhere;}
 .howto-body section li+li{margin-top:4px;}
-body.text-size-up .howto-body section ul{font-size:15px !important;}
-body.light-mode .howto-body section ul{color:#334155;}
 
+body.light-mode .howto-body section ul{color:#334155;}
 
 /* === APP VERSION 4.27.19: 管理者ユーザー一覧 スキル表示・複数削除 === */
 .admin-user-select{
@@ -2980,7 +2812,6 @@ body.light-mode .song-history-empty{
   .song-history-content{padding:0 12px 9px;}
 }
 
-
 /* === APP VERSION 4.27.22: 過去作バッジ統一 / 管理者一括削除UI === */
 .rate-history-values :is(.fc-unified-badge,.opt-badge){
   display:inline-flex !important;
@@ -3044,7 +2875,6 @@ body.light-mode .song-history-empty{
     gap:6px;
   }
 }
-
 
 /* === APP VERSION 4.27.24: 過去作履歴整列 / MENU見出し固定 === */
 /* 過去作バッジは曲詳細上部と同じ縦寸法ルールに統一 */
@@ -3124,7 +2954,6 @@ body.light-mode #menuMask .app-menu-head{
   }
 }
 
-
 /* === APP VERSION 4.27.25: 過去作履歴のバッジ位置固定 === */
 .rate-history-badge-slot{
   display:flex;
@@ -3137,7 +2966,6 @@ body.light-mode #menuMask .app-menu-head{
 .rate-history-badge-slot :is(.fc-unified-badge,.opt-badge){
   margin:0 !important;
 }
-
 
 /* 曲詳細ライバル比較：各列を独立した固定幅で管理。欠損時も詰めない。 */
 .rate-compare-dialog .rate-rival-grid > :not(.rate-user-name){min-width:0;justify-self:end;}
@@ -4009,7 +3837,6 @@ body.light-mode .board-main-rule-note{
   .admin-board-editor-actions .btn-submit{min-height:42px!important;height:42px!important;}
 }
 
-
 /* === APP VERSION 4.30.3: 掲示板固定領域・画像圧縮・投稿UI微調整 === */
 /* 掲示板の固定領域はp-header内に置き、タブ直下に連結する。ボタン行そのものには面色を付けない。 */
 body:not(.admin-new-ui) #boardMainFixed.board-main-fixed{
@@ -4340,7 +4167,6 @@ body.light-mode .admin-board-thread-summary{color:#64748b!important;}
   #adminModal[data-admin-tab="songs"] .admin-master-pager{padding:8px 10px 12px;}
 }
 
-
 /* === APP VERSION 4.31.7: 曲マスター編集モーダルのデザイン統一 === */
 .admin-master-mobile-sheet{
   width:min(94vw,620px)!important;
@@ -4541,7 +4367,6 @@ body.light-mode .admin-master-mobile-sheet input::placeholder{
   }
 }
 
-
 /* === APP VERSION 4.31.9: 管理画面スマホ上部をコンパクト化 === */
 .admin-song-toolbar-actions{display:contents;}
 @media(max-width:768px){
@@ -4626,7 +4451,6 @@ body.light-mode .admin-master-mobile-sheet input::placeholder{
   }
 }
 
-
 /* === APP VERSION 4.32.3: 管理画面ヘッダー / スキル履歴高さ統一 === */
 .admin-title-wrap{
   flex:1 1 auto;
@@ -4688,7 +4512,6 @@ body.light-mode .registration-notice-secondary{color:#1e293b;background:#f8fafc}
 body.light-mode .registration-notice-dialog .registration-notice-footnote{color:#64748b}
 body.light-mode .registration-notice-status{color:#b45309}
 @media(max-width:480px){.registration-notice-dialog{padding:19px 16px 15px}}
-
 
 /* v4.36.10: 曲マスター画像編集・レスポンシブ配置の修正 */
 #adminMasterTable .master-title-cell { min-width:310px; width:310px !important; }

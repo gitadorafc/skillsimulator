@@ -108,10 +108,7 @@ const MASTER_CSV_HEADERS = [
 
 const EAMUSEMENT_ORIGIN = 'https://p.eagate.573.jp';
 function getEamusementSlug() {
-  // 旧登録値は公式サイトの現行URLとは異なるため、同期先だけ正規化する。
-  // DBのバージョン識別子や他の作品のURLは書き換えない。
-  const slug = String(activeVersion?.eamusement_slug || 'gitadora_galaxywave_delta').trim();
-  return slug === 'gitadora_delta' ? 'gitadora_galaxywave_delta' : slug;
+  return activeVersion?.eamusement_slug || 'gitadora_galaxywave_delta';
 }
 function getEamusementSyncEntry() {
   return `https://p.eagate.573.jp/game/gfdm/${getEamusementSlug()}/p/playdata/skill.html?gtype=gf&stype=1`;
@@ -126,6 +123,7 @@ let allScoreSyncInProgress = false;
 let allScoreSyncTotals = { received: 0, saved: 0, requested: 0, skipped: 0 };
 // 同一同期ID・送信番号は一度だけ保存し、再送には同じ結果を返す。
 let allScoreChunkResults = new Map();
+
 function buildAllScoreSyncBookmarklet() {
   return "javascript:void(!function(d){var s=d.createElement('script');s.src='https://gitadorafc.github.io/skillsimulator/js/eamusement-all-scores.js?t='+Date.now();d.head.appendChild(s)}(document))";
 }
@@ -191,50 +189,22 @@ function openEamusementForAllScoreSync() {
   setAllScoreSyncStatus('公式サイトを開きました。開いた曲別成績ページで全曲同期用ブックマークを実行してください。', 'running');
 }
 
-// 全曲同期のDB保存時のみ通信系の一時エラーを再試行する。
-// 入力値や権限のエラーは再試行せず、原因が分かる形で返す。
-const OFFICIAL_SYNC_SAVE_ATTEMPTS = 4;
-function isTransientOfficialSyncError(error) {
-  const status = Number(error?.status ?? error?.statusCode ?? 0);
-  if ([408, 425, 429, 500, 502, 503, 504].includes(status)) return true;
-  if (status >= 400 && status < 500) return false;
-  const code = String(error?.code || '').toUpperCase();
-  if (['PGRST301', '42501', '23505', '23503', '22P02'].includes(code)) return false;
-  const message = String(error?.message || error || '');
-  return /(?:load failed|failed to fetch|networkerror|network request failed|timeout|timed out|connection|通信|fetch failed|gateway|service unavailable|temporarily unavailable)/i.test(message);
-}
-async function saveOfficialSyncRpcChunk(chunk, chunkNumber) {
-  for (let attempt = 1; attempt <= OFFICIAL_SYNC_SAVE_ATTEMPTS; attempt++) {
-    try {
-      const { data, error } = await supabase.rpc('sync_skill_records', {
-        p_records: chunk,
-        p_version_id: activeVersionId,
-        p_default_gf_option: getGfDefaultOption()
-      });
-      if (error) throw error;
-      return Array.isArray(data) ? data[0] : data;
-    } catch (error) {
-      const transient = isTransientOfficialSyncError(error);
-      if (!transient || attempt === OFFICIAL_SYNC_SAVE_ATTEMPTS) {
-        const reason = String(error?.message || error);
-        throw new Error(`DB保存（${chunkNumber}回目の送信単位）${transient ? 'の通信' : ''}に失敗しました: ${reason}${transient ? `（${OFFICIAL_SYNC_SAVE_ATTEMPTS}回試行）` : ''}`);
-      }
-      setSkillSyncStatus(`DB保存の通信を再試行しています…（${attempt}/${OFFICIAL_SYNC_SAVE_ATTEMPTS - 1}回）`, 'running');
-      await new Promise(resolve => setTimeout(resolve, 700 * 2 ** (attempt - 1)));
-    }
-  }
-}
-
 async function saveAllScoreSyncChunk(records) {
   const rows = normalizeSkillSyncRecords(records, PARTS, normalizeSongTitleForMatch);
-  if (!rows.length) return { saved:0, requested:0, skipped:records.length || 0 };
+  if (!rows.length) return { saved: 0, requested: 0, skipped: records.length || 0 };
 
   let saved = 0;
   let requested = 0;
   let skipped = 0;
   for (let offset = 0; offset < rows.length; offset += SKILL_SYNC_CHUNK_SIZE) {
     const chunk = rows.slice(offset, offset + SKILL_SYNC_CHUNK_SIZE);
-    const result = await saveOfficialSyncRpcChunk(chunk, Math.floor(offset / SKILL_SYNC_CHUNK_SIZE) + 1);
+    const { data, error } = await supabase.rpc('sync_skill_records', {
+      p_records: chunk,
+      p_version_id: activeVersionId,
+      p_default_gf_option: getGfDefaultOption()
+    });
+    if (error) throw error;
+    const result = Array.isArray(data) ? data[0] : data;
     saved += Number(result?.saved_count) || 0;
     requested += Number(result?.requested_count) || 0;
     skipped += Number(result?.skipped_count) || 0;
@@ -331,25 +301,23 @@ async function handleAllScoreSyncMessage(event) {
             (allScoreSyncTotals.requested ? ` / 登録依頼 ${allScoreSyncTotals.requested}件` : ''),
             'running'
           );
-          return { error: null, result: { ...result, received: records.length } };
+          return { error: null };
         } catch (error) {
           const message = error?.message || String(error);
           setSkillSyncStatus(`同期に失敗しました: ${message}`, 'error');
+          allScoreSyncInProgress = false;
+          skillSyncInProgress = false;
           return { error: message };
         }
       })();
       allScoreChunkResults.set(seq, task);
     }
-    const task = allScoreChunkResults.get(seq);
-    const result = await task;
-    // 保存失敗をキャッシュし続けると公式側が再送しても必ず失敗する。
-    // 進行中のPromiseは共有し、失敗が確定した場合だけキャッシュを破棄する。
-    if (result.error && allScoreChunkResults.get(seq) === task) allScoreChunkResults.delete(seq);
+    const result = await allScoreChunkResults.get(seq);
     // 間に別の同期が始まっていた場合、古い同期へ応答しない。
     if (data.syncId !== allScoreSyncId) return;
     event.source?.postMessage({
       type:'GITADORA_ALL_SCORE_SYNC_ACK', syncId:allScoreSyncId, seq,
-      ...(result.error ? { error:result.error } : { result:result.result })
+      ...(result.error ? { error:result.error } : {})
     }, EAMUSEMENT_ORIGIN);
     return;
   }
@@ -358,14 +326,10 @@ async function handleAllScoreSyncMessage(event) {
     try {
       await recordMyActivity('SYNC');
       await loadScores();
-      const actualStored = scores.length;
-      const instrumentStored = scores.filter(row => isCurrentInstrumentPart(row.part)).length;
       const summary = `同期完了：取得 ${allScoreSyncTotals.received}件 / 登録・更新 ${allScoreSyncTotals.saved}件` +
         (allScoreSyncTotals.requested ? ` / 登録依頼 ${allScoreSyncTotals.requested}件` : '') +
-        (allScoreSyncTotals.skipped ? ` / スキップ ${allScoreSyncTotals.skipped}件` : '') +
-        ` / DB取得 ${actualStored}件（現在のパート ${instrumentStored}件）` +
-        (Number(data.failedSongs) > 0 ? ` / 曲詳細の取得失敗 ${Number(data.failedSongs)}曲（未同期の可能性あり）` : '');
-      setSkillSyncStatus(summary, Number(data.failedSongs) > 0 ? 'error' : 'success');
+        (allScoreSyncTotals.skipped ? ` / スキップ ${allScoreSyncTotals.skipped}件` : '');
+      setSkillSyncStatus(summary, 'success');
       await showSiteDialog(summary, '全曲同期完了');
     } finally {
       allScoreSyncInProgress = false;
@@ -1000,7 +964,6 @@ let favoriteListLoadSeq = 0;
 let viewedUserScores = [];
 let currentUserId = null;
 let viewedUserId = null;
-let userDetailRequestSeq = 0;
 let viewedUserName = '';
 let viewedUserProfile = null;
 let viewedUserRegisteredScores = [];
@@ -1010,7 +973,6 @@ const REGISTERED_RECORD_COLUMN_BATCH_SIZE = 25;
 let ownRegisteredBatch = 1;
 let ownRegisteredViewKey = '';
 let viewedUserRegisteredBatch = 1;
-let viewedUserRegisteredLoaded = false;
 let adminPasswordUserId = null;
 let adminBoardMode = 'blocked';
 let adminBoardThreads = [];
@@ -1470,8 +1432,6 @@ function applyDisplayCustomization(skillTargetColumns = null) {
   );
   // 対象コンテナ側で表示中かを判定するため、設定値は他ユーザー画面でも維持する。
   document.body.classList.toggle('skill-target-columns', columnsEnabled);
-  // 統一UIでは旧ユーザーUI専用の文字拡大モードを使用しない。
-  document.body.classList.remove('text-size-up');
 
   return { skillTargetColumns: columnsEnabled };
 }
@@ -1943,10 +1903,7 @@ async function switchInstrument(instrument) {
 }
 
 async function init() {
-  // 未ログイン初回訪問はbootstrapで紹介画面を先行表示済み。
-  if ($('introScreen').classList.contains('hidden')) {
-    setAppLoading('ログイン情報を確認中...');
-  }
+  setAppLoading('ログイン情報を確認中...');
   captureOfficialRankingTokenRequest();
   captureOfficialSyncBridgeRequest();
   captureSkillSyncHash();
@@ -3849,11 +3806,13 @@ function syncAdminTwoColumnViewport() {
 
 // CSS line-clamp combined with an inline HOT badge stretches the badge in
 // iOS WebKit. Keep normal inline flow and truncate measured text to two lines.
-function clampAdminTwoColumnTitles(root) {
+function clampAdminTwoColumnTitles() {
   if (!(document.body.classList.contains('admin-new-ui')) ||
       !document.body.classList.contains('skill-target-columns')) return;
-  if (!root || root.classList.contains('hidden') || !root.getClientRects().length) return;
-  for (const title of root.querySelectorAll('.ar-title')) {
+  for (const title of document.querySelectorAll(
+      '#viewSkill .ar-title, #viewAllManage .ar-title, ' +
+      '#userDetailSkill .ar-title, #userDetailRecords .ar-title')) {
+    if (title.closest('.hidden')) continue;
     const name = title.querySelector('.ar-song-name');
     if (!name) continue;
     const full = name.getAttribute('title') || name.textContent || '';
@@ -3873,47 +3832,15 @@ function clampAdminTwoColumnTitles(root) {
   }
 }
 
-// Single skill-target markup path for own and viewed-user pages. Only the
-// permission to edit and the empty-state message are contextual.
-function renderSkillTargetCards(target, { readOnly = false, emptyMessage = 'まだ登録がありません' } = {}) {
-  return renderUserDetailSkillSections({
-    hotCards: renderAdminRegisteredRecords(target.hotRows, 'SKILL', readOnly),
-    otherCards: renderAdminRegisteredRecords(target.otherRows, 'SKILL', readOnly),
-    emptyMessage
-  });
-}
-
-// Own and viewed profiles use the same DOM commit and post-render pipeline.
-// Measure only the changed, visible list; a hidden tab is laid out when opened.
-const pendingAdminSongCardLayouts = new Set();
-let adminSongCardLayoutFrame = false;
-function scheduleAdminSongCardLayout(root) {
-  if (!root) return;
-  pendingAdminSongCardLayouts.add(root);
-  if (adminSongCardLayoutFrame) return;
-  adminSongCardLayoutFrame = true;
-  requestAnimationFrame(() => {
-    adminSongCardLayoutFrame = false;
-    const roots = [...pendingAdminSongCardLayouts];
-    pendingAdminSongCardLayouts.clear();
-    for (const container of roots) clampAdminTwoColumnTitles(container);
-    scheduleAdminPublicPulsePhase();
-  });
-}
-function commitAdminSongCards(containerId, markup) {
-  const container = $(containerId);
-  // Avoid destroying images, animation instances and the list scroll position
-  // when an unrelated state change leaves the rendered cards unchanged.
-  if (container.__adminSongMarkup !== markup) {
-    container.innerHTML = markup;
-    container.__adminSongMarkup = markup;
-  }
-  scheduleAdminSongCardLayout(container);
-}
-
 function renderSkill() {
   const target = calcTargetTotals(getOwnSkillTargetRows());
-  commitAdminSongCards('viewSkill', renderSkillTargetCards(target));
+
+  // Own and viewed skill pages use the same HTML wrapper and section headings.
+  $('viewSkill').innerHTML = renderUserDetailSkillSections({
+    hotCards: renderAdminRegisteredRecords(target.hotRows, 'SKILL'),
+    otherCards: renderAdminRegisteredRecords(target.otherRows, 'SKILL'),
+    emptyMessage: 'まだ登録がありません'
+  });
 }
 
 function getVisibleRegisteredRows(data, batch) {
@@ -4023,9 +3950,13 @@ function renderManage() {
 
   const visibleRows = getVisibleRegisteredRows(data, ownRegisteredBatch);
 
-  commitAdminSongCards('viewAllManage', renderRegisteredSongList(visibleRows, data.length));
+  $('viewAllManage').innerHTML = renderRegisteredSongList(visibleRows, data.length);
 
-  requestAnimationFrame(syncAdminTwoColumnViewport);
+  requestAnimationFrame(() => {
+    syncAdminTwoColumnViewport();
+    clampAdminTwoColumnTitles();
+    scheduleAdminPublicPulsePhase();
+  });
 }
 
 // One animation clock for the own header and every admin song list, including
@@ -4052,57 +3983,9 @@ function getAdminPulseRoots() {
     getComputedStyle(node).display !== 'none';
   return [ownHeader, viewedHeader, ...ids.map(id => $(id))].filter(visible);
 }
-// Align only the currently displayed screen. The viewed-user header is the
-// reference while the detail page is open; the own header may keep animating
-// behind that page and must not pull its phase away from the viewed header.
 function syncAdminPublicPulsePhase() {
   if (!document.body.classList.contains('admin-new-ui') ||
       document.body.classList.contains('app-scrolling')) return;
-
-  const detailPage = $('userDetailPage');
-  const viewingDetail = detailPage?.classList.contains('user-detail-open') &&
-    detailPage.style.display !== 'none';
-  if (viewingDetail) {
-    const header = detailPage.querySelector('.user-detail-summary');
-    const list = $('userDetailRecords')?.classList.contains('hidden')
-      ? $('userDetailSkill') : $('userDetailRecords');
-    if (!header || !list || !list.getClientRects().length) return;
-
-    const headerTargets = header.querySelectorAll('.score-val.score-rank-sparkle-rainbow');
-    const cardTargets = list.querySelectorAll(ADMIN_PULSE_TARGET_SELECTOR);
-    // If the profile total does not sparkle, use the first sparkling card.
-    // Avoid a document-wide scan or a scroll listener.
-    const findClock = elements => {
-      for (const element of elements) {
-        const animation = element.getAnimations({subtree:true}).find(a =>
-          ADMIN_PULSE_ANIMATION_NAMES.has(a.animationName) && a.currentTime != null);
-        if (animation) return animation;
-      }
-      return null;
-    };
-    const clock = findClock(headerTargets) || findClock(cardTargets);
-    if (!clock) return;
-    const sourceDuration = Number(clock.effect?.getComputedTiming().duration);
-    const sourceTime = Number(clock.currentTime);
-    if (!Number.isFinite(sourceTime)) return;
-    const normalizedPhase = Number.isFinite(sourceDuration) && sourceDuration > 0
-      ? ((sourceTime % sourceDuration) + sourceDuration) % sourceDuration / sourceDuration
-      : null;
-    for (const element of [...headerTargets, ...cardTargets]) {
-      for (const animation of element.getAnimations({subtree:true})) {
-        if (!ADMIN_PULSE_ANIMATION_NAMES.has(animation.animationName) ||
-            animation.currentTime == null || animation === clock) continue;
-        const duration = Number(animation.effect?.getComputedTiming().duration);
-        const targetTime = normalizedPhase !== null && Number.isFinite(duration) && duration > 0
-          ? normalizedPhase * duration : sourceTime;
-        if (Math.abs(Number(animation.currentTime) - targetTime) < 12) continue;
-        try { animation.currentTime = targetTime; } catch (_) { /* detached animation */ }
-      }
-    }
-    return;
-  }
-
-  // Preserve the existing own-page synchronization behavior unchanged.
   const ownHeader = document.querySelector('#appScreen > .p-header');
   const master = [...(ownHeader?.querySelectorAll('.score-val.score-rank-sparkle-rainbow') || [])]
     .flatMap(element => element.getAnimations({subtree:false}))
@@ -4819,10 +4702,11 @@ function renderViewedUserSkill() {
   });
 
 
-  commitAdminSongCards('userDetailSkill', renderSkillTargetCards(target, {
-    readOnly: true,
-    emptyMessage: '記録がありません'
-  }));
+  $('userDetailSkill').innerHTML = renderUserDetailSkillSections({
+    hotCards: renderAdminRegisteredRecords(target.hotRows, 'SKILL', true),
+    otherCards: renderAdminRegisteredRecords(target.otherRows, 'SKILL', true)
+  });
+  requestAnimationFrame(() => { clampAdminTwoColumnTitles(); scheduleAdminPublicPulsePhase(); });
 }
 
 function setUserDetailTab(tab) {
@@ -4832,7 +4716,6 @@ function setUserDetailTab(tab) {
 
   $('userDetailSkill').classList.toggle('hidden', tab !== 'skill');
   $('userDetailRecords').classList.toggle('hidden', tab !== 'records');
-  scheduleAdminSongCardLayout($(tab === 'skill' ? 'userDetailSkill' : 'userDetailRecords'));
 }
 
 function renderViewedUserRegisteredScores() {
@@ -4840,54 +4723,38 @@ function renderViewedUserRegisteredScores() {
     .sort(compareSkillRows);
   const visibleRows = getVisibleRegisteredRows(data, viewedUserRegisteredBatch);
 
-  commitAdminSongCards('userDetailRecords', renderRegisteredSongList(visibleRows, data.length, true));
+  $('userDetailRecords').innerHTML = renderRegisteredSongList(visibleRows, data.length, true);
+  requestAnimationFrame(() => { clampAdminTwoColumnTitles(); scheduleAdminPublicPulsePhase(); });
 }
 
 async function loadViewedUserRegisteredScores() {
   if (!viewedUserId || !viewedUserProfile?.registration_public) return;
-  const requestSeq = userDetailRequestSeq;
-  const requestedUserId = viewedUserId;
 
-  $('userDetailRecords').__adminSongMarkup = null;
   $('userDetailRecords').innerHTML = '<div class="empty-state">読み込み中...</div>';
 
   try {
-    const rows = await getPublicUserRegisteredScores(
-      requestedUserId,
+    viewedUserRegisteredScores = await getPublicUserRegisteredScores(
+      viewedUserId,
       activeInstrument,
       activeVersionId
     );
-    if (requestSeq !== userDetailRequestSeq || viewedUserId !== requestedUserId) return;
-    viewedUserRegisteredScores = rows;
     viewedUserRegisteredBatch = 1;
-    viewedUserRegisteredLoaded = true;
     renderViewedUserRegisteredScores();
   } catch (e) {
-    if (requestSeq !== userDetailRequestSeq || viewedUserId !== requestedUserId) return;
     $('userDetailRecords').innerHTML =
       `<div class="empty-state">登録曲の取得に失敗しました: ${esc(e.message)}</div>`;
   }
 }
 
 async function openUserDetail(userId, username, returnTarget = null) {
-  const requestSeq = ++userDetailRequestSeq;
   userDetailReturnTarget = returnTarget;
   viewedUserId = userId;
   viewedUserName = username;
-  viewedUserScores = [];
   viewedUserProfile = null;
   viewedUserRegisteredScores = [];
   viewedUserRegisteredBatch = 1;
-  viewedUserRegisteredLoaded = false;
 
   $('userDetailName').textContent = username;
-  // ユーザー切替時は前ユーザーのスキル値・スキルカラーを即時クリアする。
-  ['userDetailTotal', 'userDetailHot', 'userDetailOther'].forEach(id => {
-    const el = $(id);
-    el.textContent = '—';
-    el.className = 'score-val user-detail-skill-value';
-  });
-  $('userDetailSkill').__adminSongMarkup = null;
   $('userDetailSkill').innerHTML = '<div class="empty-state">読み込み中...</div>';
   $('userDetailRecords').innerHTML = '';
   $('userDetailTabs').classList.add('hidden');
@@ -4906,10 +4773,7 @@ async function openUserDetail(userId, username, returnTarget = null) {
       getUserPublicProfile(userId)
     ]);
 
-    if (requestSeq !== userDetailRequestSeq || viewedUserId !== userId) return;
-    const orderedRows = await attachMasterOrder(skillRows, activeVersionId);
-    if (requestSeq !== userDetailRequestSeq || viewedUserId !== userId) return;
-    viewedUserScores = orderedRows;
+    viewedUserScores = await attachMasterOrder(skillRows, activeVersionId);
     viewedUserProfile = profile;
     renderViewedUserSkill();
 
@@ -4928,14 +4792,12 @@ async function openUserDetail(userId, username, returnTarget = null) {
       link.classList.remove('hidden');
     }
   } catch (e) {
-    if (requestSeq !== userDetailRequestSeq || viewedUserId !== userId) return;
     $('userDetailSkill').innerHTML =
       `<div class="empty-state">取得に失敗しました: ${esc(e.message)}</div>`;
   }
 }
 
 function closeUserDetail(returnToOrigin = false) {
-  ++userDetailRequestSeq; // 閉じた画面への遅延レスポンスを破棄
   const returnTarget = userDetailReturnTarget;
   const detailPage = $('userDetailPage');
   detailPage.classList.remove('user-detail-open');
@@ -4943,7 +4805,6 @@ function closeUserDetail(returnToOrigin = false) {
   viewedUserScores = [];
   viewedUserRegisteredScores = [];
   viewedUserRegisteredBatch = 1;
-  viewedUserRegisteredLoaded = false;
   viewedUserProfile = null;
   viewedUserId = null;
   viewedUserName = '';
@@ -7675,7 +7536,7 @@ $('userDetailTabs').addEventListener('click', async e => {
   const tab = button.dataset.userDetailTab;
   setUserDetailTab(tab);
 
-  if (tab === 'records' && !viewedUserRegisteredLoaded) {
+  if (tab === 'records' && !viewedUserRegisteredScores.length) {
     await loadViewedUserRegisteredScores();
   }
 });
