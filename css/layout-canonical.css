@@ -135,11 +135,11 @@ body.app-scroll-layout :is(#appScreen:not(.hidden),#userDetailPage.user-detail-o
   overscroll-behavior:contain;
   overscroll-behavior-y:contain;
   -webkit-overflow-scrolling:touch;
-  /* Shared own/viewed record insets. Desktop side-menu geometry
-     keeps its existing left offset in admin-app.css. */
+  /* The admin desktop workspace supplies the sidebar inset as an inherited
+     token; other screens keep the shared 6px inset. */
   padding-top:6px;
   padding-right:6px;
-  padding-left:6px;
+  padding-left:var(--ui-scroll-body-pad-left,6px);
   box-sizing:border-box;
 }
 

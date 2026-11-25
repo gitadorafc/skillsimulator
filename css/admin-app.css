@@ -1320,7 +1320,7 @@ body.admin-new-ui.light-mode #adminBoardEditorMask #btnAdminBoardSave {
  }
 
 @media (min-width:1100px) {
- body.admin-new-ui {--admin-side-width:290px;--admin-top-height:50px;}
+ body.admin-new-ui {--admin-side-width:290px;--admin-top-height:50px;--ui-scroll-body-pad-left:calc(var(--admin-side-width) + 6px);}
  body.admin-new-ui #appRoot {display:block;width:100%;max-width:none;min-width:0;box-sizing:border-box;}
  body.admin-new-ui #appScreen:not(.hidden) {
    display:grid;grid-template-columns:minmax(0,1fr);
@@ -1446,7 +1446,7 @@ body.admin-new-ui.light-mode #adminBoardEditorMask #btnAdminBoardSave {
    border:1px solid #3d678a;background:#16263c;box-shadow:0 12px 30px #000b;
  }
  body.admin-new-ui #appScreen>.p-container {
-   display:block;margin-left:0;padding-left:calc(var(--admin-side-width) + 6px);width:100%;
+   display:block;margin-left:0;width:100%;
    min-width:0;max-width:none;box-sizing:border-box;
  }
  body.admin-new-ui:not(.skill-target-columns) :is(#viewAllManage,#viewSkill,#userDetailSkill,#userDetailRecords) {--ar-cols:30px 64px minmax(125px,1fr) 80px 54px 92px 52px 78px 82px 42px;}
@@ -1514,9 +1514,9 @@ body.admin-new-ui.light-mode #adminBoardEditorMask #btnAdminBoardSave {
 
  /* In the desktop workspace, the mask is the sole vertical scroller.
     Compact modal nested scrollers must not swallow wheel gestures over
-    help, catalog, ranking, or the skill-history image preview. Mobile retains
+    help, catalog, both ranking pages, or the skill-history image preview. Mobile retains
     the original independently scrolling modal body. */
- body.admin-new-ui :is(#howToMask .howto-body,#songCatalogMask .song-catalog-body,#officialSkillRankingMask .official-ranking-body,#skillHistoryMask .skill-history-body) {
+ body.admin-new-ui :is(#howToMask .howto-body,#songCatalogMask .song-catalog-body,#skillRankingMask .skill-ranking-body,#officialSkillRankingMask .official-ranking-body,#skillHistoryMask .skill-history-body) {
    flex:0 0 auto;
    overflow:visible;
    overscroll-behavior:auto;
