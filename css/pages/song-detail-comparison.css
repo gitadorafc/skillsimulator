@@ -1,0 +1,68 @@
+/* === APP VERSION 3.11.0: バスミラー全ユーザー公開・歴代自己ベスト整列 === */
+.rate-personal-best{
+  display:block !important;
+  padding:10px 14px !important;
+}
+.rate-personal-best-label{
+  display:block !important;
+  margin:0 0 6px !important;
+  color:#94a3b8 !important;
+  -webkit-text-fill-color:#94a3b8 !important;
+  font-size:10px !important;
+  font-weight:900 !important;
+  line-height:1.2 !important;
+}
+.option-share-title{
+  color:#94a3b8 !important;
+  -webkit-text-fill-color:#94a3b8 !important;
+  font-size:10px !important;
+  font-weight:900 !important;
+  line-height:1.2 !important;
+}
+.rate-compare-section-title{
+  flex:0 0 auto;
+  padding:10px 14px 0;
+  color:#94a3b8;
+  font-size:10px;
+  font-weight:900;
+  line-height:1.2;
+}
+.rate-personal-best-detail{
+  display:flex;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:6px;
+  min-width:0;
+}
+.rate-personal-best-detail .rate-personal-best-value{
+  margin:0 !important;
+  line-height:1.2 !important;
+}
+.rate-personal-best-detail .rate-personal-best-badges{
+  display:flex !important;
+  align-items:center !important;
+  gap:5px !important;
+  margin:0 !important;
+}
+.rate-personal-best-detail .rate-personal-best-version{
+  flex:0 1 auto !important;
+  min-width:0 !important;
+  margin:0 !important;
+  line-height:1.2 !important;
+  white-space:normal !important;
+  overflow:visible !important;
+  text-overflow:clip !important;
+}
+.rate-option-summary:not(:empty){
+  border-top:1px solid #334155 !important;
+}
+body.light-mode .rate-option-summary:not(:empty){
+  border-top-color:#94a3b8 !important;
+}
+body.light-mode .rate-personal-best-label,
+body.light-mode .option-share-title,
+body.light-mode .rate-compare-section-title{
+  color:#64748b !important;
+  -webkit-text-fill-color:#64748b !important;
+}
+
