@@ -1,0 +1,19 @@
+/* === APP VERSION 4.12.1: タブ直下・曲カード間隔 / スキルヘッダー高さ統一 === */
+/* スキル値の文字サイズは維持し、TOTAL/HOT/OTHERの帯だけ少し低くする。 */
+.score-row{
+  height:54px !important;
+}
+
+/* 各タブの最初の要素を、ユーザー行同士と同じ4px間隔で開始する。 */
+.p-container{
+  padding-top:4px !important;
+}
+body:not(.admin-new-ui) #searchArea.search-bar-container{
+  padding-top:4px !important;
+}
+
+/* 登録曲側に残っていた下マージンを外し、全カードをgap:4pxへ統一する。 */
+:is(#viewAllManage,#userDetailRecords) .dc-card{
+  margin-bottom:0 !important;
+}
+

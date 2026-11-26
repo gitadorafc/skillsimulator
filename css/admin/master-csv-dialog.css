@@ -1,0 +1,124 @@
+/* === APP VERSION 4.12.5: 管理画面 曲マスターCSV入出力 === */
+#btnAdminCsvDownload{
+  background:var(--app-accent);
+  white-space:nowrap;
+}
+#btnAdminCsvUpload{
+  background:#c2410c;
+  white-space:nowrap;
+}
+body.light-mode :is(#btnAdminCsvDownload,#btnAdminCsvUpload){
+  color:#fff !important;
+}
+.admin-csv-sheet{
+  width:min(94vw,560px) !important;
+  max-height:calc(100dvh - 32px) !important;
+  overflow-y:auto !important;
+  border-radius:12px !important;
+  padding:16px !important;
+  background:#0f172a !important;
+  color:#f8fafc !important;
+}
+.admin-csv-sheet h3{
+  margin-bottom:10px;
+  font-size:16px;
+}
+.admin-csv-note{
+  margin-bottom:10px;
+  padding:8px 10px;
+  border:1px solid #334155;
+  border-radius:7px;
+  background:#111827;
+  color:#cbd5e1;
+  font-size:10px;
+  line-height:1.55;
+}
+.admin-csv-sheet label:not(.admin-csv-current){
+  display:block;
+  margin:8px 0 4px;
+  color:#cbd5e1;
+  font-size:11px;
+  font-weight:900;
+}
+.admin-csv-sheet :is(input[type="text"],input[type="file"],select){
+  width:100%;
+  min-height:42px;
+  padding:7px 10px;
+  border:1px solid #475569;
+  border-radius:7px;
+  background:#111827;
+  color:#f8fafc;
+  font-size:12px;
+}
+.admin-csv-new-version{
+  margin-top:10px;
+  padding:10px;
+  border:1px solid #475569;
+  border-radius:8px;
+  background:#111827;
+}
+.admin-csv-current{
+  display:flex;
+  align-items:center;
+  gap:7px;
+  margin-top:10px;
+  color:#e2e8f0;
+  font-size:11px;
+  font-weight:900;
+}
+.admin-csv-current input{
+  width:18px !important;
+  min-height:18px !important;
+  height:18px !important;
+  accent-color:var(--app-accent-pressed);
+}
+.admin-csv-status{
+  min-height:18px;
+  margin-top:8px;
+  color:#93c5fd;
+  font-size:10px;
+  font-weight:900;
+}
+.admin-csv-actions{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:7px;
+  margin-top:8px;
+}
+.admin-csv-actions button{
+  min-height:40px;
+  border:0;
+  border-radius:7px;
+  font-weight:900;
+}
+#btnAdminCsvImport{ background:var(--app-accent);color:#fff; }
+#btnAdminCsvCancel{ background:#334155;color:#e2e8f0; }
+body.light-mode .admin-csv-sheet{
+  background:#f8fafc !important;
+  color:#111827 !important;
+}
+body.light-mode .admin-csv-note,
+body.light-mode .admin-csv-new-version{
+  border-color:#cbd5e1;
+  background:#fff;
+  color:#475569;
+}
+body.light-mode .admin-csv-sheet label:not(.admin-csv-current),
+body.light-mode .admin-csv-current{
+  color:#111827;
+}
+body.light-mode .admin-csv-sheet :is(input[type="text"],input[type="file"],select){
+  border-color:#94a3b8;
+  background:#fff;
+  color:#111827;
+}
+@media(max-width:620px){
+  #adminSongToolbar{
+    grid-template-columns:1fr 1fr;
+  }
+  #adminSongToolbar :is(button,select){
+    width:100%;
+    min-width:0;
+  }
+}
+

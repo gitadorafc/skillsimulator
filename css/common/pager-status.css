@@ -1,0 +1,26 @@
+/* === APP VERSION 4.6.7: ページ表示を「前へ・現在/全体・次へ」に統一 === */
+#userListPager .user-pager-status,
+.admin-master-pager .admin-master-status{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-width:76px;
+  height:34px;
+  padding:0 12px;
+  border:1px solid #475569;
+  border-radius:7px;
+  background:#111827;
+  color:#e5e7eb;
+  font-size:12px;
+  font-weight:900;
+  line-height:1;
+  box-sizing:border-box;
+}
+body.light-mode #userListPager .user-pager-status,
+body.light-mode .admin-master-pager .admin-master-status{
+  background:#f8fafc !important;
+  color:#111827 !important;
+  -webkit-text-fill-color:#111827 !important;
+  border-color:#94a3b8 !important;
+}
+
