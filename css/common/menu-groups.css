@@ -1,0 +1,26 @@
+/* 要望・不具合 */
+
+/* === APP VERSION 4.4.2: MENUを用途別に整理 === */
+#menuMask .app-menu-group-label{
+  margin:9px 2px 3px;
+  padding-top:9px;
+  border-top:1px solid #253247;
+  color:#94a3b8;
+  font-size:9px;
+  font-weight:900;
+  letter-spacing:.08em;
+}
+#menuMask .app-menu-head + .app-menu-group-label{
+  margin-top:0;
+  padding-top:0;
+  border-top:0;
+}
+#menuMask .app-menu-item{
+  margin:4px 0;
+  padding:12px;
+}
+body.light-mode #menuMask .app-menu-group-label{
+  border-color:#cbd5e1;
+  color:#64748b;
+}
+

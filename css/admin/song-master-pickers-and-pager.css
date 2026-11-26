@@ -1,0 +1,133 @@
+/* === APP VERSION 4.7.0: 全ユーザー向け曲名分類／管理者向け一括保存 === */
+.admin-song-picker{
+  display:grid;
+  grid-template-columns:minmax(112px, .72fr) minmax(0, 1.7fr);
+  gap:8px;
+  margin-top:7px;
+}
+.admin-song-picker.hidden{ display:none !important; }
+.admin-song-picker-field > label{
+  display:block;
+  margin:0 0 5px;
+  font-size:12px;
+  font-weight:900;
+}
+.admin-song-picker select{
+  width:100%;
+  min-height:42px;
+  font-size:13px;
+}
+.master-initial-cell{
+  min-width:108px;
+  width:108px;
+}
+#adminMasterTable .master-initial-cell select,
+#adminMasterTable .master-order-cell input{
+  width:100%;
+  min-width:0;
+  box-sizing:border-box;
+}
+#btnAdminSaveAllSongs{
+  background:#059669;
+  white-space:nowrap;
+}
+#btnAdminSaveAllSongs:disabled{
+  opacity:.55;
+}
+body.light-mode #btnAdminSaveAllSongs{
+  background:#059669;
+  color:#fff;
+}
+@media (max-width:600px){
+  .admin-song-picker{
+    grid-template-columns:112px minmax(0, 1fr);
+    gap:6px;
+  }
+  .admin-song-picker select{ font-size:12px; }
+  #adminSongToolbar{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+  }
+  #adminSongToolbar input{
+    grid-column:1 / -1;
+  }
+  #adminSongToolbar button{
+    min-height:40px;
+  }
+}
+
+/* === APP VERSION 4.6.3: 曲マスターのページ番号ナビ === */
+.admin-master-pager{
+  gap:4px;
+  flex-wrap:nowrap;
+  padding-left:6px;
+  padding-right:6px;
+}
+.admin-master-nearby{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:4px;
+  min-width:0;
+}
+.admin-master-pager button.admin-master-page,
+.admin-master-pager button.admin-master-arrow{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:34px;
+  min-width:34px;
+  max-width:34px;
+  height:34px;
+  min-height:34px;
+  padding:0;
+  border:1px solid #475569;
+  border-radius:7px;
+  background:#111827;
+  color:#e5e7eb;
+  font-size:12px;
+  font-weight:900;
+}
+.admin-master-pager button.admin-master-page.active{
+  background:var(--app-accent);
+  border-color:var(--app-accent-pressed);
+  color:#fff;
+}
+.admin-master-jump{
+  flex:0 0 auto;
+  display:inline-flex;
+  align-items:center;
+}
+.admin-master-jump select{
+  height:34px;
+  min-width:76px;
+  padding:0 30px 0 8px !important;
+  border:1px solid #475569;
+  border-radius:7px;
+  background-color:#111827;
+  color:#e5e7eb;
+  background-position:calc(100% - 8px) 50% !important;
+  background-size:14px 14px !important;
+  font-size:12px;
+  font-weight:900;
+  text-align:center;
+}
+body.light-mode .admin-master-pager button.admin-master-page,
+body.light-mode .admin-master-pager button.admin-master-arrow,
+body.light-mode .admin-master-jump select{
+  background-color:#f8fafc !important;
+  color:#111827 !important;
+  -webkit-text-fill-color:#111827 !important;
+  border-color:#94a3b8 !important;
+}
+body.light-mode .admin-master-pager button.admin-master-page.active{
+  background:var(--app-accent) !important;
+  color:#fff !important;
+  -webkit-text-fill-color:#fff !important;
+  border-color:var(--app-accent-pressed) !important;
+}
+@media (max-width:520px){
+  .admin-master-nearby{ display:none; }
+  .admin-master-jump select{ min-width:92px; }
+}
+
