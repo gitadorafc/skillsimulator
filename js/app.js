@@ -5370,7 +5370,7 @@ async function loadAdminSongs() {
       activeVersionId,
       $('adminSongTypeFilter')?.value || '',
       $('adminSongImageFilter')?.value || '',
-      $('adminSongInitialFilter')?.value || ''
+      $('adminMasterInitialFilter')?.value || ''
     );
 
     const rows = result.rows;
@@ -7273,12 +7273,12 @@ $('adminSongSearch').addEventListener('input', () => {
   adminSongPage = 0;
   adminSongSearchTimer = setTimeout(loadAdminSongs,250);
 });
-const adminSongInitialFilter = $('adminSongInitialFilter');
-if (adminSongInitialFilter) {
+const adminMasterInitialFilter = $('adminMasterInitialFilter');
+if (adminMasterInitialFilter) {
   for (const group of ADMIN_MASTER_INITIAL_GROUPS) {
-    adminSongInitialFilter.add(new Option(group, group));
+    adminMasterInitialFilter.add(new Option(group, group));
   }
-  adminSongInitialFilter.addEventListener('change', () => {
+  adminMasterInitialFilter.addEventListener('change', () => {
     adminSongPage = 0;
     loadAdminSongs();
   });
