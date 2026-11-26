@@ -50,7 +50,7 @@ async function bootstrap() {
     document.getElementById('introScreen')?.classList.remove('hidden');
   }
 
-  await import('./app.js?v=4_37_62');
+  await import('./app.js?v=4_37_81');
   await loadClassicScript('./js/version-check.js?v=4_37_1');
 }
 

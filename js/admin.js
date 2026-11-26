@@ -31,8 +31,42 @@ export async function getAdminSongMasterPage(
   pageSize = 100,
   versionId = null,
   typeFilter = '',
-  imageFilter = ''
+  imageFilter = '',
+  initialFilter = ''
 ) {
+  const selectedInitial = String(initialFilter || '').trim();
+  // Existing DB RPC has no exact initial-group argument. For this admin-only
+  // filter, fetch the filtered catalog in 200-row batches before paginating.
+  // This keeps counts and pages exact without changing the database function.
+  if (selectedInitial) {
+    const requestedPage = Math.max(0, Number(page) || 0);
+    const requestedSize = Math.min(200, Math.max(25, Number(pageSize) || 100));
+    const fetchSize = 200;
+    const firstPage = await getAdminSongMasterPage(
+      keyword, 0, fetchSize, versionId, typeFilter, imageFilter
+    );
+    const catalogRows = [...firstPage.rows];
+    const pageCount = Math.ceil(firstPage.total / fetchSize);
+    // Bound parallel calls to avoid excessive database connections.
+    for (let start = 1; start < pageCount; start += 4) {
+      const pages = await Promise.all(
+        Array.from({ length: Math.min(4, pageCount - start) }, (_, index) =>
+          getAdminSongMasterPage(
+            keyword, start + index, fetchSize, versionId, typeFilter, imageFilter
+          )
+        )
+      );
+      for (const result of pages) catalogRows.push(...result.rows);
+    }
+    const matches = catalogRows.filter(row => row.initial_group === selectedInitial);
+    return {
+      rows: matches.slice(requestedPage * requestedSize, (requestedPage + 1) * requestedSize),
+      total: matches.length,
+      page: requestedPage,
+      pageSize: requestedSize
+    };
+  }
+
   const safePage = Math.max(0, Number(page) || 0);
   const safeSize = Math.min(200, Math.max(25, Number(pageSize) || 100));
 

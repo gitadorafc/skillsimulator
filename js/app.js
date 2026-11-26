@@ -912,7 +912,7 @@ async function deleteMasterSongTitle(title) {
   if (error) throw error;
 }
 
-import * as adminApi from './admin.js?v=4_36_9';
+import * as adminApi from './admin.js?v=4_37_81';
 import * as adminBoard from './admin-board.js?v=4_36_3';
 import { listUserSummaries, getUserSkillTargets, getSongRateComparison, getSongPersonalBestHistory, getSongOptionDistribution, getMyFavorites, removeFavorite } from './users.js?v=4_37_0';
 
@@ -5369,7 +5369,8 @@ async function loadAdminSongs() {
       ADMIN_SONG_PAGE_SIZE,
       activeVersionId,
       $('adminSongTypeFilter')?.value || '',
-      $('adminSongImageFilter')?.value || ''
+      $('adminSongImageFilter')?.value || '',
+      $('adminSongInitialFilter')?.value || ''
     );
 
     const rows = result.rows;
@@ -7272,6 +7273,16 @@ $('adminSongSearch').addEventListener('input', () => {
   adminSongPage = 0;
   adminSongSearchTimer = setTimeout(loadAdminSongs,250);
 });
+const adminSongInitialFilter = $('adminSongInitialFilter');
+if (adminSongInitialFilter) {
+  for (const group of ADMIN_MASTER_INITIAL_GROUPS) {
+    adminSongInitialFilter.add(new Option(group, group));
+  }
+  adminSongInitialFilter.addEventListener('change', () => {
+    adminSongPage = 0;
+    loadAdminSongs();
+  });
+}
 $('adminSongImageFilter')?.addEventListener('change', () => { adminSongPage = 0; loadAdminSongs(); });
 $('adminSongTypeFilter')?.addEventListener('change', () => {
   adminSongPage = 0;

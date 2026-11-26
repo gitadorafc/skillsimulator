@@ -56,6 +56,7 @@ body.light-mode #adminMasterTable .master-initial-cell select{
   font-weight:900;
   white-space:nowrap;
 }
+#adminSongInitialFilter{ width:142px; }
 #adminSongTypeFilter{ width:112px; }
 body.light-mode #adminSongToolbar .admin-toolbar-select,
 body.light-mode #adminUserToolbar select{
