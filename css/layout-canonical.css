@@ -139,8 +139,15 @@ body.app-scroll-layout :is(#appScreen:not(.hidden),#userDetailPage.user-detail-o
      token; other screens keep the shared 6px inset. */
   padding-top:6px;
   padding-right:6px;
-  padding-left:var(--ui-scroll-body-pad-left,6px);
+  padding-left:6px;
   box-sizing:border-box;
+}
+
+/* Own-page work area starts at the viewport edge, so account for the
+   admin sidebar here only. Viewed-user sheets are already inset by their
+   fixed-position container and must not receive a second sidebar offset. */
+body.admin-new-ui.app-scroll-layout #appScreen:not(.hidden).ui-scroll-frame > .ui-scroll-body:not(.hidden) {
+  padding-left:var(--ui-scroll-body-pad-left,6px);
 }
 
 /* 固定領域に旧背景画像・影・filterを持ち込まない。 */

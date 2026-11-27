@@ -5118,7 +5118,12 @@ async function openMyPage(fromMenu = false) {
 
 async function changeOwnUsername() {
   const username = $('mypageUsernameInput').value.trim();
-  if (!username) throw new Error('ユーザー名を入力してください。');
+  if (!validateUsername(username)) {
+    throw new Error('ユーザー名は1〜32文字で入力してください。日本語も使用できます。');
+  }
+  if (isEmailLikeUsername(username)) {
+    throw new Error('メールアドレス形式のユーザー名は登録できません。');
+  }
 
   const data = await accountAdmin('rename_self', { username });
   $('mypageUsernameInput').value = data.username;
