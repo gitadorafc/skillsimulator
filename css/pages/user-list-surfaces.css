@@ -1,0 +1,34 @@
+/* === APP VERSION 4.13.1: ダークユーザー一覧の面色・9500行を統一 === */
+body:not(.light-mode){
+  --app-dark-user-list-bg:#0b1220;
+  --app-dark-control-bg:#111827;
+}
+body:not(.light-mode):has(#viewUsers:not(.hidden)) .p-container{
+  background:var(--app-dark-user-list-bg) !important;
+}
+
+/* 固定領域・一覧下地・ユーザー行を同じ面色にする。 */
+body:not(.light-mode) #viewUsers,
+body:not(.light-mode) #viewUsers #userList,
+body:not(.light-mode) #viewUsers #userListPager,
+body:not(.light-mode) #viewUsers .user-list-row,
+body:not(.light-mode) #viewUsers .user-list-row:active{
+  background:var(--app-dark-user-list-bg) !important;
+  background-color:var(--app-dark-user-list-bg) !important;
+  background-image:none !important;
+  box-shadow:none !important;
+  filter:none !important;
+}
+
+/* 9500ユーザー行の赤・ピンク系の枠と背景だけを外し、文字演出は維持する。 */
+body:not(.light-mode) #viewUsers .user-list-row.user-list-row-sparkle-rainbow,
+body:not(.light-mode) #viewUsers .user-list-row.user-list-row-sparkle-rainbow:active{
+  border:1px solid #475569 !important;
+  background:var(--app-dark-user-list-bg) !important;
+  background-color:var(--app-dark-user-list-bg) !important;
+  background-image:none !important;
+  box-shadow:none !important;
+  animation:none !important;
+  filter:none !important;
+}
+

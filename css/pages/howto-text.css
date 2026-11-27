@@ -1,0 +1,13 @@
+/* 使い方：説明文と箇条書きの文字サイズを揃え、スクロール時の崩れを防ぐ。 */
+.howto-body{overflow-anchor:none;}
+.howto-body section p{margin:9px 0 0;line-height:1.8;overflow-wrap:anywhere;}
+.howto-body section p+p{margin-top:8px;}
+.howto-body section ul{
+  margin:8px 0 0;padding:0 0 0 1.5em;
+  list-style:disc outside;color:#cbd5e1;font-size:11px;line-height:1.8;
+}
+.howto-body section li{display:list-item;font-size:inherit;line-height:inherit;overflow-wrap:anywhere;}
+.howto-body section li+li{margin-top:4px;}
+
+body.light-mode .howto-body section ul{color:#334155;}
+

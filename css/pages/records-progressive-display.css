@@ -1,0 +1,31 @@
+/* === APP VERSION 4.13.0: 公開登録曲をHOT/OTHER各25曲ずつ段階表示 === */
+.user-detail-records-more{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:6px;
+  padding:10px 6px 4px;
+  color:#94a3b8;
+  font-size:10px;
+  font-weight:800;
+}
+.user-detail-records-more button{
+  width:min(100%,240px);
+  min-height:38px;
+  border:1px solid var(--app-accent);
+  border-radius:7px;
+  background:var(--app-accent);
+  color:#ffffff;
+  font-size:12px;
+  font-weight:900;
+  cursor:pointer;
+}
+.user-detail-records-more button:active{
+  border-color:var(--app-accent-pressed);
+  background:var(--app-accent-pressed);
+}
+body.light-mode .user-detail-records-more{
+  background:var(--app-light-page-bg) !important;
+  color:#64748b !important;
+}
+

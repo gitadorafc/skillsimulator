@@ -1,0 +1,46 @@
+/* === APP VERSION 4.13.2: ユーザー詳細の固定領域・見出し背景を統一 === */
+/* ダーク／ライトともタブの上下余白を同じにし、固定領域の縦幅を揃える。 */
+.user-detail-tabs{
+  gap:6px !important;
+  padding:6px !important;
+  box-sizing:border-box !important;
+}
+
+/* === APP VERSION 4.13.3: 自ページ／ユーザー詳細の登録曲を50件ずつ段階表示 === */
+.own-registered-records-more{
+  grid-column:1 / -1;
+  width:100%;
+  box-sizing:border-box;
+}
+body.light-mode .own-registered-records-more{
+  background:var(--app-light-page-bg) !important;
+}
+
+/* === APP VERSION 4.13.4: 登録曲の段階表示件数を表示方式別に切替 === */
+
+/* === APP VERSION 4.13.5: スキル対象見出しを横並びONのデザインへ統一 === */
+
+/* === APP VERSION 4.13.8: カード枠を4.13.5以前の描画へ復元 === */
+
+/* === APP VERSION 4.13.10: iPhone Safari最下部バウンド時の固定ずれを防止 === */
+html.ios-webkit,
+html.ios-webkit body{
+  overscroll-behavior-y:none;
+}
+
+/* === APP VERSION 4.13.11: ページ最下部に操作しやすい余白を確保 === */
+:root{
+  --app-page-bottom-space:calc(72px + env(safe-area-inset-bottom,0px));
+}
+.p-container,
+.user-detail-body{
+  padding-bottom:var(--app-page-bottom-space) !important;
+}
+
+/* === APP VERSION 4.13.13: ダークモード登録タブの背景色を統一 === */
+body:not(.light-mode) #viewAllManage,
+body:not(.light-mode) #viewAllManage .own-registered-records-more{
+  background:#0b1220 !important;
+  background-color:#0b1220 !important;
+  background-image:none !important;
+}

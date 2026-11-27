@@ -1,0 +1,22 @@
+/* === APP VERSION 4.27.19: 管理者ユーザー一覧 スキル表示・複数削除 === */
+.admin-user-select{
+  display:flex;align-items:center;justify-content:center;flex:0 0 auto;
+  width:26px;height:28px;cursor:pointer;
+}
+.admin-user-select input{width:18px;height:18px;margin:0;accent-color:var(--app-accent);}
+.admin-user-skills{
+  display:flex;align-items:center;gap:8px;flex:0 0 auto;margin-left:auto;
+  color:#cbd5e1;font-size:10px;font-weight:900;white-space:nowrap;
+}
+.admin-user-skills span{display:inline-flex;gap:3px;align-items:baseline;}
+.admin-user-skills b{color:#94a3b8;font-size:9px;}
+#btnAdminDeleteSelectedUsers{background:#b91c1c;border-color:#dc2626;color:#fff;}
+#btnAdminDeleteSelectedUsers:disabled{opacity:.45;cursor:not-allowed;}
+#adminSelectedUserCount{display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;padding:0 5px;margin-left:3px;border-radius:999px;background:rgba(255,255,255,.16);font-size:9px;}
+body.light-mode .admin-user-skills{color:#334155;}
+body.light-mode .admin-user-skills b{color:#64748b;}
+@media(max-width:720px){
+  .admin-card-user-heading{flex-wrap:wrap;}
+  .admin-user-skills{width:100%;margin-left:36px;justify-content:flex-start;}
+}
+
