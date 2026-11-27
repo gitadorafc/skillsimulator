@@ -96,7 +96,8 @@ export async function saveScore({
   const payload = {
     song_id: songId,
     song_request_id: requestId,
-    achievement_rate: Math.floor((rate + Number.EPSILON) * 100) / 100,
+    // 達成率は小数第2位までを保持する。浮動小数点誤差による0.01%の切り捨てを防ぐ。
+    achievement_rate: Math.floor(rate * 100 + 1e-9) / 100,
     fc: fc || null,
     play_option: playOption || 'NORMAL'
   };
