@@ -1,0 +1,124 @@
+/* === APP VERSION 4.12.11: 曲詳細のスキル値をマイページと同じデザインへ統一 === */
+.rate-compare-dialog .rate-skill[class*="skill-box-"]{
+  width:65px !important;
+  min-width:65px !important;
+  max-width:65px !important;
+  padding:6px 0 !important;
+  border-radius:3px !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  box-sizing:border-box !important;
+  font-family:inherit !important;
+  font-weight:900 !important;
+  line-height:1 !important;
+  letter-spacing:0 !important;
+  text-align:center !important;
+}
+
+body.light-mode .rate-compare-dialog .rate-skill[class*="skill-box-"]{
+  background-color:#f3f4f6 !important;
+}
+
+/* 編集ボタンの文字をボタン内の見た目上の中央へ揃える。 */
+#viewAllManage .dc-edit .m-action-btn.btn-e{
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  padding:1px 6px 0 !important;
+  line-height:1 !important;
+}
+/* === APP VERSION 4.12.18: 全画面のスキル帯・内枠を共通化 === */
+/* 横並び登録カードを正とし、左右5pxの帯を避けた位置に上下枠を描画する。 */
+:is(.dc-card .dc-skill,.rate-compare-dialog .rate-skill)[class*="skill-box-"]{
+  position:relative !important;
+  padding:0 !important;
+  border-top:0 !important;
+  border-bottom:0 !important;
+  overflow:hidden !important;
+  background-origin:border-box !important;
+  background-clip:border-box !important;
+}
+.dc-card .dc-skill[class*="skill-box-"]{
+  height:26px !important;
+  min-height:26px !important;
+  max-height:26px !important;
+  font-size:12px !important;
+}
+body.skill-target-columns .dc-card .dc-skill[class*="skill-box-"]{
+  height:21px !important;
+  min-height:21px !important;
+  max-height:21px !important;
+  font-size:11px !important;
+}
+.rate-compare-dialog .rate-skill[class*="skill-box-"]{
+  height:26px !important;
+  min-height:26px !important;
+  max-height:26px !important;
+  font-size:12px !important;
+}
+:is(.dc-card .dc-skill,.rate-compare-dialog .rate-skill)[class*="skill-box-"]::before{
+  content:"" !important;
+  display:block !important;
+  position:absolute;
+  left:5px;
+  right:5px;
+  top:0;
+  bottom:0;
+  border-top:1px solid #334155;
+  border-bottom:1px solid #334155;
+  pointer-events:none;
+  z-index:0;
+}
+/* 9500帯は数字を含む親要素ではなく、左右5pxの専用レイヤーだけを明滅させる。 */
+:is(.dc-card .dc-skill,.rate-compare-dialog .rate-skill).skill-box-sparkle-rainbow::after{
+  content:"";
+  display:block;
+  position:absolute;
+  inset:0;
+  background-image:
+    var(--skill-side-paint),
+    var(--skill-side-paint);
+  background-position:left top,right top;
+  background-size:5px 100%,5px 100%;
+  background-repeat:no-repeat,no-repeat;
+  opacity:1;
+  pointer-events:none;
+  z-index:1;
+}
+body.light-mode :is(.dc-card .dc-skill,.rate-compare-dialog .rate-skill)[class*="skill-box-"]::before{
+  border-top-color:#cbd5e1;
+  border-bottom-color:#cbd5e1;
+}
+:is(.dc-card .dc-skill,.rate-compare-dialog .rate-skill) > .dc-skill-value{
+  position:relative;
+  z-index:2;
+  width:100%;
+  height:100%;
+  min-width:0;
+  margin:0;
+  padding:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  box-sizing:border-box;
+  color:inherit;
+  -webkit-text-fill-color:inherit;
+  line-height:1;
+}
+
+/* 横並びカードのFC・EXC・オプションも、パートと同じ方式で文字を中央へ置く。 */
+body.skill-target-columns :is(
+  #viewSkill,
+  #userDetailSkill,
+  #viewAllManage,
+  #userDetailRecords
+) .dc-card :is(.fc-unified-badge,.opt-badge){
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  padding-top:0 !important;
+  padding-bottom:0 !important;
+  line-height:1 !important;
+}
+

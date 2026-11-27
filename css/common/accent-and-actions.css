@@ -1,0 +1,60 @@
+/* === APP VERSION 4.12.31: 操作用アクセントカラーを共通化 === */
+:root{
+  --app-accent:#3b82f6;
+  --app-accent-pressed:#2563eb;
+  --app-accent-soft:#eff6ff;
+}
+
+/* 選択タブ・主要アクションは同じ基準色を使う。 */
+.p-tab-btn.active,
+.user-detail-tab.active,
+.btn-add-inline:not(:disabled),
+.btn-submit:not(:disabled),
+.app-primary-button:not(:disabled),
+body.light-mode .p-tabs > .p-tab-btn.active,
+body.light-mode .user-detail-tabs > .user-detail-tab.active,
+body.light-mode .btn-add-inline:not(:disabled),
+body.light-mode .btn-submit:not(:disabled),
+body.light-mode button.app-primary-button:not(:disabled){
+  background:var(--app-accent) !important;
+  border-color:var(--app-accent) !important;
+  color:#ffffff !important;
+  -webkit-text-fill-color:#ffffff !important;
+}
+.btn-add-inline:not(:disabled):active,
+.btn-submit:not(:disabled):active,
+.app-primary-button:not(:disabled):active,
+body.light-mode .btn-add-inline:not(:disabled):active,
+body.light-mode .btn-submit:not(:disabled):active,
+body.light-mode button.app-primary-button:not(:disabled):active{
+  background:var(--app-accent-pressed) !important;
+  border-color:var(--app-accent-pressed) !important;
+}
+
+/* ライトモードの編集系は同じ青の文字・枠を使うアウトラインボタンにする。 */
+body.light-mode .btn-e,
+body.light-mode #viewAllManage button[data-edit-index],
+body.light-mode #viewAllManage .btn-edit,
+body.light-mode #viewAllManage .m-edit-btn,
+body.light-mode #viewAllManage .m-btn-edit,
+body.light-mode #viewAllManage .dc-edit .m-action-btn.btn-e,
+body.light-mode .rate-compare-edit-button{
+  background:var(--app-light-card-bg) !important;
+  border-color:var(--app-accent) !important;
+  color:var(--app-accent) !important;
+  -webkit-text-fill-color:var(--app-accent) !important;
+  box-shadow:none !important;
+}
+body.light-mode .btn-e:active,
+body.light-mode #viewAllManage button[data-edit-index]:active,
+body.light-mode #viewAllManage .btn-edit:active,
+body.light-mode #viewAllManage .m-edit-btn:active,
+body.light-mode #viewAllManage .m-btn-edit:active,
+body.light-mode #viewAllManage .dc-edit .m-action-btn.btn-e:active,
+body.light-mode .rate-compare-edit-button:active{
+  background:var(--app-accent-soft) !important;
+  border-color:var(--app-accent-pressed) !important;
+  color:var(--app-accent-pressed) !important;
+  -webkit-text-fill-color:var(--app-accent-pressed) !important;
+}
+

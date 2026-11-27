@@ -1,0 +1,135 @@
+/* === APP VERSION 4.12.28: ライトモードの面色を単一定義へ整理 === */
+body.light-mode{
+  --app-light-page-bg:#e5e7eb;
+  --app-light-card-bg:#f3f4f6;
+}
+
+/* ページ下地。タブ周囲も同じ色にして帯状の色差を残さない。 */
+body.light-mode .p-tabs,
+body.light-mode .p-container,
+body.light-mode #viewSkill,
+body.light-mode #viewAllManage,
+body.light-mode #viewUsers,
+body.light-mode .user-detail-body,
+body.light-mode .sk-section,
+body.light-mode .empty-state{
+  background:var(--app-light-page-bg) !important;
+  background-image:none !important;
+  color:#111827 !important;
+}
+
+/* 非選択の3タブすべてで背景を統一する。 */
+body.light-mode .p-tabs > .p-tab-btn:not(.active){
+  background:var(--app-light-page-bg) !important;
+  background-image:none !important;
+}
+
+/* 登録画面の固定操作領域。 */
+body.light-mode #searchArea,
+body.light-mode .record-search-row,
+body.light-mode .record-filter-row{
+  background:var(--app-light-page-bg) !important;
+  background-image:none !important;
+}
+body.light-mode .record-filter-row > *,
+body.light-mode .record-type-filter-field,
+body.light-mode .record-rank-filter-group,
+body.light-mode .record-rank-filter-field,
+body.light-mode .record-filter-row label,
+body.light-mode .record-filter-row label > span{
+  background:transparent !important;
+  background-image:none !important;
+}
+
+/* ユーザー一覧の一覧下地を1色にする。 */
+body.light-mode #viewUsers #userList,
+body.light-mode #viewUsers #userListPager{
+  background:var(--app-light-page-bg) !important;
+  background-color:var(--app-light-page-bg) !important;
+  background-image:none !important;
+}
+body.light-mode #viewUsers .user-list-row,
+body.light-mode #viewUsers .user-list-row:active,
+body.light-mode #viewUsers .user-list-row.user-list-row-sparkle-rainbow,
+body.light-mode #viewUsers .user-list-row.user-list-row-sparkle-rainbow:active{
+  background:var(--app-light-page-bg) !important;
+  background-color:var(--app-light-page-bg) !important;
+  background-image:none !important;
+  border:1px solid #8b98aa !important;
+  box-shadow:none !important;
+  animation:none !important;
+  filter:none !important;
+}
+
+/* 曲カード内のスキル帯も、カードと同じ明るさを維持する。 */
+body.light-mode .dc-card .dc-skill[class*="skill-box-"],
+body.light-mode .rate-compare-dialog .rate-skill[class*="skill-box-"]{
+  background-color:var(--app-light-card-bg) !important;
+}
+
+/* 白背景だった補助ボタンはページ下地色へ合わせる。 */
+body.light-mode .user-detail-tab:not(.active),
+body.light-mode #btnRefreshApp,
+body.light-mode #btnMenu,
+body.light-mode .favorite-toggle,
+body.light-mode .user-detail-back{
+  background-color:var(--app-light-page-bg) !important;
+  color:#111827 !important;
+  -webkit-text-fill-color:#111827 !important;
+}
+
+/* === APP VERSION 4.12.29: 検索行の残色・タブ配色・固定行の影を調整 === */
+/* 非選択タブはリンク色ではなく、状態差が自然な濃いグレーにする。 */
+body.light-mode .p-tabs > .p-tab-btn:not(.active){
+  color:#475569 !important;
+  -webkit-text-fill-color:#475569 !important;
+}
+body.light-mode .p-tabs > .p-tab-btn.active{
+  background:#4776b5 !important;
+  border-color:#3f6ba4 !important;
+  color:#ffffff !important;
+  -webkit-text-fill-color:#ffffff !important;
+}
+
+/* スキル対象・登録を含む固定ヘッダー下の影は使用しない。 */
+.p-header{
+  box-shadow:none !important;
+}
+
+/* === APP VERSION 4.12.30: ユーザー詳細のタブ・固定領域を共通化 === */
+/* ユーザー詳細もメインタブと同じ面・間隔・枠線にする。 */
+body.light-mode .user-detail-tabs{
+  gap:6px !important;
+  padding:6px !important;
+  background:var(--app-light-page-bg) !important;
+  border-color:#cbd5e1 !important;
+}
+body.light-mode .user-detail-tabs > .user-detail-tab:not(.active){
+  background:var(--app-light-page-bg) !important;
+  border:1px solid #94a3b8 !important;
+  border-radius:7px !important;
+  color:#475569 !important;
+  -webkit-text-fill-color:#475569 !important;
+  box-shadow:none !important;
+}
+body.light-mode .user-detail-tabs > .user-detail-tab.active{
+  background:#4776b5 !important;
+  border:1px solid #3f6ba4 !important;
+  border-radius:7px !important;
+  color:#ffffff !important;
+  -webkit-text-fill-color:#ffffff !important;
+  box-shadow:none !important;
+}
+
+/* スキル対象・登録曲のどちらでも固定領域下に影を出さない。 */
+.user-detail-sticky,
+body.light-mode .user-detail-sticky{
+  box-shadow:none !important;
+}
+
+/* 「登録曲 n件」の見出しに残っていた白背景をページ下地へ合わせる。 */
+body.light-mode #userDetailRecords .sk-section > h2{
+  background:var(--app-light-page-bg) !important;
+  background-image:none !important;
+}
+

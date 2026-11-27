@@ -1,0 +1,11 @@
+/* === APP VERSION 4.12.6: 曲候補の未選択表示を他のプレースホルダーと統一 === */
+#adminSongCandidate:disabled{
+  opacity:1 !important;
+  color:#64748b !important;
+  -webkit-text-fill-color:#64748b !important;
+}
+body.light-mode #adminSongCandidate:disabled{
+  color:#7b8798 !important;
+  -webkit-text-fill-color:#7b8798 !important;
+}
+
